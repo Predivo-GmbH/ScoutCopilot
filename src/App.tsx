@@ -6,6 +6,7 @@ import { LoginPage } from './features/auth/LoginPage'
 import { SignupPage } from './features/auth/SignupPage'
 import { OnboardingPage } from './features/auth/OnboardingPage'
 import { PricingPage } from './features/pricing/PricingPage'
+import { LandingPage } from './features/landing/LandingPage'
 import { AppShell } from './components/layout/AppShell'
 import { DashboardPage } from './features/dashboard/DashboardPage'
 import { SearchPage } from './features/search/SearchPage'
@@ -30,6 +31,7 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             {/* Public routes (no shell, no auth) */}
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/pricing" element={<PricingPage />} />
