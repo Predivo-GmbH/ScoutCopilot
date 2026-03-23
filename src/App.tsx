@@ -1,5 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { AuthProvider } from './features/auth/AuthContext'
+import { AuthGuard, AuthOnlyGuard } from './features/auth/AuthGuard'
+import { LoginPage } from './features/auth/LoginPage'
+import { SignupPage } from './features/auth/SignupPage'
+import { OnboardingPage } from './features/auth/OnboardingPage'
+import { PricingPage } from './features/pricing/PricingPage'
 import { AppShell } from './components/layout/AppShell'
 import { DashboardPage } from './features/dashboard/DashboardPage'
 import { SearchPage } from './features/search/SearchPage'
@@ -17,41 +23,40 @@ const queryClient = new QueryClient({
   },
 })
 
-// Placeholder for auth pages — will be replaced with real components
-function PlaceholderPage({ title }: { title: string }) {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold text-on-surface">{title}</h1>
-      <p className="mt-2 text-on-surface-variant">Coming soon.</p>
-    </div>
-  )
-}
-
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          {/* Auth routes (no shell) */}
-          <Route path="/login" element={<PlaceholderPage title="Login" />} />
-          <Route path="/signup" element={<PlaceholderPage title="Sign Up" />} />
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public routes (no shell, no auth) */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/pricing" element={<PricingPage />} />
 
-          {/* App routes (with shell) */}
-          <Route element={<AppShell />}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="/report/:id?" element={<ReportPage />} />
-            <Route path="/compare" element={<ComparisonPage />} />
-            <Route path="/watchlists" element={<WatchlistsPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/onboarding" element={<PlaceholderPage title="Onboarding" />} />
-          </Route>
+            {/* Onboarding: needs auth but no org check */}
+            <Route element={<AuthOnlyGuard />}>
+              <Route path="/onboarding" element={<OnboardingPage />} />
+            </Route>
 
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </BrowserRouter>
+            {/* Protected app routes (auth + org required) */}
+            <Route element={<AuthGuard />}>
+              <Route element={<AppShell />}>
+                <Route index element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/search" element={<SearchPage />} />
+                <Route path="/report/:id?" element={<ReportPage />} />
+                <Route path="/compare" element={<ComparisonPage />} />
+                <Route path="/watchlists" element={<WatchlistsPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+              </Route>
+            </Route>
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </QueryClientProvider>
   )
 }
