@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ScoutCopilot | Elite Scouting Report Export</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary-fixed": "#dae2fd",
+              "surface-container": "#171f33",
+              "primary-fixed-dim": "#b4c5ff",
+              "on-secondary-fixed": "#002113",
+              "surface": "#0b1326",
+              "surface-tint": "#b4c5ff",
+              "error-container": "#93000a",
+              "secondary-fixed": "#6ffbbe",
+              "surface-container-lowest": "#060d20",
+              "on-secondary-fixed-variant": "#005236",
+              "inverse-primary": "#0053db",
+              "on-primary-fixed-variant": "#003ea8",
+              "primary": "#b4c5ff",
+              "on-tertiary-fixed-variant": "#3e465c",
+              "secondary-container": "#00a572",
+              "on-tertiary-container": "#edf0ff",
+              "on-primary": "#002a78",
+              "inverse-on-surface": "#283044",
+              "on-surface": "#dbe2fd",
+              "secondary": "#4edea3",
+              "inverse-surface": "#dbe2fd",
+              "surface-dim": "#0b1326",
+              "on-surface-variant": "#c3c6d7",
+              "on-secondary-container": "#00311f",
+              "outline": "#8d90a0",
+              "secondary-fixed-dim": "#4edea3",
+              "tertiary-fixed-dim": "#bec6e0",
+              "background": "#0b1326",
+              "surface-variant": "#2d3449",
+              "surface-container-highest": "#2d3449",
+              "on-error": "#690005",
+              "surface-bright": "#31394e",
+              "tertiary": "#bec6e0",
+              "on-tertiary": "#283044",
+              "on-tertiary-fixed": "#131b2f",
+              "primary-fixed": "#dbe1ff",
+              "outline-variant": "#434655",
+              "on-error-container": "#ffdad6",
+              "on-primary-container": "#eeefff",
+              "tertiary-container": "#656d84",
+              "on-secondary": "#003824",
+              "primary-container": "#2563eb",
+              "error": "#ffb4ab",
+              "on-primary-fixed": "#00174b",
+              "surface-container-low": "#131b2e",
+              "surface-container-high": "#222a3e",
+              "on-background": "#dbe2fd"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"],
+              "mono": ["JetBrains Mono"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .pdf-canvas { aspect-ratio: 8.5 / 11; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0b1326; }
+        ::-webkit-scrollbar-thumb { background: #434655; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body antialiased flex h-screen overflow-hidden">
+<!-- SideNavBar (Authority: JSON & Design System) -->
+<aside class="flex flex-col h-full p-4 bg-[#131B2E] border-r border-[#434655]/20 w-64 shrink-0">
+<div class="mb-8">
+<h1 class="text-xl font-bold text-[#DAE2FD] tracking-tight">ScoutCopilot</h1>
+<p class="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant opacity-60">Elite Scouting</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center px-3 py-2 text-[#C3C6D7] hover:bg-[#222A3E] transition-colors duration-200 rounded-md" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+<span class="font-medium text-sm">Dashboard</span>
+</a>
+<a class="flex items-center px-3 py-2 text-[#DAE2FD] bg-[#2563EB] rounded-md font-semibold" href="#">
+<span class="material-symbols-outlined mr-3">description</span>
+<span class="font-medium text-sm">Reports</span>
+</a>
+<a class="flex items-center px-3 py-2 text-[#C3C6D7] hover:bg-[#222A3E] transition-colors duration-200 rounded-md" href="#">
+<span class="material-symbols-outlined mr-3">analytics</span>
+<span class="font-medium text-sm">Analytics</span>
+</a>
+<a class="flex items-center px-3 py-2 text-[#C3C6D7] hover:bg-[#222A3E] transition-colors duration-200 rounded-md" href="#">
+<span class="material-symbols-outlined mr-3">settings</span>
+<span class="font-medium text-sm">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 border-t border-[#434655]/20">
+<button class="w-full bg-[#2563EB] text-white py-2.5 rounded-md font-bold text-sm active:scale-95 transition-transform duration-100">
+                New Report
+            </button>
+<div class="flex items-center mt-6 px-2">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-outline-variant/20">
+<img alt="Scout Profile" data-alt="Scout profile avatar placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzaCbjmOkYcGwEgr1xgzUxi6p8Npw4FazBhLa5bwqRsuwsaqqI7b5pCybEjUn0YIVe06GQVed5bH8ru5kQpZlyBJhwdbs_wrpA13i3jQfqBpPvXKX-KokWHjfALaDO4ZHIhJEEfoAxsNcmQOOw_UQkKmc2MfewBTiDgcEcRqw2ozoIpKXhz9MzZS_1aiQEOZHle1AVQ_C6ynB4GJeu_PmqKzgs97LUmBW37tpCa31KkG9omyHMGmxxtVbO67nfQHDFNCDl-bPNHx68"/>
+</div>
+<div class="ml-3">
+<p class="text-xs font-bold text-on-surface">Chief Scout</p>
+<p class="text-[10px] text-on-surface-variant">Institutional Div.</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 bg-surface">
+<!-- TopAppBar (Authority: JSON & Design System) -->
+<header class="flex justify-between items-center px-8 h-16 w-full bg-[#0B1326]/80 backdrop-blur-xl border-b border-[#434655]/20 shrink-0 z-10">
+<div class="flex items-center gap-6">
+<h2 class="font-black text-[#DAE2FD] text-lg">Export Report</h2>
+<nav class="flex gap-4">
+<span class="text-[#2563EB] border-b-2 border-[#2563EB] pb-1 text-sm font-medium">Template: Elite</span>
+<span class="text-[#C3C6D7] hover:text-[#DAE2FD] text-sm font-medium transition-opacity cursor-pointer">Format: PDF</span>
+</nav>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center bg-surface-container rounded-lg p-1 mr-4 border border-outline-variant/20">
+<button class="px-3 py-1 text-xs font-bold bg-primary-container text-on-primary-container rounded">PDF</button>
+<button class="px-3 py-1 text-xs font-bold text-on-surface-variant hover:text-on-surface">DOCX</button>
+</div>
+<button class="p-2 text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined">print</span></button>
+<button class="p-2 text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined">share</span></button>
+<button class="bg-primary-container hover:brightness-105 text-white px-5 py-2 rounded-md font-bold text-sm transition-all">Export Report</button>
+</div>
+</header>
+<!-- Preview Canvas -->
+<section class="flex-1 overflow-y-auto p-12 bg-surface-container-lowest flex justify-center items-start">
+<!-- The "Paper" (Dossier Component) -->
+<div class="pdf-canvas w-full max-w-[816px] bg-[#060D20] border border-[#434655]/20 shadow-2xl relative p-12 text-[#DAE2FD]">
+<!-- Report Header -->
+<div class="flex justify-between items-start border-b border-[#434655]/40 pb-8 mb-10">
+<div>
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 bg-primary-container flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-white">shield</span>
+</div>
+<h3 class="text-2xl font-black tracking-tighter uppercase">ScoutCopilot Intelligence</h3>
+</div>
+<p class="text-on-surface-variant text-sm font-mono uppercase tracking-[0.2em]">Technical Scouting Dossier v4.2</p>
+</div>
+<div class="text-right font-mono text-[10px] text-on-surface-variant space-y-1">
+<p>REF: SCP-2024-AD-01</p>
+<p>DATE: 24 OCT 2024</p>
+<p>CONFIDENTIAL: LVL 4</p>
+</div>
+</div>
+<!-- Player Identity Block -->
+<div class="flex gap-10 mb-12">
+<div class="w-48 h-64 bg-surface-variant rounded-lg border border-outline-variant/20 overflow-hidden shrink-0">
+<img alt="Alphonso Davies Profile" class="w-full h-full object-cover grayscale contrast-125" data-alt="Professional athlete headshot in high contrast black and white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsWnKHksDlaMHUUODdFZts8jCmMrFFd9dk8nwJzqYsDcEamV51emvywBRZf7EZiUzFMfLxmfRNpW6EQx9Z6vPvUEMSNDb7dB_x-PMxsP-RQ4vEfODpFwg1UJpagejMHnq9eTki3w9Oh0PBt-2b7_EScPRyHlEWldGkZcOJsfurFDNauvk11Jrpy8FWuk4rcItQmPf5fOKmPHuvLGwtiEiKctZD-pp3VQIR-bddTQNtSd13-x41eTE7Um-rA9J3FEOoFGTcvqvkGa61"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-end mb-6">
+<div>
+<h1 class="text-5xl font-black tracking-tight leading-none mb-2">ALPHONSO DAVIES</h1>
+<div class="flex gap-3">
+<span class="bg-surface-container-high px-3 py-1 rounded-md text-xs font-mono text-secondary">LB / LWB</span>
+<span class="border border-outline-variant/40 px-3 py-1 rounded-md text-xs font-mono uppercase">FC Bayern München</span>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-on-surface-variant uppercase font-mono mb-1">Market Value</p>
+<p class="text-2xl font-mono text-secondary">€70.00M</p>
+</div>
+</div>
+<!-- Key Stats Row -->
+<div class="grid grid-cols-4 gap-4">
+<div class="bg-surface-container-low p-4 rounded-md border-b-2 border-primary-container">
+<p class="text-[9px] text-on-surface-variant uppercase font-mono mb-1">Pace</p>
+<p class="text-2xl font-mono text-on-surface">96</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-md border-b-2 border-outline-variant">
+<p class="text-[9px] text-on-surface-variant uppercase font-mono mb-1">Dribbling</p>
+<p class="text-2xl font-mono text-on-surface">85</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-md border-b-2 border-outline-variant">
+<p class="text-[9px] text-on-surface-variant uppercase font-mono mb-1">Defense</p>
+<p class="text-2xl font-mono text-on-surface">74</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-md border-b-2 border-outline-variant">
+<p class="text-[9px] text-on-surface-variant uppercase font-mono mb-1">Pass %</p>
+<p class="text-2xl font-mono text-on-surface">88.4</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Technical Analysis Section -->
+<div class="grid grid-cols-12 gap-8 mb-12">
+<div class="col-span-7">
+<h4 class="text-sm font-bold uppercase tracking-widest text-secondary mb-4 border-l-4 border-secondary pl-3">AI Scout Assessment</h4>
+<p class="text-sm leading-relaxed text-on-surface-variant mb-6 italic">
+                            "Davies continues to redefine the modern wing-back role. His recovery speed is statistically elite, placing him in the 99th percentile across top European leagues. While his defensive positioning shows occasional lapses, his ability to transition play from the defensive third into the final third via high-intensity carries is a tactical weapon of unparalleled value."
+                        </p>
+<div class="grid grid-cols-2 gap-6">
+<div>
+<p class="text-[10px] font-bold text-on-surface uppercase mb-3">Core Strengths</p>
+<ul class="text-xs space-y-2 text-on-surface-variant font-mono">
+<li class="flex items-center"><span class="w-1 h-1 bg-secondary rounded-full mr-2"></span> Elite Acceleration</li>
+<li class="flex items-center"><span class="w-1 h-1 bg-secondary rounded-full mr-2"></span> Progressive Carries</li>
+<li class="flex items-center"><span class="w-1 h-1 bg-secondary rounded-full mr-2"></span> 1v1 Isolation Win Rate</li>
+</ul>
+</div>
+<div>
+<p class="text-[10px] font-bold text-on-surface uppercase mb-3">Weaknesses</p>
+<ul class="text-xs space-y-2 text-on-surface-variant font-mono">
+<li class="flex items-center"><span class="w-1 h-1 bg-error rounded-full mr-2"></span> Aerial Duels</li>
+<li class="flex items-center"><span class="w-1 h-1 bg-error rounded-full mr-2"></span> Long Crossing Precision</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="col-span-5 flex flex-col items-center justify-center bg-surface-container-low rounded-lg p-6 border border-outline-variant/10">
+<p class="text-[10px] font-mono uppercase mb-6 text-on-surface-variant">Performance Radar</p>
+<img alt="Performance Radar Chart" class="w-full opacity-80" data-alt="Technical radar chart showing player performance metrics" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClSsxQ9QvXLmJcGMAX3pCrZ1V-aA-Hhkh5VCOBWGZ-qTVlc9TRogJSCwAfeWSLFhOikaFZReS5kjB2kb8QSdODx8KZ4BdjlEe70elg7at-uoGDWdyXlVMbVN0d6OjqQtObRrYNRo9hY0SVa8dPJLmZjAynNkT1r5oO0FpCaA7lDXu64XiAFGSolU0ROkSKMXmOlvlspfR7lU0zn9qXZcbSrbZk9q41fKN9aPHRL_UzHbS07bJbmR02YSCWgyigV8xIbuvhwM05wMN6"/>
+</div>
+</div>
+<!-- Season Statistics Table -->
+<div>
+<h4 class="text-sm font-bold uppercase tracking-widest text-secondary mb-4 border-l-4 border-secondary pl-3">23/24 Competition Data</h4>
+<table class="w-full text-left text-xs">
+<thead>
+<tr class="text-on-surface-variant font-mono uppercase border-b border-outline-variant/20">
+<th class="py-3 font-medium">Competition</th>
+<th class="py-3 font-medium text-center">App</th>
+<th class="py-3 font-medium text-center">G/A</th>
+<th class="py-3 font-medium text-center">xG</th>
+<th class="py-3 font-medium text-center">xA</th>
+<th class="py-3 font-medium text-right">Rating</th>
+</tr>
+</thead>
+<tbody class="font-mono">
+<tr class="border-b border-outline-variant/10">
+<td class="py-3">Bundesliga</td>
+<td class="py-3 text-center">24</td>
+<td class="py-3 text-center">1/4</td>
+<td class="py-3 text-center">1.2</td>
+<td class="py-3 text-center">3.8</td>
+<td class="py-3 text-right text-secondary font-bold">7.24</td>
+</tr>
+<tr class="border-b border-outline-variant/10">
+<td class="py-3">UEFA Champions League</td>
+<td class="py-3 text-center">8</td>
+<td class="py-3 text-center">1/0</td>
+<td class="py-3 text-center">0.4</td>
+<td class="py-3 text-center">0.9</td>
+<td class="py-3 text-right text-secondary font-bold">6.98</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- PDF Footer -->
+<div class="absolute bottom-12 left-12 right-12 border-t border-[#434655]/40 pt-6 flex justify-between items-center text-[9px] font-mono text-on-surface-variant uppercase tracking-widest">
+<p>Generated by ScoutCopilot Intelligence Systems</p>
+<p>© 2024 Institutional Authority Division</p>
+<p>Page 01 / 01</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Right Settings Panel -->
+<aside class="w-[280px] bg-surface-container-low border-l border-[#434655]/20 h-full flex flex-col shrink-0">
+<div class="p-6 border-b border-outline-variant/20">
+<h3 class="font-bold text-on-surface text-sm uppercase tracking-wider mb-1">Report Settings</h3>
+<p class="text-[10px] text-on-surface-variant">Customize PDF output modules</p>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-8">
+<!-- Content Toggles -->
+<section>
+<h4 class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-4">Content Modules</h4>
+<div class="space-y-4">
+<label class="flex items-center justify-between cursor-pointer group">
+<span class="text-xs font-medium text-on-surface group-hover:text-primary transition-colors">Performance Radar</span>
+<input checked="" class="rounded-sm bg-surface-variant border-outline-variant text-primary-container focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+</label>
+<label class="flex items-center justify-between cursor-pointer group">
+<span class="text-xs font-medium text-on-surface group-hover:text-primary transition-colors">Advanced Statistics</span>
+<input checked="" class="rounded-sm bg-surface-variant border-outline-variant text-primary-container focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+</label>
+<label class="flex items-center justify-between cursor-pointer group">
+<span class="text-xs font-medium text-on-surface group-hover:text-primary transition-colors">AI Assessment</span>
+<input checked="" class="rounded-sm bg-surface-variant border-outline-variant text-primary-container focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+</label>
+<label class="flex items-center justify-between cursor-pointer group">
+<span class="text-xs font-medium text-on-surface group-hover:text-primary transition-colors">Video Clips (QR Code)</span>
+<input class="rounded-sm bg-surface-variant border-outline-variant text-primary-container focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+</label>
+</div>
+</section>
+<!-- Brand Upload -->
+<section>
+<h4 class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-4">Branding</h4>
+<div class="border-2 border-dashed border-outline-variant/40 rounded-lg p-4 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-variant/40 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant mb-2">upload_file</span>
+<p class="text-[10px] font-medium text-on-surface">Add club logo</p>
+<p class="text-[9px] text-on-surface-variant mt-1">PNG, SVG (max 2MB)</p>
+</div>
+</section>
+<!-- Export Metadata -->
+<section>
+<h4 class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-4">Export Metadata</h4>
+<div class="space-y-4">
+<div>
+<label class="text-[9px] uppercase font-mono text-on-surface-variant mb-2 block">Report Title
+<input class="w-full bg-surface-container border-b-2 border-outline-variant text-xs py-2 px-0 focus:border-primary-container focus:ring-0" type="text" value="ALPHONSO DAVIES - SCOUTING"/>
+</label></div>
+</div>
+</section>
+</div>
+<div class="p-6 border-t border-outline-variant/20 bg-surface-container">
+<button class="w-full bg-surface-variant hover:bg-surface-bright text-on-surface py-2.5 rounded-md font-bold text-xs mb-3 transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">refresh</span>
+                Regenerate Preview
+            </button>
+<p class="text-[9px] text-center text-on-surface-variant font-mono">Changes apply to final export</p>
+</div>
+</aside>
+<!-- Institutional Footer (Authority: JSON) -->
+<footer class="fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
+<div class="flex justify-between items-center px-12 py-4 bg-[#0B1326] border-t border-[#434655]/10 w-full pointer-events-auto">
+<p class="font-mono text-[10px] uppercase tracking-widest text-[#C3C6D7]">© 2024 ScoutCopilot Intelligence. Institutional Authority Division.</p>
+<div class="flex gap-6">
+<a class="font-mono text-[10px] uppercase tracking-widest text-[#C3C6D7] hover:text-[#2563EB]" href="#">Privacy Policy</a>
+<a class="font-mono text-[10px] uppercase tracking-widest text-[#C3C6D7] hover:text-[#2563EB]" href="#">Terms of Service</a>
+<a class="font-mono text-[10px] uppercase tracking-widest text-[#C3C6D7] hover:text-[#2563EB]" href="#">API Status</a>
+</div>
+</div>
+</footer>
+</body></html>

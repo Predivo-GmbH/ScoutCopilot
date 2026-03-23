@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScoutCopilot Brand Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<style>
+  :root {
+    --primary: #2563EB;
+    --primary-light: #B4C5FF;
+    --primary-dark: #0053DB;
+    --primary-container: #2563EB;
+    --on-primary-container: #EEEFFF;
+    --secondary: #10B981;
+    --secondary-light: #4EDEA3;
+    --tertiary: #F59E0B;
+    --tertiary-light: #FFB95F;
+    --error: #FFB4AB;
+    --surface: #0B1326;
+    --surface-dim: #0B1326;
+    --surface-container-lowest: #060E20;
+    --surface-container-low: #131B2E;
+    --surface-container: #171F33;
+    --surface-container-high: #222A3D;
+    --surface-container-highest: #2D3449;
+    --surface-bright: #31394D;
+    --on-surface: #DAE2FD;
+    --on-surface-variant: #C3C6D7;
+    --outline: #8D90A0;
+    --outline-variant: #434655;
+    --font-heading: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --radius-sm: 2px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --max-width: 1280px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--surface);
+    color: var(--on-surface);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Sticky Nav */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface-container-lowest);
+    border-bottom: 1px solid var(--outline-variant);
+    padding: 0 32px;
+  }
+  nav .nav-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 56px;
+    overflow-x: auto;
+  }
+  nav a {
+    color: var(--on-surface-variant);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+    transition: background 150ms ease-out, color 150ms ease-out;
+  }
+  nav a:hover { background: var(--surface-container-high); color: var(--on-surface); }
+  nav .brand-name { font-weight: 700; color: var(--on-surface); margin-right: 16px; font-size: 14px; }
+
+  /* Main */
+  main { max-width: var(--max-width); margin: 0 auto; padding: 0 32px; }
+
+  /* Sections */
+  section {
+    padding: 96px 0;
+    border-bottom: 1px solid var(--outline-variant);
+  }
+  section:last-child { border-bottom: none; }
+
+  h1 {
+    font-family: var(--font-heading);
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  h2 {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    margin-bottom: 12px;
+    margin-top: 48px;
+  }
+  h2:first-child { margin-top: 0; }
+  h3 {
+    font-family: var(--font-heading);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    margin-top: 32px;
+  }
+  .section-label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--primary-light);
+    margin-bottom: 8px;
+  }
+  .section-desc {
+    color: var(--on-surface-variant);
+    max-width: 640px;
+    margin-bottom: 48px;
+  }
+
+  /* Grids */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 24px; }
+
+  /* Cards */
+  .card {
+    background: var(--surface-container-low);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-md);
+    padding: 24px;
+  }
+  .card-label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--on-surface-variant);
+    margin-bottom: 8px;
+  }
+
+  /* Color Swatches */
+  .swatch {
+    border-radius: var(--radius-md);
+    height: 80px;
+    display: flex;
+    align-items: flex-end;
+    padding: 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--outline-variant);
+  }
+  .swatch-sm {
+    border-radius: var(--radius-md);
+    height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px solid var(--outline-variant);
+    gap: 8px;
+  }
+  .swatch-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  /* Type samples */
+  .type-sample {
+    padding: 24px 0;
+    border-bottom: 1px solid var(--outline-variant);
+  }
+  .type-sample:last-child { border-bottom: none; }
+  .type-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--on-surface-variant);
+    margin-top: 8px;
+  }
+
+  /* Spacing demo */
+  .space-bar {
+    background: var(--primary);
+    opacity: 0.6;
+    border-radius: 2px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: white;
+  }
+
+  /* Radius demo */
+  .radius-demo {
+    width: 80px;
+    height: 80px;
+    background: var(--surface-container-high);
+    border: 1px solid var(--outline-variant);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--on-surface-variant);
+  }
+
+  /* Buttons */
+  .btn-demo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 150ms ease-out;
+  }
+  .btn-primary { background: var(--primary); color: white; border: none; }
+  .btn-secondary { background: transparent; color: var(--on-surface); border: 1px solid var(--outline); }
+  .btn-ghost { background: transparent; color: var(--on-surface-variant); border: none; }
+
+  /* Input demo */
+  .input-demo {
+    background: transparent;
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-md);
+    padding: 10px 16px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--on-surface);
+    width: 100%;
+    max-width: 400px;
+    outline: none;
+  }
+  .input-demo:focus { border-color: var(--primary); background: var(--surface-container-high); }
+  .input-demo::placeholder { color: var(--on-surface-variant); }
+
+  /* Do/Don't */
+  .do-dont {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+  }
+  .do-card, .dont-card {
+    padding: 24px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--outline-variant);
+  }
+  .do-card { border-left: 3px solid var(--secondary); background: var(--surface-container-low); }
+  .dont-card { border-left: 3px solid var(--error); background: var(--surface-container-low); }
+  .do-card h4, .dont-card h4 { font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+  .do-card h4 { color: var(--secondary-light); }
+  .dont-card h4 { color: var(--error); }
+  .do-card ul, .dont-card ul { list-style: none; }
+  .do-card li, .dont-card li { padding: 4px 0; color: var(--on-surface-variant); font-size: 14px; }
+  .do-card li::before { content: "+  "; color: var(--secondary-light); font-weight: 600; }
+  .dont-card li::before { content: "x  "; color: var(--error); font-weight: 600; }
+
+  /* Personality trait */
+  .trait-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    font-size: 13px;
+  }
+  .trait-label { width: 80px; text-align: right; color: var(--on-surface-variant); }
+  .trait-track { flex: 1; height: 6px; background: var(--surface-container-high); border-radius: 3px; position: relative; }
+  .trait-dot { width: 14px; height: 14px; background: var(--primary); border-radius: 4px; position: absolute; top: -4px; }
+  .trait-label-end { width: 80px; color: var(--on-surface-variant); }
+
+  /* Voice examples */
+  .voice-example {
+    background: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+    border-left: 2px solid var(--primary);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin: 8px 0;
+    font-size: 14px;
+    color: var(--on-surface);
+  }
+
+  /* Stats display */
+  .stat-value {
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--primary-light);
+  }
+
+  /* Print styles */
+  @media print {
+    nav { display: none; }
+    section { break-inside: avoid; padding: 48px 0; }
+    body { background: white; color: #0F172A; }
+    .card { border-color: #CBD5E1; }
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    h1 { font-size: 2rem; }
+    section { padding: 48px 0; }
+    main { padding: 0 16px; }
+    nav { padding: 0 16px; }
+    .do-dont { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <span class="brand-name">ScoutCopilot</span>
+    <a href="#brand-story">Brand Story</a>
+    <a href="#logo">Logo</a>
+    <a href="#colors">Colors</a>
+    <a href="#typography">Typography</a>
+    <a href="#spacing">Spacing & Layout</a>
+    <a href="#effects">Effects</a>
+    <a href="#components">Components</a>
+    <a href="#guidelines">Guidelines</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ==================== 1. BRAND STORY ==================== -->
+<section id="brand-story">
+  <div class="section-label">01 / Brand Story</div>
+  <h1>The Analytical Architect</h1>
+  <p class="section-desc">ScoutCopilot is AI-powered scouting intelligence for professional football. We turn natural language questions into ranked player shortlists, comparison reports, and scouting briefs — in seconds instead of hours. Our design language reflects this: precise, authoritative, data-confident.</p>
+
+  <h2>Brand Personality</h2>
+  <div style="max-width: 500px; margin-top: 24px;">
+    <div class="trait-bar">
+      <span class="trait-label">Playful</span>
+      <div class="trait-track"><div class="trait-dot" style="left: 45%;"></div></div>
+      <span class="trait-label-end">Serious</span>
+    </div>
+    <div class="trait-bar">
+      <span class="trait-label">Consumer</span>
+      <div class="trait-track"><div class="trait-dot" style="left: 60%;"></div></div>
+      <span class="trait-label-end">Enterprise</span>
+    </div>
+    <div class="trait-bar">
+      <span class="trait-label">Minimal</span>
+      <div class="trait-track"><div class="trait-dot" style="left: 30%;"></div></div>
+      <span class="trait-label-end">Dense</span>
+    </div>
+    <div class="trait-bar">
+      <span class="trait-label">Warm</span>
+      <div class="trait-track"><div class="trait-dot" style="left: 45%;"></div></div>
+      <span class="trait-label-end">Cool</span>
+    </div>
+    <div class="trait-bar">
+      <span class="trait-label">Static</span>
+      <div class="trait-track"><div class="trait-dot" style="left: 60%;"></div></div>
+      <span class="trait-label-end">Dynamic</span>
+    </div>
+  </div>
+
+  <h2>Voice & Tone</h2>
+  <p style="color: var(--on-surface-variant); margin-bottom: 16px;">Professional, data-confident, quietly powerful. Not flashy — trustworthy. The tool a sporting director would show to the board without hesitation.</p>
+
+  <h3>Headline Voice</h3>
+  <div class="voice-example">Find Your Next Signing in Seconds, Not Days</div>
+  <div class="voice-example">Close the Gap Between Data and Decisions</div>
+  <div class="voice-example">Your Wyscout Data Is Sitting There. Unused.</div>
+
+  <h3>Body Copy Voice</h3>
+  <div class="voice-example">AI-powered scouting intelligence for your Wyscout & StatsBomb data. Get a ranked shortlist in 30 seconds — not 3 hours.</div>
+  <div class="voice-example">What used to take our analyst team a week of spreadsheet filtering, the engine now produces in 15 seconds.</div>
+
+  <h3>CTA Voice</h3>
+  <div class="voice-example">Start Free Trial &nbsp;|&nbsp; Talk to Sales &nbsp;|&nbsp; See How It Works</div>
+  <div class="voice-example" style="font-size: 13px; color: var(--on-surface-variant);">No credit card required. 14-day free trial. Cancel anytime.</div>
+
+  <h3>Phrases to Use</h3>
+  <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
+    <span style="background: var(--surface-container-high); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 13px;">Find the needle. Skip the haystack.</span>
+    <span style="background: var(--surface-container-high); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 13px;">Stop Guessing. Start Scouting with AI.</span>
+    <span style="background: var(--surface-container-high); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 13px;">Intelligence You Can Verify</span>
+    <span style="background: var(--surface-container-high); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 13px;">Your Data Stays Yours. Period.</span>
+    <span style="background: var(--surface-container-high); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 13px;">Focus on the eye-test, not the Excel-test</span>
+  </div>
+</section>
+
+<!-- ==================== 2. LOGO ==================== -->
+<section id="logo">
+  <div class="section-label">02 / Logo</div>
+  <h1>Logo & Mark</h1>
+  <p class="section-desc">Logo generation was deferred. This section will be updated once the logo is finalized in a future session.</p>
+
+  <div class="grid-2">
+    <div class="card" style="min-height: 200px; display: flex; align-items: center; justify-content: center;">
+      <div style="text-align: center; color: var(--on-surface-variant);">
+        <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.3;">image</span>
+        <p style="margin-top: 8px; font-size: 13px;">Logo on Dark — Pending</p>
+      </div>
+    </div>
+    <div class="card" style="min-height: 200px; display: flex; align-items: center; justify-content: center; background: #F8FAFC;">
+      <div style="text-align: center; color: #64748B;">
+        <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.3;">image</span>
+        <p style="margin-top: 8px; font-size: 13px;">Logo on Light — Pending</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>Usage Rules</h2>
+  <div class="grid-3" style="margin-top: 16px;">
+    <div class="card">
+      <div class="card-label">Minimum Size</div>
+      <p style="font-size: 14px; color: var(--on-surface-variant);">Mark: 32px<br>Favicon: 16px</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Clear Space</div>
+      <p style="font-size: 14px; color: var(--on-surface-variant);">Minimum 1x mark width on all sides</p>
+    </div>
+    <div class="card">
+      <div class="card-label">File Formats</div>
+      <p style="font-size: 14px; color: var(--on-surface-variant);">SVG (source), PNG (web), ICO (favicon)</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 3. COLORS ==================== -->
+<section id="colors">
+  <div class="section-label">03 / Color System</div>
+  <h1>Color Palette</h1>
+  <p class="section-desc">Rooted in deep authority of Slate and the confidence of Mid-Blue. No gradients, no organic transitions — hard-edge digital precision.</p>
+
+  <h2>Primary Colors</h2>
+  <div class="grid-3">
+    <div>
+      <div class="swatch" style="background: #2563EB; color: white;">#2563EB</div>
+      <p style="font-size: 13px; margin-top: 8px; font-weight: 500;">Primary Blue</p>
+      <p style="font-size: 12px; color: var(--on-surface-variant);">CTAs, active states, links</p>
+    </div>
+    <div>
+      <div class="swatch" style="background: #10B981; color: white;">#10B981</div>
+      <p style="font-size: 13px; margin-top: 8px; font-weight: 500;">Secondary Emerald</p>
+      <p style="font-size: 12px; color: var(--on-surface-variant);">Success, positive signals, green flags</p>
+    </div>
+    <div>
+      <div class="swatch" style="background: #F59E0B; color: white;">#F59E0B</div>
+      <p style="font-size: 13px; margin-top: 8px; font-weight: 500;">Tertiary Amber</p>
+      <p style="font-size: 12px; color: var(--on-surface-variant);">Warnings, alerts, highlights</p>
+    </div>
+  </div>
+
+  <h2>Surface Hierarchy (Dark Mode)</h2>
+  <p style="color: var(--on-surface-variant); margin-bottom: 16px; font-size: 14px;">Depth is achieved through tonal stepping, not elevation. Move from lower to higher container values to "lift" content.</p>
+  <div style="display: flex; flex-direction: column; gap: 4px;">
+    <div class="swatch-sm" style="background: #060E20;"><div class="swatch-dot" style="background: #060E20;"></div><span style="color: #C3C6D7;">surface-container-lowest</span><span style="margin-left: auto; color: #8D90A0;">#060E20</span></div>
+    <div class="swatch-sm" style="background: #0B1326;"><div class="swatch-dot" style="background: #0B1326;"></div><span style="color: #C3C6D7;">surface (base)</span><span style="margin-left: auto; color: #8D90A0;">#0B1326</span></div>
+    <div class="swatch-sm" style="background: #131B2E;"><div class="swatch-dot" style="background: #131B2E;"></div><span style="color: #C3C6D7;">surface-container-low</span><span style="margin-left: auto; color: #8D90A0;">#131B2E</span></div>
+    <div class="swatch-sm" style="background: #171F33;"><div class="swatch-dot" style="background: #171F33;"></div><span style="color: #C3C6D7;">surface-container</span><span style="margin-left: auto; color: #8D90A0;">#171F33</span></div>
+    <div class="swatch-sm" style="background: #222A3D;"><div class="swatch-dot" style="background: #222A3D;"></div><span style="color: #C3C6D7;">surface-container-high</span><span style="margin-left: auto; color: #8D90A0;">#222A3D</span></div>
+    <div class="swatch-sm" style="background: #2D3449;"><div class="swatch-dot" style="background: #2D3449;"></div><span style="color: #C3C6D7;">surface-container-highest</span><span style="margin-left: auto; color: #8D90A0;">#2D3449</span></div>
+    <div class="swatch-sm" style="background: #31394D;"><div class="swatch-dot" style="background: #31394D;"></div><span style="color: #C3C6D7;">surface-bright</span><span style="margin-left: auto; color: #8D90A0;">#31394D</span></div>
+  </div>
+
+  <h2>Text & Border Colors</h2>
+  <div class="grid-4" style="margin-top: 16px;">
+    <div>
+      <div class="swatch-sm" style="background: var(--surface-container);"><div class="swatch-dot" style="background: #DAE2FD;"></div><span>on-surface</span></div>
+      <p style="font-family: var(--font-mono); font-size: 11px; color: var(--on-surface-variant); margin-top: 4px;">#DAE2FD</p>
+    </div>
+    <div>
+      <div class="swatch-sm" style="background: var(--surface-container);"><div class="swatch-dot" style="background: #C3C6D7;"></div><span>on-surface-variant</span></div>
+      <p style="font-family: var(--font-mono); font-size: 11px; color: var(--on-surface-variant); margin-top: 4px;">#C3C6D7</p>
+    </div>
+    <div>
+      <div class="swatch-sm" style="background: var(--surface-container);"><div class="swatch-dot" style="background: #434655;"></div><span>outline-variant</span></div>
+      <p style="font-family: var(--font-mono); font-size: 11px; color: var(--on-surface-variant); margin-top: 4px;">#434655</p>
+    </div>
+    <div>
+      <div class="swatch-sm" style="background: var(--surface-container);"><div class="swatch-dot" style="background: #8D90A0;"></div><span>outline</span></div>
+      <p style="font-family: var(--font-mono); font-size: 11px; color: var(--on-surface-variant); margin-top: 4px;">#8D90A0</p>
+    </div>
+  </div>
+
+  <h2>Semantic Colors</h2>
+  <div class="grid-4" style="margin-top: 16px;">
+    <div>
+      <div class="swatch" style="background: #2563EB; color: white; height: 56px;">#2563EB</div>
+      <p style="font-size: 12px; margin-top: 4px; color: var(--on-surface-variant);">Info / Primary</p>
+    </div>
+    <div>
+      <div class="swatch" style="background: #10B981; color: white; height: 56px;">#10B981</div>
+      <p style="font-size: 12px; margin-top: 4px; color: var(--on-surface-variant);">Success</p>
+    </div>
+    <div>
+      <div class="swatch" style="background: #F59E0B; color: white; height: 56px;">#F59E0B</div>
+      <p style="font-size: 12px; margin-top: 4px; color: var(--on-surface-variant);">Warning</p>
+    </div>
+    <div>
+      <div class="swatch" style="background: #93000A; color: #FFB4AB; height: 56px;">#FFB4AB</div>
+      <p style="font-size: 12px; margin-top: 4px; color: var(--on-surface-variant);">Error</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 4. TYPOGRAPHY ==================== -->
+<section id="typography">
+  <div class="section-label">04 / Typography</div>
+  <h1>Type System</h1>
+  <p class="section-desc">Two-font system: Inter for all UI text, JetBrains Mono exclusively for numbers, statistics, and data values. The mono font signals "hard truth — calculated and precise."</p>
+
+  <h2>Font Families</h2>
+  <div class="grid-2" style="margin-top: 16px;">
+    <div class="card">
+      <div class="card-label">Heading & Body</div>
+      <p style="font-size: 28px; font-weight: 700; margin-bottom: 8px;">Inter</p>
+      <p style="font-size: 14px; color: var(--on-surface-variant);">Weights: 400, 500, 600, 700</p>
+      <p style="font-size: 14px; color: var(--on-surface-variant); margin-top: 4px;">All UI text, headings, body copy, labels</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Data & Numbers</div>
+      <p style="font-family: var(--font-mono); font-size: 28px; font-weight: 600; margin-bottom: 8px;">JetBrains Mono</p>
+      <p style="font-size: 14px; color: var(--on-surface-variant);">Weights: 400, 500, 600</p>
+      <p style="font-size: 14px; color: var(--on-surface-variant); margin-top: 4px;">Statistics, percentages, metrics, timestamps</p>
+    </div>
+  </div>
+
+  <h2>Type Ramp</h2>
+  <div style="margin-top: 16px;">
+    <div class="type-sample">
+      <div style="font-size: 3.5rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1;">Display Large</div>
+      <div class="type-meta">56px / 700 / -0.02em / 1.1 line-height</div>
+    </div>
+    <div class="type-sample">
+      <div style="font-size: 3rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1;">Display</div>
+      <div class="type-meta">48px / 700 / -0.02em / 1.1 line-height</div>
+    </div>
+    <div class="type-sample">
+      <div style="font-size: 2.25rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2;">Heading 1</div>
+      <div class="type-meta">36px / 700 / -0.01em / 1.2 line-height</div>
+    </div>
+    <div class="type-sample">
+      <div style="font-size: 1.75rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.25;">Heading 2</div>
+      <div class="type-meta">28px / 600 / -0.01em / 1.25 line-height</div>
+    </div>
+    <div class="type-sample">
+      <div style="font-size: 1.375rem; font-weight: 600; line-height: 1.3;">Heading 3</div>
+      <div class="type-meta">22px / 600 / 0 / 1.3 line-height</div>
+    </div>
+    <div class="type-sample">
+      <div style="font-size: 1.125rem; font-weight: 600; line-height: 1.4;">Heading 4</div>
+      <div class="type-meta">18px / 600 / 0 / 1.4 line-height</div>
+    </div>
+    <div class="type-sample">
+      <div style="font-size: 1rem; line-height: 1.6;">Body Large — The AI layer your scouting data has been missing.</div>
+      <div class="type-meta">16px / 400 / 0 / 1.6 line-height</div>
+    </div>
+    <div class="type-sample">
+      <div style="font-size: 0.9375rem; line-height: 1.6;">Body — ScoutCopilot uses institutional-grade AI to transform thousands of metrics into ranked shortlists.</div>
+      <div class="type-meta">15px / 400 / 0 / 1.6 line-height</div>
+    </div>
+    <div class="type-sample">
+      <div style="font-size: 0.875rem; line-height: 1.5; color: var(--on-surface-variant);">Body Small — Available for Wyscout, StatsBomb, and InStat data providers.</div>
+      <div class="type-meta">14px / 400 / 0 / 1.5 line-height</div>
+    </div>
+    <div class="type-sample">
+      <div style="font-size: 0.75rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--on-surface-variant);">Label Small — Category Header</div>
+      <div class="type-meta">12px / 500 / 0.05em / uppercase</div>
+    </div>
+  </div>
+
+  <h2>Data Typography</h2>
+  <p style="color: var(--on-surface-variant); margin-bottom: 16px; font-size: 14px;">All numbers and statistics use JetBrains Mono to signal precision.</p>
+  <div class="grid-4" style="margin-top: 16px;">
+    <div class="card" style="text-align: center;">
+      <div class="stat-value">&lt; 0.8s</div>
+      <p style="font-size: 12px; color: var(--on-surface-variant); margin-top: 4px;">Query Time</p>
+    </div>
+    <div class="card" style="text-align: center;">
+      <div class="stat-value">420+</div>
+      <p style="font-size: 12px; color: var(--on-surface-variant); margin-top: 4px;">Leagues</p>
+    </div>
+    <div class="card" style="text-align: center;">
+      <div class="stat-value">12x</div>
+      <p style="font-size: 12px; color: var(--on-surface-variant); margin-top: 4px;">Faster</p>
+    </div>
+    <div class="card" style="text-align: center;">
+      <div class="stat-value">99.2%</div>
+      <p style="font-size: 12px; color: var(--on-surface-variant); margin-top: 4px;">Accuracy</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 5. SPACING & LAYOUT ==================== -->
+<section id="spacing">
+  <div class="section-label">05 / Spacing & Layout</div>
+  <h1>Spacing System</h1>
+  <p class="section-desc">4px base unit. Consistent spatial rhythm creates the "architectural precision" feel.</p>
+
+  <h2>Spacing Scale</h2>
+  <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px; max-width: 600px;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="font-family: var(--font-mono); font-size: 12px; color: var(--on-surface-variant); width: 40px; text-align: right;">4px</span>
+      <div class="space-bar" style="width: 16px;">1</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="font-family: var(--font-mono); font-size: 12px; color: var(--on-surface-variant); width: 40px; text-align: right;">8px</span>
+      <div class="space-bar" style="width: 32px;">2</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="font-family: var(--font-mono); font-size: 12px; color: var(--on-surface-variant); width: 40px; text-align: right;">16px</span>
+      <div class="space-bar" style="width: 64px;">4</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="font-family: var(--font-mono); font-size: 12px; color: var(--on-surface-variant); width: 40px; text-align: right;">24px</span>
+      <div class="space-bar" style="width: 96px;">6</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="font-family: var(--font-mono); font-size: 12px; color: var(--on-surface-variant); width: 40px; text-align: right;">32px</span>
+      <div class="space-bar" style="width: 128px;">8</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="font-family: var(--font-mono); font-size: 12px; color: var(--on-surface-variant); width: 40px; text-align: right;">48px</span>
+      <div class="space-bar" style="width: 192px;">12</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="font-family: var(--font-mono); font-size: 12px; color: var(--on-surface-variant); width: 40px; text-align: right;">64px</span>
+      <div class="space-bar" style="width: 256px;">16</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="font-family: var(--font-mono); font-size: 12px; color: var(--on-surface-variant); width: 40px; text-align: right;">96px</span>
+      <div class="space-bar" style="width: 384px;">24</div>
+    </div>
+  </div>
+
+  <h2>Border Radius</h2>
+  <div style="display: flex; gap: 24px; align-items: flex-end; margin-top: 16px;">
+    <div style="text-align: center;">
+      <div class="radius-demo" style="border-radius: 2px;">2px</div>
+      <p style="font-size: 12px; color: var(--on-surface-variant); margin-top: 8px;">sm — badges</p>
+    </div>
+    <div style="text-align: center;">
+      <div class="radius-demo" style="border-radius: 6px;">6px</div>
+      <p style="font-size: 12px; color: var(--on-surface-variant); margin-top: 8px;">md — default</p>
+    </div>
+    <div style="text-align: center;">
+      <div class="radius-demo" style="border-radius: 8px;">8px</div>
+      <p style="font-size: 12px; color: var(--on-surface-variant); margin-top: 8px;">lg — modals</p>
+    </div>
+    <div style="text-align: center;">
+      <div class="radius-demo" style="border-radius: 0px; border: 2px dashed var(--error);">pill</div>
+      <p style="font-size: 12px; color: var(--error); margin-top: 8px;">NEVER</p>
+    </div>
+  </div>
+
+  <h2>Layout Constants</h2>
+  <div class="grid-3" style="margin-top: 16px;">
+    <div class="card">
+      <div class="card-label">Max Width</div>
+      <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 600;">1280px</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Grid</div>
+      <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 600;">12 col / 24px</div>
+      <p style="font-size: 12px; color: var(--on-surface-variant);">gutter</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Section Padding</div>
+      <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 600;">96px / 48px</div>
+      <p style="font-size: 12px; color: var(--on-surface-variant);">desktop / mobile</p>
+    </div>
+  </div>
+
+  <h2>Breakpoints</h2>
+  <div class="grid-4" style="margin-top: 16px;">
+    <div class="card">
+      <div class="card-label">Mobile</div>
+      <div style="font-family: var(--font-mono); font-size: 16px;">375px</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Tablet</div>
+      <div style="font-family: var(--font-mono); font-size: 16px;">768px</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Desktop</div>
+      <div style="font-family: var(--font-mono); font-size: 16px;">1280px</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Wide</div>
+      <div style="font-family: var(--font-mono); font-size: 16px;">1536px</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 6. EFFECTS ==================== -->
+<section id="effects">
+  <div class="section-label">06 / Effects & Elevation</div>
+  <h1>Elevation & Motion</h1>
+  <p class="section-desc">No drop shadows. Depth comes from tonal stepping. Animations are purposeful, never performative.</p>
+
+  <h2>Depth Strategy: Tonal Stepping</h2>
+  <div style="display: flex; gap: 16px; margin-top: 16px; align-items: stretch;">
+    <div style="background: var(--surface); border: 1px solid var(--outline-variant); border-radius: var(--radius-md); padding: 24px; flex: 1; text-align: center;">
+      <p style="font-size: 12px; color: var(--on-surface-variant);">Base Level</p>
+      <p style="font-family: var(--font-mono); font-size: 11px; color: var(--outline);">surface</p>
+    </div>
+    <div style="background: var(--surface-container-low); border: 1px solid var(--outline-variant); border-radius: var(--radius-md); padding: 24px; flex: 1; text-align: center;">
+      <p style="font-size: 12px; color: var(--on-surface-variant);">Workspace</p>
+      <p style="font-family: var(--font-mono); font-size: 11px; color: var(--outline);">container-low</p>
+    </div>
+    <div style="background: var(--surface-container-high); border: 1px solid var(--outline-variant); border-radius: var(--radius-md); padding: 24px; flex: 1; text-align: center;">
+      <p style="font-size: 12px; color: var(--on-surface-variant);">Active Module</p>
+      <p style="font-family: var(--font-mono); font-size: 11px; color: var(--outline);">container-high</p>
+    </div>
+    <div style="background: var(--surface-container-highest); border: 1px solid var(--outline-variant); border-radius: var(--radius-md); padding: 24px; flex: 1; text-align: center;">
+      <p style="font-size: 12px; color: var(--on-surface-variant);">Elevated</p>
+      <p style="font-family: var(--font-mono); font-size: 11px; color: var(--outline);">container-highest</p>
+    </div>
+  </div>
+
+  <h2>Glassmorphism (Selective)</h2>
+  <div class="card" style="margin-top: 16px;">
+    <p style="font-size: 14px; color: var(--on-surface-variant);">Reserved for hover quick-action menus only.</p>
+    <p style="font-family: var(--font-mono); font-size: 12px; margin-top: 8px; color: var(--outline);">background: rgba(49, 57, 77, 0.6); backdrop-filter: blur(20px);</p>
+  </div>
+
+  <h2>Animation Timing</h2>
+  <div class="grid-3" style="margin-top: 16px;">
+    <div class="card">
+      <div class="card-label">Fast</div>
+      <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 600;">100-150ms</div>
+      <p style="font-size: 12px; color: var(--on-surface-variant); margin-top: 4px;">Hover, focus, micro-interactions</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Normal</div>
+      <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 600;">200-300ms</div>
+      <p style="font-size: 12px; color: var(--on-surface-variant); margin-top: 4px;">State transitions, reveals</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Slow</div>
+      <div style="font-family: var(--font-mono); font-size: 20px; font-weight: 600;">400-500ms</div>
+      <p style="font-size: 12px; color: var(--on-surface-variant); margin-top: 4px;">Page-level, major transitions</p>
+    </div>
+  </div>
+
+  <h2>Easing Functions</h2>
+  <div class="grid-3" style="margin-top: 16px;">
+    <div class="card">
+      <div class="card-label">Entrance</div>
+      <p style="font-family: var(--font-mono); font-size: 13px;">ease-out</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Exit</div>
+      <p style="font-family: var(--font-mono); font-size: 13px;">ease-in</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Transform</div>
+      <p style="font-family: var(--font-mono); font-size: 13px;">ease-in-out</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 7. COMPONENTS ==================== -->
+<section id="components">
+  <div class="section-label">07 / Components</div>
+  <h1>UI Components</h1>
+  <p class="section-desc">Core patterns extracted from the approved Stitch designs. All components use design tokens — never hardcode values.</p>
+
+  <h2>Buttons</h2>
+  <div style="display: flex; gap: 16px; align-items: center; margin-top: 16px;">
+    <button class="btn-demo btn-primary">Start Free Trial</button>
+    <button class="btn-demo btn-secondary">Talk to Sales</button>
+    <button class="btn-demo btn-ghost">Learn More</button>
+  </div>
+  <div style="margin-top: 16px;">
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-label">Primary</div>
+        <p style="font-family: var(--font-mono); font-size: 11px; color: var(--on-surface-variant);">bg: #2563EB<br>color: #FFFFFF<br>radius: 6px<br>padding: 10px 20px</p>
+      </div>
+      <div class="card">
+        <div class="card-label">Secondary</div>
+        <p style="font-family: var(--font-mono); font-size: 11px; color: var(--on-surface-variant);">bg: transparent<br>border: 1px #8D90A0<br>radius: 6px<br>padding: 10px 20px</p>
+      </div>
+      <div class="card">
+        <div class="card-label">Ghost</div>
+        <p style="font-family: var(--font-mono); font-size: 11px; color: var(--on-surface-variant);">bg: transparent<br>border: none<br>color: #C3C6D7<br>hover: container-high</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>Cards</h2>
+  <div class="grid-3" style="margin-top: 16px;">
+    <div class="card">
+      <div class="card-label">Standard Card</div>
+      <p style="font-size: 14px;">Default container for grouped content.</p>
+      <p style="font-family: var(--font-mono); font-size: 11px; color: var(--on-surface-variant); margin-top: 8px;">bg: container-low<br>border: 1px outline-variant<br>radius: 6px<br>padding: 24px</p>
+    </div>
+    <div class="card" style="background: var(--surface-container);">
+      <div class="card-label">Tonal Card</div>
+      <p style="font-size: 14px;">Elevated content, nested containers.</p>
+      <p style="font-family: var(--font-mono); font-size: 11px; color: var(--on-surface-variant); margin-top: 8px;">bg: container<br>border: 1px outline-variant<br>radius: 6px</p>
+    </div>
+    <div class="card" style="border-left: 2px solid var(--primary);">
+      <div class="card-label">Selected / Featured</div>
+      <p style="font-size: 14px;">Active selection or high-priority item.</p>
+      <p style="font-family: var(--font-mono); font-size: 11px; color: var(--on-surface-variant); margin-top: 8px;">border-left: 2px primary<br>Indicates selected state</p>
+    </div>
+  </div>
+
+  <h2>Search Input</h2>
+  <div style="margin-top: 16px; max-width: 600px;">
+    <input class="input-demo" type="text" placeholder="Find me a left-back under 23 with > 75% crossing accuracy...">
+    <p style="font-family: var(--font-mono); font-size: 11px; color: var(--on-surface-variant); margin-top: 8px;">border: 1px outline-variant | focus: primary border + container-high bg | radius: 6px</p>
+  </div>
+
+  <h2>Stats Bar</h2>
+  <div style="display: flex; gap: 32px; margin-top: 16px; padding: 24px; background: var(--surface-container-low); border: 1px solid var(--outline-variant); border-radius: var(--radius-md);">
+    <div style="text-align: center;">
+      <div style="font-family: var(--font-mono); font-size: 1.5rem; font-weight: 600; color: var(--primary-light);">&lt; 0.8s</div>
+      <div style="font-size: 12px; color: var(--on-surface-variant); margin-top: 4px;">Query Time</div>
+    </div>
+    <div style="width: 1px; background: var(--outline-variant);"></div>
+    <div style="text-align: center;">
+      <div style="font-family: var(--font-mono); font-size: 1.5rem; font-weight: 600; color: var(--primary-light);">420+</div>
+      <div style="font-size: 12px; color: var(--on-surface-variant); margin-top: 4px;">Leagues</div>
+    </div>
+    <div style="width: 1px; background: var(--outline-variant);"></div>
+    <div style="text-align: center;">
+      <div style="font-family: var(--font-mono); font-size: 1.5rem; font-weight: 600; color: var(--primary-light);">12x</div>
+      <div style="font-size: 12px; color: var(--on-surface-variant); margin-top: 4px;">Faster</div>
+    </div>
+    <div style="width: 1px; background: var(--outline-variant);"></div>
+    <div style="text-align: center;">
+      <div style="font-family: var(--font-mono); font-size: 1.5rem; font-weight: 600; color: var(--primary-light);">99.2%</div>
+      <div style="font-size: 12px; color: var(--on-surface-variant); margin-top: 4px;">Accuracy</div>
+    </div>
+  </div>
+
+  <h2>Trust Signals</h2>
+  <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
+    <span style="background: var(--surface-container-high); border: 1px solid var(--outline-variant); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 6px;"><span style="color: var(--secondary-light);">&#10003;</span> SOC2 Type II</span>
+    <span style="background: var(--surface-container-high); border: 1px solid var(--outline-variant); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 6px;"><span style="color: var(--secondary-light);">&#10003;</span> GDPR Compliant</span>
+    <span style="background: var(--surface-container-high); border: 1px solid var(--outline-variant); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 6px;"><span style="color: var(--secondary-light);">&#10003;</span> AES-256</span>
+    <span style="background: var(--surface-container-high); border: 1px solid var(--outline-variant); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 6px;"><span style="color: var(--secondary-light);">&#10003;</span> Zero-Training Policy</span>
+  </div>
+
+  <h2>Iconography</h2>
+  <div class="card" style="margin-top: 16px;">
+    <div class="card-label">Lucide Icons</div>
+    <p style="font-size: 14px; color: var(--on-surface-variant);">1.5px stroke weight. Functional only — never decorative.</p>
+    <div style="display: flex; gap: 24px; margin-top: 16px;">
+      <div style="text-align: center;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">search</span>
+        <p style="font-size: 11px; color: var(--on-surface-variant); margin-top: 4px;">16px inline</p>
+      </div>
+      <div style="text-align: center;">
+        <span class="material-symbols-outlined" style="font-size: 20px;">menu</span>
+        <p style="font-size: 11px; color: var(--on-surface-variant); margin-top: 4px;">20px nav</p>
+      </div>
+      <div style="text-align: center;">
+        <span class="material-symbols-outlined" style="font-size: 24px;">shield</span>
+        <p style="font-size: 11px; color: var(--on-surface-variant); margin-top: 4px;">24px default</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 8. GUIDELINES ==================== -->
+<section id="guidelines">
+  <div class="section-label">08 / Design Guidelines</div>
+  <h1>Do's & Don'ts</h1>
+  <p class="section-desc">These rules prevent generic AI aesthetics and maintain the Analytical Architect identity.</p>
+
+  <div class="do-dont">
+    <div class="do-card">
+      <h4>Do</h4>
+      <ul>
+        <li>Use JetBrains Mono for all numbers and statistics</li>
+        <li>Use 1px border hairlines to define containers</li>
+        <li>Use tonal stepping for depth hierarchy</li>
+        <li>Keep corners tight: 6px default, 2px for badges</li>
+        <li>Use asymmetric borders (2-3 sides) for editorial feel</li>
+        <li>Make data views information-dense</li>
+        <li>Use emerald/amber as functional signal colors</li>
+        <li>Respect prefers-reduced-motion for all animations</li>
+      </ul>
+    </div>
+    <div class="dont-card">
+      <h4>Don't</h4>
+      <ul>
+        <li>Use gradient backgrounds on sections or cards</li>
+        <li>Use stock photography or generic imagery</li>
+        <li>Use pill-shaped buttons or badges (rounded-full)</li>
+        <li>Add decorative icons without functional purpose</li>
+        <li>Use pastel color washes (baby blue, lavender, mint)</li>
+        <li>Add AI sparkles, magic wands, or "powered by AI" badges</li>
+        <li>Use drop shadows to define containers</li>
+        <li>Use any font other than Inter or JetBrains Mono</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Border Philosophy</h2>
+  <div class="grid-2" style="margin-top: 16px;">
+    <div class="do-card">
+      <h4>Correct</h4>
+      <div style="background: var(--surface-container-low); border-left: 1px solid var(--outline-variant); border-bottom: 1px solid var(--outline-variant); padding: 16px; border-radius: 0 0 0 var(--radius-md); margin-top: 12px;">
+        <p style="font-size: 13px;">Asymmetric borders (left + bottom) create editorial framing</p>
+      </div>
+    </div>
+    <div class="dont-card">
+      <h4>Avoid</h4>
+      <div style="background: var(--surface-container-low); border: 1px solid var(--outline-variant); padding: 16px; border-radius: var(--radius-md); margin-top: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+        <p style="font-size: 13px;">Heavy shadows + borders on all sides feels "boxy"</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>Color Usage</h2>
+  <div class="grid-2" style="margin-top: 16px;">
+    <div class="do-card">
+      <h4>Correct</h4>
+      <ul>
+        <li>Blue for primary actions and active states</li>
+        <li>Emerald for success, positive metrics, "green flags"</li>
+        <li>Amber for warnings, alerts, attention needed</li>
+        <li>Flat, confident color fills</li>
+      </ul>
+    </div>
+    <div class="dont-card">
+      <h4>Avoid</h4>
+      <ul>
+        <li>Gradients for visual interest</li>
+        <li>Colors without semantic meaning</li>
+        <li>Multiple accent colors competing for attention</li>
+        <li>Pure black (#000000) backgrounds</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer style="border-top: 1px solid var(--outline-variant); padding: 48px 32px; text-align: center; color: var(--on-surface-variant); font-size: 13px;">
+  <p>ScoutCopilot Brand Book &mdash; Generated 2026-03-23</p>
+  <p style="margin-top: 4px; font-family: var(--font-mono); font-size: 11px; color: var(--outline);">Design System: The Analytical Architect</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,163 @@
+{
+    "success": true,
+    "data": {
+        "branding": {
+            "colorScheme": "light",
+            "fonts": [
+                {
+                    "family": "Area Regular",
+                    "role": "body"
+                },
+                {
+                    "family": "Abel",
+                    "role": "heading"
+                },
+                {
+                    "family": "Black Extended",
+                    "role": "display"
+                }
+            ],
+            "colors": {
+                "primary": "#2EA3F2",
+                "accent": "#21048E",
+                "background": "#FFFFFF",
+                "textPrimary": "#21048E",
+                "link": "#21048E"
+            },
+            "typography": {
+                "fontFamilies": {
+                    "primary": "Area Regular",
+                    "heading": "Abel"
+                },
+                "fontStacks": {
+                    "heading": [
+                        "Black Extended",
+                        "Helvetica",
+                        "Arial",
+                        "Lucida",
+                        "sans-serif"
+                    ],
+                    "body": [
+                        "Abel",
+                        "Helvetica",
+                        "Arial",
+                        "Lucida",
+                        "sans-serif"
+                    ],
+                    "paragraph": [
+                        "Area Regular",
+                        "Helvetica",
+                        "Arial",
+                        "Lucida",
+                        "sans-serif"
+                    ]
+                },
+                "fontSizes": {
+                    "h1": "72px",
+                    "h2": "56px",
+                    "body": "17px"
+                }
+            },
+            "spacing": {
+                "baseUnit": 4,
+                "borderRadius": "3px"
+            },
+            "components": {
+                "input": {
+                    "background": "#FFFFFF",
+                    "textColor": "#4E4E4E",
+                    "borderColor": null,
+                    "borderRadius": "0px",
+                    "borderRadiusCorners": {
+                        "topLeft": "0px",
+                        "topRight": "0px",
+                        "bottomRight": "0px",
+                        "bottomLeft": "0px"
+                    },
+                    "shadow": "none"
+                }
+            },
+            "images": {
+                "logo": "https://www.scisports.com/wp-content/uploads/2026/03/Logo_Scisports-2.svg",
+                "favicon": "https://www.scisports.com/wp-content/uploads/2025/11/cropped-favicon-new-32x32.png",
+                "ogImage": null,
+                "logoHref": "/"
+            },
+            "__llm_logo_reasoning": {
+                "selectedIndex": 0,
+                "reasoning": "Selected #0 because it is visible, located in the header, links to the homepage, and matches the brand name SciSports.",
+                "confidence": 0.95,
+                "source": "llm"
+            },
+            "personality": {
+                "tone": "professional",
+                "energy": "medium",
+                "targetAudience": "sports analytics professionals"
+            },
+            "designSystem": {
+                "framework": "custom",
+                "componentLibrary": ""
+            },
+            "confidence": {
+                "buttons": 0,
+                "colors": 0.9,
+                "overall": 0.45
+            },
+            "__llm_metadata": {
+                "logoSelection": {
+                    "llmCalled": true,
+                    "llmSucceeded": true,
+                    "finalSource": "llm",
+                    "rawLogoSelection": {
+                        "selectedLogoIndex": 0,
+                        "selectedLogoReasoning": "Selected #0 because it is visible, located in the header, links to the homepage, and matches the brand name SciSports.",
+                        "confidence": 0.95
+                    }
+                },
+                "buttonClassification": {
+                    "llmCalled": false,
+                    "llmSucceeded": false
+                }
+            }
+        },
+        "metadata": {
+            "viewport": [
+                "width=device-width, initial-scale=1.0",
+                "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+            ],
+            "article:modified_time": "2026-02-06T10:35:56+00:00",
+            "modifiedTime": "2026-02-06T10:35:56+00:00",
+            "ogSiteName": "Insights driven impact - SciSports",
+            "description": "SciSports' football analysis software provides data-driven actionable insights for football professionals and youth programs.",
+            "title": "Insights driven impact - Insights driven impact - SciSports",
+            "og:title": "Home",
+            "og:site_name": "Insights driven impact - SciSports",
+            "generator": [
+                "Divi Child v.1.0.0",
+                "WordPress 6.9.4",
+                "WP Rocket 3.20.5"
+            ],
+            "msapplication-TileImage": "https://www.scisports.com/wp-content/uploads/2025/11/cropped-favicon-new-270x270.png",
+            "twitter:card": "summary_large_image",
+            "ogTitle": "Home",
+            "ogLocale": "en_GB",
+            "og:type": "website",
+            "og:locale": "en_GB",
+            "og:description": "SciSports' football analysis software provides data-driven actionable insights for football professionals and youth programs.",
+            "language": "en-GB",
+            "ogDescription": "SciSports' football analysis software provides data-driven actionable insights for football professionals and youth programs.",
+            "robots": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+            "favicon": "https://www.scisports.com/wp-content/uploads/2025/11/cropped-favicon-new-32x32.png",
+            "scrapeId": "019d1a41-2046-71d9-809c-490885939daf",
+            "sourceURL": "https://scisports.com",
+            "url": "https://www.scisports.com/",
+            "statusCode": 200,
+            "contentType": "text/html; charset=UTF-8",
+            "timezone": "America/New_York",
+            "proxyUsed": "basic",
+            "indexId": "b1fade2f-7c92-4e65-bbf0-bad35a350461",
+            "creditsUsed": 1,
+            "concurrencyLimited": false
+        }
+    }
+}

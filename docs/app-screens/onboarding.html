@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ScoutCopilot - Connect Data Source</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-surface-variant": "#c3c6d7",
+                        "on-tertiary-container": "#bdffdb",
+                        "surface-container-low": "#131b2e",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-error": "#690005",
+                        "surface-container": "#171f33",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-secondary": "#2c303d",
+                        "inverse-primary": "#0053db",
+                        "surface-container-highest": "#2d3449",
+                        "surface": "#0b1326",
+                        "on-secondary-fixed-variant": "#424654",
+                        "on-error-container": "#ffdad6",
+                        "on-background": "#dbe2fd",
+                        "surface-container-lowest": "#060d20",
+                        "secondary": "#c3c6d7",
+                        "tertiary-container": "#007d55",
+                        "background": "#0b1326",
+                        "tertiary-fixed": "#6ffbbe",
+                        "surface-container-high": "#222a3e",
+                        "on-secondary-container": "#b1b4c5",
+                        "error-container": "#93000a",
+                        "on-tertiary": "#003824",
+                        "on-primary": "#002a78",
+                        "outline-variant": "#434655",
+                        "inverse-on-surface": "#283044",
+                        "on-primary-container": "#eeefff",
+                        "primary-fixed": "#dbe1ff",
+                        "on-surface": "#dbe2fd",
+                        "on-primary-fixed": "#00174b",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "surface-tint": "#b4c5ff",
+                        "on-tertiary-fixed": "#002113",
+                        "primary-container": "#2563eb",
+                        "outline": "#8d90a0",
+                        "error": "#ffb4ab",
+                        "secondary-fixed": "#dfe2f3",
+                        "inverse-surface": "#dbe2fd",
+                        "tertiary": "#4edea3",
+                        "surface-bright": "#31394e",
+                        "surface-variant": "#2d3449",
+                        "surface-dim": "#0b1326",
+                        "secondary-fixed-dim": "#c3c6d7",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "on-secondary-fixed": "#171b27",
+                        "secondary-container": "#424654",
+                        "primary": "#b4c5ff"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "6px", "lg": "6px", "xl": "6px", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #0B1326;
+            color: #DAE2FD;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+<!-- TopNavBar Shared Component -->
+<header class="bg-[#0B1326] w-full z-50">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-7xl mx-auto">
+<div class="text-xl font-bold tracking-tighter text-[#2563EB]">ScoutCopilot</div>
+<nav class="flex items-center gap-8 font-['Inter'] font-semibold tracking-tight text-[#DAE2FD]">
+<!-- Welcome: Success State -->
+<div class="flex items-center gap-2 text-[#10B981] font-bold border-b-2 border-[#10B981] pb-1">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    Welcome
+                </div>
+<!-- Connect Data: Active State -->
+<div class="flex items-center gap-2 text-[#10B981] font-bold border-b-2 border-[#10B981] pb-1">
+                    Connect Data
+                </div>
+<!-- Configure: Inactive -->
+<div class="flex items-center gap-2 text-[#C3C6D7] opacity-50">
+                    Configure
+                </div>
+<!-- Ready: Inactive -->
+<div class="flex items-center gap-2 text-[#C3C6D7] opacity-50">
+                    Ready
+                </div>
+</nav>
+<div class="w-24"></div> <!-- Spacer for visual balance -->
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex items-center justify-center p-6">
+<div class="w-full max-w-[720px] bg-[#131B2E] p-10 rounded-[6px] border-none">
+<!-- Header Section -->
+<div class="mb-10 text-center">
+<h1 class="text-3xl font-semibold text-[#DAE2FD] tracking-tight mb-3">Connect Your Data Source</h1>
+<p class="text-[#C3C6D7] text-sm font-normal max-w-md mx-auto leading-relaxed">
+                    Link your scouting data provider to start analyzing players instantly. High-fidelity integrations for tactical precision.
+                </p>
+</div>
+<!-- Provider List -->
+<div class="space-y-6">
+<!-- Wyscout Card -->
+<div class="bg-[#171F33] p-6 rounded-[6px] border border-[#434655]/20 flex items-center justify-between group transition-all duration-200 hover:border-[#2563EB]/50">
+<div class="flex items-center gap-5">
+<div class="w-12 h-12 flex items-center justify-center bg-[#0B1326] rounded-[6px]">
+<span class="material-symbols-outlined text-2xl text-[#2563EB]">database</span>
+</div>
+<div>
+<h3 class="font-semibold text-[#DAE2FD]">Wyscout</h3>
+<p class="text-xs text-[#C3C6D7] mt-1 font-medium tracking-wide uppercase">Official API Integration</p>
+</div>
+</div>
+<button class="bg-[#2563EB] text-white font-['Inter'] font-medium text-xs uppercase tracking-widest px-6 py-2 rounded-[6px] hover:bg-[#2563EB]/90 transition-all">
+                        Connect
+                    </button>
+</div>
+<!-- StatsBomb Card -->
+<div class="bg-[#171F33] p-6 rounded-[6px] border border-[#434655]/20 flex items-center justify-between group transition-all duration-200 hover:border-[#2563EB]/50">
+<div class="flex items-center gap-5">
+<div class="w-12 h-12 flex items-center justify-center bg-[#0B1326] rounded-[6px]">
+<span class="material-symbols-outlined text-2xl text-[#2563EB]">monitoring</span>
+</div>
+<div>
+<h3 class="font-semibold text-[#DAE2FD]">StatsBomb</h3>
+<p class="text-xs text-[#C3C6D7] mt-1 font-medium tracking-wide uppercase">Event Data Sync</p>
+</div>
+</div>
+<button class="bg-[#2563EB] text-white font-['Inter'] font-medium text-xs uppercase tracking-widest px-6 py-2 rounded-[6px] hover:bg-[#2563EB]/90 transition-all">
+                        Connect
+                    </button>
+</div>
+<!-- Custom API Card -->
+<div class="bg-[#171F33] p-6 rounded-[6px] border border-[#434655]/20 flex items-center justify-between group transition-all duration-200 hover:border-[#2563EB]/50">
+<div class="flex items-center gap-5">
+<div class="w-12 h-12 flex items-center justify-center bg-[#0B1326] rounded-[6px]">
+<span class="material-symbols-outlined text-2xl text-[#C3C6D7]">terminal</span>
+</div>
+<div>
+<h3 class="font-semibold text-[#DAE2FD]">Custom API</h3>
+<p class="text-xs text-[#C3C6D7] mt-1 font-medium tracking-wide uppercase">Use your own data endpoint</p>
+</div>
+</div>
+<button class="border border-[#434655] text-[#DAE2FD] font-['Inter'] font-medium text-xs uppercase tracking-widest px-6 py-2 rounded-[6px] hover:bg-white/5 transition-all">
+                        Configure
+                    </button>
+</div>
+</div>
+<!-- Bit Tracker (Design System Detail) -->
+<div class="mt-12 flex justify-center gap-2">
+<div class="w-8 h-1 bg-[#10B981] rounded-full"></div>
+<div class="w-8 h-1 bg-[#2563EB] rounded-full"></div>
+<div class="w-8 h-1 bg-[#434655] rounded-full"></div>
+<div class="w-8 h-1 bg-[#434655] rounded-full"></div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar Shared Component -->
+<footer class="fixed bottom-0 left-0 w-full z-50 flex justify-between items-center px-10 py-6 bg-[#0B1326] border-t border-[#434655]/20">
+<div class="flex items-center gap-6">
+<button class="flex items-center gap-2 text-[#C3C6D7] hover:text-[#DAE2FD] font-['Inter'] font-medium text-sm uppercase tracking-widest transition-all">
+<span class="material-symbols-outlined text-lg">arrow_back</span>
+                Back
+            </button>
+<button class="text-[#C3C6D7] hover:text-[#DAE2FD] font-['Inter'] font-medium text-sm uppercase tracking-widest transition-all">
+                Skip for now
+            </button>
+</div>
+<div class="flex items-center">
+<button class="bg-[#2563EB] text-white rounded-[6px] px-8 py-3 font-['Inter'] font-medium text-sm uppercase tracking-widest hover:bg-[#2563EB]/90 hover:scale-[0.98] transition-all">
+                Continue
+            </button>
+</div>
+</footer>
+<!-- Decorative Tactical Elements -->
+<div class="fixed top-20 right-10 opacity-10 pointer-events-none select-none">
+<pre class="text-[10px] leading-tight font-mono text-[#2563EB]">SYS_INIT // SCOUT_V4
+DATA_LOAD: WAITING
+SOURCE: UNSET
+TERMINAL: ACTIVE
+        </pre>
+</div>
+</body></html>

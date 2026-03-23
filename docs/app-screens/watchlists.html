@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Watchlists - ScoutCopilot</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-bright": "#31394e",
+                        "tertiary": "#ffb95f",
+                        "on-tertiary": "#472a00",
+                        "error-container": "#93000a",
+                        "secondary-fixed-dim": "#4edea3",
+                        "secondary-fixed": "#6ffbbe",
+                        "surface-container-highest": "#2d3449",
+                        "outline": "#8d90a0",
+                        "on-primary-container": "#eeefff",
+                        "surface-dim": "#0b1326",
+                        "surface-tint": "#b4c5ff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-tertiary-fixed": "#2a1700",
+                        "background": "#0b1326",
+                        "on-primary-fixed": "#00174b",
+                        "on-surface": "#dbe2fd",
+                        "tertiary-fixed": "#ffddb8",
+                        "secondary": "#4edea3",
+                        "primary": "#b4c5ff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "surface-variant": "#2d3449",
+                        "surface": "#0b1326",
+                        "error": "#ffb4ab",
+                        "on-primary": "#002a78",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-secondary-fixed": "#002113",
+                        "secondary-container": "#00a572",
+                        "outline-variant": "#434655",
+                        "on-secondary-container": "#00311f",
+                        "inverse-primary": "#0053db",
+                        "surface-container-low": "#131b2e",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-surface-variant": "#c3c6d7",
+                        "tertiary-container": "#996100",
+                        "surface-container-lowest": "#060d20",
+                        "on-secondary": "#003824",
+                        "primary-fixed": "#dbe1ff",
+                        "on-background": "#dbe2fd",
+                        "primary-container": "#2563eb",
+                        "inverse-on-surface": "#283044",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "inverse-surface": "#dbe2fd",
+                        "on-tertiary-container": "#ffeedd",
+                        "on-error": "#690005",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-high": "#222a3e",
+                        "surface-container": "#171f33"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"],
+                        "mono": ["JetBrains Mono"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased flex h-screen overflow-hidden">
+<!-- SideNavBar (Authority: JSON) -->
+<aside class="bg-[#131B2E] h-screen w-64 docked left-0 border-r border-[#434655]/15 flex flex-col h-full p-4 gap-2">
+<div class="mb-8 px-2">
+<h1 class="text-lg font-black text-white">ScoutCopilot</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Tactical Intelligence</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-[#171F33] rounded-[6px] transition-all duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined text-lg">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-[#171F33] rounded-[6px] transition-all duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined text-lg">person_search</span>
+                Player Search
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 bg-[#2563EB] text-white rounded-[6px] transition-all duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined text-lg">visibility</span>
+                Watchlists
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-[#171F33] rounded-[6px] transition-all duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined text-lg">description</span>
+                Reports
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-[#171F33] rounded-[6px] transition-all duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined text-lg">compare_arrows</span>
+                Comparisons
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-[#171F33] rounded-[6px] transition-all duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined text-lg">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="mt-auto p-3 bg-surface-container rounded-[6px] border border-outline-variant/10">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-xs">JD</div>
+<div class="overflow-hidden">
+<p class="text-xs font-bold truncate">John Doe</p>
+<p class="text-[10px] text-slate-400 truncate">Lead Scout</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col overflow-y-auto">
+<!-- TopAppBar (Authority: JSON) -->
+<header class="bg-[#0B1326] border-b border-[#434655]/15 flex justify-between items-center w-full px-8 h-16 sticky top-0 z-10">
+<div class="flex items-center gap-4">
+<h2 class="text-xl font-bold tracking-tight text-white">Watchlists</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="bg-surface-container-lowest border border-outline-variant/20 rounded-[6px] pl-9 pr-4 py-1.5 text-xs w-64 focus:border-primary-container focus:ring-0 transition-colors" placeholder="Search players or lists..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<div class="p-8 max-w-7xl w-full mx-auto space-y-10">
+<!-- Header Section -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="space-y-4">
+<div class="flex gap-2">
+<button class="px-4 py-1.5 bg-surface-container-highest text-white text-xs font-bold rounded-[4px] border border-primary-container/30">All</button>
+<button class="px-4 py-1.5 text-slate-400 hover:text-white text-xs font-bold rounded-[4px] hover:bg-surface-container transition-colors">Transfer Targets</button>
+<button class="px-4 py-1.5 text-slate-400 hover:text-white text-xs font-bold rounded-[4px] hover:bg-surface-container transition-colors">Youth Prospects</button>
+<button class="px-4 py-1.5 text-slate-400 hover:text-white text-xs font-bold rounded-[4px] hover:bg-surface-container transition-colors">Position-Specific</button>
+</div>
+</div>
+<button class="bg-[#2563EB] text-white px-5 py-2.5 rounded-[6px] font-bold text-sm flex items-center gap-2 hover:bg-blue-700 transition-colors">
+<span class="material-symbols-outlined text-lg">add</span>
+                    New Watchlist
+                </button>
+</section>
+<!-- Watchlist Cards Grid (2-column, 3-row) -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+<!-- Card 1 -->
+<div class="bg-[#171F33] p-5 rounded-[6px] border border-outline-variant/15 hover:border-outline-variant/40 transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="text-lg font-bold group-hover:text-primary transition-colors">Left-Back Targets U23</h3>
+<p class="text-xs text-slate-500 font-mono mt-1">UPDATED: 2H AGO</p>
+</div>
+<div class="flex flex-col items-end gap-2">
+<span class="px-2 py-0.5 bg-surface-container-highest text-[10px] font-bold text-slate-300 rounded-[4px] uppercase tracking-tighter">8 Players</span>
+<span class="px-2 py-0.5 bg-amber-500/10 text-amber-500 text-[10px] font-black rounded-[4px] border border-amber-500/20">2 ALERTS</span>
+</div>
+</div>
+<div class="flex -space-x-2">
+<img class="w-8 h-8 rounded-full border-2 border-[#171F33] object-cover" data-alt="Portrait of young professional football player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwhp5f2QoCRw2TKcVxg_3kN3FyvZSc7QG2dUKBt-vmuZ_8YrvtY6mK8ADTt5_C0H25wOWbRu-LpPqvWFTbYM_2O6GHoclkmxX7joFuI7qnkNBNg3weWh03mjDKjV7C7MBlhhWdL3z2P19cMinL6Ktd_CpZevfSk7O8gIxhHVHXAMx6Gjs64C6JwQxPu3MgtrQ9ExeRriYW4U4hVAYw_QGAgpCNTw-XlwzYejsKrC6FcQSe3WT0EoJrSdD1K-E5H2KthryU20RZFQ2S"/>
+<img class="w-8 h-8 rounded-full border-2 border-[#171F33] object-cover" data-alt="Close up of sports athlete portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQ-H7Lbe-0JXQsV73_zVGadx7SJrP09Czto3Zg2MmlZ2AIOj_7G8UVHbasFP2kbhUdYFOA_r7RR0mq1YCmHDBCx_Pnmjcr0JjhW7uDNqaaTIVKnb0dY_v5zLtYK9AgGx3KZzrfCKEgVbz1ZW4xtYMGUrsHtE-Ei2rw0wmit8lrfdZhA3UV-d-2yj-lXqfvC05vHFpWsewqDNSJqFI_5-x4Ixh-ElXlGt2CwrPo-ujjuHL_CzSdLm_38fjlKlGzJIkaDWhzaQ3Ns0MJ"/>
+<img class="w-8 h-8 rounded-full border-2 border-[#171F33] object-cover" data-alt="Male player in training kit portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtv8DPzishj1D4oilp-0OmdC1xI4sZfdfh8Tf9_JsI0hkNTG7I1Cax7kI2iywO9QsYJwngzCgGjzF7h3xwUBPzJd38-nZX9q6lc0q46PE8ZZd-GcBzmhN2ZSsnb-Fgu7AaKi4v2ix8CjmhQ4E9ANYtT2WX0yoIXSuUGZoPhRSzy6xY-eBQRPc2ooFg_DM8cIquyoSjikpVMW-BpI6lN1i5qm4cgBP9FM3MCJ4wBv6Dgn7XQQcolrW8KSFwOKehZ1zifxkkHBxGW_35"/>
+<div class="w-8 h-8 rounded-full border-2 border-[#171F33] bg-surface-container-high flex items-center justify-center text-[10px] font-bold text-slate-400">+5</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-[#171F33] p-5 rounded-[6px] border border-outline-variant/15 hover:border-outline-variant/40 transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="text-lg font-bold group-hover:text-primary transition-colors">Serie A Strikers</h3>
+<p class="text-xs text-slate-500 font-mono mt-1">UPDATED: 5H AGO</p>
+</div>
+<div class="flex flex-col items-end gap-2">
+<span class="px-2 py-0.5 bg-surface-container-highest text-[10px] font-bold text-slate-300 rounded-[4px] uppercase tracking-tighter">12 Players</span>
+<span class="px-2 py-0.5 bg-slate-500/10 text-slate-400 text-[10px] font-black rounded-[4px] border border-slate-500/20 uppercase">No Alerts</span>
+</div>
+</div>
+<div class="flex -space-x-2">
+<img class="w-8 h-8 rounded-full border-2 border-[#171F33] object-cover" data-alt="European soccer player profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-HqS_1wzYApG7wOeccCw9GLJzSQ09EBpJCrgAtx-rbBy_BFQJWlVI79x5v34HVLEH1x8yyScPsmXw2Fj0G04d24D1zLROfQi-4KGVtktf2Yh3Mo7jE4-NFbLgKh2W2ITvn_86Qu8XcJ-juzme7H5oG6xlNgf6ANYAc7dm1A3iddGAhHcOk7ShrXg2kUvX6xIdQ98C6bK6R30GPFOnUaz7Ajw6OuMeuBlQ_0X0c5_deyBdiyUpuGWK318OXl6qPy6RosKVhr-TGPMY"/>
+<img class="w-8 h-8 rounded-full border-2 border-[#171F33] object-cover" data-alt="Athletic man in stadium portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3PjU3G9BFZSGJEOGmE9cnwVk7XHj73HjASoZZtCn7IoXv1jAz__8W3QOfaDUfhNDi_T8tJeAPKr3DdMF0S4xEwuAbm1DJyl0bnSHE0k99z1UGrmqB4hEWtHwuu7dZ4Aj1Xu8FURJVz5hGlS7R5M1G9RJnvlfroFzsvKDULzlxczoWbpTtx0cXmLbaJ6yc8IeJ0E0ZpUUyMhvnbNpForr5m6cY5C8IjOgFBLbRzFLHK4HH3x6uDCaPvEdO0WDCSgZxXsgMZ73Xw2gc"/>
+<div class="w-8 h-8 rounded-full border-2 border-[#171F33] bg-surface-container-high flex items-center justify-center text-[10px] font-bold text-slate-400">+10</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-[#171F33] p-5 rounded-[6px] border border-[#2563EB]/40 transition-all cursor-pointer group relative overflow-hidden">
+<div class="absolute top-0 right-0 w-16 h-16 bg-primary/5 -mr-8 -mt-8 rotate-45"></div>
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="text-lg font-bold text-white">January Window Shortlist</h3>
+<p class="text-xs text-slate-500 font-mono mt-1">UPDATED: 12M AGO</p>
+</div>
+<div class="flex flex-col items-end gap-2">
+<span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-[4px] uppercase tracking-tighter">5 Players</span>
+<span class="px-2 py-0.5 bg-amber-500/10 text-amber-500 text-[10px] font-black rounded-[4px] border border-amber-500/20">3 ALERTS</span>
+</div>
+</div>
+<div class="flex -space-x-2">
+<img class="w-8 h-8 rounded-full border-2 border-[#171F33] object-cover" data-alt="High quality headshot of football talent" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFBfbLXYJEyrXZzIx4mej8zWUkbQYUJ0tkia8VhLFRmm9XiSbu2QSSdAJLh67vO0b6_CiLWG_8Q9-tzdhC_Cw7qboeMxbx0gmyd4ohllmw9yqHdHyVX0XrWOVkoHO5unHBeKIL644xkCkf0Iq9l0pnmihaSfP5wq209fkT7WyjDgbVXH4hz7veJ-6iVKXhVw8lGZf5tc88qe41wrCKtGlqdvG1EFlq-nyX1Fq5pnLcKu5sM73--Hg1-t3SVviy715WZ8KRoyb1P-ox"/>
+<img class="w-8 h-8 rounded-full border-2 border-[#171F33] object-cover" data-alt="Soccer athlete profile portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqft0sbzXDYQA0_u8IK-9Iv5C6DwATSGJQX6MWizqHx-FJBt4n4LRGZHBQhqcCDvMRu7ROnlGHX7JSeEiCuigaJwEOkSYVVH_EyZU05sdVAWThWVA0d4mILcbR1STEtW9HUxAUDCiSvjJdL_fFWUq3UDGr9Lgkh8_9Lzfi8nKeUJq5BCHwgKukCoMd0O0CbOBZcND6UJyTQ94vtn24_Mb9liDlJmGxw6evJPG6aUxmrQluBOWqp7TyouB9iekPUOWa9mv-eYaA42qN"/>
+<div class="w-8 h-8 rounded-full border-2 border-[#171F33] bg-surface-container-high flex items-center justify-center text-[10px] font-bold text-slate-400">+3</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-[#171F33] p-5 rounded-[6px] border border-outline-variant/15 hover:border-outline-variant/40 transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="text-lg font-bold group-hover:text-primary transition-colors">Youth Academy Targets</h3>
+<p class="text-xs text-slate-500 font-mono mt-1">UPDATED: 1D AGO</p>
+</div>
+<div class="flex flex-col items-end gap-2">
+<span class="px-2 py-0.5 bg-surface-container-highest text-[10px] font-bold text-slate-300 rounded-[4px] uppercase tracking-tighter">15 Players</span>
+<span class="px-2 py-0.5 bg-amber-500/10 text-amber-500 text-[10px] font-black rounded-[4px] border border-amber-500/20">1 ALERT</span>
+</div>
+</div>
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-[#171F33] bg-surface-container-high flex items-center justify-center text-[10px] font-bold text-slate-400">YA</div>
+<div class="w-8 h-8 rounded-full border-2 border-[#171F33] bg-surface-container-high flex items-center justify-center text-[10px] font-bold text-slate-400">+14</div>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="bg-[#171F33] p-5 rounded-[6px] border border-outline-variant/15 hover:border-outline-variant/40 transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="text-lg font-bold group-hover:text-primary transition-colors">Midfielder Replacements</h3>
+<p class="text-xs text-slate-500 font-mono mt-1">UPDATED: 3D AGO</p>
+</div>
+<div class="flex flex-col items-end gap-2">
+<span class="px-2 py-0.5 bg-surface-container-highest text-[10px] font-bold text-slate-300 rounded-[4px] uppercase tracking-tighter">6 Players</span>
+<span class="px-2 py-0.5 bg-slate-500/10 text-slate-400 text-[10px] font-black rounded-[4px] border border-slate-500/20 uppercase">No Alerts</span>
+</div>
+</div>
+<div class="flex -space-x-2">
+<img class="w-8 h-8 rounded-full border-2 border-[#171F33] object-cover" data-alt="Midfielder player face shot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5_lap2u0MTPSZF50fzZWB9XKevc0N0X7zgxcXKel8m4r8rAaTXDE76XhQdnmAeNFxmUMTpVKj0mDBj2lCeamIktIjYi3kOVCvvmjAtbGqU50hRCgsJJEH0nWvrpTBo_7Sg3Y6F425sUsz21janqzTTJjn002MIdB6fW0wIPaML-fK9kAu8WqxI9oOI5YjaR2EIff816x2bjiB2pm_YEHwSpnXms5UVJ-tQTu4LaBvRLteUwsO-Hximn7KNqIgLSVZ_IUTVojZcMr9"/>
+<div class="w-8 h-8 rounded-full border-2 border-[#171F33] bg-surface-container-high flex items-center justify-center text-[10px] font-bold text-slate-400">+5</div>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="bg-[#171F33] p-5 rounded-[6px] border border-outline-variant/15 hover:border-outline-variant/40 transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="text-lg font-bold group-hover:text-primary transition-colors">Budget Options &lt;€5M</h3>
+<p class="text-xs text-slate-500 font-mono mt-1">UPDATED: 1W AGO</p>
+</div>
+<div class="flex flex-col items-end gap-2">
+<span class="px-2 py-0.5 bg-surface-container-highest text-[10px] font-bold text-slate-300 rounded-[4px] uppercase tracking-tighter">9 Players</span>
+<span class="px-2 py-0.5 bg-amber-500/10 text-amber-500 text-[10px] font-black rounded-[4px] border border-amber-500/20">4 ALERTS</span>
+</div>
+</div>
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-[#171F33] bg-surface-container-high flex items-center justify-center text-[10px] font-bold text-slate-400">BO</div>
+<div class="w-8 h-8 rounded-full border-2 border-[#171F33] bg-surface-container-high flex items-center justify-center text-[10px] font-bold text-slate-400">+8</div>
+</div>
+</div>
+</section>
+<!-- Expanded Watchlist Section -->
+<section class="space-y-4">
+<div class="flex items-center justify-between border-b border-outline-variant/15 pb-2">
+<div class="flex items-center gap-3">
+<h2 class="text-xl font-bold">January Window Shortlist</h2>
+<span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-[4px] uppercase tracking-tighter">Current Selection</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Technical Data Table -->
+<div class="bg-[#171F33] rounded-[6px] overflow-hidden border border-outline-variant/15">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-outline-variant/10">
+<th class="px-6 py-4">Player</th>
+<th class="px-6 py-4 text-center">Club</th>
+<th class="px-6 py-4 text-center">Position</th>
+<th class="px-6 py-4 text-center">Age</th>
+<th class="px-6 py-4 text-center">Key Metric</th>
+<th class="px-6 py-4">Alert Status</th>
+<th class="px-6 py-4">Added Date</th>
+<th class="px-6 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="text-sm divide-y divide-outline-variant/5">
+<!-- Player Row 1 -->
+<tr class="hover:bg-surface-bright/20 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-slate-800 flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Portrait of a young pro soccer athlete" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZd9opMVQfiUPTLAwZGcI-s0JK36PP0rVZlgSXGnMa-pxUTGCYoFyIkW1eX8ehXERGDMy1NWbvRAxZAXR5fUlW1GyluhL3i5iwqEfbn0Iqp5LZLrOefE_ceeztbIi04LRTed_XRZLa_atFqCZX8G41Wo2r_TCRfsNmnbqOBPLlYQL66rM9DD3Hf2mwy1zfQNOeXd_qy8Dd_ilXwk2QgeB7UFPP3lVmv7WIdKM5z8mWPqJ1kVDRzgWAjYkaG84h-PbF6CQLe0_P_wPj"/>
+</div>
+<div>
+<p class="font-bold">Luca Pellegrini</p>
+<p class="text-[10px] text-slate-500 font-mono">ITA | SCOUT SCORE: 88</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="px-2 py-1 bg-surface-container-low rounded-[4px] text-[10px] font-bold text-slate-300 uppercase">Lazio</span>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="text-xs font-mono font-bold text-slate-400">LB/LWB</span>
+</td>
+<td class="px-6 py-4 text-center font-mono">24</td>
+<td class="px-6 py-4 text-center">
+<div class="flex flex-col">
+<span class="text-primary font-mono font-bold">8.42</span>
+<span class="text-[9px] text-slate-500 uppercase">Prog. Carries/90</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+<span class="text-[11px] font-bold text-emerald-500 uppercase tracking-tighter">Stable</span>
+</div>
+</td>
+<td class="px-6 py-4 font-mono text-slate-500 text-[11px]">2023.11.15</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="px-3 py-1 bg-surface-container-highest text-[10px] font-bold rounded-[4px] hover:bg-primary hover:text-white transition-colors">VIEW REPORT</button>
+<button class="p-1 text-error hover:bg-error/10 rounded-[4px] transition-colors"><span class="material-symbols-outlined text-sm">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Player Row 2 -->
+<tr class="hover:bg-surface-bright/20 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-slate-800 flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Close up of a football player headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNWNuT0TwBsOte2LS78xIeXOb6HYpL5dj7i3-mMtTrJ0JBU1d_P0L6XYLv0XlI8A74hRz9v97xngplVl2FiDSVf9U6NkclBsPMgZCBCsgCii7KkVmymgkjL5SH58d0AIfvSf6zTKHB0seOXdwVCarL65OZ3164g85MgBPQibNRFj8dTAaJQc-7A-ho-9T1AD08ZAAUZhoG8DA-4Ef2HVGAGVF_B_tiRhbbvrJBLzHoQ2QTcGCdVPDnpa-cctlCAv6UOguEhn0eEZJu"/>
+</div>
+<div>
+<p class="font-bold">Marcus Thuram</p>
+<p class="text-[10px] text-slate-500 font-mono">FRA | SCOUT SCORE: 92</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="px-2 py-1 bg-surface-container-low rounded-[4px] text-[10px] font-bold text-slate-300 uppercase">Inter Milan</span>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="text-xs font-mono font-bold text-slate-400">CF/LW</span>
+</td>
+<td class="px-6 py-4 text-center font-mono">26</td>
+<td class="px-6 py-4 text-center">
+<div class="flex flex-col">
+<span class="text-primary font-mono font-bold">0.68</span>
+<span class="text-[9px] text-slate-500 uppercase">npxG/90</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+<span class="text-[11px] font-bold text-amber-500 uppercase tracking-tighter">Price Change</span>
+</div>
+</td>
+<td class="px-6 py-4 font-mono text-slate-500 text-[11px]">2023.12.02</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="px-3 py-1 bg-surface-container-highest text-[10px] font-bold rounded-[4px] hover:bg-primary hover:text-white transition-colors">VIEW REPORT</button>
+<button class="p-1 text-error hover:bg-error/10 rounded-[4px] transition-colors"><span class="material-symbols-outlined text-sm">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Player Row 3 -->
+<tr class="hover:bg-surface-bright/20 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-slate-800 flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Portrait of professional sports player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmlNTow3p2oyKZy7loO3CVlIgsB5uGRKZpYPoWDhVI0Hke4IGoSzStG_ZOVDmEs-MHsaNwjBPwVLI36NvGTLsu7ogwsZOlNrQWF0uD3MDdDH9G0IfnZnMmYjjkpGPYZklCELF0stkPD8VfHV2VCRKgHqNtgd5PawUBfQR2Ah7GegS-C_OaE55__6-lbsooHs0h5Ijj2fzscx8u4PnKeURCIlOx-7vhWY5Nl4ABaAhfnQQ5Em5CMeFSFzUMaUYQhFoHGmUo4UfD3wxS"/>
+</div>
+<div>
+<p class="font-bold">Federico Dimarco</p>
+<p class="text-[10px] text-slate-500 font-mono">ITA | SCOUT SCORE: 90</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="px-2 py-1 bg-surface-container-low rounded-[4px] text-[10px] font-bold text-slate-300 uppercase">Inter Milan</span>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="text-xs font-mono font-bold text-slate-400">LWB</span>
+</td>
+<td class="px-6 py-4 text-center font-mono">26</td>
+<td class="px-6 py-4 text-center">
+<div class="flex flex-col">
+<span class="text-primary font-mono font-bold">3.12</span>
+<span class="text-[9px] text-slate-500 uppercase">Key Passes/90</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+<span class="text-[11px] font-bold text-red-500 uppercase tracking-tighter">Injury Report</span>
+</div>
+</td>
+<td class="px-6 py-4 font-mono text-slate-500 text-[11px]">2023.12.10</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="px-3 py-1 bg-surface-container-highest text-[10px] font-bold rounded-[4px] hover:bg-primary hover:text-white transition-colors">VIEW REPORT</button>
+<button class="p-1 text-error hover:bg-error/10 rounded-[4px] transition-colors"><span class="material-symbols-outlined text-sm">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Player Row 4 -->
+<tr class="hover:bg-surface-bright/20 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-slate-800 flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Athletic man soccer headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdtvDBq0Nhyo4BErUHNyB-VNIW-UVvznzBRHARSKEnAKlgcm483dljpo6IsNbhBdk4cHmOiK4cpOpjbs_xikmQtt4_bJYzj8dMUvqYx_lWfM9MyN6fneUR1PcJhdSV-x0Iu3Z8J8jhHhu1sXmdjvom1QRNpjmYFW92gb0odD7GR4sLaMDKwuSjKSgeKfZuI74HgcvZ6olXBH31V4Go9u1aUnG1H462NNiFl5KIi8FI_kppXrKhB-I7gK7qlzaJtS3R0v-hmI-6zuLh"/>
+</div>
+<div>
+<p class="font-bold">Joshua Zirkzee</p>
+<p class="text-[10px] text-slate-500 font-mono">NED | SCOUT SCORE: 85</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="px-2 py-1 bg-surface-container-low rounded-[4px] text-[10px] font-bold text-slate-300 uppercase">Bologna</span>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="text-xs font-mono font-bold text-slate-400">CF</span>
+</td>
+<td class="px-6 py-4 text-center font-mono">22</td>
+<td class="px-6 py-4 text-center">
+<div class="flex flex-col">
+<span class="text-primary font-mono font-bold">2.45</span>
+<span class="text-[9px] text-slate-500 uppercase">Successful Dribbles</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+<span class="text-[11px] font-bold text-emerald-500 uppercase tracking-tighter">Stable</span>
+</div>
+</td>
+<td class="px-6 py-4 font-mono text-slate-500 text-[11px]">2023.12.18</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="px-3 py-1 bg-surface-container-highest text-[10px] font-bold rounded-[4px] hover:bg-primary hover:text-white transition-colors">VIEW REPORT</button>
+<button class="p-1 text-error hover:bg-error/10 rounded-[4px] transition-colors"><span class="material-symbols-outlined text-sm">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Player Row 5 -->
+<tr class="hover:bg-surface-bright/20 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-slate-800 flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Female professional soccer player portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3o_aKOPoKHsTJCrZxKssBpGSu4LsjHDn5Ol6YkfOEk7ObfFAghs0l13BwWFAVkxtdG7XfxXrV1kTZudGHf9tgvtrZTIOAbttH89Z6MdS_T3o9h1R0etMandDtEcqeLcxsQbYQuHWbiuMrLnZVrcySY8OGtAcAzwOFkqhevTFmH5Divs3YqqjZT9mSqQlbX-MsdifxOvpQ_N8ydGqEz8ywtIwDlYZ6LaXIGTaT0dZd9h3vqoU8n2u5tINbwy8oBMQXOaa4aZa0vVAj"/>
+</div>
+<div>
+<p class="font-bold">Matias Soule</p>
+<p class="text-[10px] text-slate-500 font-mono">ARG | SCOUT SCORE: 87</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="px-2 py-1 bg-surface-container-low rounded-[4px] text-[10px] font-bold text-slate-300 uppercase">Frosinone</span>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="text-xs font-mono font-bold text-slate-400">RW/AM</span>
+</td>
+<td class="px-6 py-4 text-center font-mono">20</td>
+<td class="px-6 py-4 text-center">
+<div class="flex flex-col">
+<span class="text-primary font-mono font-bold">4.18</span>
+<span class="text-[9px] text-slate-500 uppercase">SCA/90</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+<span class="text-[11px] font-bold text-amber-500 uppercase tracking-tighter">Price Change</span>
+</div>
+</td>
+<td class="px-6 py-4 font-mono text-slate-500 text-[11px]">2024.01.05</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="px-3 py-1 bg-surface-container-highest text-[10px] font-bold rounded-[4px] hover:bg-primary hover:text-white transition-colors">VIEW REPORT</button>
+<button class="p-1 text-error hover:bg-error/10 rounded-[4px] transition-colors"><span class="material-symbols-outlined text-sm">delete</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+</body></html>

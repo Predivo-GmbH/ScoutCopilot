@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ScoutCopilot | Tactical Precision Football Scouting</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline-variant": "#434655",
+                        "surface-tint": "#b4c5ff",
+                        "on-secondary-fixed": "#002113",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "error": "#ffb4ab",
+                        "surface-container": "#171f33",
+                        "surface-container-high": "#222a3e",
+                        "surface-container-highest": "#2d3449",
+                        "error-container": "#93000a",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "secondary-container": "#00a572",
+                        "inverse-surface": "#dbe2fd",
+                        "on-secondary-container": "#00311f",
+                        "on-tertiary": "#472a00",
+                        "inverse-primary": "#0053db",
+                        "surface": "#0b1326",
+                        "on-tertiary-container": "#ffeedd",
+                        "tertiary": "#ffb95f",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-error-container": "#ffdad6",
+                        "on-error": "#690005",
+                        "on-surface-variant": "#c3c6d7",
+                        "tertiary-container": "#996100",
+                        "surface-container-lowest": "#060d20",
+                        "on-secondary": "#003824",
+                        "primary-container": "#2563eb",
+                        "background": "#0b1326",
+                        "inverse-on-surface": "#283044",
+                        "on-secondary-fixed-variant": "#005236",
+                        "primary": "#b4c5ff",
+                        "tertiary-fixed": "#ffddb8",
+                        "secondary-fixed": "#6ffbbe",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-surface": "#dbe2fd",
+                        "primary-fixed": "#dbe1ff",
+                        "secondary": "#4edea3",
+                        "on-primary": "#002a78",
+                        "surface-variant": "#2d3449",
+                        "surface-container-low": "#131b2e",
+                        "surface-bright": "#31394e",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-primary-container": "#eeefff",
+                        "outline": "#8d90a0",
+                        "on-primary-fixed": "#00174b",
+                        "on-background": "#dbe2fd",
+                        "surface-dim": "#0b1326"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "mono": ["JetBrains Mono"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-container selection:text-white">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#0b1326] border-b border-[#434655]">
+<div class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+<div class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container" data-icon="analytics">analytics</span>
+                ScoutCopilot
+            </div>
+<div class="hidden md:flex gap-8 items-center font-medium text-sm">
+<a class="text-slate-300 hover:text-white transition-colors" href="#">Features</a>
+<a class="text-slate-300 hover:text-white transition-colors" href="#">Pricing</a>
+<a class="text-slate-300 hover:text-white transition-colors" href="#">Login</a>
+<button class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition-colors active:scale-95 duration-150">Start Free Trial</button>
+</div>
+<button class="md:hidden text-white">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+</nav>
+<main class="pt-20">
+<!-- HERO SECTION -->
+<section class="py-24 px-6 max-w-7xl mx-auto flex flex-col items-center text-center">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-outline-variant bg-surface-container-low mb-8">
+<span class="text-[10px] font-mono uppercase tracking-widest text-tertiary">New Release</span>
+<span class="text-xs font-medium text-on-surface-variant">V4.2 Engine with StatsBomb integration</span>
+</div>
+<h1 class="text-5xl md:text-7xl font-extrabold tracking-tighter text-white max-w-4xl mb-6">
+                Find Your Next Signing in Seconds, <span class="text-primary-container">Not Days</span>
+</h1>
+<p class="text-lg md:text-xl text-on-surface-variant max-w-2xl mb-12">
+                The ultimate tactical command center for elite scouts. Harness AI to analyze millions of data points from <span class="text-white font-semibold">Wyscout</span> and <span class="text-white font-semibold">StatsBomb</span> instantly.
+            </p>
+<div class="w-full max-w-md space-y-4">
+<form class="flex flex-col md:flex-row gap-2">
+<input class="flex-1 bg-surface-container-lowest border border-outline-variant px-4 py-3 rounded text-on-surface focus:border-primary outline-none transition-all placeholder:text-outline font-medium" placeholder="Enter your professional email" type="email"/>
+<button class="bg-primary-container text-on-primary-container px-6 py-3 rounded font-bold hover:brightness-110 active:scale-95 transition-all">Start Free Trial</button>
+</form>
+<p class="text-[11px] font-mono uppercase tracking-wider text-outline">
+                    No credit card required · 14-day free trial · Cancel anytime
+                </p>
+</div>
+</section>
+<!-- SOCIAL PROOF -->
+<section class="py-12 border-y border-outline-variant bg-surface-container-low">
+<div class="max-w-7xl mx-auto px-6">
+<p class="text-center font-mono text-[10px] uppercase tracking-[0.2em] text-outline mb-10">Trusted by scouting teams at 40+ clubs</p>
+<div class="flex flex-wrap justify-center gap-12 md:gap-24 opacity-50 grayscale contrast-125">
+<img class="h-8 w-auto" data-alt="Premier League Club Logo Placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIj_s4cMpQ94iBMrakMdQ716ZZughfvEs2O5fGqtSyO5GNjbOe4A0X3dDra8donS7XqmvX6mLZdV3UwE3sgAW5e2zafjtA_2gqW30Pg7FJd8RbbhHPBZSpO2jkX9-v9_BJl0TX0SqcczDSQYAtcpRCiZXaUC5Fm6ojz4B0VnouGIN5gM4GLYY3rjDZrU91HVYRsCyMP_SaZu7aBYkO6G5wMguewtFg0eSUY06UDSXKWRotipZWBSR2htiFjJ4PVvwKYOIefg3zkOZx"/>
+<img class="h-8 w-auto" data-alt="La Liga Club Logo Placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA--SyfD_W1A5SJSKAJ6_j5aE_IsWQWZIzNgosZ_CKHQnhuPy9K00LUEe9Lw2bujvoG_h3wJA1qfrifEhffvpNPMb93lispRWnqez6HfvSPCVK8Rf-DbN_EPEb2L4-2_ZQNURz-QEsoCUYLPxXHiwf-q4xdODCT8FexGRGDtZkK8lXL7KHnVX1GGVrUZ9U2nKj2Ar7ajh8vr74hOnRMsQAdMjKzjLeVabAbr5a2LqqgJzOW-yh7FxhGMaZHeWlkFfMftazAj1gdv-Ad"/>
+<img class="h-8 w-auto" data-alt="Bundesliga Club Logo Placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8GSq43Kc_byQ-rhVpzA2g5t_MTzZqBtb0Zfh2kEozCIutyBnxG1a1QQjZovW_qOqzXIoK-dpiuiGrxQ64Sk1nGtnPhQpdGSH2DHgYDZyP1UNkbxsZ9VUaJ8_m2pm-yKj9Zhw1QngGqABAnrpT8XuhQduDF60iyJtjZ2UgV6rpNqXc-yZExlTU1FY9hylUI-IHgNXiLk6jolPI-QQscu7cEQwqpqOJqjOuKpeALgW6JLH-ovxoLqiFjOcU4F0gH0ObewpgnGAOypUk"/>
+<img class="h-8 w-auto" data-alt="Serie A Club Logo Placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC02E-2lhxeApi_L2TVv_DLYmrGXZ40X_oHQoxi2ZC1YevEQ_r4ivCjmBaKuuZnTQPCPRn1Pw4DnV1-CXD2TirqSe3Hem2ljR3a40Dm7Qs7lHFQOC0LOaVV_sn7Tdr6jh_GTdlFtrvpZQQw4l1ZqaPIHBQ6bVuWtFcgAcSIKZka-8On_9TMZgeCCf0pYlzceoLV2xQKWVqzU7fFSHGJAsxxyCwB0KVO_3Yr0fcfpoiYpTpsff3Gh2sIcaY2eHvBdDrOXjFl1KnohkEL"/>
+<img class="h-8 w-auto" data-alt="Ligue 1 Club Logo Placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtGFOvb0tycWv6OoM0tSnJYkdZI0hrpTaDQ-TAATzBp0NLG46br8Iuz3zzQsaTNiqP5iDN7G6-lS_rGetNfN2aUfaQyUcd98ayuQabIaCp90Zj2QbqPDJKXFaEUbYArs_hXzCgVqHJohvhHrvwHrDdZpeVdJu_CDO9AqHd8jmDz1D8a5tHWF59v2PAbXy7CjgYmyoYOSWK76LFyvY3iLpYvTw6Kwog5i07VKd4wcLV2lnfw1hk00m6tRZDPCZbKbPkOZr1tU44rIZf"/>
+</div>
+</div>
+</section>
+<!-- PRODUCT DEMO -->
+<section class="py-24 px-6 max-w-7xl mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Step 1 -->
+<div class="bg-surface-container p-1 border border-outline-variant rounded-lg group">
+<div class="p-6">
+<span class="font-mono text-[10px] text-primary mb-2 block tracking-widest uppercase">Phase 01</span>
+<h3 class="text-xl font-bold mb-4">Semantic Search</h3>
+<div class="bg-surface-container-lowest p-4 rounded border border-outline-variant mb-6 font-mono text-sm text-on-surface-variant italic">
+                            "Find a left-footed winger under 23 with high xG chain and top percentile progressive carries in Ligue 2"
+                        </div>
+<a class="text-xs font-bold text-primary flex items-center gap-2 hover:gap-3 transition-all" href="#">Try it yourself →</a>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="bg-surface-container p-1 border border-outline-variant rounded-lg">
+<div class="p-6">
+<span class="font-mono text-[10px] text-primary mb-2 block tracking-widest uppercase">Phase 02</span>
+<h3 class="text-xl font-bold mb-4">Data Refinement</h3>
+<div class="overflow-x-auto mb-6">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant">
+<th class="py-2 font-mono text-[10px] uppercase text-outline">Player</th>
+<th class="py-2 font-mono text-[10px] uppercase text-outline text-right">xG</th>
+<th class="py-2 font-mono text-[10px] uppercase text-outline text-right">Score</th>
+</tr>
+</thead>
+<tbody class="font-mono text-xs">
+<tr class="border-b border-outline-variant/30">
+<td class="py-2 text-on-surface">J. David</td>
+<td class="py-2 text-right">0.68</td>
+<td class="py-2 text-right text-secondary">92</td>
+</tr>
+<tr>
+<td class="py-2 text-on-surface">M. Olise</td>
+<td class="py-2 text-right">0.54</td>
+<td class="py-2 text-right text-secondary">88</td>
+</tr>
+</tbody>
+</table>
+</div>
+<a class="text-xs font-bold text-primary flex items-center gap-2 hover:gap-3 transition-all" href="#">Try it yourself →</a>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="bg-surface-container-highest p-1 border border-primary/50 rounded-lg">
+<div class="p-6">
+<span class="font-mono text-[10px] text-primary mb-2 block tracking-widest uppercase">Phase 03</span>
+<h3 class="text-xl font-bold mb-4">AI Intelligence</h3>
+<div class="space-y-3 mb-6">
+<div class="h-2 w-full bg-primary/20 rounded-full"></div>
+<div class="h-2 w-3/4 bg-primary/20 rounded-full"></div>
+<div class="bg-surface-container-low p-3 rounded border-l-2 border-primary text-[11px] leading-relaxed">
+<strong class="text-white">Analysis:</strong> Player matches elite profile for inverted wingers. Statistical deviation in progressive passing suggests high ceiling for Tier 1 leagues.
+                            </div>
+</div>
+<a class="text-xs font-bold text-primary flex items-center gap-2 hover:gap-3 transition-all" href="#">Try it yourself →</a>
+</div>
+</div>
+</div>
+</section>
+<!-- OBJECTION HANDLER -->
+<section class="py-24 bg-surface-container-low border-y border-outline-variant px-6">
+<div class="max-w-7xl mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+<div class="flex gap-6 items-start">
+<div class="w-12 h-12 bg-surface-container rounded border border-outline-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary" data-icon="lock">lock</span>
+</div>
+<div>
+<h4 class="text-lg font-bold mb-2">Is my data safe?</h4>
+<p class="text-on-surface-variant text-sm">We use enterprise-grade encryption. Your target lists and internal notes are strictly confidential and never used for model training.</p>
+</div>
+</div>
+<div class="flex gap-6 items-start">
+<div class="w-12 h-12 bg-surface-container rounded border border-outline-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary" data-icon="database">database</span>
+</div>
+<div>
+<h4 class="text-lg font-bold mb-2">Works with my provider?</h4>
+<p class="text-on-surface-variant text-sm">Direct API connections with Wyscout, StatsBomb, and Opta. One-click sync means no manual CSV uploads required.</p>
+</div>
+</div>
+<div class="flex gap-6 items-start">
+<div class="w-12 h-12 bg-surface-container rounded border border-outline-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary" data-icon="timer">timer</span>
+</div>
+<div>
+<h4 class="text-lg font-bold mb-2">How long for setup?</h4>
+<p class="text-on-surface-variant text-sm">Instant access. Link your data provider account and run your first tactical query in under 60 seconds.</p>
+</div>
+</div>
+<div class="flex gap-6 items-start">
+<div class="w-12 h-12 bg-surface-container rounded border border-outline-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary" data-icon="verified">verified</span>
+</div>
+<div>
+<h4 class="text-lg font-bold mb-2">Satisfaction guaranteed?</h4>
+<p class="text-on-surface-variant text-sm">We offer a 30-day money-back guarantee. If ScoutCopilot doesn't improve your workflow, we'll refund every penny.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- COMPARISON TABLE -->
+<section class="py-24 px-6 max-w-5xl mx-auto">
+<h2 class="text-3xl font-bold mb-12 text-center">Engineered for <span class="text-primary-container">Superior Scouting</span></h2>
+<div class="border border-outline-variant rounded-lg overflow-hidden">
+<table class="w-full text-left">
+<thead class="bg-surface-container border-b border-outline-variant font-mono text-[10px] uppercase tracking-widest text-outline">
+<tr>
+<th class="p-6">Feature</th>
+<th class="p-6 text-white border-x border-outline-variant bg-surface-container-high">ScoutCopilot</th>
+<th class="p-6">Manual Methods</th>
+<th class="p-6">Generic Tools</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="border-b border-outline-variant">
+<td class="p-6 font-medium">Semantic Query Search</td>
+<td class="p-6 text-center border-x border-outline-variant bg-surface-container-high/50">
+<span class="material-symbols-outlined text-secondary" data-icon="check_circle">check_circle</span>
+</td>
+<td class="p-6 text-center text-outline">—</td>
+<td class="p-6 text-center text-outline">—</td>
+</tr>
+<tr class="border-b border-outline-variant">
+<td class="p-6 font-medium">Unified Provider Hub</td>
+<td class="p-6 text-center border-x border-outline-variant bg-surface-container-high/50">
+<span class="material-symbols-outlined text-secondary" data-icon="check_circle">check_circle</span>
+</td>
+<td class="p-6 text-center text-outline">—</td>
+<td class="p-6 text-center">
+<span class="material-symbols-outlined text-outline" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+</td>
+</tr>
+<tr class="border-b border-outline-variant">
+<td class="p-6 font-medium">Automated Tactical Reports</td>
+<td class="p-6 text-center border-x border-outline-variant bg-surface-container-high/50">
+<span class="material-symbols-outlined text-secondary" data-icon="check_circle">check_circle</span>
+</td>
+<td class="p-6 text-center text-outline">—</td>
+<td class="p-6 text-center text-outline">—</td>
+</tr>
+<tr>
+<td class="p-6 font-medium">Real-time Transfer Values</td>
+<td class="p-6 text-center border-x border-outline-variant bg-surface-container-high/50">
+<span class="material-symbols-outlined text-secondary" data-icon="check_circle">check_circle</span>
+</td>
+<td class="p-6 text-center text-outline">—</td>
+<td class="p-6 text-center text-outline">—</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- PRICING -->
+<section class="py-24 px-6 bg-surface-container-lowest border-t border-outline-variant">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-16">
+<div class="inline-block bg-tertiary-container/30 text-tertiary px-4 py-1 rounded border border-tertiary/20 mb-4 font-mono text-[10px] uppercase tracking-widest">Limited Early Access</div>
+<h2 class="text-4xl font-bold mb-4">Precision-Tier Pricing</h2>
+<p class="text-on-surface-variant">Scale your recruitment department with high-velocity data.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Tier 1 -->
+<div class="border border-outline-variant p-8 rounded-lg flex flex-col h-full bg-surface">
+<h4 class="font-mono text-[10px] uppercase text-outline mb-2">Scout</h4>
+<div class="mb-8">
+<span class="text-4xl font-mono font-bold">$149</span>
+<span class="text-outline text-sm">/mo</span>
+</div>
+<ul class="space-y-4 mb-12 flex-1">
+<li class="flex items-center gap-2 text-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-xs text-secondary" data-icon="check">check</span> 5,000 queries per month
+                            </li>
+<li class="flex items-center gap-2 text-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-xs text-secondary" data-icon="check">check</span> Single data provider
+                            </li>
+<li class="flex items-center gap-2 text-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-xs text-secondary" data-icon="check">check</span> Basic PDF reports
+                            </li>
+</ul>
+<button class="w-full bg-primary-container text-white py-3 rounded font-bold hover:brightness-110">Start Free Trial</button>
+</div>
+<!-- Tier 2 -->
+<div class="border-2 border-primary-container p-8 rounded-lg flex flex-col h-full bg-surface-container relative">
+<div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary-container text-[10px] font-bold text-white px-3 py-1 rounded">MOST POPULAR</div>
+<h4 class="font-mono text-[10px] uppercase text-primary mb-2">Pro</h4>
+<div class="mb-8">
+<span class="text-4xl font-mono font-bold">$299</span>
+<span class="text-outline text-sm">/mo</span>
+</div>
+<ul class="space-y-4 mb-12 flex-1">
+<li class="flex items-center gap-2 text-sm text-on-surface">
+<span class="material-symbols-outlined text-xs text-secondary" data-icon="check">check</span> Unlimited queries
+                            </li>
+<li class="flex items-center gap-2 text-sm text-on-surface">
+<span class="material-symbols-outlined text-xs text-secondary" data-icon="check">check</span> Multi-provider sync
+                            </li>
+<li class="flex items-center gap-2 text-sm text-on-surface">
+<span class="material-symbols-outlined text-xs text-secondary" data-icon="check">check</span> Advanced AI analysis
+                            </li>
+<li class="flex items-center gap-2 text-sm text-on-surface">
+<span class="material-symbols-outlined text-xs text-secondary" data-icon="check">check</span> CSV &amp; API Export
+                            </li>
+</ul>
+<button class="w-full bg-primary-container text-white py-3 rounded font-bold hover:brightness-110 shadow-lg shadow-primary-container/20">Start Free Trial</button>
+</div>
+<!-- Tier 3 -->
+<div class="border border-outline-variant p-8 rounded-lg flex flex-col h-full bg-surface">
+<h4 class="font-mono text-[10px] uppercase text-outline mb-2">Club</h4>
+<div class="mb-8">
+<span class="text-4xl font-mono font-bold">$599</span>
+<span class="text-outline text-sm">/mo</span>
+</div>
+<ul class="space-y-4 mb-12 flex-1">
+<li class="flex items-center gap-2 text-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-xs text-secondary" data-icon="check">check</span> Up to 5 users
+                            </li>
+<li class="flex items-center gap-2 text-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-xs text-secondary" data-icon="check">check</span> Collaborative lists
+                            </li>
+<li class="flex items-center gap-2 text-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-xs text-secondary" data-icon="check">check</span> Custom training models
+                            </li>
+<li class="flex items-center gap-2 text-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-xs text-secondary" data-icon="check">check</span> Dedicated Account Manager
+                            </li>
+</ul>
+<button class="w-full bg-primary-container text-white py-3 rounded font-bold hover:brightness-110">Start Free Trial</button>
+</div>
+</div>
+</div>
+</section>
+<!-- RISK REVERSAL -->
+<section class="py-12 flex justify-center items-center gap-4 text-outline font-mono text-[10px] uppercase tracking-widest bg-surface border-b border-outline-variant">
+<span class="material-symbols-outlined text-lg" data-icon="verified_user">verified_user</span>
+            30-Day Money-Back Guarantee
+        </section>
+<!-- TESTIMONIAL + CTA -->
+<section class="py-24 px-6 max-w-7xl mx-auto">
+<div class="bg-surface-container border border-outline-variant p-12 rounded-lg grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+<div>
+<span class="material-symbols-outlined text-4xl text-primary mb-6" data-icon="format_quote">format_quote</span>
+<h3 class="text-2xl md:text-3xl font-bold leading-tight mb-8">
+                        "ScoutCopilot has cut our talent identification cycle by 70%. We're finding high-value players in leagues we never had the capacity to scout manually."
+                    </h3>
+<div class="flex items-center gap-4">
+<img class="w-12 h-12 rounded bg-outline-variant" data-alt="Headshot of a professional football scout" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpNnK0YAcM786d50niirmxQkFvPvesDFRfcO7drld-zZSJTFNIoloXfQLGZUCADdrllc6qKyaPiC16pGdMq3cOWiOOaLzfi5N5DSwPWNj33pNAUOIjLYGoTyZT0XrnuF5R1_OKN6xFeRusJwQZi1p7mkYm8SPfD3omu85g3XCszy6Dwj4SzLwwMxR1-MCVqvdZAJ9kcMKmyy0l4scxZUsst1--15yWrClLPMGcTpDp1quzCf7Jg-W8AuS8BGPPMwtn4yqyxBQEFaUv"/>
+<div>
+<p class="font-bold text-white">Marc Janssen</p>
+<p class="text-xs text-outline font-mono">Head of Recruitment, FC Continental</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-6 justify-center bg-surface-container-low border border-outline-variant p-8 rounded">
+<h4 class="text-xl font-bold text-center">Ready to transform your process?</h4>
+<button class="bg-primary-container text-white py-4 px-8 rounded font-bold hover:brightness-110 transition-all text-center">Get Started Today</button>
+<p class="text-[10px] text-center font-mono uppercase text-outline">No integration fee · setup in 5 mins</p>
+</div>
+</div>
+</section>
+<!-- FINAL CTA STICKY-STYLE -->
+<section class="py-20 bg-surface-container-highest/30 border-t border-outline-variant">
+<div class="max-w-4xl mx-auto px-6 text-center">
+<h2 class="text-3xl font-bold mb-8">Ready to scout smarter?</h2>
+<div class="flex flex-col md:flex-row gap-4 items-center justify-center">
+<input class="w-full md:w-64 bg-surface-container-low border border-outline-variant px-4 py-3 rounded text-on-surface focus:border-primary outline-none" placeholder="Enter your email" type="email"/>
+<button class="w-full md:w-auto bg-primary-container text-white px-8 py-3 rounded font-bold hover:brightness-110 active:scale-95 transition-all">Start Free Trial</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#0b1326] border-t border-[#434655]">
+<div class="grid grid-cols-4 gap-10 px-6 py-16 max-w-7xl mx-auto">
+<div class="col-span-4 md:col-span-1">
+<div class="text-lg font-bold text-white mb-6">ScoutCopilot</div>
+<p class="font-mono uppercase tracking-wider text-[10px] text-slate-400">© 2024 ScoutCopilot. Tactical Precision.</p>
+</div>
+<div class="col-span-2 md:col-span-1">
+<h5 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Product</h5>
+<ul class="space-y-4">
+<li><a class="font-['JetBrains_Mono'] uppercase tracking-wider text-[10px] text-slate-400 hover:text-blue-500 transition-colors" href="#">Features</a></li>
+<li><a class="font-['JetBrains_Mono'] uppercase tracking-wider text-[10px] text-slate-400 hover:text-blue-500 transition-colors" href="#">Pricing</a></li>
+<li><a class="font-['JetBrains_Mono'] uppercase tracking-wider text-[10px] text-slate-400 hover:text-blue-500 transition-colors" href="#">API</a></li>
+</ul>
+</div>
+<div class="col-span-2 md:col-span-1">
+<h5 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Resources</h5>
+<ul class="space-y-4">
+<li><a class="font-['JetBrains_Mono'] uppercase tracking-wider text-[10px] text-slate-400 hover:text-blue-500 transition-colors" href="#">Case Studies</a></li>
+<li><a class="font-['JetBrains_Mono'] uppercase tracking-wider text-[10px] text-slate-400 hover:text-blue-500 transition-colors" href="#">Documentation</a></li>
+<li><a class="font-['JetBrains_Mono'] uppercase tracking-wider text-[10px] text-slate-400 hover:text-blue-500 transition-colors" href="#">Blog</a></li>
+</ul>
+</div>
+<div class="col-span-2 md:col-span-1">
+<h5 class="text-white font-bold mb-6 text-xs uppercase tracking-widest">Legal</h5>
+<ul class="space-y-4">
+<li><a class="font-['JetBrains_Mono'] uppercase tracking-wider text-[10px] text-slate-400 hover:text-blue-500 transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="font-['JetBrains_Mono'] uppercase tracking-wider text-[10px] text-slate-400 hover:text-blue-500 transition-colors" href="#">Terms of Service</a></li>
+</ul>
+</div>
+</div>
+</footer>
+</body></html>

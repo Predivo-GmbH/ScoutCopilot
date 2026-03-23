@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ScoutCopilot | Dashboard Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary": "#002a78",
+              "surface-container-highest": "#2d3449",
+              "on-background": "#dbe2fd",
+              "surface-variant": "#2d3449",
+              "tertiary-fixed": "#ffddb8",
+              "on-primary-fixed": "#00174b",
+              "on-tertiary-container": "#ffeedd",
+              "outline": "#8d90a0",
+              "on-surface-variant": "#c3c6d7",
+              "on-secondary-fixed-variant": "#005236",
+              "inverse-primary": "#0053db",
+              "on-tertiary-fixed-variant": "#653e00",
+              "primary-fixed-dim": "#b4c5ff",
+              "on-secondary": "#003824",
+              "secondary-fixed-dim": "#4edea3",
+              "on-error-container": "#ffdad6",
+              "on-secondary-fixed": "#002113",
+              "outline-variant": "#434655",
+              "secondary": "#4edea3",
+              "primary-container": "#2563eb",
+              "on-tertiary-fixed": "#2a1700",
+              "tertiary-fixed-dim": "#ffb95f",
+              "primary": "#b4c5ff",
+              "tertiary-container": "#996100",
+              "on-primary-fixed-variant": "#003ea8",
+              "surface-tint": "#b4c5ff",
+              "secondary-fixed": "#6ffbbe",
+              "inverse-surface": "#dbe2fd",
+              "on-primary-container": "#eeefff",
+              "tertiary": "#ffb95f",
+              "error": "#ffb4ab",
+              "surface-container-lowest": "#060d20",
+              "surface-container-high": "#222a3e",
+              "surface": "#0b1326",
+              "inverse-on-surface": "#283044",
+              "on-error": "#690005",
+              "error-container": "#93000a",
+              "surface-container": "#171f33",
+              "on-surface": "#dbe2fd",
+              "on-tertiary": "#472a00",
+              "on-secondary-container": "#00311f",
+              "surface-dim": "#0b1326",
+              "background": "#0b1326",
+              "secondary-container": "#00a572",
+              "surface-container-low": "#131b2e",
+              "primary-fixed": "#dbe1ff",
+              "surface-bright": "#31394e"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"],
+              "mono": ["JetBrains Mono"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.375rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .mono-text { font-family: 'JetBrains Mono', monospace; }
+        .ghost-border { border: 1px solid rgba(67, 70, 85, 0.2); }
+    </style>
+</head>
+<body class="bg-surface-dim text-on-surface font-body antialiased overflow-hidden">
+<!-- SideNavBar (Rail Header Type) -->
+<nav class="fixed left-0 top-0 h-full flex flex-col py-6 bg-[#131B2E] dark:bg-[#131B2E] w-[256px] border-r border-[#434655]/20 z-50">
+<div class="px-6 mb-10">
+<h1 class="text-xl font-bold tracking-tighter text-[#2563EB] font-['Inter']">ScoutCopilot</h1>
+<p class="text-[0.875rem] text-on-surface-variant leading-tight tracking-tight mt-1 opacity-70">Elite Intelligence</p>
+</div>
+<div class="flex-1 space-y-1">
+<!-- Active: Dashboard -->
+<a class="flex items-center px-6 py-3 text-[#2563EB] bg-[#171F33] border-l-4 border-[#2563EB] font-semibold font-['Inter'] text-[0.875rem] leading-tight tracking-tight transition-all duration-200" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center px-6 py-3 text-[#DAE2FD]/70 hover:text-[#DAE2FD] hover:bg-[#171F33]/50 font-['Inter'] text-[0.875rem] leading-tight tracking-tight transition-colors" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="search">search</span>
+                Player Search
+            </a>
+<a class="flex items-center px-6 py-3 text-[#DAE2FD]/70 hover:text-[#DAE2FD] hover:bg-[#171F33]/50 font-['Inter'] text-[0.875rem] leading-tight tracking-tight transition-colors" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="visibility">visibility</span>
+                Watchlists
+            </a>
+<a class="flex items-center px-6 py-3 text-[#DAE2FD]/70 hover:text-[#DAE2FD] hover:bg-[#171F33]/50 font-['Inter'] text-[0.875rem] leading-tight tracking-tight transition-colors" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="description">description</span>
+                Reports
+            </a>
+<a class="flex items-center px-6 py-3 text-[#DAE2FD]/70 hover:text-[#DAE2FD] hover:bg-[#171F33]/50 font-['Inter'] text-[0.875rem] leading-tight tracking-tight transition-colors" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="compare_arrows">compare_arrows</span>
+                Comparisons
+            </a>
+<a class="flex items-center px-6 py-3 text-[#DAE2FD]/70 hover:text-[#DAE2FD] hover:bg-[#171F33]/50 font-['Inter'] text-[0.875rem] leading-tight tracking-tight transition-colors" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="settings">settings</span>
+                Settings
+            </a>
+</div>
+<div class="px-6 pt-6 border-t border-outline-variant/10">
+<a class="flex items-center py-2 text-[#DAE2FD]/70 hover:text-[#DAE2FD] font-['Inter'] text-[0.875rem] leading-tight tracking-tight transition-colors" href="#">
+<div class="w-8 h-8 rounded-xl bg-surface-container-highest flex items-center justify-center mr-3">
+<span class="material-symbols-outlined text-sm" data-icon="account_circle">account_circle</span>
+</div>
+                Profile
+            </a>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="flex items-center justify-between px-8 ml-[256px] w-[calc(100%-256px)] h-16 bg-[#0B1326] dark:bg-[#0B1326] border-b border-[#434655]/20 fixed top-0 z-40">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-xl" data-icon="search">search</span>
+<input class="w-full bg-surface-container-lowest border-none focus:ring-1 focus:ring-primary-container text-sm py-2 pl-10 rounded-xl text-on-surface placeholder-on-surface-variant/40 transition-all" placeholder="Search players, teams, metrics..." type="text"/>
+</div>
+</div>
+<div class="flex items-center space-x-6 ml-4">
+<button class="text-[#DAE2FD]/60 hover:text-[#DAE2FD] transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-tertiary-container rounded-full border-2 border-[#0B1326]"></span>
+</button>
+<div class="flex items-center space-x-3 cursor-pointer group">
+<div class="text-right">
+<p class="text-xs font-semibold text-on-surface">Chief Scout</p>
+<p class="text-[10px] text-on-surface-variant/60">London Office</p>
+</div>
+<div class="w-10 h-10 rounded-xl bg-primary-container/20 flex items-center justify-center border border-primary-container/30 overflow-hidden">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="Professional user profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0vFF6Rpezj8wqqoG6-PDZF50b2Iw_kybOXr50f33w-ErhTzo0glJKG7IPsY3xWCuI60pGGTNxKTLfjbdEQ4Ve0h75icrFIRT7QCITf945TNakBbLNhnCFtSVzuti8wCp9vsaIEX0axbkKy-sVzLW7aUSbl-pVL_LeZepK25vN63rwUPtKH2jWmW3U69pj_Ly6pxnEAG76gb0wEv2EKYaEMG5_8mbyM0snRoJ_QrOknN2tdSnogIRIyb5Ajk5_synEXF3n_v-GybUd"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-[256px] mt-16 p-8 h-[calc(100vh-64px)] overflow-y-auto">
+<div class="max-w-7xl mx-auto space-y-8 pb-12">
+<!-- Welcome Header -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="text-2xl font-bold tracking-tight text-on-surface font-headline">Intelligence Overview</h2>
+<p class="text-on-surface-variant mt-1 text-sm">Real-time scouting analytics and watchlist triggers.</p>
+</div>
+<div class="flex space-x-3">
+<div class="flex items-center bg-surface-container-low px-3 py-1.5 rounded-xl border border-outline-variant/20">
+<span class="w-2 h-2 rounded-full bg-secondary mr-2"></span>
+<span class="text-[10px] mono-text uppercase tracking-widest text-on-surface-variant">System Live</span>
+</div>
+</div>
+</div>
+<!-- TOP ROW: Metric Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Players Analyzed -->
+<div class="bg-[#131B2E] p-5 rounded-xl border border-outline-variant/20 hover:border-primary-container/30 transition-colors">
+<p class="text-[0.75rem] font-semibold text-on-surface-variant/70 uppercase tracking-wider mb-2">Players Analyzed</p>
+<div class="flex items-baseline justify-between">
+<span class="text-3xl font-bold mono-text text-on-surface">12,847</span>
+<span class="text-xs font-bold mono-text text-secondary-container">+18%</span>
+</div>
+</div>
+<!-- Active Watchlists -->
+<div class="bg-[#131B2E] p-5 rounded-xl border border-outline-variant/20 hover:border-primary-container/30 transition-colors">
+<p class="text-[0.75rem] font-semibold text-on-surface-variant/70 uppercase tracking-wider mb-2">Active Watchlists</p>
+<div class="flex items-baseline justify-between">
+<span class="text-3xl font-bold mono-text text-on-surface">24</span>
+<span class="bg-tertiary-container/20 text-tertiary px-2 py-0.5 rounded-md text-[10px] font-bold mono-text border border-tertiary-container/30">3 ALERTS</span>
+</div>
+</div>
+<!-- Reports Generated -->
+<div class="bg-[#131B2E] p-5 rounded-xl border border-outline-variant/20 hover:border-primary-container/30 transition-colors">
+<p class="text-[0.75rem] font-semibold text-on-surface-variant/70 uppercase tracking-wider mb-2">Reports Generated</p>
+<div class="flex items-baseline justify-between">
+<span class="text-3xl font-bold mono-text text-on-surface">156</span>
+<span class="text-xs font-medium mono-text text-on-surface-variant/60">+12 THIS WEEK</span>
+</div>
+</div>
+<!-- Avg Query Time -->
+<div class="bg-[#131B2E] p-5 rounded-xl border border-outline-variant/20 hover:border-primary-container/30 transition-colors">
+<p class="text-[0.75rem] font-semibold text-on-surface-variant/70 uppercase tracking-wider mb-2">Avg Query Time</p>
+<div class="flex items-baseline justify-between">
+<span class="text-3xl font-bold mono-text text-secondary-container">0.6s</span>
+<span class="material-symbols-outlined text-secondary-container/50 text-lg" data-icon="bolt">bolt</span>
+</div>
+</div>
+</div>
+<!-- MIDDLE ROW: Main Data Blocks -->
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+<!-- Left: Recent Searches (60%) -->
+<div class="lg:col-span-3 bg-[#131B2E] rounded-xl border border-outline-variant/20 overflow-hidden flex flex-col">
+<div class="p-5 border-b border-outline-variant/10 flex justify-between items-center">
+<h3 class="text-sm font-semibold text-on-surface flex items-center">
+<span class="material-symbols-outlined mr-2 text-primary-container" data-icon="history">history</span>
+                            Recent Searches
+                        </h3>
+<button class="text-xs text-primary-container font-medium hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-high/40">
+<th class="px-6 py-3 text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest">Query</th>
+<th class="px-6 py-3 text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest text-center">Results</th>
+<th class="px-6 py-3 text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest">Date</th>
+<th class="px-6 py-3 text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/5">
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="px-6 py-4 text-xs font-medium text-on-surface">"Left-backs under 23, &gt;75% crossing accuracy"</td>
+<td class="px-6 py-4 text-xs mono-text text-center text-on-surface-variant">142</td>
+<td class="px-6 py-4 text-xs mono-text text-on-surface-variant">24.05.24</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase mono-text bg-secondary-container/10 text-secondary-container border border-secondary-container/20">Complete</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="px-6 py-4 text-xs font-medium text-on-surface">"U19 Strikers with xG/90 &gt; 0.45 in Eredivisie"</td>
+<td class="px-6 py-4 text-xs mono-text text-center text-on-surface-variant">28</td>
+<td class="px-6 py-4 text-xs mono-text text-on-surface-variant">24.05.24</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase mono-text bg-tertiary-container/10 text-tertiary border border-tertiary-container/20">Processing</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="px-6 py-4 text-xs font-medium text-on-surface">"Defensive Midfielders with Progressive Passes &gt; 8"</td>
+<td class="px-6 py-4 text-xs mono-text text-center text-on-surface-variant">315</td>
+<td class="px-6 py-4 text-xs mono-text text-on-surface-variant">23.05.24</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase mono-text bg-secondary-container/10 text-secondary-container border border-secondary-container/20">Complete</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="px-6 py-4 text-xs font-medium text-on-surface">"Serie A Wingers: Dribble success rate &gt; 60%"</td>
+<td class="px-6 py-4 text-xs mono-text text-center text-on-surface-variant">12</td>
+<td class="px-6 py-4 text-xs mono-text text-on-surface-variant">23.05.24</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase mono-text bg-secondary-container/10 text-secondary-container border border-secondary-container/20">Complete</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="px-6 py-4 text-xs font-medium text-on-surface">"Top 5 Leagues: Ball Recoveries (Final Third)"</td>
+<td class="px-6 py-4 text-xs mono-text text-center text-on-surface-variant">89</td>
+<td class="px-6 py-4 text-xs mono-text text-on-surface-variant">22.05.24</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase mono-text bg-secondary-container/10 text-secondary-container border border-secondary-container/20">Complete</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Right: Watchlist Alerts (40%) -->
+<div class="lg:col-span-2 bg-[#131B2E] rounded-xl border border-outline-variant/20 flex flex-col">
+<div class="p-5 border-b border-outline-variant/10 flex justify-between items-center">
+<h3 class="text-sm font-semibold text-on-surface flex items-center">
+<span class="material-symbols-outlined mr-2 text-tertiary" data-icon="notification_important">notification_important</span>
+                            Watchlist Alerts
+                        </h3>
+<div class="w-5 h-5 bg-tertiary-container/30 rounded-full flex items-center justify-center">
+<span class="text-[10px] font-bold text-tertiary-container mono-text">3</span>
+</div>
+</div>
+<div class="p-4 space-y-3">
+<!-- Alert Item 1 -->
+<div class="p-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex items-start space-x-3 border border-outline-variant/10">
+<div class="relative">
+<img class="w-10 h-10 rounded-lg bg-surface-dim object-cover" data-alt="Professional player headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2Nyf7I0lFL0taj0rsCxmaDqJVI08Z26j1B2D37edB5ul1mYfDZgg5aK5hNNU-iAfjBSnRswZmtFJ2c5ZF3BdPDCC7koe-P2p3anp-qVsD2CopGIq4daU_4ndvhnkBUhJzgItekUKujYfbtmKmHUq5N7isNgwnuXeSLZ42UyQi6MIYiuT7sU_82M-zjGt_SlbM_3iYCx3x8ZTX2mq0aLv2ua_Bl-56NGeiEBhfF8Jcj6FxPzQMPU8ERCp5levHLN4Gb6eV3pshienJ"/>
+<span class="absolute -bottom-1 -right-1 w-3 h-3 bg-secondary rounded-full border-2 border-[#131B2E]"></span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="text-xs font-bold text-on-surface">Jude Bellingham</h4>
+<span class="text-[9px] mono-text text-on-surface-variant/50">2m ago</span>
+</div>
+<p class="text-[10px] text-on-surface-variant">Real Madrid • <span class="text-secondary">Progressive Carries +15%</span></p>
+</div>
+</div>
+<!-- Alert Item 2 -->
+<div class="p-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex items-start space-x-3 border border-outline-variant/10">
+<div class="relative">
+<img class="w-10 h-10 rounded-lg bg-surface-dim object-cover" data-alt="Professional player headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoV_NblCukYt54p0IUHGhmVVshcUXRJTUBVDUCpRrc9YdWd7QgMCJEFtP8OVW7NEGnHMIR3N4maMd0SsplYNtF45kQcF5jU9JsWAyShdSbLgPQYZf0EHkIqczxDOYRKfBtiV04L5_9avWc_bpI27uV77y2doFfrN9qM_Bap7rjvvAqoG4EdOU5HQCAte7n7bf0_S7K8acp-Q44j3Wv7mFqF-J6FcKzWLCEOBarc3QGIUyw2Ocdux-Idf5DSil00vTFjscKi4xPEwsj"/>
+<span class="absolute -bottom-1 -right-1 w-3 h-3 bg-tertiary rounded-full border-2 border-[#131B2E]"></span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="text-xs font-bold text-on-surface">K. Kvaratskhelia</h4>
+<span class="text-[9px] mono-text text-on-surface-variant/50">14m ago</span>
+</div>
+<p class="text-[10px] text-on-surface-variant">Napoli • <span class="text-tertiary">Injury Status: Doubtful</span></p>
+</div>
+</div>
+<!-- Alert Item 3 -->
+<div class="p-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex items-start space-x-3 border border-outline-variant/10">
+<div class="relative">
+<img class="w-10 h-10 rounded-lg bg-surface-dim object-cover" data-alt="Professional player headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_dHxZwweOAO0H2GLm4llmw9TpjQQ8Xt6FMAX_qdQdFiaGcMEl5XGBkhWjI7AODBEpTgTuwtKuPbtSCYnpxqCFU3i3sxfYPEbpnz-AzFxFHfavre9S5vfSbygkI8u00Aa4GLQsFsIe5xIPtbm4lPMiDdACuHj5jbQycm98BX6YV7351KKJk92QY4g5hbm8hG2ojO1T1ARQVrrvtutkiNSZ6RHzp7cpR6rO-41yj8ZklDVrwXCUPD90fq__TK7P2u4ARjsk1imydHH6"/>
+<span class="absolute -bottom-1 -right-1 w-3 h-3 bg-secondary rounded-full border-2 border-[#131B2E]"></span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="text-xs font-bold text-on-surface">Evan Ferguson</h4>
+<span class="text-[9px] mono-text text-on-surface-variant/50">1h ago</span>
+</div>
+<p class="text-[10px] text-on-surface-variant">Brighton • <span class="text-secondary">xG Chain Threshold Reached</span></p>
+</div>
+</div>
+<!-- Alert Item 4 -->
+<div class="p-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex items-start space-x-3 border border-outline-variant/10">
+<div class="relative">
+<img class="w-10 h-10 rounded-lg bg-surface-dim object-cover" data-alt="Professional player headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGpYc9OYFr7xzSPAYAyiC95CFtX0NY6ZkZnnQjAjYx0DRmYFU40OnKj1f_aLrRA2JMvNp2IYUzinodNHTnp28E4rdP-jlEDxaoXMS_wazajaYi7zbKSfpecJ9TeCqGmDENBTDmRKr4B-opZ8qMWXJikWctK2HrRsaIlfp5w-FRbeQ8sPxRsnUzzMNdqkRzKglNfVZxIjWDH8JGZ5ZK6e3wksUblvxoKI4W1WlhL0XAwdS07VkRkphjmGtKMd_MRSpJr-vGPg4TNbES"/>
+<span class="absolute -bottom-1 -right-1 w-3 h-3 bg-secondary rounded-full border-2 border-[#131B2E]"></span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="text-xs font-bold text-on-surface">Florian Wirtz</h4>
+<span class="text-[9px] mono-text text-on-surface-variant/50">3h ago</span>
+</div>
+<p class="text-[10px] text-on-surface-variant">Leverkusen • <span class="text-secondary">Key Passes Peak Performance</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- BOTTOM ROW: Quick Actions -->
+<div class="space-y-4">
+<h3 class="text-xs font-bold text-on-surface-variant/60 uppercase tracking-widest">Quick Actions</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- New Player Search -->
+<div class="bg-[#171F33] p-5 rounded-xl border border-outline-variant/20 hover:border-primary-container/40 hover:bg-surface-container-high transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center border border-primary-container/30">
+<span class="material-symbols-outlined text-primary-container" data-icon="person_search">person_search</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/30 group-hover:text-primary-container transition-colors" data-icon="north_east">north_east</span>
+</div>
+<h4 class="text-sm font-bold text-on-surface mb-1">New Player Search</h4>
+<p class="text-xs text-on-surface-variant leading-relaxed">Execute complex queries using natural language or metric filters.</p>
+</div>
+<!-- Generate Report -->
+<div class="bg-[#171F33] p-5 rounded-xl border border-outline-variant/20 hover:border-secondary-container/40 hover:bg-surface-container-high transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-lg bg-secondary-container/20 flex items-center justify-center border border-secondary-container/30">
+<span class="material-symbols-outlined text-secondary-container" data-icon="analytics">analytics</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/30 group-hover:text-secondary-container transition-colors" data-icon="north_east">north_east</span>
+</div>
+<h4 class="text-sm font-bold text-on-surface mb-1">Generate Report</h4>
+<p class="text-xs text-on-surface-variant leading-relaxed">Synthesize data into professional scouting PDFs in seconds.</p>
+</div>
+<!-- Compare Players -->
+<div class="bg-[#171F33] p-5 rounded-xl border border-outline-variant/20 hover:border-tertiary-container/40 hover:bg-surface-container-high transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-lg bg-tertiary-container/20 flex items-center justify-center border border-tertiary-container/30">
+<span class="material-symbols-outlined text-tertiary" data-icon="compare">compare</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/30 group-hover:text-tertiary transition-colors" data-icon="north_east">north_east</span>
+</div>
+<h4 class="text-sm font-bold text-on-surface mb-1">Compare Players</h4>
+<p class="text-xs text-on-surface-variant leading-relaxed">Visual percentile overlays and head-to-head metric analysis.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>
