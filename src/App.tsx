@@ -1,6 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AppShell } from './components/layout/AppShell'
+import { DashboardPage } from './features/dashboard/DashboardPage'
+import { SearchPage } from './features/search/SearchPage'
+import { ReportPage } from './features/report/ReportPage'
+import { ComparisonPage } from './features/comparison/ComparisonPage'
+import { WatchlistsPage } from './features/watchlists/WatchlistsPage'
+import { SettingsPage } from './features/settings/SettingsPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -11,7 +17,7 @@ const queryClient = new QueryClient({
   },
 })
 
-// Placeholder pages — will be replaced with real components
+// Placeholder for auth pages — will be replaced with real components
 function PlaceholderPage({ title }: { title: string }) {
   return (
     <div className="p-6">
@@ -33,12 +39,12 @@ export default function App() {
           {/* App routes (with shell) */}
           <Route element={<AppShell />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<PlaceholderPage title="Dashboard" />} />
-            <Route path="/search" element={<PlaceholderPage title="Player Search" />} />
-            <Route path="/report/:id?" element={<PlaceholderPage title="Player Report" />} />
-            <Route path="/compare" element={<PlaceholderPage title="Comparison" />} />
-            <Route path="/watchlists" element={<PlaceholderPage title="Watchlists" />} />
-            <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/report/:id?" element={<ReportPage />} />
+            <Route path="/compare" element={<ComparisonPage />} />
+            <Route path="/watchlists" element={<WatchlistsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="/onboarding" element={<PlaceholderPage title="Onboarding" />} />
           </Route>
 
