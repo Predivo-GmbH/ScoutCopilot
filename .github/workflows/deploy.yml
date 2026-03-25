@@ -28,32 +28,36 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Deploy via FTP (zero-downtime)
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
         run: |
           sudo apt-get install -y lftp
-          FTP_CONN="set ftp:ssl-allow yes; set ssl:verify-certificate no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5; open -u ${{ secrets.FTP_USER }},${{ secrets.FTP_PASS }} ${{ secrets.FTP_HOST }};"
+          LFTP_SETTINGS="set ftp:ssl-allow yes; set ssl:verify-certificate no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5;"
 
           # Step 1: Upload new hashed assets alongside old ones (no deletion yet)
-          lftp -e "
-            $FTP_CONN
-            mirror --reverse --no-perms --verbose ./dist/assets/ /httpdocs/assets/;
-            quit;
-          "
+          lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
+            $LFTP_SETTINGS
+            mirror --reverse --no-perms --verbose ./dist/assets/ /httpdocs/assets/
+            quit
+          LFTP_EOF
 
           # Step 2: Upload root files (switches to new asset references)
-          lftp -e "
-            $FTP_CONN
-            mirror --reverse --no-perms --verbose ./dist/fonts/ /httpdocs/fonts/;
-            put ./dist/index.html -o /httpdocs/index.html;
-            put ./dist/.htaccess -o /httpdocs/.htaccess;
-            put ./dist/favicon.svg -o /httpdocs/favicon.svg;
-            put ./dist/robots.txt -o /httpdocs/robots.txt;
-            put ./dist/sitemap.xml -o /httpdocs/sitemap.xml;
-            quit;
-          "
+          lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
+            $LFTP_SETTINGS
+            mirror --reverse --no-perms --verbose ./dist/fonts/ /httpdocs/fonts/
+            put ./dist/index.html -o /httpdocs/index.html
+            put ./dist/.htaccess -o /httpdocs/.htaccess
+            put ./dist/favicon.svg -o /httpdocs/favicon.svg
+            put ./dist/robots.txt -o /httpdocs/robots.txt
+            put ./dist/sitemap.xml -o /httpdocs/sitemap.xml
+            quit
+          LFTP_EOF
 
           # Step 3: Clean up stale assets no longer in the new build
-          lftp -e "
-            $FTP_CONN
-            mirror --reverse --delete --no-perms --verbose ./dist/assets/ /httpdocs/assets/;
-            quit;
-          "
+          lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
+            $LFTP_SETTINGS
+            mirror --reverse --delete --no-perms --verbose ./dist/assets/ /httpdocs/assets/
+            quit
+          LFTP_EOF
