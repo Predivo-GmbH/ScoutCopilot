@@ -2,7 +2,8 @@ import { Zap } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { useComparison } from './hooks/useComparison'
 import { ComparisonTable } from './components/ComparisonTable'
-import { PlayerSelector, dotColors } from './components/PlayerSelector'
+import { PlayerSelector } from './components/PlayerSelector'
+import { dotColors } from './constants'
 
 export function ComparisonPage() {
   const { players, tacticalContext, setTacticalContext, isLoading } = useComparison()
@@ -58,7 +59,7 @@ export function ComparisonPage() {
                   <div className="flex gap-4">
                     {players.map((p, i) => (
                       <div key={p.id} className="flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full ${dotColors[i]}`} />
+                        <span className={`w-2 h-2 rounded-md ${dotColors[i]}`} />
                         <span className="text-[0.625rem] font-data uppercase text-on-surface-variant">{p.name.split(' ').pop()}</span>
                       </div>
                     ))}
@@ -130,7 +131,7 @@ function ComparisonRadar({ players }: { players: { name: string; radarData: { la
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full">
+      <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full" aria-hidden="true">
         {/* Grid */}
         {gridLevels.map((level) => (
           <polygon

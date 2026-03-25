@@ -43,6 +43,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
               className
             )}
             aria-invalid={!!error}
+            aria-describedby={error ? `${selectId}-error` : undefined}
             {...props}
           >
             {placeholder && (
@@ -63,7 +64,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
           />
         </div>
         {error && (
-          <p className="text-[0.75rem] text-error">{error}</p>
+          <p id={`${selectId}-error`} className="text-[0.75rem] text-error">{error}</p>
         )}
         {!error && helperText && (
           <p className="text-[0.75rem] text-on-surface-variant">{helperText}</p>

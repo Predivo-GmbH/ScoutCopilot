@@ -1,14 +1,14 @@
 import {
-  createContext,
-  useContext,
   useEffect,
   useState,
   useCallback,
+  useMemo,
   type ReactNode,
 } from 'react'
-import type { User, Session, Provider } from '@supabase/supabase-js'
+import type { User, Session } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
 import type { Profile, Organization } from '../../types/database'
+import { AuthContext } from './auth-context-value'
 
 interface AuthState {
   user: User | null
@@ -18,23 +18,32 @@ interface AuthState {
   isLoading: boolean
 }
 
-interface AuthContextValue extends AuthState {
-  signIn: (email: string) => Promise<{ error: string | null }>
-  verifyOtp: (email: string, token: string) => Promise<{ error: string | null }>
-  signInWithPassword: (email: string, password: string) => Promise<{ error: string | null }>
-  signUp: (email: string, password: string, fullName: string, orgName?: string) => Promise<{ error: string | null }>
+export interface AuthContextValue extends AuthState {
+  /** Traditional email+password sign in */
+  signInWithPassword: (email: string, password: string) => Promise<void>
+  /** Send OTP code for signup (creates user if not exists) */
+  sendOtp: (email: string) => Promise<void>
+  /** Send OTP code for login only (does NOT create user) */
+  sendLoginOtp: (email: string) => Promise<void>
+  /** Verify an OTP code — returns whether user is new (needs profile setup) */
+  verifyOtp: (email: string, token: string) => Promise<{ isNewUser: boolean }>
+  /** Check if current user has a completed profile (full_name set) */
+  hasCompletedProfile: () => boolean
+  /** Set password + name on authenticated user (post-OTP signup) */
+  completeProfile: (password: string, fullName: string) => Promise<void>
+  /** Send password reset email (magic link) */
+  resetPassword: (email: string) => Promise<void>
+  /** Update password (used on /reset-password with active session) */
+  updatePassword: (password: string) => Promise<void>
+  /** Delete the current user's account */
+  deleteAccount: () => Promise<void>
+  /** Sign out */
   signOut: () => Promise<void>
-  signInWithProvider: (provider: Provider) => Promise<{ error: string | null }>
+  /** Refresh profile + organization data from DB */
   refreshProfile: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextValue | null>(null)
-
-export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider')
-  return ctx
-}
+// AuthContext is created in ./authContext.ts for Fast Refresh compliance
 
 async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data } = await supabase
@@ -89,12 +98,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [state.user])
 
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       loadUserData(session?.user ?? null, session)
     })
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         loadUserData(session?.user ?? null, session)
@@ -104,39 +111,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe()
   }, [loadUserData])
 
-  const signIn = useCallback(async (email: string) => {
-    const { error } = await supabase.auth.signInWithOtp({ email })
-    return { error: error?.message ?? null }
+  // ── Auth methods ──────────────────────────────────────────────────────
+
+  const signInWithPassword = useCallback(async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) throw error
+  }, [])
+
+  const sendOtp = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: true },
+    })
+    if (error) throw error
+  }, [])
+
+  const sendLoginOtp = useCallback(async (email: string) => {
+    // shouldCreateUser: false — only sends OTP if account exists
+    // Supabase returns 200 regardless (prevents email enumeration)
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false },
+    })
+    if (error) throw error
   }, [])
 
   const verifyOtp = useCallback(async (email: string, token: string) => {
-    const { error } = await supabase.auth.verifyOtp({
+    const { data, error } = await supabase.auth.verifyOtp({
       email,
       token,
       type: 'email',
     })
-    return { error: error?.message ?? null }
+    if (error) throw error
+    const isNewUser = !data.user?.user_metadata?.full_name
+    return { isNewUser }
   }, [])
 
-  const signInWithPassword = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    return { error: error?.message ?? null }
-  }, [])
-
-  const signUp = useCallback(async (
-    email: string,
-    password: string,
-    fullName: string,
-    _orgName?: string,
-  ) => {
-    const { error } = await supabase.auth.signUp({
-      email,
+  const completeProfile = useCallback(async (password: string, fullName: string) => {
+    const { error } = await supabase.auth.updateUser({
       password,
-      options: {
-        data: { full_name: fullName },
-      },
+      data: { full_name: fullName },
     })
-    return { error: error?.message ?? null }
+    if (error) throw error
+
+    // Send welcome email (best-effort)
+    supabase.functions.invoke('send-welcome', { method: 'POST' }).catch(() => {})
+  }, [])
+
+  const hasCompletedProfile = useCallback(() => {
+    if (!state.user) return false
+    return !!state.user.user_metadata?.full_name
+  }, [state.user])
+
+  const resetPassword = useCallback(async (email: string) => {
+    const redirectTo = `${window.location.origin}/reset-password`
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+    if (error) throw error
+  }, [])
+
+  const updatePassword = useCallback(async (password: string) => {
+    const { error } = await supabase.auth.updateUser({ password })
+    if (error) throw error
+  }, [])
+
+  const deleteAccount = useCallback(async () => {
+    const { error: fnError } = await supabase.functions.invoke('delete-account', {
+      method: 'POST',
+    })
+    if (fnError) {
+      throw new Error(fnError.message || 'Failed to delete account')
+    }
+    await supabase.auth.signOut()
   }, [])
 
   const signOut = useCallback(async () => {
@@ -144,29 +189,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState({ user: null, session: null, profile: null, organization: null, isLoading: false })
   }, [])
 
-  const signInWithProvider = useCallback(async (provider: Provider) => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
-    })
-    return { error: error?.message ?? null }
-  }, [])
+  const value = useMemo(() => ({
+    ...state,
+    signInWithPassword,
+    sendOtp,
+    sendLoginOtp,
+    verifyOtp,
+    hasCompletedProfile,
+    completeProfile,
+    resetPassword,
+    updatePassword,
+    deleteAccount,
+    signOut,
+    refreshProfile,
+  }), [state, signInWithPassword, sendOtp, sendLoginOtp, verifyOtp, hasCompletedProfile, completeProfile, resetPassword, updatePassword, deleteAccount, signOut, refreshProfile])
 
   return (
-    <AuthContext.Provider
-      value={{
-        ...state,
-        signIn,
-        verifyOtp,
-        signInWithPassword,
-        signUp,
-        signOut,
-        signInWithProvider,
-        refreshProfile,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   )

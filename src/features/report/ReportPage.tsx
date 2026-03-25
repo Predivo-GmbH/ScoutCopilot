@@ -54,15 +54,15 @@ export function ReportPage() {
             <h1 className="text-2xl font-semibold tracking-tight text-on-surface uppercase">{report.playerName}</h1>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
               <span className="text-sm text-on-surface-variant">{report.club}</span>
-              <span className="w-1 h-1 rounded-full bg-outline-variant" />
+              <span className="w-1 h-1 rounded-md bg-outline-variant" />
               {report.position.split(' / ').map((pos) => (
                 <span key={pos} className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-2 py-0.5 rounded-sm">
                   {pos}
                 </span>
               ))}
-              <span className="w-1 h-1 rounded-full bg-outline-variant" />
+              <span className="w-1 h-1 rounded-md bg-outline-variant" />
               <span className="text-sm text-on-surface-variant">Age: {report.age}</span>
-              <span className="w-1 h-1 rounded-full bg-outline-variant" />
+              <span className="w-1 h-1 rounded-md bg-outline-variant" />
               <span className="text-sm text-on-surface-variant">{report.nationality}</span>
             </div>
             <div className="mt-2">
@@ -108,7 +108,7 @@ export function ReportPage() {
               <div className="relative space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-px before:bg-outline-variant">
                 {report.transferHistory.map((t, i) => (
                   <div key={i} className="relative pl-8">
-                    <div className={`absolute left-0 top-1.5 w-4 h-4 rounded-full border-4 border-surface-container ${i === 0 ? 'bg-primary' : 'bg-outline-variant'}`} />
+                    <div className={`absolute left-0 top-1.5 w-4 h-4 rounded-md border-4 border-surface-container ${i === 0 ? 'bg-primary' : 'bg-outline-variant'}`} />
                     <div className="text-sm font-semibold text-on-surface">{t.club}</div>
                     <div className="text-[0.625rem] text-on-surface-variant">{t.date} &middot; {t.fee}</div>
                   </div>
@@ -183,7 +183,10 @@ export function ReportPage() {
                 <div
                   key={p.name}
                   className="flex items-center justify-between p-3 bg-surface-container-low rounded-md hover:bg-surface-container-high transition-colors cursor-pointer"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => navigate(`/report/${p.name.toLowerCase().replace(/\s/g, '-')}`)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/report/${p.name.toLowerCase().replace(/\s/g, '-')}`); } }}
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-md bg-surface-container-highest flex items-center justify-center font-semibold text-xs text-on-surface-variant">
@@ -242,7 +245,7 @@ function RadarChart({ data }: { data: { label: string; value: number; average: n
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full">
+      <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full" aria-hidden="true">
         {/* Grid */}
         {gridLevels.map((level) => (
           <polygon

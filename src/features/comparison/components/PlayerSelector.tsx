@@ -1,14 +1,12 @@
 import { Plus, X, User } from 'lucide-react'
 import type { MockComparisonPlayer } from '../../../lib/mock-data'
+import { dotColors } from '../constants'
 
 interface PlayerSelectorProps {
   players: MockComparisonPlayer[]
   maxPlayers: number
   onRemove: (id: string) => void
 }
-
-const playerColors = ['border-primary', 'border-secondary', 'border-tertiary', 'border-on-surface-variant']
-const dotColors = ['bg-primary', 'bg-secondary', 'bg-tertiary', 'bg-on-surface-variant']
 
 export function PlayerSelector({ players, maxPlayers, onRemove }: PlayerSelectorProps) {
   const slotsRemaining = maxPlayers - players.length
@@ -49,4 +47,3 @@ export function PlayerSelector({ players, maxPlayers, onRemove }: PlayerSelector
   )
 }
 
-export { playerColors, dotColors }

@@ -28,7 +28,7 @@ export function DashboardPage() {
           <p className="text-on-surface-variant mt-1 text-sm">Good morning. Here is your scouting overview.</p>
         </div>
         <div className="flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-md border border-outline-variant">
-          <span className="w-2 h-2 rounded-full bg-secondary" />
+          <span className="w-2 h-2 rounded-md bg-secondary" />
           <span className="text-[0.6875rem] font-data font-medium uppercase tracking-widest text-on-surface-variant">System Live</span>
         </div>
       </div>
@@ -151,6 +151,9 @@ export function DashboardPage() {
                 {alerts?.map((alert) => (
                   <div
                     key={alert.id}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate('/search') }}
                     className="p-3 rounded-md bg-surface-container hover:bg-surface-container-high transition-colors flex items-start gap-3 border border-outline-variant cursor-pointer"
                     onClick={() => navigate('/search')}
                   >
@@ -267,6 +270,9 @@ function QuickAction({ title, description, icon: Icon, color, onClick }: {
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick() }}
       onClick={onClick}
       className="bg-surface-container p-6 rounded-md border border-outline-variant hover:border-primary/30 hover:bg-surface-container-high transition-all cursor-pointer group"
     >

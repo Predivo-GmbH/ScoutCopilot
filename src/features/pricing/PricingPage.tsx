@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import { useNavigate, Link } from 'react-router-dom'
 import { Check, X, ArrowRight } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
@@ -122,7 +123,16 @@ export function PricingPage() {
     setLoadingTier(tier)
     try {
       const url = await createCheckoutSession(tier, interval)
-      window.location.href = url
+      try {
+        const parsed = new URL(url)
+        if (parsed.hostname === 'checkout.stripe.com') {
+          window.location.href = url
+        } else {
+          navigate('/pricing')
+        }
+      } catch {
+        navigate('/pricing')
+      }
     } catch {
       // If not authenticated, redirect to signup
       navigate('/signup')
@@ -133,15 +143,18 @@ export function PricingPage() {
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">
+      <Helmet>
+        <title>Pricing — ScoutCopilot</title>
+        <meta name="description" content="Simple, transparent pricing for AI football scouting. Scout, Pro, and Club tiers. 14-day free trial, no credit card required." />
+      </Helmet>
       {/* Nav */}
-      <nav className="w-full sticky top-0 z-50 bg-surface border-b border-outline-variant/20">
+      <nav className="w-full sticky top-0 z-30 bg-surface border-b border-outline-variant/20">
         <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
           <div className="flex items-center gap-8">
-            <a href="/" className="text-xl font-bold text-on-surface tracking-tight">ScoutCopilot</a>
+            <Link to="/" className="text-xl font-bold text-on-surface tracking-tight">ScoutCopilot</Link>
             <div className="hidden md:flex gap-6 text-sm">
-              <a href="/" className="text-on-surface-variant hover:text-on-surface transition-colors">Features</a>
+              <Link to="/#features" className="text-on-surface-variant hover:text-on-surface transition-colors">Features</Link>
               <span className="text-on-surface border-b-2 border-primary pb-1">Pricing</span>
-              <a href="/" className="text-on-surface-variant hover:text-on-surface transition-colors">Security</a>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -166,11 +179,10 @@ export function PricingPage() {
             </span>
             <button
               onClick={() => setInterval(interval === 'month' ? 'year' : 'month')}
-              className="relative w-12 h-6 rounded-full border border-outline-variant p-0.5 transition-colors"
-              style={{ backgroundColor: interval === 'year' ? '#2563EB' : '#222A3D' }}
+              className={`relative w-12 h-6 rounded-md border border-outline-variant p-0.5 transition-colors ${interval === 'year' ? 'bg-primary' : 'bg-surface-container'}`}
             >
               <div
-                className="w-5 h-5 bg-white rounded-full transition-transform"
+                className="w-5 h-5 bg-white rounded-sm transition-transform"
                 style={{ transform: interval === 'year' ? 'translateX(24px)' : 'translateX(0)' }}
               />
             </button>
@@ -297,7 +309,7 @@ export function PricingPage() {
               </p>
             </div>
             <div className="flex gap-4">
-              <Button variant="secondary">Contact Support</Button>
+              <Button variant="secondary" onClick={() => window.location.href = 'mailto:hello@predivo.ch'}>Contact Support</Button>
               <Button onClick={() => navigate('/signup')} rightIcon={ArrowRight}>Start Free Trial</Button>
             </div>
           </div>
@@ -307,11 +319,12 @@ export function PricingPage() {
       {/* Footer */}
       <footer className="w-full border-t border-outline-variant/20 bg-surface text-sm">
         <div className="flex flex-col md:flex-row justify-between items-center px-8 py-12 max-w-7xl mx-auto gap-4">
-          <div className="text-on-surface font-semibold">ScoutCopilot</div>
-          <div className="text-on-surface-variant">2026 ScoutCopilot. All rights reserved.</div>
+          <Link to="/" className="text-on-surface font-semibold hover:text-primary-light transition-colors">ScoutCopilot</Link>
+          <div className="text-on-surface-variant text-xs">&copy; 2026 Predivo GmbH. All rights reserved.</div>
           <div className="flex gap-6">
-            <a href="#" className="text-on-surface-variant hover:text-on-surface transition-colors">Terms</a>
-            <a href="#" className="text-on-surface-variant hover:text-on-surface transition-colors">Privacy</a>
+            <Link to="/terms" className="text-on-surface-variant hover:text-on-surface transition-colors">Terms</Link>
+            <Link to="/privacy" className="text-on-surface-variant hover:text-on-surface transition-colors">Privacy</Link>
+            <Link to="/imprint" className="text-on-surface-variant hover:text-on-surface transition-colors">Imprint</Link>
           </div>
         </div>
       </footer>

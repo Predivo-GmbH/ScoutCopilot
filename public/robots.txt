@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /login
+Disallow: /signup
+Disallow: /onboarding
+Disallow: /auth
+Disallow: /settings
+Disallow: /search
+Disallow: /compare
+Disallow: /report
+Disallow: /watchlists
+
+Sitemap: https://scoutcopilot.com/sitemap.xml

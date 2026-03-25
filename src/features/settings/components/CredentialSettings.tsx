@@ -28,7 +28,7 @@ export function CredentialSettings({ credentials }: CredentialSettingsProps) {
           >
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${cred.connected ? 'bg-secondary' : 'bg-outline'}`} />
+                <div className={`w-2 h-2 rounded-md ${cred.connected ? 'bg-secondary' : 'bg-outline'}`} />
                 <span className="text-sm font-semibold text-on-surface capitalize">{cred.provider}</span>
               </div>
               <span className={`text-[0.5625rem] font-semibold px-2 py-0.5 rounded-sm uppercase tracking-wider ${

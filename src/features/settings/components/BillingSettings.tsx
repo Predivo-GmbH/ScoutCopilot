@@ -19,7 +19,16 @@ export function BillingSettings() {
     setPortalLoading(true)
     try {
       const url = await openBillingPortal()
-      window.location.href = url
+      try {
+        const parsed = new URL(url)
+        if (parsed.hostname === 'billing.stripe.com' || parsed.hostname === 'checkout.stripe.com') {
+          window.location.href = url
+        } else {
+          window.location.reload()
+        }
+      } catch {
+        window.location.reload()
+      }
     } catch {
       // If no subscription, redirect to pricing
       navigate('/pricing')

@@ -9,7 +9,7 @@ import {
   ArrowRight,
   SkipForward,
 } from 'lucide-react'
-import { useAuth } from './AuthContext'
+import { useAuth } from './useAuth'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Card } from '../../components/ui/Card'
@@ -280,7 +280,7 @@ export function OnboardingPage() {
             {STEPS.map((_, i) => (
               <div
                 key={i}
-                className={`w-8 h-1 rounded-full transition-colors ${
+                className={`w-8 h-1 rounded-md transition-colors ${
                   i < stepIndex
                     ? 'bg-emerald-400'
                     : i === stepIndex

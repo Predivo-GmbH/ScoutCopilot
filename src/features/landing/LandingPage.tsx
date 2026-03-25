@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import { useNavigate, Link } from 'react-router-dom'
 import {
   Search,
   FileText,
   GitCompareArrows,
-  Link,
+  Link as LinkIcon,
   MessageSquare,
   ListChecks,
   Check,
@@ -71,7 +72,7 @@ const FEATURES = [
 
 const STEPS = [
   {
-    icon: Link,
+    icon: LinkIcon,
     title: 'Connect your data',
     description: 'Plug in your Wyscout or StatsBomb API credentials. Your data stays in your account.',
   },
@@ -311,9 +312,14 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">
+      <Helmet>
+        <title>ScoutCopilot — AI Football Scouting</title>
+        <meta name="description" content="AI-powered football scouting assistant. Get ranked player shortlists, scouting reports, and head-to-head comparisons in seconds — from your Wyscout or StatsBomb data." />
+      </Helmet>
       {/* ── Navigation ──────────────────────────────────────────── */}
+      <header>
       <nav
-        className={`fixed top-0 w-full z-50 transition-colors duration-[150ms] ${
+        className={`fixed top-0 w-full z-30 transition-colors duration-[150ms] ${
           scrolled
             ? 'bg-surface-container-low border-b border-outline-variant/40'
             : 'bg-transparent'
@@ -367,7 +373,9 @@ export function LandingPage() {
           </div>
         )}
       </nav>
+      </header>
 
+      <main>
       {/* ── Hero ────────────────────────────────────────────────── */}
       <section className="pt-32 pb-24 md:pt-40 md:pb-32 px-6 md:px-8">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 md:gap-16 items-center">
@@ -557,8 +565,7 @@ export function LandingPage() {
             </span>
             <button
               onClick={() => setInterval(interval === 'month' ? 'year' : 'month')}
-              className="relative w-12 h-6 rounded-md border border-outline-variant p-0.5 transition-colors"
-              style={{ backgroundColor: interval === 'year' ? '#2563EB' : '#222A3D' }}
+              className={`relative w-12 h-6 rounded-md border border-outline-variant p-0.5 transition-colors ${interval === 'year' ? 'bg-primary' : 'bg-surface-container'}`}
               aria-label="Toggle billing interval"
             >
               <div
@@ -710,11 +717,13 @@ export function LandingPage() {
         </div>
       </section>
 
+      </main>
+
       {/* ── Footer ──────────────────────────────────────────────── */}
       <footer className="border-t border-outline-variant/20 py-12 px-6 md:px-8">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
-            <span className="font-bold">ScoutCopilot</span>
+            <Link to="/" className="font-bold hover:text-primary-light transition-colors">ScoutCopilot</Link>
             <p className="text-on-surface-variant text-xs mt-1">Built for professional football scouting</p>
           </div>
           <div className="flex flex-wrap items-center gap-6 text-sm text-on-surface-variant">
@@ -727,11 +736,11 @@ export function LandingPage() {
             <button onClick={() => scrollTo('faq')} className="hover:text-on-surface transition-colors">
               FAQ
             </button>
-            <a href="/login" className="hover:text-on-surface transition-colors">
-              Login
-            </a>
+            <Link to="/terms" className="hover:text-on-surface transition-colors">Terms</Link>
+            <Link to="/privacy" className="hover:text-on-surface transition-colors">Privacy</Link>
+            <Link to="/imprint" className="hover:text-on-surface transition-colors">Imprint</Link>
           </div>
-          <p className="text-on-surface-variant text-xs">&copy; 2026 Predivo</p>
+          <p className="text-on-surface-variant text-xs">&copy; 2026 Predivo GmbH. All rights reserved.</p>
         </div>
       </footer>
     </div>

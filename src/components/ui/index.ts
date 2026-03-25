@@ -21,9 +21,11 @@ export {
   TableRow,
   TableHead,
   TableCell,
-  useTableSort,
 } from './Table'
-export type { TableHeadProps, TableCellProps, SortDirection } from './Table'
+export type { TableHeadProps, TableCellProps } from './Table'
+
+export { useTableSort } from './useTableSort'
+export type { SortDirection } from './useTableSort'
 
 export { Modal } from './Modal'
 export type { ModalProps } from './Modal'

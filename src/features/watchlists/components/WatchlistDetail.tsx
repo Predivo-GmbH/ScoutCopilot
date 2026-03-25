@@ -90,7 +90,7 @@ export function WatchlistDetail({ watchlist, onBack }: WatchlistDetailProps) {
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <span className={`w-1.5 h-1.5 rounded-full ${alert.dot}`} />
+                        <span className={`w-1.5 h-1.5 rounded-md ${alert.dot}`} />
                         <span className={`text-[0.6875rem] font-semibold ${alert.text} uppercase tracking-tight`}>
                           {alert.label}
                         </span>

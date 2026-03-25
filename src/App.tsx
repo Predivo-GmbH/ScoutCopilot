@@ -1,19 +1,29 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { PasswordGate } from './components/shared/PasswordGate'
 import { AuthProvider } from './features/auth/AuthContext'
 import { AuthGuard, AuthOnlyGuard } from './features/auth/AuthGuard'
-import { LoginPage } from './features/auth/LoginPage'
-import { SignupPage } from './features/auth/SignupPage'
-import { OnboardingPage } from './features/auth/OnboardingPage'
-import { PricingPage } from './features/pricing/PricingPage'
-import { LandingPage } from './features/landing/LandingPage'
 import { AppShell } from './components/layout/AppShell'
-import { DashboardPage } from './features/dashboard/DashboardPage'
-import { SearchPage } from './features/search/SearchPage'
-import { ReportPage } from './features/report/ReportPage'
-import { ComparisonPage } from './features/comparison/ComparisonPage'
-import { WatchlistsPage } from './features/watchlists/WatchlistsPage'
-import { SettingsPage } from './features/settings/SettingsPage'
+
+const LandingPage = lazy(() => import('./features/landing/LandingPage').then(m => ({ default: m.LandingPage })))
+const LoginPage = lazy(() => import('./features/auth/LoginPage').then(m => ({ default: m.LoginPage })))
+const SignupPage = lazy(() => import('./features/auth/SignupPage').then(m => ({ default: m.SignupPage })))
+const ForgotPasswordPage = lazy(() => import('./features/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })))
+const ResetPasswordPage = lazy(() => import('./features/auth/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })))
+const AuthVerifyPage = lazy(() => import('./features/auth/AuthVerifyPage').then(m => ({ default: m.AuthVerifyPage })))
+const AuthCallbackPage = lazy(() => import('./features/auth/AuthCallbackPage').then(m => ({ default: m.AuthCallbackPage })))
+const OnboardingPage = lazy(() => import('./features/auth/OnboardingPage').then(m => ({ default: m.OnboardingPage })))
+const DashboardPage = lazy(() => import('./features/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })))
+const SearchPage = lazy(() => import('./features/search/SearchPage').then(m => ({ default: m.SearchPage })))
+const ReportPage = lazy(() => import('./features/report/ReportPage').then(m => ({ default: m.ReportPage })))
+const ComparisonPage = lazy(() => import('./features/comparison/ComparisonPage').then(m => ({ default: m.ComparisonPage })))
+const WatchlistsPage = lazy(() => import('./features/watchlists/WatchlistsPage').then(m => ({ default: m.WatchlistsPage })))
+const SettingsPage = lazy(() => import('./features/settings/SettingsPage').then(m => ({ default: m.SettingsPage })))
+const PricingPage = lazy(() => import('./features/pricing/PricingPage').then(m => ({ default: m.PricingPage })))
+const PrivacyPage = lazy(() => import('./features/legal/PrivacyPage').then(m => ({ default: m.PrivacyPage })))
+const TermsPage = lazy(() => import('./features/legal/TermsPage').then(m => ({ default: m.TermsPage })))
+const ImprintPage = lazy(() => import('./features/legal/ImprintPage').then(m => ({ default: m.ImprintPage })))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,15 +36,24 @@ const queryClient = new QueryClient({
 
 export default function App() {
   return (
+    <PasswordGate>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
+          <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-md animate-spin" /></div>}>
           <Routes>
             {/* Public routes (no shell, no auth) */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/auth/callback" element={<AuthCallbackPage />} />
+            <Route path="/auth/verify" element={<AuthVerifyPage />} />
             <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/imprint" element={<ImprintPage />} />
 
             {/* Onboarding: needs auth but no org check */}
             <Route element={<AuthOnlyGuard />}>
@@ -44,7 +63,6 @@ export default function App() {
             {/* Protected app routes (auth + org required) */}
             <Route element={<AuthGuard />}>
               <Route element={<AppShell />}>
-                <Route index element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/report/:id?" element={<ReportPage />} />
@@ -57,8 +75,10 @@ export default function App() {
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
+          </Suspense>
         </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>
+    </PasswordGate>
   )
 }

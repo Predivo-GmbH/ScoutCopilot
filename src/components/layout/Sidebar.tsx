@@ -8,7 +8,9 @@ import {
   Settings,
   ChevronsLeft,
   ChevronsRight,
+  LogOut,
 } from 'lucide-react'
+import { useAuth } from '../../features/auth/useAuth'
 
 interface SidebarProps {
   collapsed: boolean
@@ -27,6 +29,7 @@ const navItems = [
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
+  const { signOut } = useAuth()
 
   return (
     <aside
@@ -76,10 +79,18 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </ul>
       </nav>
 
-      {/* Collapse toggle */}
-      <div className="border-t border-outline-variant p-2">
+      {/* Sign out + Collapse toggle */}
+      <div className="border-t border-outline-variant p-2 flex flex-col gap-1">
+        <button
+          onClick={signOut}
+          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors duration-[var(--duration-normal)]"
+        >
+          <LogOut size={20} strokeWidth={1.5} className="shrink-0" />
+          {!collapsed && <span className="whitespace-nowrap">Sign out</span>}
+        </button>
         <button
           onClick={onToggle}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           className="flex w-full items-center justify-center rounded-md p-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors duration-[var(--duration-normal)]"
         >
           {collapsed ? <ChevronsRight size={20} strokeWidth={1.5} /> : <ChevronsLeft size={20} strokeWidth={1.5} />}
