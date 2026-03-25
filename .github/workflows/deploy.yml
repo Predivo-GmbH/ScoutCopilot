@@ -34,30 +34,40 @@ jobs:
           FTP_PASS: ${{ secrets.FTP_PASS }}
         run: |
           sudo apt-get install -y lftp
-          LFTP_SETTINGS="set ftp:ssl-allow yes; set ssl:verify-certificate no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5;"
+
+          # Write credentials to .netrc to avoid shell escaping issues
+          printf "machine %s\nlogin %s\npassword %s\n" "$FTP_HOST" "$FTP_USER" "$FTP_PASS" > ~/.netrc
+          chmod 600 ~/.netrc
+
+          LFTP_SETTINGS="set ftp:ssl-allow yes; set ssl:verify-certificate no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5; set net:timeout 30;"
 
           # Step 1: Upload new hashed assets alongside old ones (no deletion yet)
-          lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
+          lftp -e "
             $LFTP_SETTINGS
-            mirror --reverse --no-perms --verbose ./dist/assets/ /httpdocs/assets/
-            quit
-          LFTP_EOF
+            open $FTP_HOST;
+            mirror --reverse --no-perms --verbose ./dist/assets/ /httpdocs/assets/;
+            quit;
+          "
 
           # Step 2: Upload root files (switches to new asset references)
-          lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
+          lftp -e "
             $LFTP_SETTINGS
-            mirror --reverse --no-perms --verbose ./dist/fonts/ /httpdocs/fonts/
-            put ./dist/index.html -o /httpdocs/index.html
-            put ./dist/.htaccess -o /httpdocs/.htaccess
-            put ./dist/favicon.svg -o /httpdocs/favicon.svg
-            put ./dist/robots.txt -o /httpdocs/robots.txt
-            put ./dist/sitemap.xml -o /httpdocs/sitemap.xml
-            quit
-          LFTP_EOF
+            open $FTP_HOST;
+            mirror --reverse --no-perms --verbose ./dist/fonts/ /httpdocs/fonts/;
+            put ./dist/index.html -o /httpdocs/index.html;
+            put ./dist/.htaccess -o /httpdocs/.htaccess;
+            put ./dist/favicon.svg -o /httpdocs/favicon.svg;
+            put ./dist/robots.txt -o /httpdocs/robots.txt;
+            put ./dist/sitemap.xml -o /httpdocs/sitemap.xml;
+            quit;
+          "
 
           # Step 3: Clean up stale assets no longer in the new build
-          lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" <<LFTP_EOF
+          lftp -e "
             $LFTP_SETTINGS
-            mirror --reverse --delete --no-perms --verbose ./dist/assets/ /httpdocs/assets/
-            quit
-          LFTP_EOF
+            open $FTP_HOST;
+            mirror --reverse --delete --no-perms --verbose ./dist/assets/ /httpdocs/assets/;
+            quit;
+          "
+
+          rm -f ~/.netrc
