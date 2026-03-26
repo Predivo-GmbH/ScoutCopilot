@@ -36,7 +36,7 @@ export function useSettings() {
   })
 
   const [org, setOrg] = useState<OrgData>({
-    name: 'F.C. Copenhagen Academy',
+    name: 'FC Nordhavn Academy',
     country: 'Denmark',
   })
 

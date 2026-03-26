@@ -381,7 +381,7 @@ export function LandingPage() {
               <div className="bg-surface-container border border-outline-variant rounded-md p-3 flex items-center gap-3">
                 <Search size={14} strokeWidth={1.5} className="text-on-surface-variant/50 shrink-0" />
                 <span className="font-mono text-xs text-on-surface-variant">
-                  Left-footed CB under 24, top 10% aerial win rate in Serie A
+                  Left-footed CB under 24, top 10% aerial win rate in Division 1
                 </span>
                 <div className="w-0.5 h-4 bg-primary animate-pulse ml-auto shrink-0" />
               </div>
@@ -459,13 +459,13 @@ export function LandingPage() {
                 <div className="bg-surface-container border border-outline-variant rounded-md px-3 py-2.5 flex items-center gap-2.5">
                   <div className="w-2 h-2 rounded-sm bg-error shrink-0" />
                   <span className="font-mono text-xs text-on-surface-variant">
-                    ALERT: L. Martínez (Inter) Market Value Spike +12%
+                    ALERT: E. Valenti (Crescent Athletic) Market Value Spike +12%
                   </span>
                 </div>
                 <div className="bg-surface-container border border-outline-variant rounded-md px-3 py-2.5 flex items-center gap-2.5">
                   <div className="w-2 h-2 rounded-sm bg-secondary shrink-0" />
                   <span className="font-mono text-xs text-on-surface-variant">
-                    SIGNAL: J. Neves (Benfica) 100th percentile Progressive Carries
+                    SIGNAL: T. Noronha (AS Lumière) 100th percentile Progressive Carries
                   </span>
                 </div>
               </div>

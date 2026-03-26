@@ -114,7 +114,7 @@ export function SettingsPage() {
                 </div>
                 <div className="space-y-2">
                   <TeamMember name="Alex Mercer" email="alex.mercer@scoutcopilot.pro" role="Owner" />
-                  <TeamMember name="James Wilson" email="j.wilson@fccopenhagen.dk" role="Scout" />
+                  <TeamMember name="James Wilson" email="j.wilson@nordhavn-fc.dk" role="Scout" />
                 </div>
               </div>
             </section>
