@@ -19,6 +19,8 @@ import {
 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
+import { Logo } from '../../components/shared/Logo'
+import { ThemeToggle } from '../../components/shared/ThemeToggle'
 import {
   TIER_PRICES,
   TIER_ANNUAL_TOTAL,
@@ -326,10 +328,7 @@ export function LandingPage() {
         }`}
       >
         <div className="flex justify-between items-center px-6 md:px-8 py-4 max-w-7xl mx-auto">
-          <span className="flex items-center gap-2 text-xl font-bold tracking-tight">
-            <img src="/logo.png" alt="" className="h-7 w-7" />
-            ScoutCopilot
-          </span>
+          <Logo size="md" />
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-8 text-sm font-medium">
@@ -345,6 +344,7 @@ export function LandingPage() {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle className="p-2" />
             <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
               Log In
             </Button>
@@ -363,15 +363,18 @@ export function LandingPage() {
           </button>
         </div>
 
-        {/* Mobile menu */}
+        {/* Mobile menu overlay */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-surface-container-low border-b border-outline-variant/40 px-6 pb-4 flex flex-col gap-3">
-            <button onClick={() => scrollTo('features')} className="text-sm text-on-surface-variant text-left py-2">Features</button>
-            <button onClick={() => scrollTo('pricing')} className="text-sm text-on-surface-variant text-left py-2">Pricing</button>
-            <button onClick={() => scrollTo('faq')} className="text-sm text-on-surface-variant text-left py-2">FAQ</button>
-            <div className="flex gap-3 pt-2">
-              <Button variant="secondary" size="sm" onClick={() => navigate('/login')}>Log In</Button>
-              <Button size="sm" onClick={() => navigate('/signup')}>Get Started</Button>
+          <div className="md:hidden fixed inset-0 top-[64px] z-20" onClick={() => setMobileMenuOpen(false)}>
+            <div className="bg-surface-container-low border-b border-outline-variant/40 px-6 pb-4 flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
+              <button onClick={() => scrollTo('features')} className="text-sm text-on-surface-variant text-left py-2">Features</button>
+              <button onClick={() => scrollTo('pricing')} className="text-sm text-on-surface-variant text-left py-2">Pricing</button>
+              <button onClick={() => scrollTo('faq')} className="text-sm text-on-surface-variant text-left py-2">FAQ</button>
+              <div className="flex items-center gap-3 pt-2">
+                <ThemeToggle className="p-2" />
+                <Button variant="secondary" size="sm" onClick={() => navigate('/login')}>Log In</Button>
+                <Button size="sm" onClick={() => navigate('/signup')}>Get Started</Button>
+              </div>
             </div>
           </div>
         )}
@@ -572,7 +575,7 @@ export function LandingPage() {
               aria-label="Toggle billing interval"
             >
               <div
-                className="w-5 h-5 bg-white rounded-sm transition-transform"
+                className="w-5 h-5 bg-inverse-surface rounded-sm transition-transform"
                 style={{ transform: interval === 'year' ? 'translateX(24px)' : 'translateX(0)' }}
               />
             </button>
@@ -726,10 +729,7 @@ export function LandingPage() {
       <footer className="border-t border-outline-variant/20 py-12 px-6 md:px-8">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
-            <Link to="/" className="inline-flex items-center gap-2 font-bold hover:text-primary-light transition-colors">
-              <img src="/logo.png" alt="" className="h-6 w-6" />
-              ScoutCopilot
-            </Link>
+            <Logo size="sm" linkTo="/" />
             <p className="text-on-surface-variant text-xs mt-1">Built for professional football scouting</p>
           </div>
           <div className="flex flex-wrap items-center gap-6 text-sm text-on-surface-variant">
@@ -762,6 +762,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
     <div className="bg-surface-container-low border border-outline-variant rounded-md overflow-hidden">
       <button
         onClick={() => setOpen(!open)}
+        aria-expanded={open}
         className="w-full flex items-center justify-between p-6 text-left"
       >
         <span className="font-semibold text-sm pr-4">{question}</span>

@@ -118,8 +118,8 @@ function ComparisonRadar({ players }: { players: { name: string; radarData: { la
   const maxRadius = size / 2 - 40
   const sides = players[0]?.radarData.length ?? 6
 
-  const strokeColors = ['#2563EB', '#10B981', '#F59E0B', '#C3C6D7']
-  const fillColors = ['rgba(37,99,235,0.15)', 'rgba(16,185,129,0.15)', 'rgba(245,158,11,0.15)', 'rgba(195,198,215,0.1)']
+  const strokeColors = ['var(--color-primary)', 'var(--color-secondary)', 'var(--color-tertiary)', 'var(--color-on-surface-variant)']
+  const fillColors = ['color-mix(in srgb, var(--color-primary) 15%, transparent)', 'color-mix(in srgb, var(--color-secondary) 15%, transparent)', 'color-mix(in srgb, var(--color-tertiary) 15%, transparent)', 'color-mix(in srgb, var(--color-on-surface-variant) 10%, transparent)']
 
   function getPoint(index: number, value: number) {
     const angle = (Math.PI * 2 * index) / sides - Math.PI / 2
@@ -141,7 +141,7 @@ function ComparisonRadar({ players }: { players: { name: string; radarData: { la
               return `${p.x},${p.y}`
             }).join(' ')}
             fill="none"
-            stroke="#434655"
+            stroke="var(--color-outline-variant)"
             strokeDasharray="4"
             strokeWidth={1}
           />
@@ -149,7 +149,7 @@ function ComparisonRadar({ players }: { players: { name: string; radarData: { la
         {/* Axes */}
         {Array.from({ length: sides }).map((_, i) => {
           const p = getPoint(i, 100)
-          return <line key={i} x1={center} y1={center} x2={p.x} y2={p.y} stroke="#434655" strokeWidth={1} />
+          return <line key={i} x1={center} y1={center} x2={p.x} y2={p.y} stroke="var(--color-outline-variant)" strokeWidth={1} />
         })}
         {/* Player polygons */}
         {players.map((player, pi) => {
@@ -177,7 +177,7 @@ function ComparisonRadar({ players }: { players: { name: string; radarData: { la
               y={p.y}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill="#C3C6D7"
+              fill="var(--color-on-surface-variant)"
               fontFamily="JetBrains Mono"
               fontSize={10}
             >

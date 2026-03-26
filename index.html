@@ -44,6 +44,9 @@
     </script>
   </head>
   <body>
+    <script>
+      (function(){var t=localStorage.getItem('scoutcopilot-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme',window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}})();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

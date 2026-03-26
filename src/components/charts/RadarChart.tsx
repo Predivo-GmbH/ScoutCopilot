@@ -25,11 +25,11 @@ interface RadarChartProps {
 }
 
 const COLORS = {
-  primary: '#2563EB',
-  primaryLight: '#B4C5FF',
-  outlineVariant: '#434655',
-  onSurfaceVariant: '#C3C6D7',
-  surface: '#0B1326',
+  primary: 'var(--color-primary)',
+  primaryLight: 'var(--color-primary-light)',
+  outlineVariant: 'var(--color-outline-variant)',
+  onSurfaceVariant: 'var(--color-on-surface-variant)',
+  surface: 'var(--color-surface)',
 }
 
 function RadarChart({

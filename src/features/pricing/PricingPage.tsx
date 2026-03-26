@@ -182,7 +182,7 @@ export function PricingPage() {
               className={`relative w-12 h-6 rounded-md border border-outline-variant p-0.5 transition-colors ${interval === 'year' ? 'bg-primary' : 'bg-surface-container'}`}
             >
               <div
-                className="w-5 h-5 bg-white rounded-sm transition-transform"
+                className="w-5 h-5 bg-inverse-surface rounded-sm transition-transform"
                 style={{ transform: interval === 'year' ? 'translateX(24px)' : 'translateX(0)' }}
               />
             </button>

@@ -11,6 +11,8 @@ import {
   LogOut,
 } from 'lucide-react'
 import { useAuth } from '../../features/auth/useAuth'
+import { Logo } from '../shared/Logo'
+import { ThemeToggle } from '../shared/ThemeToggle'
 
 interface SidebarProps {
   collapsed: boolean
@@ -40,13 +42,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       }}
     >
       {/* Logo area */}
-      <div className="flex h-16 items-center gap-3 border-b border-outline-variant px-4">
-        <img src="/logo.png" alt="ScoutCopilot" className="h-8 w-8 shrink-0" />
-        {!collapsed && (
-          <span className="text-sm font-semibold text-on-surface whitespace-nowrap">
-            ScoutCopilot
-          </span>
-        )}
+      <div className="flex h-16 items-center border-b border-outline-variant px-4">
+        <Logo size="lg" showText={!collapsed} />
       </div>
 
       {/* Navigation */}
@@ -77,8 +74,9 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </ul>
       </nav>
 
-      {/* Sign out + Collapse toggle */}
+      {/* Theme + Sign out + Collapse toggle */}
       <div className="border-t border-outline-variant p-2 flex flex-col gap-1">
+        <ThemeToggle showLabel={!collapsed} className="w-full px-3 py-2" />
         <button
           onClick={signOut}
           className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors duration-[var(--duration-normal)]"

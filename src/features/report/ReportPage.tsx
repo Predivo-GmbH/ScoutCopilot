@@ -255,7 +255,7 @@ function RadarChart({ data }: { data: { label: string; value: number; average: n
               return `${p.x},${p.y}`
             }).join(' ')}
             fill="none"
-            stroke="#434655"
+            stroke="var(--color-outline-variant)"
             strokeOpacity={0.3}
           />
         ))}
@@ -263,7 +263,7 @@ function RadarChart({ data }: { data: { label: string; value: number; average: n
         {data.map((_, i) => {
           const p = getPoint(i, 100)
           return (
-            <line key={i} x1={center} y1={center} x2={p.x} y2={p.y} stroke="#434655" strokeOpacity={0.15} />
+            <line key={i} x1={center} y1={center} x2={p.x} y2={p.y} stroke="var(--color-outline-variant)" strokeOpacity={0.15} />
           )
         })}
         {/* Average */}
