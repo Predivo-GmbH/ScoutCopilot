@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Search as SearchIcon, ArrowRight, Sparkles, Wand2 } from 'lucide-react'
+import { Search as SearchIcon, ArrowRight, Sparkles } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { SearchFilters } from './components/SearchFilters'
 import { SearchResultsTable } from './components/SearchResultsTable'
@@ -41,27 +41,26 @@ export function SearchPage() {
 
   return (
     <div className="p-6 md:p-8 space-y-6">
-      {/* AI Intelligence Search header */}
+      {/* Header */}
       <div className="flex items-center gap-2">
-        <Wand2 size={16} strokeWidth={1.5} className="text-primary" />
-        <span className="text-sm font-bold uppercase tracking-[0.2em] text-primary">AI Intelligence Search</span>
+        <Sparkles size={16} strokeWidth={1.5} className="text-primary" />
+        <span className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant">Player Search</span>
       </div>
 
       {/* Search Bar */}
-      <div className="flex gap-4">
+      <div className="flex gap-3">
         <div className="relative flex-1">
-          <SearchIcon size={20} strokeWidth={1.5} className="absolute left-5 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+          <SearchIcon size={18} strokeWidth={1.5} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50" />
           <input
             type="text"
             value={queryInput}
             onChange={(e) => setQueryInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Find me a left-back under 23 with >75% crossing accuracy"
-            className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-md py-4 pl-14 pr-24 text-on-surface focus:outline-none focus:border-primary-container transition-colors text-lg"
+            className="w-full bg-surface-container border border-outline-variant rounded-md py-3.5 pl-12 pr-24 text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary transition-colors"
           />
-          {/* Keyboard shortcut badge */}
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-surface-variant px-2 py-1 rounded-sm">
-            <span className="text-[0.625rem] font-data text-on-surface-variant">CMD + K</span>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-surface-container-high px-2 py-0.5 rounded-sm border border-outline-variant/30">
+            <span className="text-[0.6rem] font-data text-on-surface-variant/50">CMD + K</span>
           </div>
         </div>
         <Button

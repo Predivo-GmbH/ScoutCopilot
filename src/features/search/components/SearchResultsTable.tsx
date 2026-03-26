@@ -85,7 +85,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
                   <td className="px-6 py-4 font-data text-on-surface-variant text-xs">{globalIndex + 1}</td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
-                      <PlayerAvatar name={player.name} nationality={player.nationality} />
+                      <PlayerAvatar name={player.name} nationality={player.nationality} image={player.image} />
                       <div>
                         <div className="font-bold text-on-surface">{player.name}</div>
                         <div className="text-[0.625rem] text-on-surface-variant flex items-center gap-1.5">
@@ -182,7 +182,7 @@ function getPageNumbers(current: number, total: number): (number | '...')[] {
   return pages
 }
 
-function PlayerAvatar({ name, nationality }: { name: string; nationality: string }) {
+function PlayerAvatar({ name, nationality, image }: { name: string; nationality: string; image?: string }) {
   const initials = name.split(' ').map((n) => n[0]).join('')
   const colors = [
     'bg-primary/15 text-primary',
@@ -195,9 +195,13 @@ function PlayerAvatar({ name, nationality }: { name: string; nationality: string
 
   return (
     <div className="relative">
-      <div className={`w-8 h-8 rounded-sm flex items-center justify-center text-[0.625rem] font-semibold ${colors[colorIndex]}`}>
-        {initials}
-      </div>
+      {image ? (
+        <img src={image} alt={name} className="w-8 h-8 rounded-sm object-cover" />
+      ) : (
+        <div className={`w-8 h-8 rounded-sm flex items-center justify-center text-[0.625rem] font-semibold ${colors[colorIndex]}`}>
+          {initials}
+        </div>
+      )}
       {flagEmoji && (
         <span className="absolute -bottom-0.5 -right-0.5 text-[0.5rem] leading-none" title={nationality}>
           {flagEmoji}

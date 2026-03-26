@@ -2,10 +2,11 @@
 // All data is realistic but fictional for demo purposes
 
 export interface DashboardStatItem {
-  value: number
+  value: number | string
   label: string
   change: number // percentage change (positive = up)
   period: string
+  badge?: string // e.g. "3 ALERTS"
 }
 
 export interface DashboardStats {
@@ -31,6 +32,7 @@ export interface WatchlistAlert {
   change: string
   changeType: 'positive' | 'warning' | 'neutral'
   timeAgo: string
+  imageUrl?: string
 }
 
 export interface MockPlayer {
@@ -104,15 +106,15 @@ export interface MockComparisonPlayer {
 // ─── Dashboard ───────────────────────────────────────────────
 
 export const dashboardStats: DashboardStats = {
-  totalSearches: 1247,
+  totalSearches: 12847,
   reportsGenerated: 156,
-  playersTracked: 89,
-  apiCallsThisMonth: 3842,
+  playersTracked: 24,
+  apiCallsThisMonth: 0,
   items: [
-    { value: 1247, label: 'Total Searches', change: 12.4, period: 'vs last month' },
-    { value: 156, label: 'Reports Generated', change: 8.2, period: 'vs last month' },
-    { value: 89, label: 'Players Tracked', change: -3.1, period: 'vs last month' },
-    { value: 3842, label: 'API Calls', change: 22.7, period: 'this month' },
+    { value: 12847, label: 'Players Analyzed', change: 18, period: 'vs last month' },
+    { value: 24, label: 'Active Watchlists', change: 0, period: '', badge: '3 ALERTS' },
+    { value: 156, label: 'Reports Generated', change: 0, period: 'this week', badge: '+12 THIS WEEK' },
+    { value: '0.6s', label: 'Avg Query Time', change: 0, period: '' },
   ],
 }
 
@@ -120,8 +122,8 @@ export const recentSearches: RecentSearch[] = [
   { id: '1', query: 'Left-backs under 23, >75% crossing accuracy', resultCount: 142, timestamp: '2026-03-26T10:14:00Z', status: 'complete' },
   { id: '2', query: 'U19 Strikers with xG/90 > 0.45 in Eredivisie', resultCount: 28, timestamp: '2026-03-26T09:38:00Z', status: 'complete' },
   { id: '3', query: 'Defensive Midfielders with Progressive Passes > 8', resultCount: 315, timestamp: '2026-03-25T17:45:00Z', status: 'complete' },
-  { id: '4', query: 'Serie A Wingers: Dribble success rate > 60%', resultCount: 12, timestamp: '2026-03-25T15:20:00Z', status: 'complete' },
-  { id: '5', query: 'Top 5 Leagues: Ball Recoveries (Final Third)', resultCount: 89, timestamp: '2026-03-25T12:00:00Z', status: 'complete' },
+  { id: '4', query: 'Serie A Wingers: Dribble success rate > 60%', resultCount: 32, timestamp: '2026-03-25T15:20:00Z', status: 'complete' },
+  { id: '5', query: 'Top 5 Leagues: Ball Recoveries (Final Third)', resultCount: 97, timestamp: '2026-03-25T12:00:00Z', status: 'complete' },
   { id: '6', query: 'Defensive Midfielders with >10 recoveries vs Top 6', resultCount: 0, timestamp: '2026-03-25T09:45:00Z', status: 'processing' },
   { id: '7', query: 'Ligue 1 fullbacks with >3 progressive carries/90', resultCount: 34, timestamp: '2026-03-21T10:15:00Z', status: 'complete' },
   { id: '8', query: 'Bundesliga goalkeepers, save % top quartile', resultCount: 8, timestamp: '2026-03-20T15:00:00Z', status: 'complete' },
@@ -130,27 +132,27 @@ export const recentSearches: RecentSearch[] = [
 ]
 
 export const watchlistAlerts: WatchlistAlert[] = [
-  { id: '1', playerName: 'Lucas Ferreira', club: 'FC Olympia', change: 'Progressive Carries +15%', changeType: 'positive', timeAgo: '2m ago' },
-  { id: '2', playerName: 'K. Tsukamoto', club: 'AS Lumière', change: 'Injury Status: Doubtful', changeType: 'warning', timeAgo: '14m ago' },
-  { id: '3', playerName: 'Callum Hargreaves', club: 'Coastal FC', change: 'xG Chain Threshold Reached', changeType: 'positive', timeAgo: '1h ago' },
-  { id: '4', playerName: 'Jonas Richter', club: 'Dynamo Brücken', change: 'Key Passes Peak Performance', changeType: 'positive', timeAgo: '3h ago' },
+  { id: '1', playerName: 'Jude Bellingham', club: 'Real Madrid', change: 'Progressive Carries +15%', changeType: 'positive', timeAgo: '2m ago', imageUrl: 'https://i.pravatar.cc/80?img=11' },
+  { id: '2', playerName: 'K. Kvaratskhelia', club: 'Napoli', change: 'Injury Status: Doubtful', changeType: 'warning', timeAgo: '14m ago', imageUrl: 'https://i.pravatar.cc/80?img=12' },
+  { id: '3', playerName: 'Evan Ferguson', club: 'Brighton', change: 'xG Chain Threshold Reached', changeType: 'positive', timeAgo: '1h ago', imageUrl: 'https://i.pravatar.cc/80?img=33' },
+  { id: '4', playerName: 'Florian Wirtz', club: 'Leverkusen', change: 'Key Passes Peak Performance', changeType: 'positive', timeAgo: '3h ago', imageUrl: 'https://i.pravatar.cc/80?img=52' },
 ]
 
 // ─── Player Search Results ───────────────────────────────────
 
 export const searchResults: MockPlayer[] = [
-  { id: 'p1', name: 'Marco Lindström', age: 25, nationality: 'Sweden', position: 'LB, LWB', club: 'FC Nordhavn', league: 'Bundesliga', fitScore: 94, stats: { 'xG/90': 0.12, 'Succ. Dribbles': 3.41, 'Prog. Carries': 8.2, 'Pass %': 89.2 } },
-  { id: 'p2', name: 'Enzo Valenti', age: 23, nationality: 'Italy', position: 'LB, LM', club: 'Crescent Athletic', league: 'Premier League', fitScore: 88, stats: { 'xG/90': 0.08, 'Succ. Dribbles': 2.18, 'Prog. Carries': 6.7, 'Pass %': 85.1 } },
-  { id: 'p3', name: 'Dani Cortez', age: 22, nationality: 'Spain', position: 'LB, RB', club: 'Atlético Ronda', league: 'La Liga', fitScore: 76, stats: { 'xG/90': 0.05, 'Succ. Dribbles': 1.94, 'Prog. Carries': 7.1, 'Pass %': 87.6 } },
-  { id: 'p4', name: 'Tiago Noronha', age: 24, nationality: 'Portugal', position: 'LB', club: 'AS Lumière', league: 'Ligue 1', fitScore: 82, stats: { 'xG/90': 0.03, 'Succ. Dribbles': 2.88, 'Prog. Carries': 7.9, 'Pass %': 84.3 } },
-  { id: 'p5', name: 'Rémi Blanchard', age: 23, nationality: 'France', position: 'LB, LM', club: 'Olympique Azur', league: 'Ligue 1', fitScore: 54, stats: { 'xG/90': 0.01, 'Succ. Dribbles': 1.12, 'Prog. Carries': 4.3, 'Pass %': 81.0 } },
-  { id: 'p6', name: 'Bálint Varga', age: 22, nationality: 'Hungary', position: 'LB', club: 'Southport City', league: 'Premier League', fitScore: 79, stats: { 'xG/90': 0.04, 'Succ. Dribbles': 1.76, 'Prog. Carries': 5.8, 'Pass %': 82.4 } },
-  { id: 'p7', name: 'Samir Benali', age: 23, nationality: 'Algeria', position: 'LB, LWB', club: 'Midland Rovers', league: 'Premier League', fitScore: 85, stats: { 'xG/90': 0.07, 'Succ. Dribbles': 2.34, 'Prog. Carries': 6.2, 'Pass %': 83.7 } },
-  { id: 'p8', name: 'Pablo Navarro', age: 23, nationality: 'Spain', position: 'LB', club: 'Sporting Castilla', league: 'La Liga', fitScore: 73, stats: { 'xG/90': 0.06, 'Succ. Dribbles': 1.45, 'Prog. Carries': 5.4, 'Pass %': 86.2 } },
-  { id: 'p9', name: 'Stijn de Graaf', age: 24, nationality: 'Netherlands', position: 'LB, LWB', club: 'Harton Villa', league: 'Premier League', fitScore: 81, stats: { 'xG/90': 0.09, 'Succ. Dribbles': 2.01, 'Prog. Carries': 6.9, 'Pass %': 84.8 } },
-  { id: 'p10', name: 'Mateo Rivas', age: 19, nationality: 'Argentina', position: 'LB', club: 'Miami Coast FC', league: 'MLS', fitScore: 62, stats: { 'xG/90': 0.02, 'Succ. Dribbles': 1.1, 'Prog. Carries': 3.8, 'Pass %': 80.5 } },
-  { id: 'p11', name: 'Adrien Morel', age: 28, nationality: 'France', position: 'LB, LWB', club: 'AC Stellare', league: 'Serie A', fitScore: 91, stats: { 'xG/90': 0.14, 'Succ. Dribbles': 2.67, 'Prog. Carries': 7.5, 'Pass %': 85.9 } },
-  { id: 'p12', name: 'Emre Demir', age: 25, nationality: 'Turkey', position: 'LB, RB', club: 'Coastal FC', league: 'Premier League', fitScore: 77, stats: { 'xG/90': 0.05, 'Succ. Dribbles': 1.89, 'Prog. Carries': 5.6, 'Pass %': 87.1 } },
+  { id: 'p1', name: 'Marco Lindström', age: 25, nationality: 'Sweden', position: 'LB, LWB', club: 'FC Nordhavn', league: 'Bundesliga', fitScore: 94, stats: { 'xG/90': 0.12, 'Succ. Dribbles': 3.41, 'Prog. Carries': 8.2, 'Pass %': 89.2 }, image: 'https://i.pravatar.cc/120?img=3' },
+  { id: 'p2', name: 'Enzo Valenti', age: 23, nationality: 'Italy', position: 'LB, LM', club: 'Crescent Athletic', league: 'Premier League', fitScore: 88, stats: { 'xG/90': 0.08, 'Succ. Dribbles': 2.18, 'Prog. Carries': 6.7, 'Pass %': 85.1 }, image: 'https://i.pravatar.cc/120?img=8' },
+  { id: 'p3', name: 'Dani Cortez', age: 22, nationality: 'Spain', position: 'LB, RB', club: 'Atlético Ronda', league: 'La Liga', fitScore: 76, stats: { 'xG/90': 0.05, 'Succ. Dribbles': 1.94, 'Prog. Carries': 7.1, 'Pass %': 87.6 }, image: 'https://i.pravatar.cc/120?img=14' },
+  { id: 'p4', name: 'Tiago Noronha', age: 24, nationality: 'Portugal', position: 'LB', club: 'AS Lumière', league: 'Ligue 1', fitScore: 82, stats: { 'xG/90': 0.03, 'Succ. Dribbles': 2.88, 'Prog. Carries': 7.9, 'Pass %': 84.3 }, image: 'https://i.pravatar.cc/120?img=15' },
+  { id: 'p5', name: 'Rémi Blanchard', age: 23, nationality: 'France', position: 'LB, LM', club: 'Olympique Azur', league: 'Ligue 1', fitScore: 54, stats: { 'xG/90': 0.01, 'Succ. Dribbles': 1.12, 'Prog. Carries': 4.3, 'Pass %': 81.0 }, image: 'https://i.pravatar.cc/120?img=51' },
+  { id: 'p6', name: 'Bálint Varga', age: 22, nationality: 'Hungary', position: 'LB', club: 'Southport City', league: 'Premier League', fitScore: 79, stats: { 'xG/90': 0.04, 'Succ. Dribbles': 1.76, 'Prog. Carries': 5.8, 'Pass %': 82.4 }, image: 'https://i.pravatar.cc/120?img=53' },
+  { id: 'p7', name: 'Samir Benali', age: 23, nationality: 'Algeria', position: 'LB, LWB', club: 'Midland Rovers', league: 'Premier League', fitScore: 85, stats: { 'xG/90': 0.07, 'Succ. Dribbles': 2.34, 'Prog. Carries': 6.2, 'Pass %': 83.7 }, image: 'https://i.pravatar.cc/120?img=56' },
+  { id: 'p8', name: 'Pablo Navarro', age: 23, nationality: 'Spain', position: 'LB', club: 'Sporting Castilla', league: 'La Liga', fitScore: 73, stats: { 'xG/90': 0.06, 'Succ. Dribbles': 1.45, 'Prog. Carries': 5.4, 'Pass %': 86.2 }, image: 'https://i.pravatar.cc/120?img=57' },
+  { id: 'p9', name: 'Stijn de Graaf', age: 24, nationality: 'Netherlands', position: 'LB, LWB', club: 'Harton Villa', league: 'Premier League', fitScore: 81, stats: { 'xG/90': 0.09, 'Succ. Dribbles': 2.01, 'Prog. Carries': 6.9, 'Pass %': 84.8 }, image: 'https://i.pravatar.cc/120?img=59' },
+  { id: 'p10', name: 'Mateo Rivas', age: 19, nationality: 'Argentina', position: 'LB', club: 'Miami Coast FC', league: 'MLS', fitScore: 62, stats: { 'xG/90': 0.02, 'Succ. Dribbles': 1.1, 'Prog. Carries': 3.8, 'Pass %': 80.5 }, image: 'https://i.pravatar.cc/120?img=60' },
+  { id: 'p11', name: 'Adrien Morel', age: 28, nationality: 'France', position: 'LB, LWB', club: 'AC Stellare', league: 'Serie A', fitScore: 91, stats: { 'xG/90': 0.14, 'Succ. Dribbles': 2.67, 'Prog. Carries': 7.5, 'Pass %': 85.9 }, image: 'https://i.pravatar.cc/120?img=61' },
+  { id: 'p12', name: 'Emre Demir', age: 25, nationality: 'Turkey', position: 'LB, RB', club: 'Coastal FC', league: 'Premier League', fitScore: 77, stats: { 'xG/90': 0.05, 'Succ. Dribbles': 1.89, 'Prog. Carries': 5.6, 'Pass %': 87.1 }, image: 'https://i.pravatar.cc/120?img=62' },
 ]
 
 // ─── Player Report (Marco Lindström) ─────────────────────────
