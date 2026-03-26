@@ -4,16 +4,13 @@ import { useNavigate, Link } from 'react-router-dom'
 import {
   Search,
   FileText,
-  GitCompareArrows,
-  Link as LinkIcon,
-  MessageSquare,
-  ListChecks,
+  ArrowLeftRight,
+  Bell,
   Check,
   X,
   ArrowRight,
   ChevronDown,
   Shield,
-  Clock,
   Menu,
   XIcon,
 } from 'lucide-react'
@@ -30,63 +27,43 @@ import type { SubscriptionTier } from '../../types/database'
 
 /* ─── Data ──────────────────────────────────────────────────────── */
 
-const PAIN_POINTS = [
+const STATS = [
   {
-    quote:
-      'Constantly updating spreadsheets, looking for scattered files and trying to make evaluations from dispersed information.',
-    solution:
-      'ScoutCopilot replaces scattered spreadsheets with a single AI search. Ask a question, get a ranked shortlist — all from the data you already pay for.',
+    value: '12+',
+    unit: 'Hours',
+    label: 'Manual Efficiency Gap',
+    description: 'Time spent per recruitment shortlist manually cleaning and cross-referencing raw spreadsheets.',
   },
   {
-    quote:
-      'A pile of reports for the next transfer window but no way to filter them down to meet the club\'s specific requirements.',
-    solution:
-      'Natural language filters cut through the noise. Describe your ideal player in plain English and the AI returns exactly who fits.',
+    value: '4,000+',
+    unit: '',
+    label: 'Invisible Data Points',
+    description: 'Metrics per player ignored by standard filters, including tactical positioning and high-intensity triggers.',
   },
   {
-    quote:
-      'Everyone is scouting players using the same parameters.',
-    solution:
-      'Tactical fit analysis and custom composite metrics give your department a differentiation edge that standard platform filters cannot.',
-  },
-]
-
-const FEATURES = [
-  {
-    icon: Search,
-    title: 'Natural Language Search',
-    description:
-      'Ask in plain English, get ranked shortlists. "Find left-footed CBs under 24 with strong aerial stats in Ligue 2" — answered in seconds.',
-  },
-  {
-    icon: FileText,
-    title: 'AI Scouting Reports',
-    description:
-      'One-click reports that would take hours manually. Full statistical profile, contextualised against league and positional averages, exportable as PDF.',
-  },
-  {
-    icon: GitCompareArrows,
-    title: 'Head-to-Head Comparison',
-    description:
-      'Compare 2-10 players with radar charts and AI analysis. Get a summary recommendation based on your tactical context.',
+    value: '83%',
+    unit: '',
+    label: 'Underutilized Subscriptions',
+    description: 'Of Wyscout subscribers only use basic search features, missing 90% of the platform\'s analytical value.',
   },
 ]
 
 const STEPS = [
   {
-    icon: LinkIcon,
-    title: 'Connect your data',
-    description: 'Plug in your Wyscout or StatsBomb API credentials. Your data stays in your account.',
+    title: 'Connect API',
+    description: 'Securely bind your Wyscout or StatsBomb API keys to our ingestion engine.',
   },
   {
-    icon: MessageSquare,
-    title: 'Ask a question',
-    description: '"Who are the top progressive passers under 23 in the Eredivisie?" — plain English, no filters to configure.',
+    title: 'Ask Questions',
+    description: 'Input tactical requirements in plain English or use our institutional presets.',
   },
   {
-    icon: ListChecks,
-    title: 'Get your shortlist',
-    description: 'AI-ranked results with key metrics highlighted. Drill into reports, compare candidates, export for your team.',
+    title: 'Get Ranked Results',
+    description: 'Receive AI-weighted shortlists that match your specific tactical philosophy.',
+  },
+  {
+    title: 'Export Reports',
+    description: 'One-click PDF or CSV exports formatted for Director and Coaching staff review.',
   },
 ]
 
@@ -414,92 +391,158 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ── Trust Bar ───────────────────────────────────────────── */}
-      <section className="border-y border-outline-variant/30 py-8 px-6 md:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-          <p className="text-on-surface-variant text-sm">
-            Trusted by scouting departments at Tier 2-4 clubs
-          </p>
-          <div className="flex items-center gap-6 flex-wrap justify-center">
-            <Badge variant="outline">Wyscout</Badge>
-            <Badge variant="outline">StatsBomb</Badge>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock size={16} strokeWidth={1.5} className="text-tertiary" />
-            <span className="text-sm">
-              <span className="font-mono font-bold text-tertiary-light">30s</span>{' '}
-              <span className="text-on-surface-variant">vs</span>{' '}
-              <span className="font-mono font-bold">3hrs</span> per shortlist
-            </span>
-          </div>
+      {/* ── Stats Bar ────────────────────────────────────────────── */}
+      <section className="border-y border-outline-variant/30 py-12 px-6 md:px-8 bg-surface-container-lowest">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 md:divide-x md:divide-outline-variant/30">
+          {STATS.map((stat) => (
+            <div key={stat.label} className="text-center px-6">
+              <p className="font-mono text-3xl md:text-4xl font-bold text-tertiary-light mb-1">
+                {stat.value}{stat.unit && <span className="text-2xl md:text-3xl uppercase"> {stat.unit}</span>}
+              </p>
+              <p className="text-[0.625rem] font-semibold uppercase tracking-widest text-on-surface-variant mb-3">
+                {stat.label}
+              </p>
+              <p className="text-sm text-on-surface-variant leading-relaxed max-w-xs mx-auto">
+                {stat.description}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* ── Problem Section ─────────────────────────────────────── */}
-      <section className="py-24 px-6 md:px-8">
+      {/* ── Tactical Capabilities ─────────────────────────────── */}
+      <section id="features" className="py-24 px-6 md:px-8">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-4 text-center">
-            Your Wyscout data is an untapped goldmine
+          <Badge variant="primary" className="mb-4">Tactical Capabilities</Badge>
+          <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-12 uppercase">
+            Mission-Critical Tools for Modern Recruitment
           </h2>
-          <p className="text-on-surface-variant text-center max-w-2xl mx-auto mb-16">
-            You pay thousands for the best scouting data in the world — and query it with Excel.
-          </p>
-          <div className="grid md:grid-cols-3 gap-6">
-            {PAIN_POINTS.map((p, i) => (
-              <div
-                key={i}
-                className="bg-surface-container-low border border-outline-variant rounded-md p-6 flex flex-col"
-              >
-                <blockquote className="text-sm italic text-on-surface-variant border-l-2 border-primary pl-4 mb-6 flex-grow">
-                  "{p.quote}"
-                </blockquote>
-                <p className="text-sm">{p.solution}</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Natural Language Search */}
+            <div className="bg-surface-container-low border border-outline-variant rounded-md p-6">
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="text-sm font-bold uppercase tracking-widest">Natural Language Search</h3>
+                <Search size={20} strokeWidth={1.5} className="text-primary-light shrink-0" />
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
+                Query your data using tactical concepts instead of rigid spreadsheet filters.
+              </p>
+              {/* Mock search input */}
+              <div className="bg-surface-container border border-outline-variant rounded-md p-3 flex items-center gap-3">
+                <Search size={14} strokeWidth={1.5} className="text-on-surface-variant/50 shrink-0" />
+                <span className="font-mono text-xs text-on-surface-variant">
+                  Left-footed CB under 24, top 10% aerial win rate in Serie A
+                </span>
+                <div className="w-0.5 h-4 bg-primary animate-pulse ml-auto shrink-0" />
+              </div>
+            </div>
 
-      {/* ── Features Section ────────────────────────────────────── */}
-      <section id="features" className="py-24 px-6 md:px-8 bg-surface-container-lowest">
-        <div className="max-w-7xl mx-auto">
-          <Badge variant="primary" className="mb-4 mx-auto block w-fit">Core Features</Badge>
-          <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-16 text-center">
-            Three capabilities. One unfair advantage.
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {FEATURES.map((f) => (
-              <div
-                key={f.title}
-                className="bg-surface-container-low border border-outline-variant rounded-md p-6"
-              >
-                <div className="w-10 h-10 rounded-md bg-primary/10 flex items-center justify-center mb-4">
-                  <f.icon size={20} strokeWidth={1.5} className="text-primary-light" />
+            {/* AI Scouting Reports */}
+            <div className="bg-surface-container-low border border-outline-variant rounded-md p-6">
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="text-sm font-bold uppercase tracking-widest">AI Scouting Reports</h3>
+                <FileText size={20} strokeWidth={1.5} className="text-primary-light shrink-0" />
+              </div>
+              <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
+                Automated tactical analysis that reads like a human scout's eye with 0% bias.
+              </p>
+              {/* Mock report skeleton */}
+              <div className="bg-surface-container border border-outline-variant rounded-md p-4 flex items-center gap-4">
+                <div className="flex-1 space-y-2.5">
+                  <div className="h-2 bg-outline-variant/30 rounded-sm w-full" />
+                  <div className="h-2 bg-outline-variant/30 rounded-sm w-4/5" />
+                  <div className="h-2 bg-outline-variant/30 rounded-sm w-3/5" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{f.title}</h3>
-                <p className="text-sm text-on-surface-variant leading-relaxed">{f.description}</p>
+                <div className="w-14 h-14 rounded-md border border-outline-variant/30 flex items-center justify-center shrink-0">
+                  <svg viewBox="0 0 40 40" className="w-10 h-10 opacity-30">
+                    <polygon points={hexPoints(20, 20, 16)} fill="none" stroke="var(--color-outline-variant)" strokeWidth="1" />
+                    <polygon points={hexPoints(20, 20, 10)} fill="none" stroke="var(--color-outline-variant)" strokeWidth="1" />
+                    <polygon points={radarPoints(20, 20, [80, 65, 90, 70, 85, 75], 16)} fill="var(--color-primary)" fillOpacity="0.2" stroke="var(--color-primary)" strokeWidth="1" />
+                  </svg>
+                </div>
               </div>
-            ))}
+            </div>
+
+            {/* Player Comparison */}
+            <div className="bg-surface-container-low border border-outline-variant rounded-md p-6">
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="text-sm font-bold uppercase tracking-widest">Player Comparison</h3>
+                <ArrowLeftRight size={20} strokeWidth={1.5} className="text-primary-light shrink-0" />
+              </div>
+              <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
+                Side-by-side performance delta analysis with league-weighted normalization.
+              </p>
+              {/* Mock comparison table */}
+              <div className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
+                <table className="w-full text-xs font-mono">
+                  <thead>
+                    <tr className="border-b border-outline-variant/30">
+                      <th className="py-2 px-3 text-left text-on-surface-variant font-medium">PLAYER A</th>
+                      <th className="py-2 px-3 text-left text-primary-light font-medium">PLAYER B</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-outline-variant/10">
+                    <tr>
+                      <td className="py-1.5 px-3 text-on-surface-variant">92% PASS ACC</td>
+                      <td className="py-1.5 px-3 text-on-surface-variant">88% PASS ACC</td>
+                    </tr>
+                    <tr>
+                      <td className="py-1.5 px-3 text-on-surface-variant">4.2 TKL/90</td>
+                      <td className="py-1.5 px-3 text-on-surface-variant">5.1 TKL/90</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Watchlist Alerts */}
+            <div className="bg-surface-container-low border border-outline-variant rounded-md p-6">
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="text-sm font-bold uppercase tracking-widest">Watchlist Alerts</h3>
+                <Bell size={20} strokeWidth={1.5} className="text-primary-light shrink-0" />
+              </div>
+              <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
+                Real-time intelligence on contract status and market movement signals.
+              </p>
+              {/* Mock alert rows */}
+              <div className="space-y-2">
+                <div className="bg-surface-container border border-outline-variant rounded-md px-3 py-2.5 flex items-center gap-2.5">
+                  <div className="w-2 h-2 rounded-sm bg-error shrink-0" />
+                  <span className="font-mono text-xs text-on-surface-variant">
+                    ALERT: L. Martínez (Inter) Market Value Spike +12%
+                  </span>
+                </div>
+                <div className="bg-surface-container border border-outline-variant rounded-md px-3 py-2.5 flex items-center gap-2.5">
+                  <div className="w-2 h-2 rounded-sm bg-secondary shrink-0" />
+                  <span className="font-mono text-xs text-on-surface-variant">
+                    SIGNAL: J. Neves (Benfica) 100th percentile Progressive Carries
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ── How It Works ────────────────────────────────────────── */}
-      <section className="py-24 px-6 md:px-8">
+      <section className="py-24 px-6 md:px-8 bg-surface-container-lowest">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-16 text-center">
             How it works
           </h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {STEPS.map((s, i) => (
-              <div key={s.title} className="text-center md:text-left">
-                <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
-                  <span className="font-mono text-2xl font-bold text-primary-light">
+              <div key={s.title}>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="font-mono text-3xl font-bold text-on-surface/20">
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <s.icon size={20} strokeWidth={1.5} className="text-on-surface-variant" />
+                  {i < STEPS.length - 1 && (
+                    <div className="hidden md:block w-8 h-px bg-outline-variant/50" />
+                  )}
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{s.title}</h3>
+                <h3 className="text-sm font-bold uppercase tracking-widest mb-2">{s.title}</h3>
                 <p className="text-sm text-on-surface-variant leading-relaxed">{s.description}</p>
               </div>
             ))}
