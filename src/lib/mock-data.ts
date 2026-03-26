@@ -27,6 +27,7 @@ export interface RecentSearch {
 
 export interface WatchlistAlert {
   id: string
+  playerId: string
   playerName: string
   club: string
   change: string
@@ -135,10 +136,10 @@ export const recentSearches: RecentSearch[] = [
 ]
 
 export const watchlistAlerts: WatchlistAlert[] = [
-  { id: '1', playerName: 'Luca Marchetti', club: 'AC Stellare', change: 'Progressive Carries +15%', changeType: 'positive', timeAgo: '2m ago', imageUrl: '/avatars/player-13.png' },
-  { id: '2', playerName: 'K. Papadopoulos', club: 'Olympique Azur', change: 'Injury Status: Doubtful', changeType: 'warning', timeAgo: '14m ago', imageUrl: '/avatars/player-14.png' },
-  { id: '3', playerName: 'Ousmane Diallo', club: 'Inter Azzurra', change: 'xG Chain Threshold Reached', changeType: 'positive', timeAgo: '1h ago', imageUrl: '/avatars/player-15.png' },
-  { id: '4', playerName: 'Lars Henriksen', club: 'Northgate United', change: 'Key Passes Peak Performance', changeType: 'positive', timeAgo: '3h ago', imageUrl: '/avatars/player-16.png' },
+  { id: '1', playerId: 'wp6', playerName: 'Luca Marchetti', club: 'Lazio Blu', change: 'Progressive Carries +15%', changeType: 'positive', timeAgo: '2m ago', imageUrl: '/avatars/player-13.png' },
+  { id: '2', playerId: 'wp12', playerName: 'K. Papadopoulos', club: 'Olympique Azur', change: 'Injury Status: Doubtful', changeType: 'warning', timeAgo: '14m ago', imageUrl: '/avatars/player-14.png' },
+  { id: '3', playerId: 'wp4', playerName: 'Ousmane Diallo', club: 'Inter Azzurra', change: 'xG Chain Threshold Reached', changeType: 'positive', timeAgo: '1h ago', imageUrl: '/avatars/player-15.png' },
+  { id: '4', playerId: 'wp5', playerName: 'Lars Henriksen', club: 'Northgate United', change: 'Key Passes Peak Performance', changeType: 'positive', timeAgo: '3h ago', imageUrl: '/avatars/player-16.png' },
 ]
 
 // ─── Player Search Results ───────────────────────────────────
@@ -1034,6 +1035,52 @@ export const playerReports: Record<string, MockPlayerReport> = {
     ],
     contractInfo: { value: '€3.50m', until: 'June 30, 2028', wage: '€5k/week', agent: 'Gestifute' },
   },
+  wp12: {
+    playerId: 'wp12',
+    playerName: 'K. Papadopoulos',
+    age: 21,
+    nationality: 'Greece',
+    position: 'LB/CB',
+    club: 'Olympique Azur',
+    league: 'Ligue 1',
+    image: '/avatars/player-14.png',
+    summary: 'Papadopoulos is a versatile young defender who can operate comfortably at left-back or centre-back. His reading of the game and composure on the ball belie his age, and he has quickly established himself as a starter in Ligue 1. An injury concern has emerged recently, but when fit he is one of the most promising defensive talents in France.',
+    strengths: [
+      'Excellent positional awareness',
+      'Composed ball-playing from the back',
+      'Strong in aerial duels for his age',
+      'Versatility across defensive positions',
+      'Progressive passing ability',
+    ],
+    weaknesses: [
+      'Pace in recovery runs',
+      'Recent injury concerns',
+      'Can be caught out by quick wingers',
+    ],
+    styleOfPlay: 'A calm, ball-playing defender who prefers to build from the back rather than go long. Papadopoulos positions himself well to intercept and uses his passing range to start attacks. At left-back, he provides reliable overlap runs and accurate crosses. His defensive intelligence compensates for a lack of explosive pace.',
+    recommendation: 'monitor',
+    fitScore: 82,
+    seasonStats: {
+      Appearances: 24, Goals: 1, Assists: 3, Minutes: 2040,
+      'Pass Accuracy': '89.4%', 'Tackles Won': 48, Interceptions: 32,
+      'Prog. Carries/90': 3.2, 'Key Passes/90': 0.8, 'Aerial Duels Won': '68%',
+    },
+    radarData: [
+      { label: 'Speed', value: 62, average: 68 }, { label: 'Passing', value: 80, average: 66 },
+      { label: 'Dribbling', value: 55, average: 58 }, { label: 'Physical', value: 74, average: 62 },
+      { label: 'Defending', value: 82, average: 65 }, { label: 'Crossing', value: 65, average: 58 },
+    ],
+    similarPlayers: [
+      { playerId: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 78, image: '/avatars/player-2.png' },
+      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 74, image: '/avatars/player-3.png' },
+      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 71, image: '/avatars/player-6.png' },
+    ],
+    transferHistory: [
+      { club: 'Olympiakos Youth', date: '2020', fee: 'Academy' },
+      { club: 'Olympique Azur', date: '2024', fee: '€4.5m' },
+    ],
+    contractInfo: { value: '€8.00m', until: 'June 30, 2028', wage: '€25k/week', agent: 'Wasserman' },
+  },
 }
 
 // ─── Comparison Data ─────────────────────────────────────────
@@ -1199,6 +1246,7 @@ export const watchlists: MockWatchlist[] = [
       { id: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', position: 'LB/LM', age: 23, nationality: 'Italy', image: '/avatars/player-2.png', keyMetric: { value: '6.7', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-02-15', scoutScore: 88 },
       { id: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', position: 'LB/RB', age: 22, nationality: 'Spain', image: '/avatars/player-3.png', keyMetric: { value: '87.6%', label: 'Pass Accuracy' }, alertStatus: 'form_change', addedDate: '2026-02-18', scoutScore: 76 },
       { id: 'p6', name: 'Bálint Varga', club: 'Southport City', position: 'LB', age: 22, nationality: 'Hungary', image: '/avatars/player-6.png', keyMetric: { value: '5.8', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-03-01', scoutScore: 79 },
+      { id: 'wp12', name: 'K. Papadopoulos', club: 'Olympique Azur', position: 'LB/CB', age: 21, nationality: 'Greece', image: '/avatars/player-14.png', keyMetric: { value: '7.2', label: 'Prog. Carries/90' }, alertStatus: 'injury', addedDate: '2026-03-12', scoutScore: 82 },
     ],
   },
   {

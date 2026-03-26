@@ -161,8 +161,8 @@ export function DashboardPage() {
                       key={alert.id}
                       role="button"
                       tabIndex={0}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate('/watchlists') }}
-                      onClick={() => navigate('/watchlists')}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/players/${alert.playerId}`) }}
+                      onClick={() => navigate(`/players/${alert.playerId}`)}
                       className="p-3 rounded-sm border border-outline-variant/50 cursor-pointer hover:bg-surface-container-high transition-colors"
                     >
                       <div className="flex items-center gap-3 mb-1.5">
