@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Bell, Settings, LogOut } from 'lucide-react'
+import { Search, Bell, HelpCircle, Settings, LogOut } from 'lucide-react'
 import { useAuth } from '../../features/auth/useAuth'
 
 export function TopBar() {
@@ -50,7 +50,7 @@ export function TopBar() {
         />
       </form>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2">
         {/* Alerts */}
         <button
           onClick={() => navigate('/watchlists')}
@@ -61,11 +61,22 @@ export function TopBar() {
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full" />
         </button>
 
+        {/* Help */}
+        <button
+          className="p-2 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+          aria-label="Help"
+        >
+          <HelpCircle size={18} strokeWidth={1.5} />
+        </button>
+
+        {/* Divider */}
+        <div className="w-px h-6 bg-outline-variant/30 mx-1" />
+
         {/* Profile */}
         <div ref={profileRef} className="relative">
           <button
             onClick={() => setProfileOpen(!profileOpen)}
-            className="flex items-center gap-2 p-1 rounded-md hover:bg-surface-container transition-colors"
+            className="flex items-center gap-2.5 p-1 pr-2 rounded-md hover:bg-surface-container transition-colors"
           >
             {profile?.avatar_url ? (
               <img
@@ -78,12 +89,16 @@ export function TopBar() {
                 {initials}
               </div>
             )}
+            <div className="hidden md:flex flex-col items-start">
+              <span className="text-xs font-semibold text-on-surface leading-tight">{profile?.full_name ?? 'Chief Scout'}</span>
+              <span className="text-[0.625rem] text-on-surface-variant leading-tight">{profile?.role ?? 'London Office'}</span>
+            </div>
           </button>
 
           {profileOpen && (
             <div className="absolute right-0 top-full mt-1 w-48 bg-surface-container-low border border-outline-variant rounded-md shadow-lg overflow-hidden z-50">
               <div className="px-3 py-2.5 border-b border-outline-variant/30">
-                <p className="text-xs font-semibold text-on-surface truncate">{profile?.full_name ?? 'User'}</p>
+                <p className="text-xs font-semibold text-on-surface truncate">{profile?.full_name ?? 'Chief Scout'}</p>
                 <p className="text-[0.625rem] text-on-surface-variant truncate">{profile?.role ?? 'Scout'}</p>
               </div>
               <button

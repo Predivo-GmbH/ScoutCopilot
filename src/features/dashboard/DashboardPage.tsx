@@ -92,9 +92,9 @@ export function DashboardPage() {
             onClick={() => navigate('/search')}
             className="bg-primary-container p-6 rounded-md text-left cursor-pointer hover:opacity-90 transition-opacity"
           >
-            <Search size={28} strokeWidth={1.5} className="text-white mb-4" />
-            <h4 className="text-white font-bold text-lg mb-1">New Player Search</h4>
-            <p className="text-xs text-primary-fixed leading-relaxed">Launch targeted scout query engine</p>
+            <Search size={28} strokeWidth={1.5} className="text-on-primary-container mb-4" />
+            <h4 className="text-on-primary-container font-bold text-lg mb-1">New Player Search</h4>
+            <p className="text-xs text-on-primary-container/70 leading-relaxed">Launch targeted scout query engine</p>
           </div>
           {/* Secondary cards */}
           <div
@@ -201,47 +201,54 @@ export function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="p-2 space-y-2 max-h-[500px] overflow-y-auto">
-                {alerts?.map((alert, i) => {
-                  const borderColor = alert.changeType === 'warning' ? 'border-l-amber-500' : 'border-l-tertiary'
-                  return (
-                    <div
-                      key={alert.id}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate('/watchlists') }}
-                      onClick={() => navigate('/watchlists')}
-                      className={`p-3 rounded-sm border border-outline-variant cursor-pointer transition-all ${
-                        i === 0
-                          ? 'bg-surface-container-high'
-                          : 'bg-surface-container opacity-80 hover:opacity-100'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 rounded-md bg-primary/15 flex items-center justify-center text-[0.625rem] font-semibold text-primary shrink-0">
-                          {alert.playerName.split(' ').map((n) => n[0]).join('')}
+              <>
+                <div className="p-2 space-y-2">
+                  {alerts?.slice(0, 3).map((alert, i) => {
+                    const borderColor = alert.changeType === 'warning' ? 'border-l-amber-500' : 'border-l-tertiary'
+                    return (
+                      <div
+                        key={alert.id}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate('/watchlists') }}
+                        onClick={() => navigate('/watchlists')}
+                        className={`p-3 rounded-sm border border-outline-variant cursor-pointer transition-all ${
+                          i === 0
+                            ? 'bg-surface-container-high'
+                            : 'bg-surface-container opacity-80 hover:opacity-100'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-8 h-8 rounded-md bg-primary/15 flex items-center justify-center text-[0.625rem] font-semibold text-primary shrink-0">
+                            {alert.playerName.split(' ').map((n) => n[0]).join('')}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-bold text-on-surface leading-none">{alert.playerName}</h4>
+                            <p className="text-[0.625rem] font-data text-on-surface-variant mt-0.5">{alert.club}</p>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-bold text-on-surface leading-none">{alert.playerName}</h4>
-                          <p className="text-[0.625rem] font-data text-on-surface-variant mt-0.5">{alert.club}</p>
+                        {/* Quote block */}
+                        <div className={`bg-surface-container-lowest p-2.5 rounded-sm border-l-2 ${borderColor} mb-2`}>
+                          <p className="text-xs text-on-surface-variant leading-relaxed">
+                            <span className={alert.changeType === 'positive' ? 'text-secondary font-data' : alert.changeType === 'warning' ? 'text-amber-500 font-data' : ''}>
+                              {alert.change}
+                            </span>
+                          </p>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[0.625rem] font-data text-on-surface-variant">{alert.timeAgo}</span>
+                          <button className="text-[0.625rem] font-data text-primary hover:underline">View Profile</button>
                         </div>
                       </div>
-                      {/* Quote block */}
-                      <div className={`bg-surface-container-lowest p-2.5 rounded-sm border-l-2 ${borderColor} mb-2`}>
-                        <p className="text-xs text-on-surface-variant leading-relaxed">
-                          <span className={alert.changeType === 'positive' ? 'text-secondary font-data' : alert.changeType === 'warning' ? 'text-amber-500 font-data' : ''}>
-                            {alert.change}
-                          </span>
-                        </p>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[0.625rem] font-data text-on-surface-variant">{alert.timeAgo}</span>
-                        <button className="text-[0.625rem] font-data text-primary hover:underline">View Profile</button>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
+                    )
+                  })}
+                </div>
+                <div className="px-4 py-3 border-t border-outline-variant/20">
+                  <button className="w-full text-[0.625rem] font-data uppercase tracking-widest text-on-surface-variant hover:text-on-surface transition-colors text-center">
+                    Clear All Notifications
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -261,13 +268,13 @@ function getGreeting(): string {
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    complete: 'bg-tertiary/10 text-tertiary border-tertiary/20',
-    processing: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+    complete: 'bg-secondary/10 text-secondary border-secondary/20',
+    processing: 'bg-tertiary/10 text-tertiary border-tertiary/20',
     failed: 'bg-error/10 text-error border-error/20',
   }
   const labels: Record<string, string> = {
     complete: 'SUCCESS',
-    processing: 'WARNING',
+    processing: 'PENDING',
     failed: 'FAILED',
   }
   const style = styles[status] ?? styles.complete

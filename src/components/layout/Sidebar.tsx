@@ -44,11 +44,6 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       {/* Logo area */}
       <div className="flex flex-col justify-center h-16 border-b border-outline-variant px-4">
         <Logo size="lg" showText={!collapsed} />
-        {!collapsed && (
-          <span className="text-[0.5rem] font-data uppercase tracking-widest text-on-surface-variant mt-0.5 ml-[2.75rem]">
-            Institutional Terminal
-          </span>
-        )}
       </div>
 
       {/* Navigation */}
