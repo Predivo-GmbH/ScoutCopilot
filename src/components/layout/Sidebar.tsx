@@ -23,7 +23,7 @@ const navItems = [
   { path: '/players', label: 'Players', icon: UserRoundSearch },
   { path: '/compare', label: 'Compare', icon: GitCompareArrows },
   { path: '/watchlists', label: 'Watchlists', icon: Star },
-  { path: '/squad', label: 'My Squad', icon: Users },
+  { path: '/squad', label: 'My Squads', icon: Users },
   { path: '/settings', label: 'Settings', icon: Settings },
 ]
 

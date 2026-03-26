@@ -1356,6 +1356,18 @@ export interface PositionGap {
   searchQuery: string
 }
 
+export interface MockSquad {
+  id: string
+  name: string
+  club: string
+  season: string
+  description: string
+  formation: FormationType
+  playerCount: number
+  lastUpdated: string
+  players: SquadPlayer[]
+}
+
 export interface FormationSlot {
   position: SquadPosition
   label: string
@@ -1429,7 +1441,7 @@ const radar = (spd: number, pas: number, dri: number, phy: number, def: number, 
   { label: 'Crossing', value: cro, average: 55 },
 ]
 
-export const squadPlayers: SquadPlayer[] = [
+const firstTeamPlayers: SquadPlayer[] = [
   // ── Goalkeepers ──
   { id: 'sq1', name: 'Frederik Holm', age: 28, nationality: 'Denmark', position: 'GK', shirtNumber: 1, contractUntil: '2028-06-30', weeklyWage: '€45k', marketValue: '€8.00m', status: 'fit', overallRating: 78, stats: { 'Save %': 74, 'Clean Sheets': 12, 'Pass %': 81, 'xG Prevented': 4.2 }, radarData: radar(45, 68, 30, 80, 20, 25) },
   { id: 'sq2', name: 'Oskar Dahl', age: 21, nationality: 'Denmark', position: 'GK', shirtNumber: 13, contractUntil: '2029-06-30', weeklyWage: '€8k', marketValue: '€1.50m', status: 'fit', overallRating: 62, stats: { 'Save %': 68, 'Clean Sheets': 3, 'Pass %': 75, 'xG Prevented': 1.1 }, radarData: radar(48, 60, 28, 72, 18, 22) },
@@ -1475,3 +1487,46 @@ export const squadPlayers: SquadPlayer[] = [
   { id: 'sq22', name: 'Jakob Poulsen', age: 31, nationality: 'Denmark', position: 'CB', altPositions: ['CDM'], shirtNumber: 15, contractUntil: '2027-06-30', weeklyWage: '€35k', marketValue: '€2.80m', status: 'injured', overallRating: 68, stats: { 'Tackles/90': 3.5, 'Aerial %': 75, 'Pass %': 83, 'Interceptions': 2.2 }, radarData: radar(50, 70, 38, 78, 78, 28) },
   { id: 'sq23', name: 'William Ravn', age: 22, nationality: 'Denmark', position: 'CM', altPositions: ['CDM', 'CAM'], shirtNumber: 20, contractUntil: '2029-06-30', weeklyWage: '€14k', marketValue: '€4.00m', status: 'on_loan', overallRating: 67, stats: { 'xG/90': 0.12, 'Pass %': 85, 'Prog. Carries': 4.2, 'Key Passes/90': 1.8 }, radarData: radar(70, 72, 68, 62, 58, 48) },
 ]
+
+const u21Players: SquadPlayer[] = [
+  { id: 'u1', name: 'Oskar Dahl', age: 21, nationality: 'Denmark', position: 'GK', shirtNumber: 1, contractUntil: '2029-06-30', weeklyWage: '€8k', marketValue: '€1.50m', status: 'fit', overallRating: 62, stats: { 'Save %': 68, 'Clean Sheets': 3, 'Pass %': 75, 'xG Prevented': 1.1 }, radarData: radar(48, 60, 28, 72, 18, 22) },
+  { id: 'u2', name: 'Emil Björk', age: 20, nationality: 'Sweden', position: 'CB', altPositions: ['CDM'], shirtNumber: 4, contractUntil: '2029-06-30', weeklyWage: '€12k', marketValue: '€3.00m', status: 'fit', overallRating: 65, stats: { 'Tackles/90': 3.2, 'Aerial %': 68, 'Pass %': 82, 'Interceptions': 1.9 }, radarData: radar(65, 70, 42, 74, 72, 28) },
+  { id: 'u3', name: 'Mathias Krogh', age: 19, nationality: 'Denmark', position: 'CB', shirtNumber: 5, contractUntil: '2030-06-30', weeklyWage: '€4k', marketValue: '€800k', status: 'fit', overallRating: 52, stats: { 'Tackles/90': 2.5, 'Aerial %': 62, 'Pass %': 78, 'Interceptions': 1.5 }, radarData: radar(58, 62, 35, 68, 65, 22) },
+  { id: 'u4', name: 'Alexander Lund', age: 18, nationality: 'Denmark', position: 'LB', shirtNumber: 3, contractUntil: '2030-06-30', weeklyWage: '€3k', marketValue: '€600k', status: 'fit', overallRating: 48, stats: { 'xG/90': 0.02, 'Prog. Carries': 3.0, 'Crosses/90': 2.5, 'Tackles/90': 2.0 }, radarData: radar(72, 55, 50, 58, 55, 60) },
+  { id: 'u5', name: 'Lucas Vidal', age: 22, nationality: 'Spain', position: 'RB', altPositions: ['RW'], shirtNumber: 2, contractUntil: '2029-06-30', weeklyWage: '€15k', marketValue: '€4.50m', status: 'fit', overallRating: 68, stats: { 'xG/90': 0.06, 'Prog. Carries': 4.8, 'Crosses/90': 3.9, 'Tackles/90': 2.5 }, radarData: radar(82, 64, 65, 68, 66, 72) },
+  { id: 'u6', name: 'Yuki Tanaka', age: 23, nationality: 'Japan', position: 'CDM', altPositions: ['CM'], shirtNumber: 6, contractUntil: '2029-06-30', weeklyWage: '€20k', marketValue: '€6.00m', status: 'fit', overallRating: 72, stats: { 'Tackles/90': 3.8, 'Pass %': 88, 'Prog. Carries': 4.0, 'Interceptions': 2.6 }, radarData: radar(64, 76, 58, 70, 74, 38) },
+  { id: 'u7', name: 'Noah Vestergaard', age: 19, nationality: 'Denmark', position: 'CM', shirtNumber: 8, contractUntil: '2030-06-30', weeklyWage: '€6k', marketValue: '€2.00m', status: 'fit', overallRating: 60, stats: { 'xG/90': 0.08, 'Pass %': 83, 'Prog. Carries': 3.5, 'Key Passes/90': 1.2 }, radarData: radar(72, 68, 64, 58, 50, 42) },
+  { id: 'u8', name: 'Sebastian Hauge', age: 20, nationality: 'Norway', position: 'CM', shirtNumber: 10, contractUntil: '2029-06-30', weeklyWage: '€9k', marketValue: '€1.80m', status: 'fit', overallRating: 58, stats: { 'xG/90': 0.12, 'Pass %': 80, 'Prog. Carries': 4.0, 'Key Passes/90': 1.5 }, radarData: radar(68, 65, 62, 55, 48, 45) },
+  { id: 'u9', name: 'Kasper Munk', age: 21, nationality: 'Denmark', position: 'LW', altPositions: ['ST'], shirtNumber: 11, contractUntil: '2029-06-30', weeklyWage: '€10k', marketValue: '€3.50m', status: 'fit', overallRating: 66, stats: { 'xG/90': 0.20, 'Succ. Dribbles': 2.5, 'Prog. Carries': 5.0, 'Key Passes/90': 1.4 }, radarData: radar(84, 60, 72, 55, 25, 58) },
+  { id: 'u10', name: 'Amir Haddad', age: 20, nationality: 'Morocco', position: 'RW', altPositions: ['LW'], shirtNumber: 7, contractUntil: '2030-06-30', weeklyWage: '€8k', marketValue: '€2.50m', status: 'fit', overallRating: 63, stats: { 'xG/90': 0.18, 'Succ. Dribbles': 3.2, 'Prog. Carries': 5.5, 'Key Passes/90': 1.0 }, radarData: radar(86, 55, 75, 52, 22, 50) },
+  { id: 'u11', name: 'Oliver Winther', age: 19, nationality: 'Denmark', position: 'ST', shirtNumber: 9, contractUntil: '2030-06-30', weeklyWage: '€5k', marketValue: '€1.80m', status: 'fit', overallRating: 55, stats: { 'xG/90': 0.22, 'Goals/90': 0.15, 'Aerial %': 52, 'Shot Conv. %': 10 }, radarData: radar(78, 50, 62, 55, 18, 25) },
+  { id: 'u12', name: 'Frederik Brandt', age: 18, nationality: 'Denmark', position: 'ST', shirtNumber: 14, contractUntil: '2030-06-30', weeklyWage: '€3k', marketValue: '€500k', status: 'injured', overallRating: 46, stats: { 'xG/90': 0.15, 'Goals/90': 0.10, 'Aerial %': 48, 'Shot Conv. %': 8 }, radarData: radar(75, 42, 55, 50, 15, 20) },
+]
+
+export const mockSquads: MockSquad[] = [
+  {
+    id: 'squad-1',
+    name: 'First Team',
+    club: 'FC Nordhavn',
+    season: '2025/26',
+    description: 'Senior squad — Superliga campaign',
+    formation: '4-3-3',
+    playerCount: firstTeamPlayers.length,
+    lastUpdated: '2h ago',
+    players: firstTeamPlayers,
+  },
+  {
+    id: 'squad-2',
+    name: 'U21 Development',
+    club: 'FC Nordhavn',
+    season: '2025/26',
+    description: 'Academy and reserve team prospects',
+    formation: '4-3-3',
+    playerCount: u21Players.length,
+    lastUpdated: '1d ago',
+    players: u21Players,
+  },
+]
+
+// Keep flat export for backwards compat
+export const squadPlayers = firstTeamPlayers
