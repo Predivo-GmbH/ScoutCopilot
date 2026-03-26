@@ -132,10 +132,10 @@ export const recentSearches: RecentSearch[] = [
 ]
 
 export const watchlistAlerts: WatchlistAlert[] = [
-  { id: '1', playerName: 'Jude Bellingham', club: 'Real Madrid', change: 'Progressive Carries +15%', changeType: 'positive', timeAgo: '2m ago', imageUrl: 'https://i.pravatar.cc/80?img=11' },
-  { id: '2', playerName: 'K. Kvaratskhelia', club: 'Napoli', change: 'Injury Status: Doubtful', changeType: 'warning', timeAgo: '14m ago', imageUrl: 'https://i.pravatar.cc/80?img=12' },
-  { id: '3', playerName: 'Evan Ferguson', club: 'Brighton', change: 'xG Chain Threshold Reached', changeType: 'positive', timeAgo: '1h ago', imageUrl: 'https://i.pravatar.cc/80?img=33' },
-  { id: '4', playerName: 'Florian Wirtz', club: 'Leverkusen', change: 'Key Passes Peak Performance', changeType: 'positive', timeAgo: '3h ago', imageUrl: 'https://i.pravatar.cc/80?img=52' },
+  { id: '1', playerName: 'Luca Marchetti', club: 'AC Stellare', change: 'Progressive Carries +15%', changeType: 'positive', timeAgo: '2m ago', imageUrl: 'https://i.pravatar.cc/80?img=11' },
+  { id: '2', playerName: 'K. Papadopoulos', club: 'Olympique Azur', change: 'Injury Status: Doubtful', changeType: 'warning', timeAgo: '14m ago', imageUrl: 'https://i.pravatar.cc/80?img=12' },
+  { id: '3', playerName: 'Ousmane Diallo', club: 'Inter Azzurra', change: 'xG Chain Threshold Reached', changeType: 'positive', timeAgo: '1h ago', imageUrl: 'https://i.pravatar.cc/80?img=33' },
+  { id: '4', playerName: 'Lars Henriksen', club: 'Northgate United', change: 'Key Passes Peak Performance', changeType: 'positive', timeAgo: '3h ago', imageUrl: 'https://i.pravatar.cc/80?img=52' },
 ]
 
 // ─── Player Search Results ───────────────────────────────────
