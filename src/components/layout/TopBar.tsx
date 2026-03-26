@@ -39,17 +39,15 @@ export function TopBar() {
   return (
     <div className="h-14 flex items-center gap-4 px-6 border-b border-outline-variant bg-surface-container-low shrink-0">
       {/* Search bar */}
-      <form onSubmit={handleSearch} className="flex-1 max-w-xl">
-        <div className="flex items-center gap-2.5 bg-surface-container border border-outline-variant rounded-md px-3 py-1.5">
-          <Search size={15} strokeWidth={1.5} className="text-on-surface-variant/50 shrink-0" />
-          <input
-            type="text"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            placeholder="Search players, teams, and metrics..."
-            className="flex-1 bg-transparent text-sm text-on-surface placeholder:text-on-surface-variant/40 outline-none"
-          />
-        </div>
+      <form onSubmit={handleSearch} className="flex-1 max-w-xl relative">
+        <Search size={16} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+        <input
+          type="text"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          placeholder="Search for players, matches, or run NL queries..."
+          className="w-full bg-surface-container-low border border-outline-variant rounded-md py-2 pl-10 pr-4 text-xs font-data text-on-surface placeholder:text-on-surface-variant/40 outline-none focus:border-primary transition-colors"
+        />
       </form>
 
       <div className="flex items-center gap-1">
