@@ -78,6 +78,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return
     }
 
+    // Set user immediately so AuthGuard sees a loading state (not a redirect to /login)
+    setState(prev => ({ ...prev, user, session, isLoading: true }))
+
     const profile = await fetchProfile(user.id)
     let organization: Organization | null = null
     if (profile?.organization_id) {
