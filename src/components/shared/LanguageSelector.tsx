@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { Globe } from 'lucide-react'
 
 const LANGUAGES = [
-  { code: 'en', label: 'English', flag: '🇬🇧' },
-  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
+  { code: 'en', label: 'English' },
+  { code: 'de', label: 'Deutsch' },
 ] as const
 
 interface LanguageSelectorProps {
@@ -48,7 +48,7 @@ export function LanguageSelector({ className = '', variant = 'dropdown' }: Langu
                 : 'text-on-surface-variant hover:bg-surface-container'
             }`}
           >
-            {lang.flag} {lang.label}
+            {lang.code.toUpperCase()} {lang.label}
           </button>
         ))}
       </div>
@@ -78,7 +78,7 @@ export function LanguageSelector({ className = '', variant = 'dropdown' }: Langu
                   : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
               }`}
             >
-              <span>{lang.flag}</span>
+              <span className="font-semibold">{lang.code.toUpperCase()}</span>
               <span>{lang.label}</span>
             </button>
           ))}
