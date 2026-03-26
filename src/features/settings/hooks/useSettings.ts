@@ -12,7 +12,6 @@ interface ProfileData {
 
 interface OrgData {
   name: string
-  country: string
 }
 
 interface Credential {
@@ -41,7 +40,6 @@ export function useSettings() {
 
   const [org, setOrg] = useState<OrgData>({
     name: '',
-    country: '',
   })
 
   // Sync from auth context when it loads
@@ -56,7 +54,6 @@ export function useSettings() {
   useEffect(() => {
     setOrg({
       name: authOrg?.name ?? '',
-      country: authOrg?.country ?? '',
     })
   }, [authOrg])
 
@@ -105,13 +102,13 @@ export function useSettings() {
       if (authOrg?.id) {
         const { error } = await supabase
           .from('organizations')
-          .update({ name: org.name, country: org.country })
+          .update({ name: org.name })
           .eq('id', authOrg.id)
         if (error) throw error
       } else {
         const { data, error } = await supabase
           .from('organizations')
-          .insert({ name: org.name, country: org.country })
+          .insert({ name: org.name })
           .select('id')
           .single()
         if (error) throw error
@@ -128,7 +125,7 @@ export function useSettings() {
       setSaveStatus('error')
       setTimeout(() => setSaveStatus('idle'), 3000)
     }
-  }, [user, authOrg, org.name, org.country, refreshProfile])
+  }, [user, authOrg, org.name, refreshProfile])
 
   function togglePreference(key: keyof Preferences) {
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }))
