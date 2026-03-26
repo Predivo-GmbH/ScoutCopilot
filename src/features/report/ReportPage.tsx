@@ -17,7 +17,7 @@ export function ReportPage() {
   const navigate = useNavigate()
   const { data: report, isLoading } = usePlayerReport(id)
 
-  if (!id) return <Navigate to="/report" replace />
+  if (!id) return <Navigate to="/players" replace />
 
   if (isLoading || !report) {
     return (
@@ -185,8 +185,8 @@ export function ReportPage() {
                   className="flex items-center justify-between p-3 bg-surface-container-low rounded-md hover:bg-surface-container-high transition-colors cursor-pointer"
                   role="button"
                   tabIndex={0}
-                  onClick={() => navigate(`/report/${p.playerId}`)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/report/${p.playerId}`); } }}
+                  onClick={() => navigate(`/players/${p.playerId}`)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/players/${p.playerId}`); } }}
                 >
                   <div className="flex items-center gap-3">
                     <PlayerAvatar name={p.name} size={40} imageUrl={p.image} />

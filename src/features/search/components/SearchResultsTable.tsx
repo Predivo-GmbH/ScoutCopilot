@@ -74,7 +74,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
               return (
                 <tr
                   key={player.id}
-                  onClick={() => navigate(`/report/${player.id}`)}
+                  onClick={() => navigate(`/players/${player.id}`)}
                   className={`${globalIndex % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'} border-b border-outline-variant/30 hover:bg-surface-variant/50 transition-colors cursor-pointer group`}
                 >
                   <td className="px-6 py-4 font-data text-on-surface-variant text-xs">{globalIndex + 1}</td>
@@ -113,7 +113,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
                   <td className="px-4 py-4 text-center">
                     {hasReport(player.id) ? (
                       <button
-                        onClick={(e) => { e.stopPropagation(); navigate(`/report/${player.id}`) }}
+                        onClick={(e) => { e.stopPropagation(); navigate(`/players/${player.id}`) }}
                         className="inline-flex items-center gap-1.5 text-secondary hover:text-secondary/80 transition-colors text-xs font-medium"
                       >
                         <Eye size={14} strokeWidth={1.5} />

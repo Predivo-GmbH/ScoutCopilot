@@ -210,14 +210,14 @@ export function DashboardPage() {
           <div
             role="button"
             tabIndex={0}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate('/report') }}
-            onClick={() => navigate('/report')}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate('/players') }}
+            onClick={() => navigate('/players')}
             className="relative bg-surface-container border border-outline-variant p-6 rounded-md text-left cursor-pointer hover:bg-surface-container-high transition-colors overflow-hidden"
           >
             <div className="absolute top-0 left-0 right-0 h-1 bg-secondary" />
             <FileText size={24} strokeWidth={1.5} className="text-primary mb-3" />
-            <h4 className="text-on-surface font-bold mb-1">Generate Report</h4>
-            <p className="text-xs text-on-surface-variant leading-relaxed">Synthesize data into professional scouting PDFs in seconds.</p>
+            <h4 className="text-on-surface font-bold mb-1">View Players</h4>
+            <p className="text-xs text-on-surface-variant leading-relaxed">Browse your scouted players and their detailed reports.</p>
           </div>
           <div
             role="button"

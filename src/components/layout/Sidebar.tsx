@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
   Search,
-  FileText,
+  UserRoundSearch,
   GitCompareArrows,
   Star,
   Users,
@@ -20,7 +20,7 @@ interface SidebarProps {
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/search', label: 'Search', icon: Search },
-  { path: '/report', label: 'Reports', icon: FileText },
+  { path: '/players', label: 'Players', icon: UserRoundSearch },
   { path: '/compare', label: 'Compare', icon: GitCompareArrows },
   { path: '/watchlists', label: 'Watchlists', icon: Star },
   { path: '/squad', label: 'My Squad', icon: Users },

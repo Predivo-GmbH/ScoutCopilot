@@ -148,7 +148,7 @@ export function ComparisonPage() {
           <ComparisonTable players={players} />
         </>
       ) : !generated ? (
-        <EmptyState playerCount={selectedIds.length} />
+        <EmptyState playerCount={selectedIds.length} totalAvailable={selectedPlayers.length + availablePlayers.length} />
       ) : null}
     </div>
   )
@@ -156,13 +156,20 @@ export function ComparisonPage() {
 
 // ─── Empty State ────────────────────────────────────────────
 
-function EmptyState({ playerCount }: { playerCount: number }) {
+function EmptyState({ playerCount, totalAvailable }: { playerCount: number; totalAvailable: number }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
       <div className="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center mb-4">
         <GitCompareArrows size={32} strokeWidth={1.5} className="text-on-surface-variant" />
       </div>
-      {playerCount === 0 ? (
+      {totalAvailable === 0 && playerCount === 0 ? (
+        <>
+          <h3 className="text-lg font-semibold text-on-surface mb-2">No scouted players yet</h3>
+          <p className="text-sm text-on-surface-variant max-w-md">
+            Search for players and generate reports first. Scouted players will appear here for comparison.
+          </p>
+        </>
+      ) : playerCount === 0 ? (
         <>
           <h3 className="text-lg font-semibold text-on-surface mb-2">Add players to compare</h3>
           <p className="text-sm text-on-surface-variant max-w-md">

@@ -19,9 +19,9 @@ export function ReportsListPage() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-on-surface">Reports</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-on-surface">Players</h1>
         <p className="text-sm text-on-surface-variant mt-1">
-          {reports.length} scouting reports generated
+          {reports.length} scouted {reports.length === 1 ? 'player' : 'players'}
         </p>
       </div>
 
@@ -30,9 +30,9 @@ export function ReportsListPage() {
           <div className="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center mb-4">
             <SearchIcon size={32} strokeWidth={1.5} className="text-on-surface-variant" />
           </div>
-          <h3 className="text-lg font-semibold text-on-surface mb-2">No reports yet</h3>
+          <h3 className="text-lg font-semibold text-on-surface mb-2">No players scouted yet</h3>
           <p className="text-sm text-on-surface-variant max-w-md mb-6">
-            Search for players and generate reports to see them here.
+            Search for players and generate reports to add them here.
           </p>
           <button
             onClick={() => navigate('/search')}
@@ -63,7 +63,7 @@ export function ReportsListPage() {
                   <tr
                     key={report.playerId}
                     className="border-b border-outline-variant/50 hover:bg-surface-container-low transition-colors cursor-pointer"
-                    onClick={() => navigate(`/report/${report.playerId}`)}
+                    onClick={() => navigate(`/players/${report.playerId}`)}
                   >
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
@@ -87,7 +87,7 @@ export function ReportsListPage() {
                     </td>
                     <td className="py-3 px-4 text-center">
                       <button
-                        onClick={(e) => { e.stopPropagation(); navigate(`/report/${report.playerId}`) }}
+                        onClick={(e) => { e.stopPropagation(); navigate(`/players/${report.playerId}`) }}
                         className="inline-flex items-center gap-1.5 text-primary hover:text-primary-light transition-colors text-xs"
                       >
                         <Eye size={14} strokeWidth={1.5} />

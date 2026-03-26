@@ -104,7 +104,7 @@ export function WatchlistDetail({ watchlist, onBack }: WatchlistDetailProps) {
                           leftIcon={FileText}
                           onClick={(e) => {
                             e.stopPropagation()
-                            navigate(`/report/${player.id}`)
+                            navigate(`/players/${player.id}`)
                           }}
                         >
                           Report

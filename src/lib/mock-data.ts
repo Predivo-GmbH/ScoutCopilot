@@ -116,7 +116,7 @@ export const dashboardStats: DashboardStats = {
   items: [
     { value: 12847, label: 'Players Analyzed', change: 18, period: 'vs last month' },
     { value: 24, label: 'Active Watchlists', change: 0, period: '', badge: '3 ALERTS' },
-    { value: 156, label: 'Reports Generated', change: 0, period: 'this week', badge: '+12 THIS WEEK' },
+    { value: 156, label: 'Players Scouted', change: 0, period: 'this week', badge: '+12 THIS WEEK' },
     { value: '0.6s', label: 'Avg Query Time', change: 0, period: '' },
   ],
 }
