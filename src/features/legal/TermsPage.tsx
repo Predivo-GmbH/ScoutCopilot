@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
+import { Logo } from '../../components/shared/Logo'
 
 export function TermsPage() {
   return (
@@ -10,7 +11,7 @@ export function TermsPage() {
       </Helmet>
       <nav className="w-full sticky top-0 z-30 bg-surface border-b border-outline-variant/20">
         <div className="flex justify-between items-center px-6 md:px-8 py-4 max-w-7xl mx-auto">
-          <Link to="/" className="text-xl font-bold tracking-tight">ScoutCopilot</Link>
+          <Logo size="md" linkTo="/" />
           <div className="flex items-center gap-4">
             <Link to="/login" className="text-sm text-on-surface-variant hover:text-on-surface transition-colors">Sign In</Link>
             <Link to="/signup" className="text-sm bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary-dark transition-colors">Get Started</Link>

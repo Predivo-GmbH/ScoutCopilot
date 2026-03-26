@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useNavigate, Link } from 'react-router-dom'
 import { Check, X, ArrowRight } from 'lucide-react'
+import { Logo } from '../../components/shared/Logo'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
 import { TIER_PRICES, TIER_ANNUAL_TOTAL, createCheckoutSession, type BillingInterval } from '../../lib/stripe'
@@ -151,7 +152,7 @@ export function PricingPage() {
       <nav className="w-full sticky top-0 z-30 bg-surface border-b border-outline-variant/20">
         <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
           <div className="flex items-center gap-8">
-            <Link to="/" className="text-xl font-bold text-on-surface tracking-tight">ScoutCopilot</Link>
+            <Logo size="md" linkTo="/" />
             <div className="hidden md:flex gap-6 text-sm">
               <Link to="/#features" className="text-on-surface-variant hover:text-on-surface transition-colors">Features</Link>
               <span className="text-on-surface border-b-2 border-primary pb-1">Pricing</span>
@@ -319,7 +320,7 @@ export function PricingPage() {
       {/* Footer */}
       <footer className="w-full border-t border-outline-variant/20 bg-surface text-sm">
         <div className="flex flex-col md:flex-row justify-between items-center px-8 py-12 max-w-7xl mx-auto gap-4">
-          <Link to="/" className="text-on-surface font-semibold hover:text-primary-light transition-colors">ScoutCopilot</Link>
+          <Logo size="sm" linkTo="/" />
           <div className="text-on-surface-variant text-xs">&copy; 2026 Predivo GmbH. All rights reserved.</div>
           <div className="flex gap-6">
             <Link to="/terms" className="text-on-surface-variant hover:text-on-surface transition-colors">Terms</Link>

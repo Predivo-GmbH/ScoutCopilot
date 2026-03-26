@@ -10,6 +10,7 @@ import {
   SkipForward,
 } from 'lucide-react'
 import { useAuth } from './useAuth'
+import { Logo } from '../../components/shared/Logo'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Card } from '../../components/ui/Card'
@@ -88,7 +89,7 @@ export function OnboardingPage() {
       {/* Top stepper */}
       <header className="w-full border-b border-outline-variant/20 bg-background">
         <div className="flex justify-between items-center max-w-3xl mx-auto px-6 py-4">
-          <span className="text-lg font-bold tracking-tight text-primary">ScoutCopilot</span>
+          <Logo size="md" />
           <nav className="flex items-center gap-6">
             {STEPS.map((step, i) => {
               const Icon = STEP_ICONS[step]
