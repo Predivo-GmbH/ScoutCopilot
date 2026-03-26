@@ -1,4 +1,4 @@
-import { ChevronRight, Sun, Moon, Monitor } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { useTheme } from '../../components/shared/useTheme'
 import { useSettings, type SettingsTab } from './hooks/useSettings'
@@ -57,6 +57,28 @@ export function SettingsPage() {
           {activeTab === 'profile' && (
             <>
               <ProfileSettings profile={profile} onUpdate={updateProfile} />
+              {/* Appearance */}
+              <section className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
+                <div className="px-6 py-4 bg-surface-container-high border-b border-outline-variant">
+                  <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">Appearance</h2>
+                </div>
+                <div className="p-6">
+                  <div className="max-w-xs">
+                    <label className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">
+                      Theme
+                    </label>
+                    <select
+                      value={theme}
+                      onChange={(e) => setTheme(e.target.value as 'system' | 'light' | 'dark')}
+                      className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:border-primary transition-colors appearance-none"
+                    >
+                      <option value="system">System (follow OS)</option>
+                      <option value="light">Light</option>
+                      <option value="dark">Dark</option>
+                    </select>
+                  </div>
+                </div>
+              </section>
               <PasswordSettings />
               <OrgSettings org={org} onUpdate={updateOrg} />
             </>
@@ -85,75 +107,37 @@ export function SettingsPage() {
           )}
 
           {activeTab === 'preferences' && (
-            <>
-              <section className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
-                <div className="px-6 py-4 bg-surface-container-high border-b border-outline-variant">
-                  <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">Default Theme</h2>
-                </div>
-                <div className="p-6">
-                  <p className="text-xs text-on-surface-variant mb-4">
-                    Choose your default theme. You can always toggle between light and dark mode using the theme button in the sidebar.
-                  </p>
-                  <div className="flex gap-3">
-                    {([
-                      { key: 'system' as const, label: 'System', icon: Monitor, desc: 'Follow your OS setting' },
-                      { key: 'light' as const, label: 'Light', icon: Sun, desc: 'Always light mode' },
-                      { key: 'dark' as const, label: 'Dark', icon: Moon, desc: 'Always dark mode' },
-                    ]).map((opt) => {
-                      const isActive = theme === opt.key
-                      const Icon = opt.icon
-                      return (
-                        <button
-                          key={opt.key}
-                          onClick={() => setTheme(opt.key)}
-                          className={`flex-1 flex flex-col items-center gap-2 rounded-md border px-4 py-4 transition-colors ${
-                            isActive
-                              ? 'border-primary bg-surface-container-high text-on-surface'
-                              : 'border-outline-variant bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-                          }`}
-                        >
-                          <Icon size={24} strokeWidth={1.5} />
-                          <span className="text-sm font-semibold">{opt.label}</span>
-                          <span className="text-[0.625rem]">{opt.desc}</span>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              </section>
-
-              <section className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
-                <div className="px-6 py-4 bg-surface-container-high border-b border-outline-variant">
-                  <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">Notification Preferences</h2>
-                </div>
-                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-                  <ToggleRow
-                    title="Email alerts"
-                    description="Instant reports to primary email"
-                    enabled={preferences.emailAlerts}
-                    onToggle={() => togglePreference('emailAlerts')}
-                  />
-                  <ToggleRow
-                    title="Watchlist triggers"
-                    description="Status changes for followed players"
-                    enabled={preferences.watchlistTriggers}
-                    onToggle={() => togglePreference('watchlistTriggers')}
-                  />
-                  <ToggleRow
-                    title="Weekly digest"
-                    description="Summarized scouting activities"
-                    enabled={preferences.weeklyDigest}
-                    onToggle={() => togglePreference('weeklyDigest')}
-                  />
-                  <ToggleRow
-                    title="Transfer window updates"
-                    description="Live market news for targets"
-                    enabled={preferences.transferUpdates}
-                    onToggle={() => togglePreference('transferUpdates')}
-                  />
-                </div>
-              </section>
-            </>
+            <section className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
+              <div className="px-6 py-4 bg-surface-container-high border-b border-outline-variant">
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">Notification Preferences</h2>
+              </div>
+              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                <ToggleRow
+                  title="Email alerts"
+                  description="Instant reports to primary email"
+                  enabled={preferences.emailAlerts}
+                  onToggle={() => togglePreference('emailAlerts')}
+                />
+                <ToggleRow
+                  title="Watchlist triggers"
+                  description="Status changes for followed players"
+                  enabled={preferences.watchlistTriggers}
+                  onToggle={() => togglePreference('watchlistTriggers')}
+                />
+                <ToggleRow
+                  title="Weekly digest"
+                  description="Summarized scouting activities"
+                  enabled={preferences.weeklyDigest}
+                  onToggle={() => togglePreference('weeklyDigest')}
+                />
+                <ToggleRow
+                  title="Transfer window updates"
+                  description="Live market news for targets"
+                  enabled={preferences.transferUpdates}
+                  onToggle={() => togglePreference('transferUpdates')}
+                />
+              </div>
+            </section>
           )}
 
           {activeTab === 'billing' && (
