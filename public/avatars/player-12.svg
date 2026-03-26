@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="bg12" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e0163e"/>
+      <stop offset="100%" stop-color="#d50032"/>
+    </linearGradient>
+    <clipPath id="clip12">
+      <rect width="120" height="120" rx="16"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip12)">
+    <rect width="120" height="120" fill="url(#bg12)"/>
+    <!-- Shoulders -->
+    <ellipse cx="60" cy="116" rx="45" ry="33" fill="#ab0028"/>
+    <!-- Neck -->
+    <rect x="50" y="62" width="20" height="14" rx="4" fill="#ab0028"/>
+    <!-- Head -->
+    <circle cx="61" cy="46" r="22" fill="#ab0028"/>
+    <!-- Round collar -->
+    <path d="M46,85 Q60,81 74,85" fill="none" stroke="#e83358" stroke-width="2.2"/>
+    <!-- Vertical chest pin-stripe -->
+    <line x1="50" y1="88" x2="50" y2="120" stroke="#e83358" stroke-width="0.6" opacity="0.3"/>
+    <line x1="60" y1="86" x2="60" y2="120" stroke="#e83358" stroke-width="0.6" opacity="0.3"/>
+    <line x1="70" y1="88" x2="70" y2="120" stroke="#e83358" stroke-width="0.6" opacity="0.3"/>
+  </g>
+</svg>

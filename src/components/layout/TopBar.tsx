@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Bell, HelpCircle, Settings, LogOut } from 'lucide-react'
+import { Search, Bell, Settings, LogOut } from 'lucide-react'
 import { useAuth } from '../../features/auth/useAuth'
+import { ThemeToggle } from '../shared/ThemeToggle'
 
 export function TopBar() {
   const navigate = useNavigate()
@@ -61,13 +62,8 @@ export function TopBar() {
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full" />
         </button>
 
-        {/* Help */}
-        <button
-          className="p-2 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
-          aria-label="Help"
-        >
-          <HelpCircle size={18} strokeWidth={1.5} />
-        </button>
+        {/* Theme toggle */}
+        <ThemeToggle className="p-2" />
 
         {/* Divider */}
         <div className="w-px h-6 bg-outline-variant/30 mx-1" />

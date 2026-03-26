@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="bg10" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1abf62"/>
+      <stop offset="100%" stop-color="#00a651"/>
+    </linearGradient>
+    <clipPath id="clip10">
+      <rect width="120" height="120" rx="16"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip10)">
+    <rect width="120" height="120" fill="url(#bg10)"/>
+    <!-- Shoulders -->
+    <ellipse cx="60" cy="115" rx="43" ry="31" fill="#008540"/>
+    <!-- Neck -->
+    <rect x="52" y="64" width="16" height="12" rx="3" fill="#008540"/>
+    <!-- Head -->
+    <circle cx="60" cy="49" r="20" fill="#008540"/>
+    <!-- Collar with button -->
+    <path d="M48,87 Q60,83 72,87" fill="none" stroke="#33c473" stroke-width="1.8"/>
+    <!-- Horizontal chest stripes -->
+    <line x1="35" y1="100" x2="85" y2="100" stroke="#33c473" stroke-width="1.5" opacity="0.3"/>
+    <line x1="32" y1="108" x2="88" y2="108" stroke="#33c473" stroke-width="1.5" opacity="0.3"/>
+  </g>
+</svg>

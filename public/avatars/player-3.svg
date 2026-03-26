@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#004068"/>
+      <stop offset="100%" stop-color="#003153"/>
+    </linearGradient>
+    <clipPath id="clip3">
+      <rect width="120" height="120" rx="16"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clip3)">
+    <rect width="120" height="120" fill="url(#bg3)"/>
+    <!-- Shoulders wider -->
+    <ellipse cx="60" cy="118" rx="48" ry="36" fill="#002640"/>
+    <!-- Neck -->
+    <rect x="49" y="61" width="22" height="15" rx="5" fill="#002640"/>
+    <!-- Head slightly higher -->
+    <circle cx="60" cy="45" r="22" fill="#002640"/>
+    <!-- Polo collar -->
+    <path d="M50,85 L50,90 Q60,86 70,90 L70,85" fill="none" stroke="#1a5a80" stroke-width="1.5"/>
+    <!-- Center stripe -->
+    <line x1="60" y1="90" x2="60" y2="120" stroke="#1a5a80" stroke-width="1" opacity="0.4"/>
+  </g>
+</svg>
