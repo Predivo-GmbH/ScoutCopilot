@@ -26,27 +26,6 @@ import type { SubscriptionTier } from '../../types/database'
 
 /* ─── Data ──────────────────────────────────────────────────────── */
 
-const STATS = [
-  {
-    value: '12+',
-    unit: 'Hours',
-    label: 'Manual Efficiency Gap',
-    description: 'Time spent per recruitment shortlist manually cleaning and cross-referencing raw spreadsheets.',
-  },
-  {
-    value: '4,000+',
-    unit: '',
-    label: 'Invisible Data Points',
-    description: 'Metrics per player ignored by standard filters, including tactical positioning and high-intensity triggers.',
-  },
-  {
-    value: '83%',
-    unit: '',
-    label: 'Underutilized Subscriptions',
-    description: 'Of Wyscout subscribers only use basic search features, missing 90% of the platform\'s analytical value.',
-  },
-]
-
 const ROI_ROWS = [
   { task: 'Build a position-specific shortlist', manual: '3-5 hours', copilot: '2-5 minutes' },
   { task: 'Generate a scouting report', manual: '2-4 hours', copilot: '1-2 minutes' },
@@ -365,28 +344,19 @@ export function LandingPage() {
             </p>
           </div>
 
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-4">
             <RadarChartSVG />
-          </div>
-        </div>
-      </section>
-
-      {/* ── Stats Bar ────────────────────────────────────────────── */}
-      <section className="border-y border-outline-variant/30 py-12 px-6 md:px-8 bg-surface-container-lowest">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 md:divide-x md:divide-outline-variant/30">
-          {STATS.map((stat) => (
-            <div key={stat.label} className="text-center px-6">
-              <p className="font-mono text-3xl md:text-4xl font-bold text-tertiary-light mb-1">
-                {stat.value}{stat.unit && <span className="text-2xl md:text-3xl uppercase"> {stat.unit}</span>}
-              </p>
-              <p className="text-[0.625rem] font-semibold uppercase tracking-widest text-on-surface-variant mb-3">
-                {stat.label}
-              </p>
-              <p className="text-sm text-on-surface-variant leading-relaxed max-w-xs mx-auto">
-                {stat.description}
-              </p>
+            <div className="flex items-center gap-6 text-xs text-on-surface-variant">
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-3 h-0.5 bg-primary rounded-full" />
+                <span>Player A</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-3 h-0.5 bg-secondary rounded-full" />
+                <span>Player B</span>
+              </div>
             </div>
-          ))}
+          </div>
         </div>
       </section>
 
