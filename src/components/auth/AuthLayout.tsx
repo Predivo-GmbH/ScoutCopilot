@@ -12,7 +12,7 @@ export default function AuthLayout({
       <div className="flex h-14 shrink-0 items-center px-6">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-lg font-bold tracking-tight text-primary"
+          className="inline-flex items-center gap-2 text-lg font-bold tracking-tight text-on-surface"
         >
           <img src="/logo.png" alt="" className="h-7 w-7 shrink-0" />
           ScoutCopilot

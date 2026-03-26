@@ -116,40 +116,40 @@ export const recentSearches: RecentSearch[] = [
 ]
 
 export const watchlistAlerts: WatchlistAlert[] = [
-  { id: '1', playerName: 'Jude Bellingham', club: 'Real Madrid', change: 'Progressive Carries +15%', changeType: 'positive', timeAgo: '2m ago' },
-  { id: '2', playerName: 'K. Kvaratskhelia', club: 'PSG', change: 'Injury Status: Doubtful', changeType: 'warning', timeAgo: '14m ago' },
-  { id: '3', playerName: 'Evan Ferguson', club: 'Brighton', change: 'xG Chain Threshold Reached', changeType: 'positive', timeAgo: '1h ago' },
-  { id: '4', playerName: 'Florian Wirtz', club: 'Leverkusen', change: 'Key Passes Peak Performance', changeType: 'positive', timeAgo: '3h ago' },
+  { id: '1', playerName: 'Lucas Ferreira', club: 'FC Olympia', change: 'Progressive Carries +15%', changeType: 'positive', timeAgo: '2m ago' },
+  { id: '2', playerName: 'K. Tsukamoto', club: 'AS Lumière', change: 'Injury Status: Doubtful', changeType: 'warning', timeAgo: '14m ago' },
+  { id: '3', playerName: 'Callum Hargreaves', club: 'Coastal FC', change: 'xG Chain Threshold Reached', changeType: 'positive', timeAgo: '1h ago' },
+  { id: '4', playerName: 'Jonas Richter', club: 'Dynamo Brücken', change: 'Key Passes Peak Performance', changeType: 'positive', timeAgo: '3h ago' },
 ]
 
 // ─── Player Search Results ───────────────────────────────────
 
 export const searchResults: MockPlayer[] = [
-  { id: 'p1', name: 'Alphonso Davies', age: 25, nationality: 'Canada', position: 'LB, LWB', club: 'Bayern Munich', league: 'Bundesliga', fitScore: 94, stats: { 'xG/90': 0.12, 'Succ. Dribbles': 3.41, 'Prog. Carries': 8.2, 'Pass %': 89.2 } },
-  { id: 'p2', name: 'Destiny Udogie', age: 23, nationality: 'Italy', position: 'LB, LM', club: 'Tottenham Hotspur', league: 'Premier League', fitScore: 88, stats: { 'xG/90': 0.08, 'Succ. Dribbles': 2.18, 'Prog. Carries': 6.7, 'Pass %': 85.1 } },
-  { id: 'p3', name: 'Alejandro Balde', age: 22, nationality: 'Spain', position: 'LB, RB', club: 'FC Barcelona', league: 'La Liga', fitScore: 76, stats: { 'xG/90': 0.05, 'Succ. Dribbles': 1.94, 'Prog. Carries': 7.1, 'Pass %': 87.6 } },
-  { id: 'p4', name: 'Nuno Mendes', age: 24, nationality: 'Portugal', position: 'LB', club: 'Paris Saint-Germain', league: 'Ligue 1', fitScore: 82, stats: { 'xG/90': 0.03, 'Succ. Dribbles': 2.88, 'Prog. Carries': 7.9, 'Pass %': 84.3 } },
-  { id: 'p5', name: 'Quentin Merlin', age: 23, nationality: 'France', position: 'LB, LM', club: 'Marseille', league: 'Ligue 1', fitScore: 54, stats: { 'xG/90': 0.01, 'Succ. Dribbles': 1.12, 'Prog. Carries': 4.3, 'Pass %': 81.0 } },
-  { id: 'p6', name: 'Milos Kerkez', age: 22, nationality: 'Hungary', position: 'LB', club: 'Bournemouth', league: 'Premier League', fitScore: 79, stats: { 'xG/90': 0.04, 'Succ. Dribbles': 1.76, 'Prog. Carries': 5.8, 'Pass %': 82.4 } },
-  { id: 'p7', name: 'Rayan Ait-Nouri', age: 23, nationality: 'Algeria', position: 'LB, LWB', club: 'Wolverhampton', league: 'Premier League', fitScore: 85, stats: { 'xG/90': 0.07, 'Succ. Dribbles': 2.34, 'Prog. Carries': 6.2, 'Pass %': 83.7 } },
-  { id: 'p8', name: 'Miguel Gutierrez', age: 23, nationality: 'Spain', position: 'LB', club: 'Girona', league: 'La Liga', fitScore: 73, stats: { 'xG/90': 0.06, 'Succ. Dribbles': 1.45, 'Prog. Carries': 5.4, 'Pass %': 86.2 } },
-  { id: 'p9', name: 'Ian Maatsen', age: 24, nationality: 'Netherlands', position: 'LB, LWB', club: 'Aston Villa', league: 'Premier League', fitScore: 81, stats: { 'xG/90': 0.09, 'Succ. Dribbles': 2.01, 'Prog. Carries': 6.9, 'Pass %': 84.8 } },
-  { id: 'p10', name: 'Jordi Alba Jr.', age: 19, nationality: 'Spain', position: 'LB', club: 'Inter Miami', league: 'MLS', fitScore: 62, stats: { 'xG/90': 0.02, 'Succ. Dribbles': 1.1, 'Prog. Carries': 3.8, 'Pass %': 80.5 } },
-  { id: 'p11', name: 'Theo Hernandez', age: 28, nationality: 'France', position: 'LB, LWB', club: 'AC Milan', league: 'Serie A', fitScore: 91, stats: { 'xG/90': 0.14, 'Succ. Dribbles': 2.67, 'Prog. Carries': 7.5, 'Pass %': 85.9 } },
-  { id: 'p12', name: 'Ferdi Kadioglu', age: 25, nationality: 'Turkey', position: 'LB, RB', club: 'Brighton', league: 'Premier League', fitScore: 77, stats: { 'xG/90': 0.05, 'Succ. Dribbles': 1.89, 'Prog. Carries': 5.6, 'Pass %': 87.1 } },
+  { id: 'p1', name: 'Marco Lindström', age: 25, nationality: 'Sweden', position: 'LB, LWB', club: 'FC Nordhavn', league: 'Bundesliga', fitScore: 94, stats: { 'xG/90': 0.12, 'Succ. Dribbles': 3.41, 'Prog. Carries': 8.2, 'Pass %': 89.2 } },
+  { id: 'p2', name: 'Enzo Valenti', age: 23, nationality: 'Italy', position: 'LB, LM', club: 'Crescent Athletic', league: 'Premier League', fitScore: 88, stats: { 'xG/90': 0.08, 'Succ. Dribbles': 2.18, 'Prog. Carries': 6.7, 'Pass %': 85.1 } },
+  { id: 'p3', name: 'Dani Cortez', age: 22, nationality: 'Spain', position: 'LB, RB', club: 'Atlético Ronda', league: 'La Liga', fitScore: 76, stats: { 'xG/90': 0.05, 'Succ. Dribbles': 1.94, 'Prog. Carries': 7.1, 'Pass %': 87.6 } },
+  { id: 'p4', name: 'Tiago Noronha', age: 24, nationality: 'Portugal', position: 'LB', club: 'AS Lumière', league: 'Ligue 1', fitScore: 82, stats: { 'xG/90': 0.03, 'Succ. Dribbles': 2.88, 'Prog. Carries': 7.9, 'Pass %': 84.3 } },
+  { id: 'p5', name: 'Rémi Blanchard', age: 23, nationality: 'France', position: 'LB, LM', club: 'Olympique Azur', league: 'Ligue 1', fitScore: 54, stats: { 'xG/90': 0.01, 'Succ. Dribbles': 1.12, 'Prog. Carries': 4.3, 'Pass %': 81.0 } },
+  { id: 'p6', name: 'Bálint Varga', age: 22, nationality: 'Hungary', position: 'LB', club: 'Southport City', league: 'Premier League', fitScore: 79, stats: { 'xG/90': 0.04, 'Succ. Dribbles': 1.76, 'Prog. Carries': 5.8, 'Pass %': 82.4 } },
+  { id: 'p7', name: 'Samir Benali', age: 23, nationality: 'Algeria', position: 'LB, LWB', club: 'Midland Rovers', league: 'Premier League', fitScore: 85, stats: { 'xG/90': 0.07, 'Succ. Dribbles': 2.34, 'Prog. Carries': 6.2, 'Pass %': 83.7 } },
+  { id: 'p8', name: 'Pablo Navarro', age: 23, nationality: 'Spain', position: 'LB', club: 'Sporting Castilla', league: 'La Liga', fitScore: 73, stats: { 'xG/90': 0.06, 'Succ. Dribbles': 1.45, 'Prog. Carries': 5.4, 'Pass %': 86.2 } },
+  { id: 'p9', name: 'Stijn de Graaf', age: 24, nationality: 'Netherlands', position: 'LB, LWB', club: 'Harton Villa', league: 'Premier League', fitScore: 81, stats: { 'xG/90': 0.09, 'Succ. Dribbles': 2.01, 'Prog. Carries': 6.9, 'Pass %': 84.8 } },
+  { id: 'p10', name: 'Mateo Rivas', age: 19, nationality: 'Argentina', position: 'LB', club: 'Miami Coast FC', league: 'MLS', fitScore: 62, stats: { 'xG/90': 0.02, 'Succ. Dribbles': 1.1, 'Prog. Carries': 3.8, 'Pass %': 80.5 } },
+  { id: 'p11', name: 'Adrien Morel', age: 28, nationality: 'France', position: 'LB, LWB', club: 'AC Stellare', league: 'Serie A', fitScore: 91, stats: { 'xG/90': 0.14, 'Succ. Dribbles': 2.67, 'Prog. Carries': 7.5, 'Pass %': 85.9 } },
+  { id: 'p12', name: 'Emre Demir', age: 25, nationality: 'Turkey', position: 'LB, RB', club: 'Coastal FC', league: 'Premier League', fitScore: 77, stats: { 'xG/90': 0.05, 'Succ. Dribbles': 1.89, 'Prog. Carries': 5.6, 'Pass %': 87.1 } },
 ]
 
-// ─── Player Report (Alphonso Davies) ─────────────────────────
+// ─── Player Report (Marco Lindström) ─────────────────────────
 
-export const alphonsoDaviesReport: MockPlayerReport = {
+export const marcoLindstromReport: MockPlayerReport = {
   playerId: 'p1',
-  playerName: 'Alphonso Davies',
+  playerName: 'Marco Lindström',
   age: 25,
-  nationality: 'Canada',
+  nationality: 'Sweden',
   position: 'LB / LWB',
-  club: 'Bayern Munich',
+  club: 'FC Nordhavn',
   league: 'Bundesliga',
-  summary: 'Davies continues to be one of the most dynamic full-backs in world football. His ability to transition from defense to attack at high speed is elite-level. While his tactical positioning has improved significantly, he remains most effective when allowed to overlap and drive into the final third. His progressive carrying numbers rank in the 97th percentile among all European full-backs.',
+  summary: 'Lindström continues to be one of the most dynamic full-backs in European football. His ability to transition from defense to attack at high speed is elite-level. While his tactical positioning has improved significantly, he remains most effective when allowed to overlap and drive into the final third. His progressive carrying numbers rank in the 97th percentile among all European full-backs.',
   strengths: [
     'Elite recovery speed and acceleration',
     'Ball progression and carrying ability',
@@ -162,7 +162,7 @@ export const alphonsoDaviesReport: MockPlayerReport = {
     'Final third decision-making under pressure',
     'Positional discipline when caught high',
   ],
-  styleOfPlay: 'An explosive, attacking full-back who functions as a secondary winger in possession phases. Davies creates width and stretches opposition defensive lines through pace and direct running. In defensive transitions, his recovery speed compensates for his high starting position. Best deployed in systems that encourage full-back overlaps with inside-cutting wingers.',
+  styleOfPlay: 'An explosive, attacking full-back who functions as a secondary winger in possession phases. Lindström creates width and stretches opposition defensive lines through pace and direct running. In defensive transitions, his recovery speed compensates for his high starting position. Best deployed in systems that encourage full-back overlaps with inside-cutting wingers.',
   recommendation: 'monitor',
   fitScore: 94,
   seasonStats: {
@@ -186,19 +186,19 @@ export const alphonsoDaviesReport: MockPlayerReport = {
     { label: 'Crossing', value: 74, average: 65 },
   ],
   similarPlayers: [
-    { name: 'Nuno Mendes', club: 'PSG', age: 24, similarity: 94 },
-    { name: 'Alejandro Balde', club: 'FC Barcelona', age: 22, similarity: 91 },
-    { name: 'Destiny Udogie', club: 'Tottenham', age: 23, similarity: 88 },
+    { name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 94 },
+    { name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 91 },
+    { name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 88 },
   ],
   transferHistory: [
-    { club: 'FC Bayern Munich', date: 'Jan 2019', fee: '€10.00m' },
-    { club: 'Vancouver Whitecaps', date: 'Youth', fee: 'Academy' },
+    { club: 'FC Nordhavn', date: 'Jan 2023', fee: '€10.00m' },
+    { club: 'IFK Malmköping', date: 'Youth', fee: 'Academy' },
   ],
   contractInfo: {
     value: '€70.00m',
     until: 'June 30, 2027',
     wage: '€175k/week',
-    agent: 'ATG Sports',
+    agent: 'Nordic Sports Group',
   },
 }
 
@@ -207,11 +207,11 @@ export const alphonsoDaviesReport: MockPlayerReport = {
 export const comparisonPlayers: MockComparisonPlayer[] = [
   {
     id: 'cp1',
-    name: 'Marcus Rashford',
-    club: 'Manchester United',
+    name: 'Kwame Asante',
+    club: 'Northgate United',
     position: 'LW / CF',
     age: 28,
-    nationality: 'England',
+    nationality: 'Ghana',
     metrics: { 'Goals/90': 0.68, 'Assists/90': 0.12, 'Pass %': 81.4, 'Tackles/90': 1.2, 'Interceptions/90': 0.3, 'xG/90': 0.62, 'Key Passes/90': 1.8, 'Aerial Won %': 48.2, 'Dribbles/90': 3.1, 'Prog. Carries/90': 5.4 },
     radarData: [
       { label: 'Shooting', value: 85 },
@@ -224,8 +224,8 @@ export const comparisonPlayers: MockComparisonPlayer[] = [
   },
   {
     id: 'cp2',
-    name: 'Rafael Leao',
-    club: 'AC Milan',
+    name: 'Gonçalo Pinto',
+    club: 'AC Stellare',
     position: 'LW / CF',
     age: 27,
     nationality: 'Portugal',
@@ -252,9 +252,9 @@ export const watchlists: MockWatchlist[] = [
     lastUpdated: '2h ago',
     alertCount: 2,
     players: [
-      { id: 'wp1', name: 'Destiny Udogie', club: 'Tottenham', position: 'LB/LM', age: 23, nationality: 'Italy', keyMetric: { value: '6.7', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-02-15', scoutScore: 88 },
-      { id: 'wp2', name: 'Alejandro Balde', club: 'FC Barcelona', position: 'LB/RB', age: 22, nationality: 'Spain', keyMetric: { value: '87.6%', label: 'Pass Accuracy' }, alertStatus: 'form_change', addedDate: '2026-02-18', scoutScore: 76 },
-      { id: 'wp3', name: 'Milos Kerkez', club: 'Bournemouth', position: 'LB', age: 22, nationality: 'Hungary', keyMetric: { value: '5.8', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-03-01', scoutScore: 79 },
+      { id: 'wp1', name: 'Enzo Valenti', club: 'Crescent Athletic', position: 'LB/LM', age: 23, nationality: 'Italy', keyMetric: { value: '6.7', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-02-15', scoutScore: 88 },
+      { id: 'wp2', name: 'Dani Cortez', club: 'Atlético Ronda', position: 'LB/RB', age: 22, nationality: 'Spain', keyMetric: { value: '87.6%', label: 'Pass Accuracy' }, alertStatus: 'form_change', addedDate: '2026-02-18', scoutScore: 76 },
+      { id: 'wp3', name: 'Bálint Varga', club: 'Southport City', position: 'LB', age: 22, nationality: 'Hungary', keyMetric: { value: '5.8', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-03-01', scoutScore: 79 },
     ],
   },
   {
@@ -265,8 +265,8 @@ export const watchlists: MockWatchlist[] = [
     lastUpdated: '5h ago',
     alertCount: 0,
     players: [
-      { id: 'wp4', name: 'Marcus Thuram', club: 'Inter Milan', position: 'CF/LW', age: 28, nationality: 'France', keyMetric: { value: '0.68', label: 'npxG/90' }, alertStatus: 'price_change', addedDate: '2025-12-02', scoutScore: 92 },
-      { id: 'wp5', name: 'Joshua Zirkzee', club: 'Man United', position: 'CF', age: 25, nationality: 'Netherlands', keyMetric: { value: '2.45', label: 'Succ. Dribbles' }, alertStatus: 'stable', addedDate: '2025-12-18', scoutScore: 85 },
+      { id: 'wp4', name: 'Ousmane Diallo', club: 'Inter Azzurra', position: 'CF/LW', age: 28, nationality: 'Senegal', keyMetric: { value: '0.68', label: 'npxG/90' }, alertStatus: 'price_change', addedDate: '2025-12-02', scoutScore: 92 },
+      { id: 'wp5', name: 'Lars Henriksen', club: 'Northgate United', position: 'CF', age: 25, nationality: 'Denmark', keyMetric: { value: '2.45', label: 'Succ. Dribbles' }, alertStatus: 'stable', addedDate: '2025-12-18', scoutScore: 85 },
     ],
   },
   {
@@ -277,9 +277,9 @@ export const watchlists: MockWatchlist[] = [
     lastUpdated: '12m ago',
     alertCount: 3,
     players: [
-      { id: 'wp6', name: 'Luca Pellegrini', club: 'Lazio', position: 'LB/LWB', age: 26, nationality: 'Italy', keyMetric: { value: '8.42', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2025-11-15', scoutScore: 88 },
-      { id: 'wp7', name: 'Federico Dimarco', club: 'Inter Milan', position: 'LWB', age: 28, nationality: 'Italy', keyMetric: { value: '3.12', label: 'Key Passes/90' }, alertStatus: 'injury', addedDate: '2025-12-10', scoutScore: 90 },
-      { id: 'wp8', name: 'Matias Soule', club: 'Roma', position: 'RW/AM', age: 23, nationality: 'Argentina', keyMetric: { value: '4.18', label: 'SCA/90' }, alertStatus: 'price_change', addedDate: '2026-01-05', scoutScore: 87 },
+      { id: 'wp6', name: 'Luca Marchetti', club: 'Lazio Blu', position: 'LB/LWB', age: 26, nationality: 'Italy', keyMetric: { value: '8.42', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2025-11-15', scoutScore: 88 },
+      { id: 'wp7', name: 'Alessandro Conti', club: 'Inter Azzurra', position: 'LWB', age: 28, nationality: 'Italy', keyMetric: { value: '3.12', label: 'Key Passes/90' }, alertStatus: 'injury', addedDate: '2025-12-10', scoutScore: 90 },
+      { id: 'wp8', name: 'Nicolás Herrera', club: 'AS Roma Rossa', position: 'RW/AM', age: 23, nationality: 'Argentina', keyMetric: { value: '4.18', label: 'SCA/90' }, alertStatus: 'price_change', addedDate: '2026-01-05', scoutScore: 87 },
     ],
   },
   {

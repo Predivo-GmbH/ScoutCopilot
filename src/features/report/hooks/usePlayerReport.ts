@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { alphonsoDaviesReport, type MockPlayerReport } from '../../../lib/mock-data'
+import { marcoLindstromReport, type MockPlayerReport } from '../../../lib/mock-data'
 
 export function usePlayerReport(playerId?: string) {
   return useQuery<MockPlayerReport>({
@@ -8,7 +8,7 @@ export function usePlayerReport(playerId?: string) {
       // TODO: Replace with real API call
       await new Promise((r) => setTimeout(r, 500))
       // For demo, always return Davies report
-      return alphonsoDaviesReport
+      return marcoLindstromReport
     },
     enabled: !!playerId,
   })
