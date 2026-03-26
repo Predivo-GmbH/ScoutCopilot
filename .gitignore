@@ -24,3 +24,6 @@ npm-debug.log*
 *.sln
 *.sw?
 .DS_Store
+
+# Credentials
+docs/Credentials.txt
