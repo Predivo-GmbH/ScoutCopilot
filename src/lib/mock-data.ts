@@ -56,6 +56,7 @@ export interface MockPlayerReport {
   position: string
   club: string
   league: string
+  image?: string
   summary: string
   strengths: string[]
   weaknesses: string[]
@@ -64,7 +65,7 @@ export interface MockPlayerReport {
   fitScore: number
   seasonStats: Record<string, number | string>
   radarData: { label: string; value: number; average: number }[]
-  similarPlayers: { name: string; club: string; age: number; similarity: number }[]
+  similarPlayers: { name: string; club: string; age: number; similarity: number; image?: string }[]
   transferHistory: { club: string; date: string; fee: string }[]
   contractInfo: { value: string; until: string; wage: string; agent: string }
 }
@@ -86,6 +87,7 @@ export interface MockWatchlistPlayer {
   position: string
   age: number
   nationality: string
+  image?: string
   keyMetric: { value: string; label: string }
   alertStatus: 'stable' | 'price_change' | 'injury' | 'form_change'
   addedDate: string
@@ -165,6 +167,7 @@ export const marcoLindstromReport: MockPlayerReport = {
   position: 'LB / LWB',
   club: 'FC Nordhavn',
   league: 'Bundesliga',
+  image: '/avatars/player-1.png',
   summary: 'Lindström continues to be one of the most dynamic full-backs in European football. His ability to transition from defense to attack at high speed is elite-level. While his tactical positioning has improved significantly, he remains most effective when allowed to overlap and drive into the final third. His progressive carrying numbers rank in the 97th percentile among all European full-backs.',
   strengths: [
     'Elite recovery speed and acceleration',
@@ -202,9 +205,9 @@ export const marcoLindstromReport: MockPlayerReport = {
     { label: 'Crossing', value: 74, average: 65 },
   ],
   similarPlayers: [
-    { name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 94 },
-    { name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 91 },
-    { name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 88 },
+    { name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 94, image: '/avatars/player-4.png' },
+    { name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 91, image: '/avatars/player-3.png' },
+    { name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 88, image: '/avatars/player-2.png' },
   ],
   transferHistory: [
     { club: 'FC Nordhavn', date: 'Jan 2023', fee: '€10.00m' },
@@ -268,9 +271,9 @@ export const watchlists: MockWatchlist[] = [
     lastUpdated: '2h ago',
     alertCount: 2,
     players: [
-      { id: 'wp1', name: 'Enzo Valenti', club: 'Crescent Athletic', position: 'LB/LM', age: 23, nationality: 'Italy', keyMetric: { value: '6.7', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-02-15', scoutScore: 88 },
-      { id: 'wp2', name: 'Dani Cortez', club: 'Atlético Ronda', position: 'LB/RB', age: 22, nationality: 'Spain', keyMetric: { value: '87.6%', label: 'Pass Accuracy' }, alertStatus: 'form_change', addedDate: '2026-02-18', scoutScore: 76 },
-      { id: 'wp3', name: 'Bálint Varga', club: 'Southport City', position: 'LB', age: 22, nationality: 'Hungary', keyMetric: { value: '5.8', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-03-01', scoutScore: 79 },
+      { id: 'wp1', name: 'Enzo Valenti', club: 'Crescent Athletic', position: 'LB/LM', age: 23, nationality: 'Italy', image: '/avatars/player-2.png', keyMetric: { value: '6.7', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-02-15', scoutScore: 88 },
+      { id: 'wp2', name: 'Dani Cortez', club: 'Atlético Ronda', position: 'LB/RB', age: 22, nationality: 'Spain', image: '/avatars/player-3.png', keyMetric: { value: '87.6%', label: 'Pass Accuracy' }, alertStatus: 'form_change', addedDate: '2026-02-18', scoutScore: 76 },
+      { id: 'wp3', name: 'Bálint Varga', club: 'Southport City', position: 'LB', age: 22, nationality: 'Hungary', image: '/avatars/player-6.png', keyMetric: { value: '5.8', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-03-01', scoutScore: 79 },
     ],
   },
   {
@@ -281,8 +284,8 @@ export const watchlists: MockWatchlist[] = [
     lastUpdated: '5h ago',
     alertCount: 0,
     players: [
-      { id: 'wp4', name: 'Ousmane Diallo', club: 'Inter Azzurra', position: 'CF/LW', age: 28, nationality: 'Senegal', keyMetric: { value: '0.68', label: 'npxG/90' }, alertStatus: 'price_change', addedDate: '2025-12-02', scoutScore: 92 },
-      { id: 'wp5', name: 'Lars Henriksen', club: 'Northgate United', position: 'CF', age: 25, nationality: 'Denmark', keyMetric: { value: '2.45', label: 'Succ. Dribbles' }, alertStatus: 'stable', addedDate: '2025-12-18', scoutScore: 85 },
+      { id: 'wp4', name: 'Ousmane Diallo', club: 'Inter Azzurra', position: 'CF/LW', age: 28, nationality: 'Senegal', image: '/avatars/player-15.png', keyMetric: { value: '0.68', label: 'npxG/90' }, alertStatus: 'price_change', addedDate: '2025-12-02', scoutScore: 92 },
+      { id: 'wp5', name: 'Lars Henriksen', club: 'Northgate United', position: 'CF', age: 25, nationality: 'Denmark', image: '/avatars/player-16.png', keyMetric: { value: '2.45', label: 'Succ. Dribbles' }, alertStatus: 'stable', addedDate: '2025-12-18', scoutScore: 85 },
     ],
   },
   {
@@ -293,9 +296,9 @@ export const watchlists: MockWatchlist[] = [
     lastUpdated: '12m ago',
     alertCount: 3,
     players: [
-      { id: 'wp6', name: 'Luca Marchetti', club: 'Lazio Blu', position: 'LB/LWB', age: 26, nationality: 'Italy', keyMetric: { value: '8.42', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2025-11-15', scoutScore: 88 },
-      { id: 'wp7', name: 'Alessandro Conti', club: 'Inter Azzurra', position: 'LWB', age: 28, nationality: 'Italy', keyMetric: { value: '3.12', label: 'Key Passes/90' }, alertStatus: 'injury', addedDate: '2025-12-10', scoutScore: 90 },
-      { id: 'wp8', name: 'Nicolás Herrera', club: 'AS Roma Rossa', position: 'RW/AM', age: 23, nationality: 'Argentina', keyMetric: { value: '4.18', label: 'SCA/90' }, alertStatus: 'price_change', addedDate: '2026-01-05', scoutScore: 87 },
+      { id: 'wp6', name: 'Luca Marchetti', club: 'Lazio Blu', position: 'LB/LWB', age: 26, nationality: 'Italy', image: '/avatars/player-13.png', keyMetric: { value: '8.42', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2025-11-15', scoutScore: 88 },
+      { id: 'wp7', name: 'Alessandro Conti', club: 'Inter Azzurra', position: 'LWB', age: 28, nationality: 'Italy', image: '/avatars/player-17.png', keyMetric: { value: '3.12', label: 'Key Passes/90' }, alertStatus: 'injury', addedDate: '2025-12-10', scoutScore: 90 },
+      { id: 'wp8', name: 'Nicolás Herrera', club: 'AS Roma Rossa', position: 'RW/AM', age: 23, nationality: 'Argentina', image: '/avatars/player-18.png', keyMetric: { value: '4.18', label: 'SCA/90' }, alertStatus: 'price_change', addedDate: '2026-01-05', scoutScore: 87 },
     ],
   },
   {

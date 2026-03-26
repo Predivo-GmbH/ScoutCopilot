@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
+import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 import { usePlayerReport } from './hooks/usePlayerReport'
 
 export function ReportPage() {
@@ -46,9 +47,7 @@ export function ReportPage() {
       {/* Player Header */}
       <div className="bg-surface-container rounded-md p-6 border border-outline-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-6">
-          <div className="w-20 h-20 rounded-md bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary">
-            {report.playerName.split(' ').map((n) => n[0]).join('')}
-          </div>
+          <PlayerAvatar name={report.playerName} size={80} imageUrl={report.image} />
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-on-surface uppercase">{report.playerName}</h1>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
@@ -188,9 +187,7 @@ export function ReportPage() {
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/report/${p.name.toLowerCase().replace(/\s/g, '-')}`); } }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-md bg-surface-container-highest flex items-center justify-center font-semibold text-xs text-on-surface-variant">
-                      {p.name.split(' ').map((n) => n[0]).join('')}
-                    </div>
+                    <PlayerAvatar name={p.name} size={40} imageUrl={p.image} />
                     <div>
                       <div className="text-sm font-semibold text-on-surface">{p.name}</div>
                       <div className="text-[0.625rem] text-on-surface-variant">{p.club} &middot; {p.age}y</div>

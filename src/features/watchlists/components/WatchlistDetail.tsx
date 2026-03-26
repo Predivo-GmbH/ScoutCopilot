@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, FileText, Trash2 } from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
+import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import type { MockWatchlist } from '../../../lib/mock-data'
 
 interface WatchlistDetailProps {
@@ -64,9 +65,7 @@ export function WatchlistDetail({ watchlist, onBack }: WatchlistDetailProps) {
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-md bg-surface-container-highest flex items-center justify-center text-xs font-semibold text-on-surface-variant shrink-0">
-                          {player.name.split(' ').map((n) => n[0]).join('')}
-                        </div>
+                        <PlayerAvatar name={player.name} size={40} imageUrl={player.image} />
                         <div>
                           <p className="font-semibold text-on-surface">{player.name}</p>
                           <p className="text-[0.625rem] text-on-surface-variant font-data">
