@@ -114,7 +114,7 @@ export function DashboardPage() {
                     <tr
                       key={search.id}
                       className="hover:bg-surface-container-high transition-colors cursor-pointer"
-                      onClick={() => navigate(`/search?q=${encodeURIComponent(search.query)}`)}
+                      onClick={() => navigate(`/search?q=${encodeURIComponent(search.query)}&saved=1`)}
                     >
                       <td className="px-6 py-3 text-xs font-medium text-on-surface max-w-[320px] truncate">
                         {search.query}

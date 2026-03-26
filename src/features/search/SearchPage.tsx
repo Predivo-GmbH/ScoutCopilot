@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Search as SearchIcon, ArrowRight, Sparkles } from 'lucide-react'
@@ -19,12 +19,20 @@ const SUGGESTED_QUERIES = [
 export function SearchPage() {
   const { t } = useTranslation()
   const { params, results, isLoading, hasSearched, search, updateFilters } = usePlayerSearch()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const initialQuery = searchParams.get('q') ?? ''
+  const isSavedSearch = searchParams.get('saved') === '1'
   const [queryInput, setQueryInput] = useState(initialQuery)
+  const autoSearched = useRef(false)
 
-  // Pre-fill input from ?q= but don't auto-search
-  // User can review and click Search manually
+  // Auto-execute saved searches from dashboard (but not "Find Players" or suggested queries)
+  useEffect(() => {
+    if (isSavedSearch && initialQuery && !autoSearched.current) {
+      autoSearched.current = true
+      search({ query: initialQuery })
+      setSearchParams({}, { replace: true })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSearch() {
     search({ query: queryInput })
