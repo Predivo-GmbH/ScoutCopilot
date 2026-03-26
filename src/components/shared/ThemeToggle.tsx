@@ -1,5 +1,5 @@
 import { Sun, Moon, Monitor } from 'lucide-react'
-import { useTheme } from './ThemeProvider'
+import { useTheme } from './useTheme'
 
 const CYCLE: Array<'light' | 'dark' | 'system'> = ['light', 'dark', 'system']
 
