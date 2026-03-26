@@ -5,16 +5,13 @@ import {
   Eye,
   Activity,
   Clock,
-  Bell,
   Zap,
-  ArrowUpRight,
   ArrowRight,
   TrendingUp,
   TrendingDown,
   GitCompareArrows,
   ExternalLink,
 } from 'lucide-react'
-import { Card } from '../../components/ui/Card'
 import { useAuth } from '../../features/auth/useAuth'
 import { useDashboardStats, useRecentSearches, useWatchlistAlerts } from './hooks/useDashboardData'
 import { formatNumber } from '../../lib/utils'

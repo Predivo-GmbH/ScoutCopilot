@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Search as SearchIcon, ArrowRight, Sparkles, Wand2 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
@@ -17,17 +17,14 @@ const SUGGESTED_QUERIES = [
 
 export function SearchPage() {
   const { params, results, isLoading, hasSearched, search, updateFilters } = usePlayerSearch()
-  const [queryInput, setQueryInput] = useState('')
   const [searchParams] = useSearchParams()
+  const initialQuery = useMemo(() => searchParams.get('q') ?? '', [searchParams])
+  const [queryInput, setQueryInput] = useState(initialQuery)
 
-  // Handle search from top bar
-  useEffect(() => {
-    const q = searchParams.get('q')
-    if (q) {
-      setQueryInput(q)
-      search({ query: q })
-    }
-  }, [searchParams]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Trigger search when arriving with ?q= from top bar
+  useMemo(() => {
+    if (initialQuery) search({ query: initialQuery })
+  }, [initialQuery]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSearch() {
     search({ query: queryInput })
