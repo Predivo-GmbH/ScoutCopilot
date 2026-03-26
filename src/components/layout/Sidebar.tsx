@@ -9,7 +9,6 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from 'lucide-react'
-import { useAuth } from '../../features/auth/useAuth'
 import { Logo } from '../shared/Logo'
 
 interface SidebarProps {
@@ -29,14 +28,6 @@ const navItems = [
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
-  const { profile } = useAuth()
-
-  const initials = profile?.full_name
-    ?.split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2) ?? '?'
 
   return (
     <aside
@@ -47,7 +38,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       }}
     >
       {/* Logo area */}
-      <div className="flex flex-col justify-center h-16 border-b border-outline-variant px-4">
+      <div className="flex flex-col justify-center h-14 border-b border-outline-variant px-4">
         <Logo size="lg" showText={!collapsed} />
       </div>
 
@@ -79,23 +70,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </ul>
       </nav>
 
-      {/* Profile + Collapse toggle */}
-      <div className="border-t border-outline-variant p-2 flex flex-col gap-1">
-        <div className="flex items-center gap-3 px-3 py-2">
-          {profile?.avatar_url ? (
-            <img src={profile.avatar_url} alt="" className="w-8 h-8 rounded-md object-cover shrink-0" />
-          ) : (
-            <div className="w-8 h-8 rounded-md bg-primary/15 flex items-center justify-center text-[0.625rem] font-semibold text-primary shrink-0">
-              {initials}
-            </div>
-          )}
-          {!collapsed && (
-            <div className="flex flex-col min-w-0">
-              <span className="text-xs font-semibold text-on-surface truncate">{profile?.full_name ?? 'Chief Scout'}</span>
-              <span className="text-[0.6rem] font-data uppercase tracking-wider text-on-surface-variant truncate">{profile?.role ?? 'Premium Tier'}</span>
-            </div>
-          )}
-        </div>
+      {/* Collapse toggle */}
+      <div className="border-t border-outline-variant p-2">
         <button
           onClick={onToggle}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
