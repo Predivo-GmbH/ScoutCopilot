@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { AlertTriangle } from 'lucide-react'
 import { Button } from './Button'
 
@@ -25,15 +25,6 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   const overlayRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    if (!open) return
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCancel()
-    }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [open, onCancel])
-
   if (!open) return null
 
   return (
@@ -42,6 +33,9 @@ export function ConfirmDialog({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={(e) => {
         if (e.target === overlayRef.current) onCancel()
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onCancel()
       }}
     >
       <div className="bg-surface-container rounded-md border border-outline-variant shadow-lg w-full max-w-sm mx-4 p-6">

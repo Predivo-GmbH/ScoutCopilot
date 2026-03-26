@@ -1,8 +1,7 @@
-import { useState } from 'react'
-import { useEffect, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { Plus, Check, X } from 'lucide-react'
 import { Button } from '../ui/Button'
-import { useWatchlistActions } from '../../lib/WatchlistContext'
+import { useWatchlistActions } from '../../lib/useWatchlistActions'
 import type { MockWatchlistPlayer } from '../../lib/mock-data'
 
 interface AddToWatchlistModalProps {
@@ -12,39 +11,21 @@ interface AddToWatchlistModalProps {
 }
 
 export function AddToWatchlistModal({ open, player, onClose }: AddToWatchlistModalProps) {
+  if (!open || !player) return null
+  return <AddToWatchlistModalInner player={player} onClose={onClose} />
+}
+
+/** Inner component remounts each time the modal opens, so state resets automatically */
+function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPlayer; onClose: () => void }) {
   const { watchlists, addPlayerToWatchlist, createWatchlist } = useWatchlistActions()
   const [addedTo, setAddedTo] = useState<Set<string>>(new Set())
   const [creatingNew, setCreatingNew] = useState(false)
   const [newName, setNewName] = useState('')
   const [newDesc, setNewDesc] = useState('')
   const overlayRef = useRef<HTMLDivElement>(null)
-  const nameInputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    if (!open) {
-      setAddedTo(new Set())
-      setCreatingNew(false)
-      setNewName('')
-      setNewDesc('')
-    }
-  }, [open])
-
-  useEffect(() => {
-    if (creatingNew && nameInputRef.current) {
-      nameInputRef.current.focus()
-    }
-  }, [creatingNew])
-
-  useEffect(() => {
-    if (!open) return
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [open, onClose])
-
-  if (!open || !player) return null
+  const nameInputRef = useCallback((node: HTMLInputElement | null) => {
+    node?.focus()
+  }, [])
 
   // Check which watchlists already contain this player
   const alreadyIn = new Set(
@@ -53,14 +34,14 @@ export function AddToWatchlistModal({ open, player, onClose }: AddToWatchlistMod
 
   function handleAdd(watchlistId: string) {
     if (alreadyIn.has(watchlistId) || addedTo.has(watchlistId)) return
-    addPlayerToWatchlist(watchlistId, player!)
+    addPlayerToWatchlist(watchlistId, player)
     setAddedTo((prev) => new Set(prev).add(watchlistId))
   }
 
   function handleCreateAndAdd() {
     if (!newName.trim()) return
     const id = createWatchlist(newName.trim(), newDesc.trim())
-    addPlayerToWatchlist(id, player!)
+    addPlayerToWatchlist(id, player)
     setAddedTo((prev) => new Set(prev).add(id))
     setCreatingNew(false)
     setNewName('')
@@ -73,6 +54,9 @@ export function AddToWatchlistModal({ open, player, onClose }: AddToWatchlistMod
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={(e) => {
         if (e.target === overlayRef.current) onClose()
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onClose()
       }}
     >
       <div className="bg-surface-container rounded-md border border-outline-variant shadow-lg w-full max-w-md mx-4">

@@ -7,7 +7,6 @@ import { AuthGuard, AuthOnlyGuard } from './features/auth/AuthGuard'
 import { AppShell } from './components/layout/AppShell'
 import { GeneratedReportsProvider } from './lib/useGeneratedReports'
 import { WatchlistProvider } from './lib/WatchlistContext'
-import { ComparisonProvider } from './lib/ComparisonContext'
 
 const LandingPage = lazy(() => import('./features/landing/LandingPage').then(m => ({ default: m.LandingPage })))
 const LoginPage = lazy(() => import('./features/auth/LoginPage').then(m => ({ default: m.LoginPage })))
@@ -45,7 +44,6 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <GeneratedReportsProvider>
       <WatchlistProvider>
-      <ComparisonProvider>
       <AuthProvider>
         <BrowserRouter>
           <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-md animate-spin" /></div>}>
@@ -88,7 +86,6 @@ export default function App() {
           </Suspense>
         </BrowserRouter>
       </AuthProvider>
-      </ComparisonProvider>
       </WatchlistProvider>
       </GeneratedReportsProvider>
     </QueryClientProvider>

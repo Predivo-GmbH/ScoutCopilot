@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Plus, X } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { useWatchlists } from './hooks/useWatchlists'
-import { useWatchlistActions } from '../../lib/WatchlistContext'
+import { useWatchlistActions } from '../../lib/useWatchlistActions'
 import { WatchlistCard } from './components/WatchlistCard'
 import { WatchlistDetail } from './components/WatchlistDetail'
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useWatchlistActions } from '../../../lib/WatchlistContext'
+import { useWatchlistActions } from '../../../lib/useWatchlistActions'
 import type { MockWatchlist } from '../../../lib/mock-data'
 
 export function useWatchlists() {

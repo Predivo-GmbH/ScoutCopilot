@@ -1,17 +1,9 @@
-import { createContext, useState, useCallback, type ReactNode } from 'react'
-import { watchlists as initialWatchlists, type MockWatchlist, type MockWatchlistPlayer } from './mock-data'
-
-export interface WatchlistContextValue {
-  watchlists: MockWatchlist[]
-  addPlayerToWatchlist: (watchlistId: string, player: MockWatchlistPlayer) => void
-  removePlayerFromWatchlist: (watchlistId: string, playerId: string) => void
-  createWatchlist: (name: string, description: string) => string
-}
-
-export const WatchlistContext = createContext<WatchlistContextValue | null>(null)
+import { useState, useCallback, type ReactNode } from 'react'
+import { watchlists as initialWatchlists, type MockWatchlistPlayer } from './mock-data'
+import { WatchlistContext } from './WatchlistContextDef'
 
 export function WatchlistProvider({ children }: { children: ReactNode }) {
-  const [lists, setLists] = useState<MockWatchlist[]>(initialWatchlists)
+  const [lists, setLists] = useState(initialWatchlists)
 
   const addPlayerToWatchlist = useCallback((watchlistId: string, player: MockWatchlistPlayer) => {
     setLists((prev) =>
@@ -65,4 +57,3 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
     </WatchlistContext.Provider>
   )
 }
-

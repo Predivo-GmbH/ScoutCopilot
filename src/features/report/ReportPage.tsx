@@ -13,7 +13,6 @@ import { Card } from '../../components/ui/Card'
 import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 import { AddToWatchlistModal } from '../../components/shared/AddToWatchlistModal'
 import { usePlayerReport } from './hooks/usePlayerReport'
-import { useComparisonContext } from '../../lib/ComparisonContext'
 import { exportPlayerPdf } from '../../lib/exportPdf'
 import type { MockWatchlistPlayer } from '../../lib/mock-data'
 
@@ -21,7 +20,6 @@ export function ReportPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data: report, isLoading } = usePlayerReport(id)
-  const { addPendingPlayer } = useComparisonContext()
   const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
 
   if (!id) return <Navigate to="/players" replace />
@@ -81,7 +79,7 @@ export function ReportPage() {
         </div>
         <div className="flex gap-3">
           <Button variant="secondary" size="sm" leftIcon={Star} onClick={() => setWatchlistModalOpen(true)}>Add to Watchlist</Button>
-          <Button variant="secondary" size="sm" leftIcon={GitCompareArrows} onClick={() => { addPendingPlayer(report.playerId); navigate('/compare') }}>Compare</Button>
+          <Button variant="secondary" size="sm" leftIcon={GitCompareArrows} onClick={() => navigate(`/compare?add=${report.playerId}`)}>Compare</Button>
           <Button variant="primary" size="sm" leftIcon={FileDown} onClick={() => exportPlayerPdf(report)}>Export PDF</Button>
         </div>
       </div>

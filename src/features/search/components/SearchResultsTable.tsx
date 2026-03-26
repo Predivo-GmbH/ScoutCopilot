@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, FileText, Loader2, Eye } from 'lucide-react'
 import type { MockPlayer } from '../../../lib/mock-data'
@@ -40,11 +40,15 @@ function exportResultsCsv(results: MockPlayer[]) {
 export function SearchResultsTable({ results, isLoading }: SearchResultsTableProps) {
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
+  const [prevResultsLen, setPrevResultsLen] = useState(results.length)
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
   const { generateReport, isGenerating, hasReport } = useGeneratedReports()
 
-  // Reset page when results change
-  useEffect(() => { setPage(1) }, [results.length])
+  // Reset page when results change (React-recommended pattern)
+  if (prevResultsLen !== results.length) {
+    setPrevResultsLen(results.length)
+    if (page !== 1) setPage(1)
+  }
 
   if (isLoading) {
     return <AIThinkingAnimation />

@@ -34,7 +34,6 @@ export function SearchPage() {
 
   function handleSuggestion(query: string) {
     setQueryInput(query)
-    search({ query })
   }
 
   return (
