@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Navigate } from 'react-router-dom'
 import {
   Star,
   GitCompareArrows,
@@ -15,7 +15,9 @@ import { usePlayerReport } from './hooks/usePlayerReport'
 export function ReportPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { data: report, isLoading } = usePlayerReport(id ?? 'p1')
+  const { data: report, isLoading } = usePlayerReport(id)
+
+  if (!id) return <Navigate to="/report" replace />
 
   if (isLoading || !report) {
     return (

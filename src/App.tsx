@@ -16,6 +16,7 @@ const AuthCallbackPage = lazy(() => import('./features/auth/AuthCallbackPage').t
 const OnboardingPage = lazy(() => import('./features/auth/OnboardingPage').then(m => ({ default: m.OnboardingPage })))
 const DashboardPage = lazy(() => import('./features/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })))
 const SearchPage = lazy(() => import('./features/search/SearchPage').then(m => ({ default: m.SearchPage })))
+const ReportsListPage = lazy(() => import('./features/report/ReportsListPage').then(m => ({ default: m.ReportsListPage })))
 const ReportPage = lazy(() => import('./features/report/ReportPage').then(m => ({ default: m.ReportPage })))
 const ComparisonPage = lazy(() => import('./features/comparison/ComparisonPage').then(m => ({ default: m.ComparisonPage })))
 const WatchlistsPage = lazy(() => import('./features/watchlists/WatchlistsPage').then(m => ({ default: m.WatchlistsPage })))
@@ -65,7 +66,8 @@ export default function App() {
               <Route element={<AppShell />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/search" element={<SearchPage />} />
-                <Route path="/report/:id?" element={<ReportPage />} />
+                <Route path="/report" element={<ReportsListPage />} />
+                <Route path="/report/:id" element={<ReportPage />} />
                 <Route path="/compare" element={<ComparisonPage />} />
                 <Route path="/watchlists" element={<WatchlistsPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
