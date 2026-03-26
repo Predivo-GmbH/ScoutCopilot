@@ -139,7 +139,10 @@ export function DashboardPage() {
         {/* Watchlist Alerts */}
         <div className="w-full xl:w-80 shrink-0">
           <div className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
-            <div className="px-4 py-4 border-b border-outline-variant flex justify-between items-center">
+            <button
+              onClick={() => navigate('/alerts')}
+              className="w-full px-4 py-4 border-b border-outline-variant flex justify-between items-center cursor-pointer hover:bg-surface-container-high transition-colors"
+            >
               <h3 className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
                 <Zap size={14} strokeWidth={1.5} className="text-tertiary" />
                 {t('dashboard.watchlistAlerts')}
@@ -147,7 +150,7 @@ export function DashboardPage() {
               <span className="text-[0.625rem] font-data font-medium text-white bg-error-container px-2 py-0.5 rounded-sm">
                 {String(alerts?.length ?? 0).padStart(2, '0')} {t('dashboard.new')}
               </span>
-            </div>
+            </button>
             {alertsLoading ? (
               <div className="p-3 space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
