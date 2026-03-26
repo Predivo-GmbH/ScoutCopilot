@@ -48,25 +48,6 @@ const STATS = [
   },
 ]
 
-const STEPS = [
-  {
-    title: 'Connect API',
-    description: 'Securely bind your Wyscout or StatsBomb API keys to our ingestion engine.',
-  },
-  {
-    title: 'Ask Questions',
-    description: 'Input tactical requirements in plain English or use our institutional presets.',
-  },
-  {
-    title: 'Get Ranked Results',
-    description: 'Receive AI-weighted shortlists that match your specific tactical philosophy.',
-  },
-  {
-    title: 'Export Reports',
-    description: 'One-click PDF or CSV exports formatted for Director and Coaching staff review.',
-  },
-]
-
 const ROI_ROWS = [
   { task: 'Build a position-specific shortlist', manual: '3-5 hours', copilot: '2-5 minutes' },
   { task: 'Generate a scouting report', manual: '2-4 hours', copilot: '1-2 minutes' },
@@ -520,31 +501,6 @@ export function LandingPage() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── How It Works ────────────────────────────────────────── */}
-      <section className="py-24 px-6 md:px-8 bg-surface-container-lowest">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-16 text-center">
-            How it works
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {STEPS.map((s, i) => (
-              <div key={s.title}>
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="font-mono text-3xl font-bold text-on-surface/20">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  {i < STEPS.length - 1 && (
-                    <div className="hidden md:block w-8 h-px bg-outline-variant/50" />
-                  )}
-                </div>
-                <h3 className="text-sm font-bold uppercase tracking-widest mb-2">{s.title}</h3>
-                <p className="text-sm text-on-surface-variant leading-relaxed">{s.description}</p>
-              </div>
-            ))}
           </div>
         </div>
       </section>
