@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowUpRight, Download, LayoutGrid, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { MockPlayer } from '../../../lib/mock-data'
+import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 
 const PAGE_SIZE = 8
 
@@ -85,7 +86,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
                   <td className="px-6 py-4 font-data text-on-surface-variant text-xs">{globalIndex + 1}</td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
-                      <PlayerAvatar name={player.name} nationality={player.nationality} image={player.image} />
+                      <PlayerAvatarWithFlag name={player.name} nationality={player.nationality} />
                       <div>
                         <div className="font-bold text-on-surface">{player.name}</div>
                         <div className="text-[0.625rem] text-on-surface-variant flex items-center gap-1.5">
@@ -182,26 +183,12 @@ function getPageNumbers(current: number, total: number): (number | '...')[] {
   return pages
 }
 
-function PlayerAvatar({ name, nationality, image }: { name: string; nationality: string; image?: string }) {
-  const initials = name.split(' ').map((n) => n[0]).join('')
-  const colors = [
-    'bg-primary/15 text-primary',
-    'bg-secondary/15 text-secondary',
-    'bg-tertiary/15 text-tertiary',
-    'bg-error/15 text-error',
-  ]
-  const colorIndex = name.charCodeAt(0) % colors.length
+function PlayerAvatarWithFlag({ name, nationality }: { name: string; nationality: string }) {
   const flagEmoji = countryToFlag(nationality)
 
   return (
     <div className="relative">
-      {image ? (
-        <img src={image} alt={name} className="w-8 h-8 rounded-sm object-cover" />
-      ) : (
-        <div className={`w-8 h-8 rounded-sm flex items-center justify-center text-[0.625rem] font-semibold ${colors[colorIndex]}`}>
-          {initials}
-        </div>
-      )}
+      <PlayerAvatar name={name} size={32} />
       {flagEmoji && (
         <span className="absolute -bottom-0.5 -right-0.5 text-[0.5rem] leading-none" title={nationality}>
           {flagEmoji}

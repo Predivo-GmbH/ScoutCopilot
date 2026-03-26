@@ -18,7 +18,7 @@ export function usePlayerSearch() {
     league: 'All Leagues',
     foot: 'Either Foot',
   })
-  const [hasSearched, setHasSearched] = useState(false)
+  const [hasSearched, setHasSearched] = useState(true)
 
   const { data, isLoading, refetch } = useQuery<MockPlayer[]>({
     queryKey: ['player-search', params],
