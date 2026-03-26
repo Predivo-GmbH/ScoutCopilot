@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import type { SquadPlayer } from '../../../lib/mock-data'
 
@@ -13,6 +14,7 @@ const statusStyles: Record<string, { dot: string; text: string; label: string }>
 }
 
 export function SquadTable({ players }: SquadTableProps) {
+  const navigate = useNavigate()
   const sorted = [...players].sort((a, b) => a.shirtNumber - b.shirtNumber)
 
   return (
@@ -36,7 +38,8 @@ export function SquadTable({ players }: SquadTableProps) {
             return (
               <tr
                 key={player.id}
-                className={`${i % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'} hover:bg-surface-container-high transition-colors`}
+                onClick={() => navigate(`/players/${player.id}`)}
+                className={`${i % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'} hover:bg-surface-container-high transition-colors cursor-pointer`}
               >
                 <td className="px-6 py-4 font-data text-on-surface-variant text-xs">{player.shirtNumber}</td>
                 <td className="px-4 py-4">

@@ -1530,3 +1530,36 @@ export const mockSquads: MockSquad[] = [
 
 // Keep flat export for backwards compat
 export const squadPlayers = firstTeamPlayers
+
+// All squad players (first team + U21) indexed by id for report lookup
+const allSquadPlayersById: Record<string, SquadPlayer> = Object.fromEntries(
+  [...firstTeamPlayers, ...u21Players].map((p) => [p.id, p])
+)
+
+export function getSquadPlayerReport(id: string): MockPlayerReport | null {
+  const p = allSquadPlayersById[id]
+  if (!p) return null
+  const pos = p.altPositions?.length ? `${p.position} / ${p.altPositions.join(' / ')}` : p.position
+  const rating = p.overallRating
+  return {
+    playerId: p.id,
+    playerName: p.name,
+    age: p.age,
+    nationality: p.nationality,
+    position: pos,
+    club: 'FC Nordhavn',
+    league: 'Danish Superliga',
+    image: p.image,
+    summary: `${p.name} is a ${p.age}-year-old ${p.position} currently valued at ${p.marketValue}. Contract runs until ${new Date(p.contractUntil).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}.`,
+    strengths: Object.entries(p.stats).filter(([, v]) => typeof v === 'number' && v > 3).map(([k, v]) => `Strong ${k} (${v})`).slice(0, 4),
+    weaknesses: Object.entries(p.stats).filter(([, v]) => typeof v === 'number' && v <= 2).map(([k, v]) => `${k} could improve (${v})`).slice(0, 3),
+    styleOfPlay: `Plays primarily as a ${pos} with an overall rating of ${rating}/100.`,
+    recommendation: rating >= 78 ? 'sign' : rating >= 65 ? 'monitor' : 'pass',
+    fitScore: rating,
+    seasonStats: Object.fromEntries(Object.entries(p.stats).map(([k, v]) => [k, v])),
+    radarData: p.radarData,
+    similarPlayers: [],
+    transferHistory: [{ club: 'FC Nordhavn', date: 'Current', fee: p.marketValue }],
+    contractInfo: { value: p.marketValue, until: p.contractUntil, wage: p.weeklyWage, agent: '—' },
+  }
+}
