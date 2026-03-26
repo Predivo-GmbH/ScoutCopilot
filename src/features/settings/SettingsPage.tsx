@@ -1,6 +1,5 @@
-import { ChevronRight, Sun, Moon, Monitor } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
-import { useTheme } from '../../components/shared/useTheme'
 import { useSettings, type SettingsTab } from './hooks/useSettings'
 import { ProfileSettings } from './components/ProfileSettings'
 import { OrgSettings } from './components/OrgSettings'
@@ -28,8 +27,6 @@ export function SettingsPage() {
     preferences,
     togglePreference,
   } = useSettings()
-  const { theme, setTheme } = useTheme()
-
   return (
     <div className="flex min-h-[calc(100vh-64px)]">
       {/* Sub-Sidebar */}
@@ -57,42 +54,6 @@ export function SettingsPage() {
           {activeTab === 'profile' && (
             <>
               <ProfileSettings profile={profile} onUpdate={updateProfile} />
-              {/* Appearance */}
-              <section className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
-                <div className="px-6 py-4 bg-surface-container-high border-b border-outline-variant">
-                  <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">Appearance</h2>
-                </div>
-                <div className="p-6">
-                  <label className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-2">
-                    Theme
-                  </label>
-                  <div className="inline-flex gap-1 rounded-md border border-outline-variant bg-surface-container-low p-1">
-                    {([
-                      { key: 'system' as const, icon: Monitor, label: 'System' },
-                      { key: 'light' as const, icon: Sun, label: 'Light' },
-                      { key: 'dark' as const, icon: Moon, label: 'Dark' },
-                    ]).map((opt) => {
-                      const isActive = theme === opt.key
-                      const Icon = opt.icon
-                      return (
-                        <button
-                          key={opt.key}
-                          onClick={() => setTheme(opt.key)}
-                          title={opt.label}
-                          className={`flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-xs font-medium transition-colors ${
-                            isActive
-                              ? 'bg-surface-container-high text-on-surface'
-                              : 'text-on-surface-variant hover:text-on-surface'
-                          }`}
-                        >
-                          <Icon size={14} strokeWidth={1.5} />
-                          <span>{opt.label}</span>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              </section>
               <PasswordSettings />
               <OrgSettings org={org} onUpdate={updateOrg} />
             </>
