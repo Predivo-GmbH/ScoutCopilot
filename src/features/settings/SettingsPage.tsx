@@ -1,4 +1,4 @@
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Sun, Moon, Monitor } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { useTheme } from '../../components/shared/useTheme'
 import { useSettings, type SettingsTab } from './hooks/useSettings'
@@ -63,19 +63,33 @@ export function SettingsPage() {
                   <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">Appearance</h2>
                 </div>
                 <div className="p-6">
-                  <div className="max-w-xs">
-                    <label className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">
-                      Theme
-                    </label>
-                    <select
-                      value={theme}
-                      onChange={(e) => setTheme(e.target.value as 'system' | 'light' | 'dark')}
-                      className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-sm text-on-surface focus:outline-none focus:border-primary transition-colors appearance-none"
-                    >
-                      <option value="system">System (follow OS)</option>
-                      <option value="light">Light</option>
-                      <option value="dark">Dark</option>
-                    </select>
+                  <label className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-2">
+                    Theme
+                  </label>
+                  <div className="inline-flex gap-1 rounded-md border border-outline-variant bg-surface-container-low p-1">
+                    {([
+                      { key: 'system' as const, icon: Monitor, label: 'System' },
+                      { key: 'light' as const, icon: Sun, label: 'Light' },
+                      { key: 'dark' as const, icon: Moon, label: 'Dark' },
+                    ]).map((opt) => {
+                      const isActive = theme === opt.key
+                      const Icon = opt.icon
+                      return (
+                        <button
+                          key={opt.key}
+                          onClick={() => setTheme(opt.key)}
+                          title={opt.label}
+                          className={`flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-xs font-medium transition-colors ${
+                            isActive
+                              ? 'bg-surface-container-high text-on-surface'
+                              : 'text-on-surface-variant hover:text-on-surface'
+                          }`}
+                        >
+                          <Icon size={14} strokeWidth={1.5} />
+                          <span>{opt.label}</span>
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
               </section>
