@@ -17,6 +17,7 @@ const AuthVerifyPage = lazy(() => import('./features/auth/AuthVerifyPage').then(
 const AuthCallbackPage = lazy(() => import('./features/auth/AuthCallbackPage').then(m => ({ default: m.AuthCallbackPage })))
 const OnboardingPage = lazy(() => import('./features/auth/OnboardingPage').then(m => ({ default: m.OnboardingPage })))
 const DashboardPage = lazy(() => import('./features/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })))
+const AlertsPage = lazy(() => import('./features/dashboard/AlertsPage').then(m => ({ default: m.AlertsPage })))
 const SearchPage = lazy(() => import('./features/search/SearchPage').then(m => ({ default: m.SearchPage })))
 const PlayersListPage = lazy(() => import('./features/report/ReportsListPage').then(m => ({ default: m.ReportsListPage })))
 const PlayerDetailPage = lazy(() => import('./features/report/ReportPage').then(m => ({ default: m.ReportPage })))
@@ -70,6 +71,7 @@ export default function App() {
             <Route element={<AuthGuard />}>
               <Route element={<AppShell />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/alerts" element={<AlertsPage />} />
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/players" element={<PlayersListPage />} />
                 <Route path="/players/:id" element={<PlayerDetailPage />} />

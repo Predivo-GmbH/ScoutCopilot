@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useParams, useNavigate, Navigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation, Navigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   Star,
   GitCompareArrows,
@@ -7,6 +8,8 @@ import {
   CircleDot,
   TrendingUp,
   TrendingDown,
+  Zap,
+  X,
 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
@@ -14,13 +17,17 @@ import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 import { AddToWatchlistModal } from '../../components/shared/AddToWatchlistModal'
 import { usePlayerReport } from './hooks/usePlayerReport'
 import { exportPlayerPdf } from '../../lib/exportPdf'
-import type { MockWatchlistPlayer } from '../../lib/mock-data'
+import type { MockWatchlistPlayer, WatchlistAlert } from '../../lib/mock-data'
 
 export function ReportPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const { data: report, isLoading } = usePlayerReport(id)
   const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
+  const [showAlertBanner, setShowAlertBanner] = useState(true)
+  const alertContext = (location.state as { alert?: WatchlistAlert } | null)?.alert
 
   if (!id) return <Navigate to="/players" replace />
 
@@ -43,14 +50,43 @@ export function ReportPage() {
   }
 
   const recommendation = {
-    sign: { label: 'RECOMMEND SIGN', color: 'text-secondary bg-secondary/10 border-secondary/20' },
-    monitor: { label: 'MONITOR', color: 'text-tertiary bg-tertiary/10 border-tertiary/20' },
-    pass: { label: 'PASS', color: 'text-error bg-error/10 border-error/20' },
+    sign: { label: t('report.recommendSign'), color: 'text-secondary bg-secondary/10 border-secondary/20' },
+    monitor: { label: t('report.monitor'), color: 'text-tertiary bg-tertiary/10 border-tertiary/20' },
+    pass: { label: t('report.pass'), color: 'text-error bg-error/10 border-error/20' },
   }
   const rec = recommendation[report.recommendation]
 
   return (
     <div className="p-6 space-y-6">
+      {/* Alert Context Banner */}
+      {alertContext && showAlertBanner && (
+        <div className={`rounded-md p-4 border flex items-center gap-3 ${
+          alertContext.changeType === 'warning'
+            ? 'bg-amber-500/10 border-amber-500/30'
+            : alertContext.changeType === 'positive'
+            ? 'bg-secondary/10 border-secondary/30'
+            : 'bg-surface-container border-outline-variant'
+        }`}>
+          <Zap size={16} strokeWidth={1.5} className={
+            alertContext.changeType === 'warning' ? 'text-amber-500' :
+            alertContext.changeType === 'positive' ? 'text-secondary' : 'text-on-surface-variant'
+          } />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-0.5">Watchlist Alert</p>
+            <p className={`text-sm font-data font-medium ${
+              alertContext.changeType === 'warning' ? 'text-amber-500' :
+              alertContext.changeType === 'positive' ? 'text-secondary' : 'text-on-surface'
+            }`}>
+              {alertContext.change}
+            </p>
+            <p className="text-[0.625rem] font-data text-on-surface-variant mt-0.5">{alertContext.timeAgo}</p>
+          </div>
+          <button onClick={() => setShowAlertBanner(false)} className="text-on-surface-variant hover:text-on-surface transition-colors shrink-0">
+            <X size={14} strokeWidth={1.5} />
+          </button>
+        </div>
+      )}
+
       {/* Player Header */}
       <div className="bg-surface-container rounded-md p-6 border border-outline-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-6">
@@ -78,9 +114,9 @@ export function ReportPage() {
           </div>
         </div>
         <div className="flex gap-3">
-          <Button variant="secondary" size="sm" leftIcon={Star} onClick={() => setWatchlistModalOpen(true)}>Add to Watchlist</Button>
-          <Button variant="secondary" size="sm" leftIcon={GitCompareArrows} onClick={() => navigate(`/compare?add=${report.playerId}`)}>Compare</Button>
-          <Button variant="primary" size="sm" leftIcon={FileDown} onClick={() => exportPlayerPdf(report)}>Export PDF</Button>
+          <Button variant="secondary" size="sm" leftIcon={Star} onClick={() => setWatchlistModalOpen(true)}>{t('report.addToWatchlist')}</Button>
+          <Button variant="secondary" size="sm" leftIcon={GitCompareArrows} onClick={() => navigate(`/compare?add=${report.playerId}`)}>{t('report.compare')}</Button>
+          <Button variant="primary" size="sm" leftIcon={FileDown} onClick={() => exportPlayerPdf(report)}>{t('report.exportPdf')}</Button>
         </div>
       </div>
 
@@ -95,14 +131,14 @@ export function ReportPage() {
         {/* Left Column (60%) */}
         <div className="md:col-span-6 space-y-6">
           {/* Radar Chart */}
-          <Card header={<SectionLabel>Performance Profile</SectionLabel>}>
+          <Card header={<SectionLabel>{t('report.performanceProfile')}</SectionLabel>}>
             <div className="flex justify-center py-4">
               <RadarChart data={report.radarData} />
             </div>
           </Card>
 
           {/* Season Statistics */}
-          <Card header={<SectionLabel>Season Statistics</SectionLabel>}>
+          <Card header={<SectionLabel>{t('report.seasonStats')}</SectionLabel>}>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
               {Object.entries(report.seasonStats).map(([key, value]) => (
                 <div key={key} className="flex flex-col gap-1">
@@ -115,19 +151,19 @@ export function ReportPage() {
 
           {/* Transfer History + Contract */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card header={<SectionLabel>Transfer History</SectionLabel>}>
+            <Card header={<SectionLabel>{t('report.transferHistory')}</SectionLabel>}>
               <div className="relative space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-px before:bg-outline-variant">
-                {report.transferHistory.map((t, i) => (
+                {report.transferHistory.map((tr, i) => (
                   <div key={i} className="relative pl-8">
                     <div className={`absolute left-0 top-1.5 w-4 h-4 rounded-md border-4 border-surface-container ${i === 0 ? 'bg-primary' : 'bg-outline-variant'}`} />
-                    <div className="text-sm font-semibold text-on-surface">{t.club}</div>
-                    <div className="text-[0.625rem] text-on-surface-variant">{t.date} &middot; {t.fee}</div>
+                    <div className="text-sm font-semibold text-on-surface">{tr.club}</div>
+                    <div className="text-[0.625rem] text-on-surface-variant">{tr.date} &middot; {tr.fee}</div>
                   </div>
                 ))}
               </div>
             </Card>
 
-            <Card header={<SectionLabel>Contract Overview</SectionLabel>}>
+            <Card header={<SectionLabel>{t('report.contractOverview')}</SectionLabel>}>
               <div className="grid grid-cols-2 gap-y-6">
                 {Object.entries(report.contractInfo).map(([key, value]) => (
                   <div key={key}>
@@ -147,7 +183,7 @@ export function ReportPage() {
             header={
               <div className="flex items-center gap-2">
                 <CircleDot size={14} strokeWidth={1.5} className="text-primary" />
-                <SectionLabel>Scout Assessment</SectionLabel>
+                <SectionLabel>{t('report.scoutAssessment')}</SectionLabel>
               </div>
             }
           >
@@ -155,10 +191,10 @@ export function ReportPage() {
           </Card>
 
           {/* Strengths & Weaknesses */}
-          <Card header={<SectionLabel>Strengths & Weaknesses</SectionLabel>}>
+          <Card header={<SectionLabel>{t('report.strengthsWeaknesses')}</SectionLabel>}>
             <div className="space-y-6">
               <div>
-                <h4 className="text-[0.625rem] uppercase tracking-widest text-secondary font-medium mb-3">Strengths</h4>
+                <h4 className="text-[0.625rem] uppercase tracking-widest text-secondary font-medium mb-3">{t('report.strengths')}</h4>
                 <ul className="space-y-2.5">
                   {report.strengths.map((s) => (
                     <li key={s} className="flex items-center gap-3 text-sm text-on-surface">
@@ -169,7 +205,7 @@ export function ReportPage() {
                 </ul>
               </div>
               <div className="pt-4 border-t border-outline-variant">
-                <h4 className="text-[0.625rem] uppercase tracking-widest text-tertiary font-medium mb-3">Weaknesses</h4>
+                <h4 className="text-[0.625rem] uppercase tracking-widest text-tertiary font-medium mb-3">{t('report.weaknesses')}</h4>
                 <ul className="space-y-2.5">
                   {report.weaknesses.map((w) => (
                     <li key={w} className="flex items-center gap-3 text-sm text-on-surface">
@@ -183,12 +219,12 @@ export function ReportPage() {
           </Card>
 
           {/* Style of Play */}
-          <Card header={<SectionLabel>Style of Play</SectionLabel>}>
+          <Card header={<SectionLabel>{t('report.styleOfPlay')}</SectionLabel>}>
             <p className="text-sm leading-relaxed text-on-surface/80">{report.styleOfPlay}</p>
           </Card>
 
           {/* Similar Players */}
-          <Card header={<SectionLabel>Similar Profiles</SectionLabel>}>
+          <Card header={<SectionLabel>{t('report.similarProfiles')}</SectionLabel>}>
             <div className="space-y-3">
               {report.similarPlayers.map((p) => (
                 <div

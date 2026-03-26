@@ -78,6 +78,7 @@ export interface MockWatchlist {
   playerCount: number
   lastUpdated: string
   alertCount: number
+  category?: 'transfer' | 'youth' | 'position'
   players: MockWatchlistPlayer[]
 }
 
@@ -140,6 +141,22 @@ export const watchlistAlerts: WatchlistAlert[] = [
   { id: '2', playerId: 'wp12', playerName: 'K. Papadopoulos', club: 'Olympique Azur', change: 'Injury Status: Doubtful', changeType: 'warning', timeAgo: '14m ago', imageUrl: '/avatars/player-14.png' },
   { id: '3', playerId: 'wp4', playerName: 'Ousmane Diallo', club: 'Inter Azzurra', change: 'xG Chain Threshold Reached', changeType: 'positive', timeAgo: '1h ago', imageUrl: '/avatars/player-15.png' },
   { id: '4', playerId: 'wp5', playerName: 'Lars Henriksen', club: 'Northgate United', change: 'Key Passes Peak Performance', changeType: 'positive', timeAgo: '3h ago', imageUrl: '/avatars/player-16.png' },
+  { id: '5', playerId: 'wp7', playerName: 'Alessandro Conti', club: 'Inter Azzurra', change: 'Returned to Full Training', changeType: 'positive', timeAgo: '4h ago', imageUrl: '/avatars/player-17.png' },
+  { id: '6', playerId: 'wp8', playerName: 'Nicolás Herrera', club: 'AS Roma Rossa', change: 'Market Value ↑ €2.5m → €3.8m', changeType: 'positive', timeAgo: '5h ago', imageUrl: '/avatars/player-18.png' },
+  { id: '7', playerId: 'p2', playerName: 'Enzo Valenti', club: 'Crescent Athletic', change: 'Contract Negotiations Stalled', changeType: 'warning', timeAgo: '6h ago', imageUrl: '/avatars/player-2.png' },
+  { id: '8', playerId: 'p3', playerName: 'Dani Cortez', club: 'Atlético Ronda', change: 'Started 3 Consecutive Matches', changeType: 'positive', timeAgo: '8h ago', imageUrl: '/avatars/player-3.png' },
+  { id: '9', playerId: 'wp10', playerName: 'Jakub Nowicki', club: 'Wisła Kraków', change: 'Called Up to U21 National Team', changeType: 'positive', timeAgo: '10h ago', imageUrl: '/avatars/player-19.png' },
+  { id: '10', playerId: 'wp11', playerName: 'Tomás Ferreira', club: 'Vitória Guimarães B', change: 'Hamstring Strain — 2 Weeks Out', changeType: 'warning', timeAgo: '12h ago', imageUrl: '/avatars/player-20.png' },
+  { id: '11', playerId: 'p6', playerName: 'Bálint Varga', club: 'Southport City', change: 'Tackles Won/90 Top 5% in League', changeType: 'positive', timeAgo: '14h ago', imageUrl: '/avatars/player-6.png' },
+  { id: '12', playerId: 'p10', playerName: 'Mateo Rivas', club: 'Miami Coast FC', change: 'Transfer Listed by Club', changeType: 'warning', timeAgo: '16h ago', imageUrl: '/avatars/player-10.png' },
+  { id: '13', playerId: 'wp4', playerName: 'Ousmane Diallo', club: 'Inter Azzurra', change: 'Scored Brace in Derby Match', changeType: 'positive', timeAgo: '1d ago' },
+  { id: '14', playerId: 'wp5', playerName: 'Lars Henriksen', club: 'Northgate United', change: 'Assist Record — 3 in Last Match', changeType: 'positive', timeAgo: '1d ago' },
+  { id: '15', playerId: 'wp6', playerName: 'Luca Marchetti', club: 'Lazio Blu', change: 'Rumoured Interest from Premier League', changeType: 'neutral', timeAgo: '2d ago', imageUrl: '/avatars/player-13.png' },
+  { id: '16', playerId: 'wp8', playerName: 'Nicolás Herrera', club: 'AS Roma Rossa', change: 'Yellow Card Accumulation — 1 Away from Ban', changeType: 'warning', timeAgo: '2d ago', imageUrl: '/avatars/player-18.png' },
+  { id: '17', playerId: 'p2', playerName: 'Enzo Valenti', club: 'Crescent Athletic', change: 'Prog. Carries/90 Season High', changeType: 'positive', timeAgo: '3d ago', imageUrl: '/avatars/player-2.png' },
+  { id: '18', playerId: 'wp12', playerName: 'K. Papadopoulos', club: 'Olympique Azur', change: 'Clean Sheet — 4th in 5 Games', changeType: 'positive', timeAgo: '3d ago', imageUrl: '/avatars/player-14.png' },
+  { id: '19', playerId: 'wp7', playerName: 'Alessandro Conti', club: 'Inter Azzurra', change: 'Contract Extension Offer Reported', changeType: 'neutral', timeAgo: '4d ago', imageUrl: '/avatars/player-17.png' },
+  { id: '20', playerId: 'p3', playerName: 'Dani Cortez', club: 'Atlético Ronda', change: 'Pass Accuracy Dropped to 82%', changeType: 'warning', timeAgo: '5d ago', imageUrl: '/avatars/player-3.png' },
 ]
 
 // ─── Player Search Results ───────────────────────────────────
@@ -1242,6 +1259,7 @@ export const watchlists: MockWatchlist[] = [
     playerCount: 8,
     lastUpdated: '2h ago',
     alertCount: 2,
+    category: 'position',
     players: [
       { id: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', position: 'LB/LM', age: 23, nationality: 'Italy', image: '/avatars/player-2.png', keyMetric: { value: '6.7', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-02-15', scoutScore: 88 },
       { id: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', position: 'LB/RB', age: 22, nationality: 'Spain', image: '/avatars/player-3.png', keyMetric: { value: '87.6%', label: 'Pass Accuracy' }, alertStatus: 'form_change', addedDate: '2026-02-18', scoutScore: 76 },
@@ -1256,6 +1274,7 @@ export const watchlists: MockWatchlist[] = [
     playerCount: 12,
     lastUpdated: '5h ago',
     alertCount: 0,
+    category: 'transfer',
     players: [
       { id: 'wp4', name: 'Ousmane Diallo', club: 'Inter Azzurra', position: 'CF/LW', age: 28, nationality: 'Senegal', image: '/avatars/player-15.png', keyMetric: { value: '0.68', label: 'npxG/90' }, alertStatus: 'price_change', addedDate: '2025-12-02', scoutScore: 92 },
       { id: 'wp5', name: 'Lars Henriksen', club: 'Northgate United', position: 'CF', age: 25, nationality: 'Denmark', image: '/avatars/player-16.png', keyMetric: { value: '2.45', label: 'Succ. Dribbles' }, alertStatus: 'stable', addedDate: '2025-12-18', scoutScore: 85 },
@@ -1268,6 +1287,7 @@ export const watchlists: MockWatchlist[] = [
     playerCount: 5,
     lastUpdated: '12m ago',
     alertCount: 3,
+    category: 'transfer',
     players: [
       { id: 'wp6', name: 'Luca Marchetti', club: 'Lazio Blu', position: 'LB/LWB', age: 26, nationality: 'Italy', image: '/avatars/player-13.png', keyMetric: { value: '8.42', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2025-11-15', scoutScore: 88 },
       { id: 'wp7', name: 'Alessandro Conti', club: 'Inter Azzurra', position: 'LWB', age: 28, nationality: 'Italy', image: '/avatars/player-17.png', keyMetric: { value: '3.12', label: 'Key Passes/90' }, alertStatus: 'injury', addedDate: '2025-12-10', scoutScore: 90 },
@@ -1281,6 +1301,7 @@ export const watchlists: MockWatchlist[] = [
     playerCount: 15,
     lastUpdated: '1d ago',
     alertCount: 1,
+    category: 'youth',
     players: [
       { id: 'p10', name: 'Mateo Rivas', club: 'Miami Coast FC', position: 'LB', age: 19, nationality: 'Argentina', image: '/avatars/player-10.png', keyMetric: { value: '3.8', label: 'Prog. Carries/90' }, alertStatus: 'form_change', addedDate: '2026-03-10', scoutScore: 62 },
       { id: 'wp10', name: 'Jakub Nowicki', club: 'Wisła Kraków', position: 'CM', age: 17, nationality: 'Poland', image: '/avatars/player-19.png', keyMetric: { value: '2.8', label: 'Key Passes/90' }, alertStatus: 'stable', addedDate: '2026-02-28', scoutScore: 71 },
@@ -1294,6 +1315,7 @@ export const watchlists: MockWatchlist[] = [
     playerCount: 6,
     lastUpdated: '3d ago',
     alertCount: 0,
+    category: 'position',
     players: [
       { id: 'p7', name: 'Samir Benali', club: 'Midland Rovers', position: 'LB/LWB', age: 23, nationality: 'Algeria', image: '/avatars/player-7.png', keyMetric: { value: '6.2', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-01-15', scoutScore: 85 },
       { id: 'p9', name: 'Stijn de Graaf', club: 'Harton Villa', position: 'LB/LWB', age: 24, nationality: 'Netherlands', image: '/avatars/player-9.png', keyMetric: { value: '6.9', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-01-20', scoutScore: 81 },
@@ -1306,6 +1328,7 @@ export const watchlists: MockWatchlist[] = [
     playerCount: 9,
     lastUpdated: '1w ago',
     alertCount: 4,
+    category: 'transfer',
     players: [
       { id: 'p5', name: 'Rémi Blanchard', club: 'Olympique Azur', position: 'LB/LM', age: 23, nationality: 'France', image: '/avatars/player-5.png', keyMetric: { value: '4.3', label: 'Prog. Carries/90' }, alertStatus: 'price_change', addedDate: '2026-02-05', scoutScore: 54 },
       { id: 'p10', name: 'Mateo Rivas', club: 'Miami Coast FC', position: 'LB', age: 19, nationality: 'Argentina', image: '/avatars/player-10.png', keyMetric: { value: '3.8', label: 'Prog. Carries/90' }, alertStatus: 'price_change', addedDate: '2026-03-01', scoutScore: 62 },

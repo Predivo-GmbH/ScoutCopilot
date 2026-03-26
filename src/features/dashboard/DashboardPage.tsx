@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   Search,
   FileText,
@@ -12,6 +13,7 @@ import { useDashboardStats, useRecentSearches, useWatchlistAlerts } from './hook
 import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 
 export function DashboardPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { data: stats, isLoading: statsLoading } = useDashboardStats()
   const { data: searches, isLoading: searchesLoading } = useRecentSearches()
@@ -23,13 +25,13 @@ export function DashboardPage() {
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-on-surface">
-            Intelligence Overview
+            {t('dashboard.heading')}
           </h1>
-          <p className="text-on-surface-variant mt-1 text-sm">Real-time scouting analytics and watchlist triggers.</p>
+          <p className="text-on-surface-variant mt-1 text-sm">{t('dashboard.subheading')}</p>
         </div>
         <div className="flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-md border border-outline-variant">
           <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-          <span className="text-[0.625rem] font-data font-medium uppercase tracking-widest text-on-surface-variant">System: Live</span>
+          <span className="text-[0.625rem] font-data font-medium uppercase tracking-widest text-on-surface-variant">{t('dashboard.systemLive')}</span>
         </div>
       </div>
 
@@ -82,13 +84,13 @@ export function DashboardPage() {
             <div className="px-6 py-4 border-b border-outline-variant flex justify-between items-center">
               <h3 className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
                 <Clock size={14} strokeWidth={1.5} className="text-primary" />
-                Recent Searches
+                {t('dashboard.recentSearches')}
               </h3>
               <button
                 onClick={() => navigate('/search')}
                 className="text-[0.625rem] font-data uppercase text-primary hover:underline flex items-center gap-1"
               >
-                View All <ArrowRight size={10} strokeWidth={1.5} />
+                {t('dashboard.viewAll')} <ArrowRight size={10} strokeWidth={1.5} />
               </button>
             </div>
             {searchesLoading ? (
@@ -101,10 +103,10 @@ export function DashboardPage() {
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-outline-variant/30">
-                    <th className="px-6 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider">Query</th>
-                    <th className="px-4 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider text-right">Results</th>
-                    <th className="px-4 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider">Date</th>
-                    <th className="px-4 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider">{t('dashboard.query')}</th>
+                    <th className="px-4 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider text-right">{t('dashboard.results')}</th>
+                    <th className="px-4 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider">{t('dashboard.date')}</th>
+                    <th className="px-4 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider">{t('dashboard.status')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/30">
@@ -140,10 +142,10 @@ export function DashboardPage() {
             <div className="px-4 py-4 border-b border-outline-variant flex justify-between items-center">
               <h3 className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
                 <Zap size={14} strokeWidth={1.5} className="text-tertiary" />
-                Watchlist Alerts
+                {t('dashboard.watchlistAlerts')}
               </h3>
               <span className="text-[0.625rem] font-data font-medium text-white bg-error-container px-2 py-0.5 rounded-sm">
-                {String(alerts?.length ?? 0).padStart(2, '0')} NEW
+                {String(alerts?.length ?? 0).padStart(2, '0')} {t('dashboard.new')}
               </span>
             </div>
             {alertsLoading ? (
@@ -161,8 +163,8 @@ export function DashboardPage() {
                       key={alert.id}
                       role="button"
                       tabIndex={0}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/players/${alert.playerId}`) }}
-                      onClick={() => navigate(`/players/${alert.playerId}`)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/players/${alert.playerId}`, { state: { alert } }) }}
+                      onClick={() => navigate(`/players/${alert.playerId}`, { state: { alert } })}
                       className="p-3 rounded-sm border border-outline-variant/50 cursor-pointer hover:bg-surface-container-high transition-colors"
                     >
                       <div className="flex items-center gap-3 mb-1.5">
@@ -185,6 +187,15 @@ export function DashboardPage() {
                     </div>
                   )
                 })}
+                {(alerts?.length ?? 0) > 4 && (
+                  <button
+                    onClick={() => navigate('/alerts')}
+                    className="w-full py-2.5 text-[0.625rem] font-bold uppercase tracking-widest text-primary hover:text-primary-light transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    View all {alerts?.length} alerts
+                    <ArrowRight size={12} strokeWidth={1.5} />
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -193,7 +204,7 @@ export function DashboardPage() {
 
       {/* Quick Actions — at the bottom, matching Stitch */}
       <div>
-        <h3 className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant mb-4">Quick Actions</h3>
+        <h3 className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant mb-4">{t('dashboard.quickActions')}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div
             role="button"
@@ -204,8 +215,8 @@ export function DashboardPage() {
           >
             <div className="absolute top-0 left-0 right-0 h-1 bg-secondary" />
             <Search size={24} strokeWidth={1.5} className="text-primary mb-3" />
-            <h4 className="text-on-surface font-bold mb-1">New Player Search</h4>
-            <p className="text-xs text-on-surface-variant leading-relaxed">Execute complex queries using natural language or metric filters.</p>
+            <h4 className="text-on-surface font-bold mb-1">{t('dashboard.newPlayerSearch')}</h4>
+            <p className="text-xs text-on-surface-variant leading-relaxed">{t('dashboard.newPlayerSearchSub')}</p>
           </div>
           <div
             role="button"
@@ -216,8 +227,8 @@ export function DashboardPage() {
           >
             <div className="absolute top-0 left-0 right-0 h-1 bg-secondary" />
             <FileText size={24} strokeWidth={1.5} className="text-primary mb-3" />
-            <h4 className="text-on-surface font-bold mb-1">View Players</h4>
-            <p className="text-xs text-on-surface-variant leading-relaxed">Browse your scouted players and their detailed reports.</p>
+            <h4 className="text-on-surface font-bold mb-1">{t('dashboard.viewPlayers')}</h4>
+            <p className="text-xs text-on-surface-variant leading-relaxed">{t('dashboard.viewPlayersSub')}</p>
           </div>
           <div
             role="button"
@@ -228,8 +239,8 @@ export function DashboardPage() {
           >
             <div className="absolute top-0 left-0 right-0 h-1 bg-secondary" />
             <GitCompareArrows size={24} strokeWidth={1.5} className="text-primary mb-3" />
-            <h4 className="text-on-surface font-bold mb-1">Compare Players</h4>
-            <p className="text-xs text-on-surface-variant leading-relaxed">Visual percentile overlays and head-to-head metric analysis.</p>
+            <h4 className="text-on-surface font-bold mb-1">{t('dashboard.comparePlayers')}</h4>
+            <p className="text-xs text-on-surface-variant leading-relaxed">{t('dashboard.comparePlayersSub')}</p>
           </div>
         </div>
       </div>
@@ -248,15 +259,16 @@ function formatDate(iso: string): string {
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation()
   const styles: Record<string, string> = {
     complete: 'bg-secondary/10 text-secondary border-secondary/20',
     processing: 'bg-tertiary/10 text-tertiary border-tertiary/20',
     failed: 'bg-error/10 text-error border-error/20',
   }
   const labels: Record<string, string> = {
-    complete: 'COMPLETE',
-    processing: 'PROCESSING',
-    failed: 'FAILED',
+    complete: t('dashboard.complete'),
+    processing: t('dashboard.processing'),
+    failed: t('dashboard.failed'),
   }
   const style = styles[status] ?? styles.complete
   return (

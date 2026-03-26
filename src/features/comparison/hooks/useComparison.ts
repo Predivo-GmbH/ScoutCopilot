@@ -1,12 +1,12 @@
 import { useState, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { playerReports, type MockComparisonPlayer } from '../../../lib/mock-data'
+import { playerReports, getSquadPlayerReport, type MockComparisonPlayer } from '../../../lib/mock-data'
 import { useGeneratedReports } from '../../../lib/useGeneratedReportsHook'
 
 /** Convert a player report into the comparison format */
 function reportToComparison(id: string): MockComparisonPlayer | null {
-  const r = playerReports[id]
+  const r = playerReports[id] ?? getSquadPlayerReport(id)
   if (!r) return null
   return {
     id: r.playerId,
@@ -56,12 +56,13 @@ export function useComparison() {
     setSearchParams({}, { replace: true })
   }
 
-  // All scouted players available for comparison
+  // All scouted players available for comparison — include selected players even if not yet generated
   const allPlayers = useMemo(() => {
-    return generatedReportIds
+    const ids = new Set([...generatedReportIds, ...selectedIds])
+    return Array.from(ids)
       .map((id) => reportToComparison(id))
       .filter((p): p is MockComparisonPlayer => p !== null)
-  }, [generatedReportIds])
+  }, [generatedReportIds, selectedIds])
 
   const { data: players, isLoading, refetch } = useQuery<MockComparisonPlayer[]>({
     queryKey: ['comparison', selectedIds],
