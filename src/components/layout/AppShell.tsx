@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
+import { TopBar } from './TopBar'
 
 export function AppShell() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -14,18 +15,20 @@ export function AppShell() {
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
-      <main
-        id="main-content"
-        className="flex-1 overflow-y-auto"
+      <div
+        className="flex-1 flex flex-col h-screen"
         style={{
           marginLeft: sidebarCollapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-expanded)',
           transition: 'margin-left var(--duration-slow) ease-in-out',
         }}
       >
-        <div className="mx-auto max-w-[1280px]">
-          <Outlet />
-        </div>
-      </main>
+        <TopBar />
+        <main id="main-content" className="flex-1 overflow-y-auto">
+          <div className="mx-auto max-w-[1280px]">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   )
 }

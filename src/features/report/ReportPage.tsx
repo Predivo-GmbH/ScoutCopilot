@@ -6,7 +6,6 @@ import {
   CircleDot,
   TrendingUp,
   TrendingDown,
-  User,
 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
@@ -47,8 +46,8 @@ export function ReportPage() {
       {/* Player Header */}
       <div className="bg-surface-container rounded-md p-6 border border-outline-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-6">
-          <div className="w-20 h-20 rounded-md bg-surface-container-highest flex items-center justify-center">
-            <User size={32} strokeWidth={1.5} className="text-on-surface-variant" />
+          <div className="w-20 h-20 rounded-md bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary">
+            {report.playerName.split(' ').map((n) => n[0]).join('')}
           </div>
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-on-surface uppercase">{report.playerName}</h1>

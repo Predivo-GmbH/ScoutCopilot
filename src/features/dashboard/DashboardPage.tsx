@@ -8,57 +8,78 @@ import {
   Bell,
   ArrowUpRight,
   TrendingUp,
+  TrendingDown,
+  ArrowRight,
 } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
+import { Button } from '../../components/ui/Button'
+import { useAuth } from '../../features/auth/useAuth'
 import { useDashboardStats, useRecentSearches, useWatchlistAlerts } from './hooks/useDashboardData'
 import { formatNumber } from '../../lib/utils'
 
+const STAT_ICONS = [Search, FileText, Eye, Activity]
+const STAT_COLORS = ['primary', 'secondary', 'tertiary', 'primary'] as const
+
 export function DashboardPage() {
   const navigate = useNavigate()
+  const { profile } = useAuth()
   const { data: stats, isLoading: statsLoading } = useDashboardStats()
   const { data: searches, isLoading: searchesLoading } = useRecentSearches()
   const { data: alerts, isLoading: alertsLoading } = useWatchlistAlerts()
+
+  const greeting = getGreeting()
+  const firstName = profile?.full_name?.split(' ')[0] ?? 'Scout'
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-on-surface">Dashboard</h1>
-          <p className="text-on-surface-variant mt-1 text-sm">Good morning. Here is your scouting overview.</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-on-surface">
+            {greeting}, {firstName}.
+          </h1>
+          <p className="text-on-surface-variant mt-1 text-sm">Here's your scouting overview.</p>
         </div>
         <div className="flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-md border border-outline-variant">
-          <span className="w-2 h-2 rounded-md bg-secondary" />
-          <span className="text-[0.6875rem] font-data font-medium uppercase tracking-widest text-on-surface-variant">System Live</span>
+          <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+          <span className="text-[0.6875rem] font-data font-medium uppercase tracking-widest text-on-surface-variant">All Systems Operational</span>
         </div>
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          label="Total Searches"
-          value={stats?.totalSearches}
-          icon={Search}
-          loading={statsLoading}
-        />
-        <StatCard
-          label="Reports Generated"
-          value={stats?.reportsGenerated}
-          icon={FileText}
-          loading={statsLoading}
-        />
-        <StatCard
-          label="Players Tracked"
-          value={stats?.playersTracked}
-          icon={Eye}
-          loading={statsLoading}
-        />
-        <StatCard
-          label="API Calls This Month"
-          value={stats?.apiCallsThisMonth}
-          icon={Activity}
-          loading={statsLoading}
-        />
+      {/* Stat Cards — with trend indicators */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats?.items.map((item, i) => {
+          const Icon = STAT_ICONS[i]
+          const color = STAT_COLORS[i]
+          const isPositive = item.change >= 0
+          return (
+            <div
+              key={item.label}
+              className="bg-surface-container-low p-5 rounded-md border border-outline-variant hover:border-primary/30 transition-colors"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className={`w-9 h-9 rounded-md flex items-center justify-center bg-${color}/10 border border-${color}/20`}>
+                  <Icon size={16} strokeWidth={1.5} className={`text-${color}`} />
+                </div>
+                <div className={`flex items-center gap-1 text-[0.625rem] font-data font-medium ${isPositive ? 'text-secondary' : 'text-error'}`}>
+                  {isPositive ? <TrendingUp size={12} strokeWidth={1.5} /> : <TrendingDown size={12} strokeWidth={1.5} />}
+                  {isPositive ? '+' : ''}{item.change}%
+                </div>
+              </div>
+              <span className="text-2xl font-semibold font-data text-on-surface">
+                {formatNumber(item.value)}
+              </span>
+              <p className="text-[0.625rem] font-medium text-on-surface-variant uppercase tracking-wider mt-1">{item.label}</p>
+            </div>
+          )
+        })}
+        {statsLoading && Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="bg-surface-container-low p-5 rounded-md border border-outline-variant">
+            <div className="h-9 w-9 bg-surface-container rounded-md animate-pulse mb-3" />
+            <div className="h-7 w-20 bg-surface-container rounded-md animate-pulse mb-1" />
+            <div className="h-3 w-24 bg-surface-container rounded-md animate-pulse" />
+          </div>
+        ))}
       </div>
 
       {/* Middle Row */}
@@ -74,9 +95,9 @@ export function DashboardPage() {
                 </h3>
                 <button
                   onClick={() => navigate('/search')}
-                  className="text-xs text-primary font-medium hover:underline"
+                  className="text-xs text-primary font-medium hover:underline flex items-center gap-1"
                 >
-                  View All
+                  View All <ArrowRight size={12} strokeWidth={1.5} />
                 </button>
               </div>
             }
@@ -102,7 +123,8 @@ export function DashboardPage() {
                     {searches?.slice(0, 7).map((search, i) => (
                       <tr
                         key={search.id}
-                        className={`${i % 2 === 0 ? 'bg-surface' : 'bg-surface-container-low'} hover:bg-surface-container transition-colors`}
+                        className={`${i % 2 === 0 ? 'bg-surface' : 'bg-surface-container-low'} hover:bg-surface-container transition-colors cursor-pointer`}
+                        onClick={() => navigate('/search')}
                       >
                         <td className="px-6 py-3 text-xs font-medium text-on-surface max-w-[300px] truncate">
                           "{search.query}"
@@ -153,9 +175,9 @@ export function DashboardPage() {
                     key={alert.id}
                     role="button"
                     tabIndex={0}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate('/search') }}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate('/watchlists') }}
                     className="p-3 rounded-md bg-surface-container hover:bg-surface-container-high transition-colors flex items-start gap-3 border border-outline-variant cursor-pointer"
-                    onClick={() => navigate('/search')}
+                    onClick={() => navigate('/watchlists')}
                   >
                     <div className="w-10 h-10 rounded-md bg-surface-container-highest flex items-center justify-center text-xs font-semibold text-on-surface-variant shrink-0">
                       {alert.playerName.split(' ').map((n) => n[0]).join('')}
@@ -183,7 +205,7 @@ export function DashboardPage() {
       {/* Quick Actions */}
       <div className="space-y-4">
         <h3 className="text-[0.75rem] font-medium text-on-surface-variant uppercase tracking-widest">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <QuickAction
             title="New Player Search"
             description="Execute complex queries using natural language or metric filters."
@@ -211,30 +233,16 @@ export function DashboardPage() {
   )
 }
 
-// ─── Sub-components ────────────────────────────────────────
+// ─── Helpers ────────────────────────────────────────────────
 
-function StatCard({ label, value, icon: Icon, loading }: {
-  label: string
-  value?: number
-  icon: typeof Search
-  loading: boolean
-}) {
-  return (
-    <div className="bg-surface-container-low p-6 rounded-md border border-outline-variant hover:border-primary/30 transition-colors">
-      <div className="flex items-center gap-2 mb-3">
-        <Icon size={16} strokeWidth={1.5} className="text-on-surface-variant" />
-        <p className="text-[0.75rem] font-medium text-on-surface-variant uppercase tracking-wider">{label}</p>
-      </div>
-      {loading ? (
-        <div className="h-8 w-24 bg-surface-container rounded-md animate-pulse" />
-      ) : (
-        <span className="text-3xl font-semibold font-data text-on-surface">
-          {formatNumber(value ?? 0)}
-        </span>
-      )}
-    </div>
-  )
+function getGreeting(): string {
+  const h = new Date().getHours()
+  if (h < 12) return 'Good morning'
+  if (h < 18) return 'Good afternoon'
+  return 'Good evening'
 }
+
+// ─── Sub-components ────────────────────────────────────────
 
 function StatusBadge({ status }: { status: string }) {
   const styles = {
@@ -274,7 +282,7 @@ function QuickAction({ title, description, icon: Icon, color, onClick }: {
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick() }}
       onClick={onClick}
-      className="bg-surface-container p-6 rounded-md border border-outline-variant hover:border-primary/30 hover:bg-surface-container-high transition-all cursor-pointer group"
+      className="bg-surface-container p-5 rounded-md border border-outline-variant hover:border-primary/30 hover:bg-surface-container-high transition-all cursor-pointer group"
     >
       <div className="flex justify-between items-start mb-4">
         <div className={`w-10 h-10 rounded-md flex items-center justify-center border ${iconBg[color]}`}>

@@ -1,11 +1,19 @@
 // ScoutCopilot — Mock data for development
 // All data is realistic but fictional for demo purposes
 
+export interface DashboardStatItem {
+  value: number
+  label: string
+  change: number // percentage change (positive = up)
+  period: string
+}
+
 export interface DashboardStats {
   totalSearches: number
   reportsGenerated: number
   playersTracked: number
   apiCallsThisMonth: number
+  items: DashboardStatItem[]
 }
 
 export interface RecentSearch {
@@ -100,6 +108,12 @@ export const dashboardStats: DashboardStats = {
   reportsGenerated: 156,
   playersTracked: 89,
   apiCallsThisMonth: 3842,
+  items: [
+    { value: 1247, label: 'Total Searches', change: 12.4, period: 'vs last month' },
+    { value: 156, label: 'Reports Generated', change: 8.2, period: 'vs last month' },
+    { value: 89, label: 'Players Tracked', change: -3.1, period: 'vs last month' },
+    { value: 3842, label: 'API Calls', change: 22.7, period: 'this month' },
+  ],
 }
 
 export const recentSearches: RecentSearch[] = [

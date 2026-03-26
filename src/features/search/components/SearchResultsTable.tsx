@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { ArrowUpRight } from 'lucide-react'
 import type { MockPlayer } from '../../../lib/mock-data'
 
 interface SearchResultsTableProps {
@@ -14,7 +15,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
       <div className="bg-surface-container rounded-md border border-outline-variant overflow-hidden">
         <div className="p-6 space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-12 bg-surface-container-high rounded-md animate-pulse" />
+            <div key={i} className="h-16 bg-surface-container-high rounded-md animate-pulse" />
           ))}
         </div>
       </div>
@@ -35,6 +36,10 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
           <span className="font-data text-primary text-lg">{results.length}</span>
           <span className="uppercase tracking-widest text-xs text-on-surface-variant">players found</span>
         </h3>
+        <div className="flex items-center gap-2 text-[0.625rem] text-on-surface-variant uppercase tracking-widest">
+          <span className="w-2 h-2 rounded-full bg-secondary" />
+          Ranked by Fit Score
+        </div>
       </div>
 
       {/* Table */}
@@ -43,7 +48,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
           <thead>
             <tr className="bg-surface-container-high border-b border-outline-variant">
               <th className="px-6 py-3 text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant w-8">#</th>
-              <th className="px-4 py-3 text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant">Player</th>
+              <th className="px-4 py-3 text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant min-w-[200px]">Player</th>
               <th className="px-4 py-3 text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant">Position</th>
               <th className="px-4 py-3 text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant">Age</th>
               <th className="px-4 py-3 text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant">League</th>
@@ -53,6 +58,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
                 </th>
               ))}
               <th className="px-6 py-3 text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant w-48">Fit Score</th>
+              <th className="px-3 py-3 w-8" />
             </tr>
           </thead>
           <tbody className="text-sm">
@@ -60,23 +66,33 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
               <tr
                 key={player.id}
                 onClick={() => navigate(`/report/${player.id}`)}
-                className={`${i % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'} border-b border-outline-variant hover:bg-surface-container-high transition-colors cursor-pointer`}
+                className={`${i % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'} border-b border-outline-variant/30 hover:bg-surface-container-high transition-colors cursor-pointer group`}
               >
                 <td className="px-6 py-4 font-data text-on-surface-variant text-xs">{i + 1}</td>
                 <td className="px-4 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-sm bg-surface-container-highest flex items-center justify-center text-[0.625rem] font-semibold text-on-surface-variant">
-                      {player.name.split(' ').map((n) => n[0]).join('')}
-                    </div>
+                    <PlayerAvatar name={player.name} nationality={player.nationality} />
                     <div>
                       <div className="font-semibold text-on-surface">{player.name}</div>
-                      <div className="text-[0.625rem] text-on-surface-variant uppercase tracking-tight">{player.club}</div>
+                      <div className="text-[0.625rem] text-on-surface-variant flex items-center gap-1.5">
+                        <span className="uppercase tracking-tight">{player.club}</span>
+                        <span className="w-0.5 h-0.5 rounded-full bg-outline-variant" />
+                        <span>{player.nationality}</span>
+                      </div>
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-4 text-on-surface-variant">{player.position}</td>
+                <td className="px-4 py-4">
+                  <div className="flex gap-1">
+                    {player.position.split(', ').map((pos) => (
+                      <span key={pos} className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm">
+                        {pos}
+                      </span>
+                    ))}
+                  </div>
+                </td>
                 <td className="px-4 py-4 font-data">{player.age}</td>
-                <td className="px-4 py-4 text-on-surface-variant">{player.league}</td>
+                <td className="px-4 py-4 text-on-surface-variant text-xs">{player.league}</td>
                 {statKeys.map((key) => (
                   <td key={key} className="px-4 py-4 font-data text-right text-on-surface-variant">
                     {player.stats[key]}
@@ -84,6 +100,9 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
                 ))}
                 <td className="px-6 py-4">
                   <FitScoreBar score={player.fitScore} />
+                </td>
+                <td className="px-3 py-4">
+                  <ArrowUpRight size={14} strokeWidth={1.5} className="text-on-surface-variant/0 group-hover:text-primary transition-colors" />
                 </td>
               </tr>
             ))}
@@ -94,16 +113,64 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
   )
 }
 
+function PlayerAvatar({ name, nationality }: { name: string; nationality: string }) {
+  const initials = name.split(' ').map((n) => n[0]).join('')
+  const colors = [
+    'bg-primary/15 text-primary',
+    'bg-secondary/15 text-secondary',
+    'bg-tertiary/15 text-tertiary',
+    'bg-error/15 text-error',
+  ]
+  const colorIndex = name.charCodeAt(0) % colors.length
+  const flagEmoji = countryToFlag(nationality)
+
+  return (
+    <div className="relative">
+      <div className={`w-10 h-10 rounded-md flex items-center justify-center text-xs font-semibold ${colors[colorIndex]}`}>
+        {initials}
+      </div>
+      {flagEmoji && (
+        <span className="absolute -bottom-0.5 -right-0.5 text-[0.625rem] leading-none" title={nationality}>
+          {flagEmoji}
+        </span>
+      )}
+    </div>
+  )
+}
+
+const FLAG_MAP: Record<string, string> = {
+  Sweden: '\u{1F1F8}\u{1F1EA}',
+  Italy: '\u{1F1EE}\u{1F1F9}',
+  Spain: '\u{1F1EA}\u{1F1F8}',
+  Portugal: '\u{1F1F5}\u{1F1F9}',
+  France: '\u{1F1EB}\u{1F1F7}',
+  Hungary: '\u{1F1ED}\u{1F1FA}',
+  Algeria: '\u{1F1E9}\u{1F1FF}',
+  Netherlands: '\u{1F1F3}\u{1F1F1}',
+  Argentina: '\u{1F1E6}\u{1F1F7}',
+  Turkey: '\u{1F1F9}\u{1F1F7}',
+  Ghana: '\u{1F1EC}\u{1F1ED}',
+  Denmark: '\u{1F1E9}\u{1F1F0}',
+  Senegal: '\u{1F1F8}\u{1F1F3}',
+  Germany: '\u{1F1E9}\u{1F1EA}',
+  England: '\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}',
+  Brazil: '\u{1F1E7}\u{1F1F7}',
+}
+
+function countryToFlag(country: string): string | null {
+  return FLAG_MAP[country] ?? null
+}
+
 function FitScoreBar({ score }: { score: number }) {
   const color = score >= 80 ? 'bg-secondary' : score >= 60 ? 'bg-tertiary' : 'bg-error'
   const textColor = score >= 80 ? 'text-secondary' : score >= 60 ? 'text-tertiary' : 'text-error'
 
   return (
-    <div className="flex flex-col gap-1">
-      <span className={`font-data text-[0.625rem] font-medium ${textColor}`}>{score}%</span>
-      <div className="w-full h-1.5 bg-surface-variant rounded-sm overflow-hidden">
-        <div className={`h-full ${color} rounded-sm`} style={{ width: `${score}%` }} />
+    <div className="flex items-center gap-3">
+      <div className="flex-1 h-1.5 bg-surface-variant rounded-sm overflow-hidden">
+        <div className={`h-full ${color} rounded-sm transition-all`} style={{ width: `${score}%` }} />
       </div>
+      <span className={`font-data text-xs font-semibold min-w-[2rem] text-right ${textColor}`}>{score}%</span>
     </div>
   )
 }
