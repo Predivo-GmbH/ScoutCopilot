@@ -65,7 +65,7 @@ export interface MockPlayerReport {
   fitScore: number
   seasonStats: Record<string, number | string>
   radarData: { label: string; value: number; average: number }[]
-  similarPlayers: { name: string; club: string; age: number; similarity: number; image?: string }[]
+  similarPlayers: { playerId: string; name: string; club: string; age: number; similarity: number; image?: string }[]
   transferHistory: { club: string; date: string; fee: string }[]
   contractInfo: { value: string; until: string; wage: string; agent: string }
 }
@@ -196,9 +196,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 68, average: 74 }, { label: 'Crossing', value: 74, average: 65 },
     ],
     similarPlayers: [
-      { name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 94, image: '/avatars/player-4.png' },
-      { name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 91, image: '/avatars/player-3.png' },
-      { name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 88, image: '/avatars/player-2.png' },
+      { playerId: 'p4', name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 94, image: '/avatars/player-4.png' },
+      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 91, image: '/avatars/player-3.png' },
+      { playerId: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 88, image: '/avatars/player-2.png' },
     ],
     transferHistory: [
       { club: 'FC Nordhavn', date: 'Jan 2023', fee: '€10.00m' },
@@ -241,9 +241,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 78, average: 74 }, { label: 'Crossing', value: 80, average: 65 },
     ],
     similarPlayers: [
-      { name: 'Marco Lindström', club: 'FC Nordhavn', age: 25, similarity: 88, image: '/avatars/player-1.png' },
-      { name: 'Rémi Blanchard', club: 'Olympique Azur', age: 23, similarity: 82, image: '/avatars/player-5.png' },
-      { name: 'Stijn de Graaf', club: 'Harton Villa', age: 24, similarity: 79, image: '/avatars/player-9.png' },
+      { playerId: 'p1', name: 'Marco Lindström', club: 'FC Nordhavn', age: 25, similarity: 88, image: '/avatars/player-1.png' },
+      { playerId: 'p5', name: 'Rémi Blanchard', club: 'Olympique Azur', age: 23, similarity: 82, image: '/avatars/player-5.png' },
+      { playerId: 'p9', name: 'Stijn de Graaf', club: 'Harton Villa', age: 24, similarity: 79, image: '/avatars/player-9.png' },
     ],
     transferHistory: [
       { club: 'Crescent Athletic', date: 'Aug 2024', fee: '€14.50m' },
@@ -287,9 +287,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 84, average: 74 }, { label: 'Crossing', value: 58, average: 65 },
     ],
     similarPlayers: [
-      { name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 90, image: '/avatars/player-6.png' },
-      { name: 'Emre Demir', club: 'Coastal FC', age: 25, similarity: 85, image: '/avatars/player-12.png' },
-      { name: 'Pablo Navarro', club: 'Sporting Castilla', age: 23, similarity: 83, image: '/avatars/player-8.png' },
+      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 90, image: '/avatars/player-6.png' },
+      { playerId: 'p12', name: 'Emre Demir', club: 'Coastal FC', age: 25, similarity: 85, image: '/avatars/player-12.png' },
+      { playerId: 'p8', name: 'Pablo Navarro', club: 'Sporting Castilla', age: 23, similarity: 83, image: '/avatars/player-8.png' },
     ],
     transferHistory: [
       { club: 'Atlético Ronda', date: 'Jul 2024', fee: '€8.00m' },
@@ -332,9 +332,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 62, average: 74 }, { label: 'Crossing', value: 82, average: 65 },
     ],
     similarPlayers: [
-      { name: 'Marco Lindström', club: 'FC Nordhavn', age: 25, similarity: 94, image: '/avatars/player-1.png' },
-      { name: 'Samir Benali', club: 'Midland Rovers', age: 23, similarity: 86, image: '/avatars/player-7.png' },
-      { name: 'Adrien Morel', club: 'AC Stellare', age: 28, similarity: 81, image: '/avatars/player-11.png' },
+      { playerId: 'p1', name: 'Marco Lindström', club: 'FC Nordhavn', age: 25, similarity: 94, image: '/avatars/player-1.png' },
+      { playerId: 'p7', name: 'Samir Benali', club: 'Midland Rovers', age: 23, similarity: 86, image: '/avatars/player-7.png' },
+      { playerId: 'p11', name: 'Adrien Morel', club: 'AC Stellare', age: 28, similarity: 81, image: '/avatars/player-11.png' },
     ],
     transferHistory: [
       { club: 'AS Lumière', date: 'Jan 2025', fee: '€12.00m' },
@@ -378,9 +378,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 60, average: 74 }, { label: 'Crossing', value: 45, average: 65 },
     ],
     similarPlayers: [
-      { name: 'Mateo Rivas', club: 'Miami Coast FC', age: 19, similarity: 78, image: '/avatars/player-10.png' },
-      { name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 72, image: '/avatars/player-6.png' },
-      { name: 'Pablo Navarro', club: 'Sporting Castilla', age: 23, similarity: 68, image: '/avatars/player-8.png' },
+      { playerId: 'p10', name: 'Mateo Rivas', club: 'Miami Coast FC', age: 19, similarity: 78, image: '/avatars/player-10.png' },
+      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 72, image: '/avatars/player-6.png' },
+      { playerId: 'p8', name: 'Pablo Navarro', club: 'Sporting Castilla', age: 23, similarity: 68, image: '/avatars/player-8.png' },
     ],
     transferHistory: [
       { club: 'Olympique Azur', date: 'Jul 2024', fee: '€4.50m' },
@@ -423,9 +423,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 82, average: 74 }, { label: 'Crossing', value: 56, average: 65 },
     ],
     similarPlayers: [
-      { name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 90, image: '/avatars/player-3.png' },
-      { name: 'Pablo Navarro', club: 'Sporting Castilla', age: 23, similarity: 84, image: '/avatars/player-8.png' },
-      { name: 'Emre Demir', club: 'Coastal FC', age: 25, similarity: 80, image: '/avatars/player-12.png' },
+      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 90, image: '/avatars/player-3.png' },
+      { playerId: 'p8', name: 'Pablo Navarro', club: 'Sporting Castilla', age: 23, similarity: 84, image: '/avatars/player-8.png' },
+      { playerId: 'p12', name: 'Emre Demir', club: 'Coastal FC', age: 25, similarity: 80, image: '/avatars/player-12.png' },
     ],
     transferHistory: [
       { club: 'Southport City', date: 'Aug 2025', fee: '€6.50m' },
@@ -469,9 +469,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 58, average: 74 }, { label: 'Crossing', value: 84, average: 65 },
     ],
     similarPlayers: [
-      { name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 91, image: '/avatars/player-4.png' },
-      { name: 'Adrien Morel', club: 'AC Stellare', age: 28, similarity: 85, image: '/avatars/player-11.png' },
-      { name: 'Marco Lindström', club: 'FC Nordhavn', age: 25, similarity: 82, image: '/avatars/player-1.png' },
+      { playerId: 'p4', name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 91, image: '/avatars/player-4.png' },
+      { playerId: 'p11', name: 'Adrien Morel', club: 'AC Stellare', age: 28, similarity: 85, image: '/avatars/player-11.png' },
+      { playerId: 'p1', name: 'Marco Lindström', club: 'FC Nordhavn', age: 25, similarity: 82, image: '/avatars/player-1.png' },
     ],
     transferHistory: [
       { club: 'Midland Rovers', date: 'Jan 2025', fee: '€11.00m' },
@@ -514,9 +514,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 80, average: 74 }, { label: 'Crossing', value: 60, average: 65 },
     ],
     similarPlayers: [
-      { name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 89, image: '/avatars/player-3.png' },
-      { name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 84, image: '/avatars/player-6.png' },
-      { name: 'Emre Demir', club: 'Coastal FC', age: 25, similarity: 78, image: '/avatars/player-12.png' },
+      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 89, image: '/avatars/player-3.png' },
+      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 84, image: '/avatars/player-6.png' },
+      { playerId: 'p12', name: 'Emre Demir', club: 'Coastal FC', age: 25, similarity: 78, image: '/avatars/player-12.png' },
     ],
     transferHistory: [
       { club: 'Sporting Castilla', date: 'Jul 2023', fee: '€5.00m' },
@@ -559,9 +559,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 72, average: 74 }, { label: 'Crossing', value: 70, average: 65 },
     ],
     similarPlayers: [
-      { name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 88, image: '/avatars/player-2.png' },
-      { name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 82, image: '/avatars/player-4.png' },
-      { name: 'Adrien Morel', club: 'AC Stellare', age: 28, similarity: 76, image: '/avatars/player-11.png' },
+      { playerId: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 88, image: '/avatars/player-2.png' },
+      { playerId: 'p4', name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 82, image: '/avatars/player-4.png' },
+      { playerId: 'p11', name: 'Adrien Morel', club: 'AC Stellare', age: 28, similarity: 76, image: '/avatars/player-11.png' },
     ],
     transferHistory: [
       { club: 'Harton Villa', date: 'Aug 2024', fee: '€9.50m' },
@@ -605,9 +605,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 48, average: 74 }, { label: 'Crossing', value: 50, average: 65 },
     ],
     similarPlayers: [
-      { name: 'Rémi Blanchard', club: 'Olympique Azur', age: 23, similarity: 78, image: '/avatars/player-5.png' },
-      { name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 65, image: '/avatars/player-3.png' },
-      { name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 60, image: '/avatars/player-6.png' },
+      { playerId: 'p5', name: 'Rémi Blanchard', club: 'Olympique Azur', age: 23, similarity: 78, image: '/avatars/player-5.png' },
+      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 65, image: '/avatars/player-3.png' },
+      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 60, image: '/avatars/player-6.png' },
     ],
     transferHistory: [
       { club: 'Miami Coast FC', date: 'Mar 2026', fee: '€1.80m' },
@@ -651,9 +651,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 80, average: 74 }, { label: 'Crossing', value: 88, average: 65 },
     ],
     similarPlayers: [
-      { name: 'Samir Benali', club: 'Midland Rovers', age: 23, similarity: 85, image: '/avatars/player-7.png' },
-      { name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 82, image: '/avatars/player-2.png' },
-      { name: 'Stijn de Graaf', club: 'Harton Villa', age: 24, similarity: 78, image: '/avatars/player-9.png' },
+      { playerId: 'p7', name: 'Samir Benali', club: 'Midland Rovers', age: 23, similarity: 85, image: '/avatars/player-7.png' },
+      { playerId: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 82, image: '/avatars/player-2.png' },
+      { playerId: 'p9', name: 'Stijn de Graaf', club: 'Harton Villa', age: 24, similarity: 78, image: '/avatars/player-9.png' },
     ],
     transferHistory: [
       { club: 'AC Stellare', date: 'Jul 2022', fee: '€18.00m' },
@@ -697,9 +697,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 76, average: 74 }, { label: 'Crossing', value: 62, average: 65 },
     ],
     similarPlayers: [
-      { name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 85, image: '/avatars/player-3.png' },
-      { name: 'Pablo Navarro', club: 'Sporting Castilla', age: 23, similarity: 82, image: '/avatars/player-8.png' },
-      { name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 80, image: '/avatars/player-6.png' },
+      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 85, image: '/avatars/player-3.png' },
+      { playerId: 'p8', name: 'Pablo Navarro', club: 'Sporting Castilla', age: 23, similarity: 82, image: '/avatars/player-8.png' },
+      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 80, image: '/avatars/player-6.png' },
     ],
     transferHistory: [
       { club: 'Coastal FC', date: 'Aug 2024', fee: '€7.00m' },
@@ -760,9 +760,9 @@ export const watchlists: MockWatchlist[] = [
     lastUpdated: '2h ago',
     alertCount: 2,
     players: [
-      { id: 'wp1', name: 'Enzo Valenti', club: 'Crescent Athletic', position: 'LB/LM', age: 23, nationality: 'Italy', image: '/avatars/player-2.png', keyMetric: { value: '6.7', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-02-15', scoutScore: 88 },
-      { id: 'wp2', name: 'Dani Cortez', club: 'Atlético Ronda', position: 'LB/RB', age: 22, nationality: 'Spain', image: '/avatars/player-3.png', keyMetric: { value: '87.6%', label: 'Pass Accuracy' }, alertStatus: 'form_change', addedDate: '2026-02-18', scoutScore: 76 },
-      { id: 'wp3', name: 'Bálint Varga', club: 'Southport City', position: 'LB', age: 22, nationality: 'Hungary', image: '/avatars/player-6.png', keyMetric: { value: '5.8', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-03-01', scoutScore: 79 },
+      { id: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', position: 'LB/LM', age: 23, nationality: 'Italy', image: '/avatars/player-2.png', keyMetric: { value: '6.7', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-02-15', scoutScore: 88 },
+      { id: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', position: 'LB/RB', age: 22, nationality: 'Spain', image: '/avatars/player-3.png', keyMetric: { value: '87.6%', label: 'Pass Accuracy' }, alertStatus: 'form_change', addedDate: '2026-02-18', scoutScore: 76 },
+      { id: 'p6', name: 'Bálint Varga', club: 'Southport City', position: 'LB', age: 22, nationality: 'Hungary', image: '/avatars/player-6.png', keyMetric: { value: '5.8', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-03-01', scoutScore: 79 },
     ],
   },
   {
@@ -798,7 +798,7 @@ export const watchlists: MockWatchlist[] = [
     lastUpdated: '1d ago',
     alertCount: 1,
     players: [
-      { id: 'wp9', name: 'Mateo Rivas', club: 'Miami Coast FC', position: 'LB', age: 19, nationality: 'Argentina', image: '/avatars/player-10.png', keyMetric: { value: '3.8', label: 'Prog. Carries/90' }, alertStatus: 'form_change', addedDate: '2026-03-10', scoutScore: 62 },
+      { id: 'p10', name: 'Mateo Rivas', club: 'Miami Coast FC', position: 'LB', age: 19, nationality: 'Argentina', image: '/avatars/player-10.png', keyMetric: { value: '3.8', label: 'Prog. Carries/90' }, alertStatus: 'form_change', addedDate: '2026-03-10', scoutScore: 62 },
       { id: 'wp10', name: 'Jakub Nowicki', club: 'Wisła Kraków', position: 'CM', age: 17, nationality: 'Poland', image: '/avatars/player-19.png', keyMetric: { value: '2.8', label: 'Key Passes/90' }, alertStatus: 'stable', addedDate: '2026-02-28', scoutScore: 71 },
       { id: 'wp11', name: 'Tomás Ferreira', club: 'Vitória Guimarães B', position: 'RW', age: 18, nationality: 'Portugal', image: '/avatars/player-20.png', keyMetric: { value: '4.2', label: 'Succ. Dribbles' }, alertStatus: 'stable', addedDate: '2026-02-20', scoutScore: 68 },
     ],
@@ -811,8 +811,8 @@ export const watchlists: MockWatchlist[] = [
     lastUpdated: '3d ago',
     alertCount: 0,
     players: [
-      { id: 'wp12', name: 'Samir Benali', club: 'Midland Rovers', position: 'LB/LWB', age: 23, nationality: 'Algeria', image: '/avatars/player-7.png', keyMetric: { value: '6.2', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-01-15', scoutScore: 85 },
-      { id: 'wp13', name: 'Stijn de Graaf', club: 'Harton Villa', position: 'LB/LWB', age: 24, nationality: 'Netherlands', image: '/avatars/player-9.png', keyMetric: { value: '6.9', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-01-20', scoutScore: 81 },
+      { id: 'p7', name: 'Samir Benali', club: 'Midland Rovers', position: 'LB/LWB', age: 23, nationality: 'Algeria', image: '/avatars/player-7.png', keyMetric: { value: '6.2', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-01-15', scoutScore: 85 },
+      { id: 'p9', name: 'Stijn de Graaf', club: 'Harton Villa', position: 'LB/LWB', age: 24, nationality: 'Netherlands', image: '/avatars/player-9.png', keyMetric: { value: '6.9', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-01-20', scoutScore: 81 },
     ],
   },
   {
@@ -823,9 +823,9 @@ export const watchlists: MockWatchlist[] = [
     lastUpdated: '1w ago',
     alertCount: 4,
     players: [
-      { id: 'wp14', name: 'Rémi Blanchard', club: 'Olympique Azur', position: 'LB/LM', age: 23, nationality: 'France', image: '/avatars/player-5.png', keyMetric: { value: '4.3', label: 'Prog. Carries/90' }, alertStatus: 'price_change', addedDate: '2026-02-05', scoutScore: 54 },
-      { id: 'wp15', name: 'Mateo Rivas', club: 'Miami Coast FC', position: 'LB', age: 19, nationality: 'Argentina', image: '/avatars/player-10.png', keyMetric: { value: '3.8', label: 'Prog. Carries/90' }, alertStatus: 'price_change', addedDate: '2026-03-01', scoutScore: 62 },
-      { id: 'wp16', name: 'Pablo Navarro', club: 'Sporting Castilla', position: 'LB', age: 23, nationality: 'Spain', image: '/avatars/player-8.png', keyMetric: { value: '5.4', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-02-12', scoutScore: 73 },
+      { id: 'p5', name: 'Rémi Blanchard', club: 'Olympique Azur', position: 'LB/LM', age: 23, nationality: 'France', image: '/avatars/player-5.png', keyMetric: { value: '4.3', label: 'Prog. Carries/90' }, alertStatus: 'price_change', addedDate: '2026-02-05', scoutScore: 54 },
+      { id: 'p10', name: 'Mateo Rivas', club: 'Miami Coast FC', position: 'LB', age: 19, nationality: 'Argentina', image: '/avatars/player-10.png', keyMetric: { value: '3.8', label: 'Prog. Carries/90' }, alertStatus: 'price_change', addedDate: '2026-03-01', scoutScore: 62 },
+      { id: 'p8', name: 'Pablo Navarro', club: 'Sporting Castilla', position: 'LB', age: 23, nationality: 'Spain', image: '/avatars/player-8.png', keyMetric: { value: '5.4', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-02-12', scoutScore: 73 },
     ],
   },
 ]

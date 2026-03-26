@@ -185,8 +185,8 @@ export function ReportPage() {
                   className="flex items-center justify-between p-3 bg-surface-container-low rounded-md hover:bg-surface-container-high transition-colors cursor-pointer"
                   role="button"
                   tabIndex={0}
-                  onClick={() => navigate(`/report/${p.name.toLowerCase().replace(/\s/g, '-')}`)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/report/${p.name.toLowerCase().replace(/\s/g, '-')}`); } }}
+                  onClick={() => navigate(`/report/${p.playerId}`)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/report/${p.playerId}`); } }}
                 >
                   <div className="flex items-center gap-3">
                     <PlayerAvatar name={p.name} size={40} imageUrl={p.image} />
