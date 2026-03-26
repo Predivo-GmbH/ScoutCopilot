@@ -30,9 +30,9 @@ In the Supabase dashboard under **Authentication > Providers > Email**:
 
 Under **Authentication > URL Configuration**:
 
-- **Site URL**: `https://scoutcopilot.predivo.ch`
+- **Site URL**: `https://scoutcopilot.com`
 - **Redirect URLs** (add all):
-  - `https://scoutcopilot.predivo.ch/**`
+  - `https://scoutcopilot.com/**`
   - `http://localhost:5173/**` (development)
 
 ## RLS Dependencies

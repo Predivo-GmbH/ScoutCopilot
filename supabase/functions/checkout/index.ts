@@ -2,7 +2,7 @@ import { corsHeaders, handleCors } from "../_shared/cors.ts";
 import { getAuthContext, AuthError, getServiceClient } from "../_shared/auth.ts";
 
 const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY")!;
-const SITE_URL = Deno.env.get("SITE_URL") ?? "https://scoutcopilot.predivo.ch";
+const SITE_URL = Deno.env.get("SITE_URL") ?? "https://scoutcopilot.com";
 
 // Price ID mapping — replace with real Stripe price IDs
 const PRICE_IDS: Record<string, Record<string, string>> = {
