@@ -21,6 +21,7 @@ const ReportsListPage = lazy(() => import('./features/report/ReportsListPage').t
 const ReportPage = lazy(() => import('./features/report/ReportPage').then(m => ({ default: m.ReportPage })))
 const ComparisonPage = lazy(() => import('./features/comparison/ComparisonPage').then(m => ({ default: m.ComparisonPage })))
 const WatchlistsPage = lazy(() => import('./features/watchlists/WatchlistsPage').then(m => ({ default: m.WatchlistsPage })))
+const SquadPage = lazy(() => import('./features/squad/SquadPage').then(m => ({ default: m.SquadPage })))
 const SettingsPage = lazy(() => import('./features/settings/SettingsPage').then(m => ({ default: m.SettingsPage })))
 const PricingPage = lazy(() => import('./features/pricing/PricingPage').then(m => ({ default: m.PricingPage })))
 const PrivacyPage = lazy(() => import('./features/legal/PrivacyPage').then(m => ({ default: m.PrivacyPage })))
@@ -72,6 +73,7 @@ export default function App() {
                 <Route path="/report/:id" element={<ReportPage />} />
                 <Route path="/compare" element={<ComparisonPage />} />
                 <Route path="/watchlists" element={<WatchlistsPage />} />
+                <Route path="/squad" element={<SquadPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
               </Route>
             </Route>

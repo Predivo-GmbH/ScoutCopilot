@@ -5,6 +5,7 @@ import {
   FileText,
   GitCompareArrows,
   Star,
+  Users,
   Settings,
   ChevronsLeft,
   ChevronsRight,
@@ -22,6 +23,7 @@ const navItems = [
   { path: '/report', label: 'Reports', icon: FileText },
   { path: '/compare', label: 'Compare', icon: GitCompareArrows },
   { path: '/watchlists', label: 'Watchlists', icon: Star },
+  { path: '/squad', label: 'My Squad', icon: Users },
   { path: '/settings', label: 'Settings', icon: Settings },
 ]
 
