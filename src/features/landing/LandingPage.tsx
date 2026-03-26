@@ -365,7 +365,7 @@ export function LandingPage() {
           <div>
             <h1 className="text-[2.25rem] md:text-[3rem] font-bold leading-[1.1] tracking-[-0.02em] mb-6">
               Stop drowning in spreadsheets. Get AI-ranked shortlists in{' '}
-              <span className="font-mono text-primary-light">30&nbsp;seconds</span>.
+              <span className="text-primary-light">30&nbsp;seconds</span>.
             </h1>
             <p className="text-on-surface-variant text-base md:text-lg leading-relaxed mb-8 max-w-xl">
               An AI assistant that connects to your Wyscout or StatsBomb API and turns
@@ -413,9 +413,8 @@ export function LandingPage() {
       {/* ── Tactical Capabilities ─────────────────────────────── */}
       <section id="features" className="py-24 px-6 md:px-8">
         <div className="max-w-7xl mx-auto">
-          <Badge variant="primary" className="mb-4">Tactical Capabilities</Badge>
-          <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-12 uppercase">
-            Mission-Critical Tools for Modern Recruitment
+          <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-12 text-center">
+            Mission-critical tools for modern recruitment
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
