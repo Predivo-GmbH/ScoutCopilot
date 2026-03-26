@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Eye, RefreshCw } from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
 
@@ -12,11 +13,13 @@ interface CredentialSettingsProps {
 }
 
 export function CredentialSettings({ credentials }: CredentialSettingsProps) {
+  const { t } = useTranslation()
+
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold uppercase tracking-widest text-on-surface-variant">External Data Sources</h3>
-        <Button variant="secondary" size="sm">+ Add Connection</Button>
+        <h3 className="text-sm font-semibold uppercase tracking-widest text-on-surface-variant">{t('settings.credentials.heading')}</h3>
+        <Button variant="secondary" size="sm">{t('settings.credentials.addConnection')}</Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {credentials.map((cred) => (
@@ -36,7 +39,7 @@ export function CredentialSettings({ credentials }: CredentialSettingsProps) {
                   ? 'bg-secondary/10 text-secondary'
                   : 'bg-surface-container-high text-on-surface-variant'
               }`}>
-                {cred.connected ? 'Connected' : 'Not Connected'}
+                {cred.connected ? t('settings.credentials.connected') : t('settings.credentials.notConnected')}
               </span>
             </div>
             {cred.connected ? (
@@ -52,7 +55,7 @@ export function CredentialSettings({ credentials }: CredentialSettingsProps) {
                 </div>
               </div>
             ) : (
-              <Button variant="secondary" size="sm" className="w-full">Connect Data Source</Button>
+              <Button variant="secondary" size="sm" className="w-full">{t('settings.credentials.connectDataSource')}</Button>
             )}
           </div>
         ))}

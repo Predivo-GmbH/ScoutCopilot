@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Plus, X, Search } from 'lucide-react'
 import type { MockComparisonPlayer } from '../../../lib/mock-data'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
@@ -13,6 +14,7 @@ interface PlayerSelectorProps {
 }
 
 export function PlayerSelector({ selectedPlayers, availablePlayers, maxPlayers, onAdd, onRemove }: PlayerSelectorProps) {
+  const { t } = useTranslation()
   const slotsRemaining = maxPlayers - selectedPlayers.length
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -69,7 +71,7 @@ export function PlayerSelector({ selectedPlayers, availablePlayers, maxPlayers, 
             className="w-full h-full min-h-[76px] bg-transparent border-2 border-dashed border-outline-variant rounded-md p-4 flex flex-col items-center justify-center text-on-surface-variant hover:border-primary hover:text-primary transition-all"
           >
             <Plus size={24} strokeWidth={1.5} className="mb-1" />
-            <span className="text-[0.625rem] font-medium uppercase tracking-widest">Add Player</span>
+            <span className="text-[0.625rem] font-medium uppercase tracking-widest">{t('comparison.addPlayer')}</span>
           </button>
 
           {dropdownOpen && (
@@ -82,14 +84,14 @@ export function PlayerSelector({ selectedPlayers, availablePlayers, maxPlayers, 
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search players..."
+                    placeholder={t('comparison.searchPlayers')}
                     className="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-md py-2 pl-9 pr-3 text-xs text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary transition-colors"
                   />
                 </div>
               </div>
               <div className="max-h-52 overflow-y-auto">
                 {filtered.length === 0 ? (
-                  <p className="p-3 text-xs text-on-surface-variant text-center">No players found</p>
+                  <p className="p-3 text-xs text-on-surface-variant text-center">{t('comparison.noPlayersFound')}</p>
                 ) : (
                   filtered.map((player) => (
                     <button

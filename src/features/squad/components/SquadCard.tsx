@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Users, Calendar } from 'lucide-react'
 import type { MockSquad } from '../../../lib/mock-data'
 
@@ -8,6 +9,8 @@ interface SquadCardProps {
 }
 
 export function SquadCard({ squad, isSelected, onClick }: SquadCardProps) {
+  const { t } = useTranslation()
+
   return (
     <div
       onClick={onClick}
@@ -25,7 +28,7 @@ export function SquadCard({ squad, isSelected, onClick }: SquadCardProps) {
         <div className="flex flex-col items-end gap-2">
           <span className="px-2 py-0.5 bg-surface-container-highest text-[0.625rem] font-semibold text-on-surface-variant rounded-sm uppercase tracking-tight flex items-center gap-1">
             <Users size={10} strokeWidth={1.5} />
-            {squad.playerCount} Players
+            {squad.playerCount} {t('common.players')}
           </span>
           <span className="px-2 py-0.5 bg-surface-container-highest text-[0.625rem] font-semibold text-on-surface-variant rounded-sm uppercase tracking-tight flex items-center gap-1">
             <Calendar size={10} strokeWidth={1.5} />

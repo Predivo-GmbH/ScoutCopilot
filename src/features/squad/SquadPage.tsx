@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Users, Heart, AlertTriangle } from 'lucide-react'
 import type { FormationType, MockSquad } from '../../lib/mock-data'
 import { useSquad } from './hooks/useSquad'
@@ -9,6 +10,7 @@ import { SquadTable } from './components/SquadTable'
 import { SquadCard } from './components/SquadCard'
 
 export function SquadPage() {
+  const { t } = useTranslation()
   const { squads, isLoading, selectedSquad, selectSquad, clearSelection } = useSquad()
 
   if (selectedSquad) {
@@ -19,8 +21,8 @@ export function SquadPage() {
     <div className="p-6 space-y-6 max-h-[calc(100vh-3.5rem)] overflow-y-auto">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-bold text-on-surface">My Squads</h1>
-        <p className="text-sm text-on-surface-variant mt-1">Manage your rosters and identify positional gaps.</p>
+        <h1 className="text-xl font-bold text-on-surface">{t('squad.heading')}</h1>
+        <p className="text-sm text-on-surface-variant mt-1">{t('squad.subheading')}</p>
       </div>
 
       {/* Squad Grid */}
@@ -47,6 +49,7 @@ export function SquadPage() {
 }
 
 function SquadDetail({ squad, onBack }: { squad: MockSquad; onBack: () => void }) {
+  const { t } = useTranslation()
   const gaps = useGapAnalysis(squad.players)
   const [formation, setFormation] = useState<FormationType>(squad.formation)
 
@@ -65,7 +68,7 @@ function SquadDetail({ squad, onBack }: { squad: MockSquad; onBack: () => void }
             className="flex items-center gap-1.5 text-xs font-medium text-on-surface-variant hover:text-on-surface transition-colors mb-3"
           >
             <ArrowLeft size={14} strokeWidth={1.5} />
-            All Squads
+            {t('squad.allSquads')}
           </button>
           <h1 className="text-xl font-bold text-on-surface">{squad.name}</h1>
           <p className="text-sm text-on-surface-variant mt-1">
@@ -77,10 +80,10 @@ function SquadDetail({ squad, onBack }: { squad: MockSquad; onBack: () => void }
 
       {/* Squad Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard icon={Users} label="Squad Size" value={String(totalPlayers)} />
-        <StatCard icon={Users} label="Avg Age" value={avgAge} />
-        <StatCard icon={AlertTriangle} label="Injured" value={String(injuredCount)} variant={injuredCount > 0 ? 'warning' : 'default'} />
-        <StatCard icon={Heart} label="On Loan" value={String(onLoanCount)} variant={onLoanCount > 0 ? 'info' : 'default'} />
+        <StatCard icon={Users} label={t('squad.squadSize')} value={String(totalPlayers)} />
+        <StatCard icon={Users} label={t('squad.avgAge')} value={avgAge} />
+        <StatCard icon={AlertTriangle} label={t('squad.injured')} value={String(injuredCount)} variant={injuredCount > 0 ? 'warning' : 'default'} />
+        <StatCard icon={Heart} label={t('squad.onLoan')} value={String(onLoanCount)} variant={onLoanCount > 0 ? 'info' : 'default'} />
       </div>
 
       {/* Formation Pitch */}
@@ -91,7 +94,7 @@ function SquadDetail({ squad, onBack }: { squad: MockSquad; onBack: () => void }
 
       {/* Full Squad Table */}
       <section>
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-on-surface mb-4">Full Roster</h3>
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-on-surface mb-4">{t('squad.fullRoster')}</h3>
         <SquadTable players={squad.players} />
       </section>
     </div>

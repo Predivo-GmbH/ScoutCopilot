@@ -1,5 +1,6 @@
 import { type FormEvent, type KeyboardEvent, useState, useCallback } from 'react'
 import { Search, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '../../lib/utils'
 import { Badge } from './Badge'
 
@@ -17,12 +18,13 @@ interface SearchBarProps {
 }
 
 function SearchBar({
-  placeholder = 'Ask anything about players...',
+  placeholder,
   onSearch,
   filters,
   onRemoveFilter,
   className,
 }: SearchBarProps) {
+  const { t } = useTranslation()
   const [query, setQuery] = useState('')
 
   const handleSubmit = useCallback(
@@ -53,7 +55,7 @@ function SearchBar({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={placeholder}
+          placeholder={placeholder ?? t('searchBar.placeholder')}
           className={cn(
             'h-12 w-full pl-12 pr-4 bg-surface-container border border-outline-variant rounded-md',
             'text-[0.9375rem] text-on-surface placeholder:text-on-surface-variant/50',
@@ -65,7 +67,7 @@ function SearchBar({
           <button
             onClick={() => { setQuery(''); onSearch('') }}
             className="absolute right-14 p-1 text-on-surface-variant hover:text-on-surface rounded-md transition-colors"
-            aria-label="Clear search"
+            aria-label={t('searchBar.clear')}
           >
             <X size={16} strokeWidth={1.5} />
           </button>
@@ -74,7 +76,7 @@ function SearchBar({
           onClick={() => handleSubmit()}
           className="absolute right-2 h-8 px-3 bg-primary text-white text-[0.8125rem] font-medium rounded-md hover:bg-primary-dark transition-colors duration-[150ms]"
         >
-          Search
+          {t('common.search')}
         </button>
       </div>
 

@@ -51,8 +51,12 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
     return id
   }, [])
 
+  const deleteWatchlist = useCallback((watchlistId: string) => {
+    setLists((prev) => prev.filter((w) => w.id !== watchlistId))
+  }, [])
+
   return (
-    <WatchlistContext.Provider value={{ watchlists: lists, addPlayerToWatchlist, removePlayerFromWatchlist, createWatchlist }}>
+    <WatchlistContext.Provider value={{ watchlists: lists, addPlayerToWatchlist, removePlayerFromWatchlist, createWatchlist, deleteWatchlist }}>
       {children}
     </WatchlistContext.Provider>
   )

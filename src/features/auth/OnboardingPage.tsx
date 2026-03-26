@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   PartyPopper,
   Database,
@@ -53,6 +54,7 @@ const POSITIONS = [
 export function OnboardingPage() {
   const navigate = useNavigate()
   const { profile, refreshProfile } = useAuth()
+  const { t } = useTranslation()
 
   const [stepIndex, setStepIndex] = useState(0)
   const currentStep = STEPS[stepIndex]
@@ -124,11 +126,10 @@ export function OnboardingPage() {
             <Card className="text-center">
               <PartyPopper size={40} strokeWidth={1.5} className="mx-auto text-primary mb-4" />
               <h1 className="text-2xl font-semibold text-on-surface mb-2">
-                Welcome to ScoutCopilot{profile?.full_name ? `, ${profile.full_name}` : ''}
+                {t('auth.onboarding.welcome')}{profile?.full_name ? `, ${profile.full_name}` : ''}
               </h1>
               <p className="text-sm text-on-surface-variant max-w-md mx-auto leading-relaxed">
-                Let's get you set up in a few quick steps. Connect your scouting data source
-                and configure your preferences to start finding players faster.
+                {t('auth.onboarding.welcomeSub')}
               </p>
             </Card>
           )}
@@ -136,9 +137,9 @@ export function OnboardingPage() {
           {/* Step 2: Connect Data */}
           {currentStep === 'Connect Data' && (
             <Card>
-              <h2 className="text-xl font-semibold text-on-surface mb-1">Connect Your Data Source</h2>
+              <h2 className="text-xl font-semibold text-on-surface mb-1">{t('auth.onboarding.connectDataSource')}</h2>
               <p className="text-sm text-on-surface-variant mb-6">
-                Link your Wyscout or StatsBomb API credentials. You can skip this and add them later in Settings.
+                {t('auth.onboarding.connectDataSourceSub')}
               </p>
 
               <div className="space-y-6">
@@ -149,23 +150,23 @@ export function OnboardingPage() {
                       <Database size={18} strokeWidth={1.5} className="text-primary" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold text-on-surface">Wyscout</h3>
+                      <h3 className="text-sm font-semibold text-on-surface">{t('auth.onboarding.wyscout')}</h3>
                       <p className="text-[10px] uppercase tracking-wider text-on-surface-variant">
-                        Official API Integration
+                        {t('auth.onboarding.wyscoutSub')}
                       </p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <Input
-                      label="Username"
-                      placeholder="API username"
+                      label={t('auth.onboarding.username')}
+                      placeholder={t('auth.onboarding.apiUsername')}
                       value={wyscoutUser}
                       onChange={e => setWyscoutUser(e.target.value)}
                     />
                     <Input
-                      label="Password"
+                      label={t('auth.passwordLabel')}
                       type="password"
-                      placeholder="API password"
+                      placeholder={t('auth.onboarding.apiPassword')}
                       value={wyscoutPass}
                       onChange={e => setWyscoutPass(e.target.value)}
                     />
@@ -179,23 +180,23 @@ export function OnboardingPage() {
                       <Database size={18} strokeWidth={1.5} className="text-primary" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold text-on-surface">StatsBomb</h3>
+                      <h3 className="text-sm font-semibold text-on-surface">{t('auth.onboarding.statsbomb')}</h3>
                       <p className="text-[10px] uppercase tracking-wider text-on-surface-variant">
-                        Event Data Sync
+                        {t('auth.onboarding.statsbombSub')}
                       </p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <Input
-                      label="Username"
-                      placeholder="API username"
+                      label={t('auth.onboarding.username')}
+                      placeholder={t('auth.onboarding.apiUsername')}
                       value={statsbombUser}
                       onChange={e => setStatsbombUser(e.target.value)}
                     />
                     <Input
-                      label="Password"
+                      label={t('auth.passwordLabel')}
                       type="password"
-                      placeholder="API password"
+                      placeholder={t('auth.onboarding.apiPassword')}
                       value={statsbombPass}
                       onChange={e => setStatsbombPass(e.target.value)}
                     />
@@ -208,15 +209,15 @@ export function OnboardingPage() {
           {/* Step 3: Preferences */}
           {currentStep === 'Preferences' && (
             <Card>
-              <h2 className="text-xl font-semibold text-on-surface mb-1">Set Your Preferences</h2>
+              <h2 className="text-xl font-semibold text-on-surface mb-1">{t('auth.onboarding.setPreferences')}</h2>
               <p className="text-sm text-on-surface-variant mb-6">
-                Choose default leagues and positions to personalize your scouting experience.
+                {t('auth.onboarding.setPreferencesSub')}
               </p>
 
               <div className="space-y-6">
                 <div>
                   <h3 className="text-xs font-medium uppercase tracking-wider text-on-surface-variant mb-3">
-                    Default Leagues
+                    {t('auth.onboarding.defaultLeagues')}
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {LEAGUES.map(league => (
@@ -238,7 +239,7 @@ export function OnboardingPage() {
 
                 <div>
                   <h3 className="text-xs font-medium uppercase tracking-wider text-on-surface-variant mb-3">
-                    Preferred Positions
+                    {t('auth.onboarding.preferredPositions')}
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {POSITIONS.map(pos => (
@@ -265,13 +266,12 @@ export function OnboardingPage() {
           {currentStep === 'Ready' && (
             <Card className="text-center">
               <Rocket size={40} strokeWidth={1.5} className="mx-auto text-emerald-400 mb-4" />
-              <h1 className="text-2xl font-semibold text-on-surface mb-2">You're All Set!</h1>
+              <h1 className="text-2xl font-semibold text-on-surface mb-2">{t('auth.onboarding.allSet')}</h1>
               <p className="text-sm text-on-surface-variant max-w-md mx-auto leading-relaxed mb-6">
-                Your ScoutCopilot workspace is ready. Start searching for players using natural language
-                or explore the dashboard.
+                {t('auth.onboarding.allSetSub')}
               </p>
               <Button onClick={finish} leftIcon={Rocket} size="lg">
-                Go to Dashboard
+                {t('auth.onboarding.goToDashboard')}
               </Button>
             </Card>
           )}
@@ -300,19 +300,19 @@ export function OnboardingPage() {
           <div className="flex items-center gap-4">
             {stepIndex > 0 && (
               <Button variant="ghost" leftIcon={ArrowLeft} onClick={back}>
-                Back
+                {t('common.back')}
               </Button>
             )}
             {currentStep === 'Connect Data' && (
               <Button variant="ghost" leftIcon={SkipForward} onClick={next}>
-                Skip for now
+                {t('auth.onboarding.skipForNow')}
               </Button>
             )}
           </div>
           <div>
             {currentStep !== 'Ready' && (
               <Button rightIcon={ArrowRight} onClick={next}>
-                Continue
+                {t('common.continue')}
               </Button>
             )}
           </div>

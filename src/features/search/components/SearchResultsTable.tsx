@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, FileText, Loader2, Eye } from 'lucide-react'
 import type { MockPlayer } from '../../../lib/mock-data'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
@@ -38,6 +39,7 @@ function exportResultsCsv(results: MockPlayer[]) {
 }
 
 export function SearchResultsTable({ results, isLoading }: SearchResultsTableProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const [prevResultsLen, setPrevResultsLen] = useState(results.length)
@@ -70,13 +72,13 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
       <div className="px-6 py-4 flex justify-between items-center border-b border-outline-variant/10">
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <span className="font-data text-primary text-lg">{results.length}</span>
-          <span className="uppercase tracking-widest text-xs text-on-surface-variant">players found</span>
+          <span className="uppercase tracking-widest text-xs text-on-surface-variant">{t('search.playersFound')}</span>
         </h3>
         <div className="flex items-center gap-1">
           <button
             onClick={() => exportResultsCsv(results)}
             className="p-2 rounded-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
-            title="Download as CSV"
+            title={t('search.downloadResults')}
           >
             <Download size={16} strokeWidth={1.5} />
           </button>
@@ -91,7 +93,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-sm transition-colors ${viewMode === 'grid' ? 'text-primary bg-primary/10' : 'text-on-surface-variant hover:text-on-surface'}`}
-              title="Grid view"
+              title={t('search.gridView')}
             >
               <LayoutGrid size={16} strokeWidth={1.5} />
             </button>
@@ -106,17 +108,17 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
             <thead>
               <tr className="bg-surface-container-high border-b border-outline-variant">
                 <th className="px-6 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant w-8">#</th>
-                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant min-w-[200px]">Player</th>
-                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">Position</th>
-                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">Age</th>
-                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">League</th>
+                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant min-w-[200px]">{t('common.player')}</th>
+                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">{t('common.position')}</th>
+                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">{t('common.age')}</th>
+                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">{t('common.league')}</th>
                 {statKeys.map((key) => (
                   <th key={key} className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant text-right">
                     {key}
                   </th>
                 ))}
-                <th className="px-6 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant w-48">Match Score</th>
-                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant text-center">Report</th>
+                <th className="px-6 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant w-48">{t('search.matchScore')}</th>
+                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant text-center">{t('common.report')}</th>
               </tr>
             </thead>
             <tbody className="text-sm">
@@ -197,8 +199,8 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 mb-3">
-                  <StatRow label="Age" value={String(player.age)} />
-                  <StatRow label="League" value={player.league} />
+                  <StatRow label={t('common.age')} value={String(player.age)} />
+                  <StatRow label={t('common.league')} value={player.league} />
                   {statKeys.map((key) => (
                     <StatRow key={key} label={key} value={String(player.stats[key])} />
                   ))}
@@ -218,7 +220,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
       {totalPages > 1 && (
         <div className="px-6 py-4 bg-surface-container-lowest flex justify-between items-center border-t border-outline-variant/10">
           <span className="text-[0.625rem] font-data font-bold uppercase tracking-widest text-on-surface-variant">
-            Showing {showFrom} to {showTo} of {results.length} results
+            {t('search.showingResults', { from: showFrom, to: showTo, total: results.length })}
           </span>
           <div className="flex items-center gap-1">
             <button
@@ -266,6 +268,7 @@ function ReportButton({ playerId, hasReport, isGenerating, generateReport, navig
   generateReport: (id: string) => void
   navigate: (path: string) => void
 }) {
+  const { t } = useTranslation()
   if (hasReport(playerId)) {
     return (
       <button
@@ -273,7 +276,7 @@ function ReportButton({ playerId, hasReport, isGenerating, generateReport, navig
         className="inline-flex items-center gap-1.5 text-secondary hover:text-secondary/80 transition-colors text-xs font-medium"
       >
         <Eye size={14} strokeWidth={1.5} />
-        View
+        {t('common.view')}
       </button>
     )
   }
@@ -286,7 +289,7 @@ function ReportButton({ playerId, hasReport, isGenerating, generateReport, navig
       className="inline-flex items-center gap-1.5 text-primary hover:text-primary-light transition-colors text-xs font-medium"
     >
       <FileText size={14} strokeWidth={1.5} />
-      Generate
+      {t('common.generate')}
     </button>
   )
 }
@@ -350,14 +353,15 @@ function countryToFlag(country: string): string | null {
   return FLAG_MAP[country] ?? null
 }
 
-const AI_STEPS = [
-  'Querying player database...',
-  'Analyzing statistical profiles...',
-  'Ranking by fit score...',
-  'Compiling results...',
-]
-
 function AIThinkingAnimation() {
+  const { t } = useTranslation()
+  const AI_STEPS = [
+    t('search.aiSteps.querying'),
+    t('search.aiSteps.analyzing'),
+    t('search.aiSteps.ranking'),
+    t('search.aiSteps.compiling'),
+  ]
+
   const [step, setStep] = useState(0)
 
   useEffect(() => {

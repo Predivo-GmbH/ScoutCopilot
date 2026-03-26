@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import type { SquadPlayer } from '../../../lib/mock-data'
 
@@ -6,14 +7,29 @@ interface SquadTableProps {
   players: SquadPlayer[]
 }
 
-const statusStyles: Record<string, { dot: string; text: string; label: string }> = {
-  fit: { dot: 'bg-secondary', text: 'text-secondary', label: 'Fit' },
-  injured: { dot: 'bg-error', text: 'text-error', label: 'Injured' },
-  suspended: { dot: 'bg-amber-500', text: 'text-amber-500', label: 'Suspended' },
-  on_loan: { dot: 'bg-tertiary', text: 'text-tertiary', label: 'On Loan' },
+const statusKeys: Record<string, string> = {
+  fit: 'squad.fit',
+  injured: 'squad.injured',
+  suspended: 'squad.suspended',
+  on_loan: 'squad.onLoan',
+}
+
+const statusDotStyles: Record<string, string> = {
+  fit: 'bg-secondary',
+  injured: 'bg-error',
+  suspended: 'bg-amber-500',
+  on_loan: 'bg-tertiary',
+}
+
+const statusTextStyles: Record<string, string> = {
+  fit: 'text-secondary',
+  injured: 'text-error',
+  suspended: 'text-amber-500',
+  on_loan: 'text-tertiary',
 }
 
 export function SquadTable({ players }: SquadTableProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const sorted = [...players].sort((a, b) => a.shirtNumber - b.shirtNumber)
 
@@ -22,19 +38,21 @@ export function SquadTable({ players }: SquadTableProps) {
       <table className="w-full text-left">
         <thead>
           <tr className="bg-surface-container-low text-[0.625rem] font-medium text-on-surface-variant uppercase tracking-widest border-b border-outline-variant">
-            <th className="px-6 py-3 w-12">#</th>
-            <th className="px-4 py-3 min-w-[200px]">Player</th>
-            <th className="px-4 py-3 text-center">Position</th>
-            <th className="px-4 py-3 text-center">Age</th>
-            <th className="px-4 py-3 text-center">Contract</th>
-            <th className="px-4 py-3 w-44">Rating</th>
+            <th className="px-6 py-3 w-12">{t('squad.number')}</th>
+            <th className="px-4 py-3 min-w-[200px]">{t('common.player')}</th>
+            <th className="px-4 py-3 text-center">{t('common.position')}</th>
+            <th className="px-4 py-3 text-center">{t('common.age')}</th>
+            <th className="px-4 py-3 text-center">{t('squad.contract')}</th>
+            <th className="px-4 py-3 w-44">{t('squad.rating')}</th>
             <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3 text-right">Market Value</th>
+            <th className="px-4 py-3 text-right">{t('squad.marketValue')}</th>
           </tr>
         </thead>
         <tbody className="text-sm">
           {sorted.map((player, i) => {
-            const st = statusStyles[player.status]
+            const dot = statusDotStyles[player.status]
+            const textColor = statusTextStyles[player.status]
+            const statusKey = statusKeys[player.status]
             return (
               <tr
                 key={player.id}
@@ -70,8 +88,8 @@ export function SquadTable({ players }: SquadTableProps) {
                 </td>
                 <td className="px-4 py-4">
                   <div className="flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />
-                    <span className={`text-[0.6875rem] font-semibold ${st.text} uppercase tracking-tight`}>{st.label}</span>
+                    <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
+                    <span className={`text-[0.6875rem] font-semibold ${textColor} uppercase tracking-tight`}>{t(statusKey)}</span>
                   </div>
                 </td>
                 <td className="px-4 py-4 text-right font-data text-on-surface-variant text-xs">{player.marketValue}</td>

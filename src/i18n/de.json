@@ -1,0 +1,689 @@
+{
+  "common": {
+    "logIn": "Anmelden",
+    "signIn": "Anmelden",
+    "signOut": "Abmelden",
+    "signUp": "Registrieren",
+    "getStarted": "Loslegen",
+    "startFreeTrial": "Kostenlos testen",
+    "cancel": "Abbrechen",
+    "create": "Erstellen",
+    "save": "Speichern",
+    "saving": "Speichern...",
+    "saved": "Gespeichert",
+    "remove": "Entfernen",
+    "delete": "Löschen",
+    "back": "Zurück",
+    "continue": "Weiter",
+    "done": "Fertig",
+    "search": "Suche",
+    "view": "Anzeigen",
+    "generate": "Generieren",
+    "export": "Exportieren",
+    "download": "Herunterladen",
+    "report": "Bericht",
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "features": "Funktionen",
+    "pricing": "Preise",
+    "faq": "FAQ",
+    "terms": "AGB",
+    "privacy": "Datenschutz",
+    "imprint": "Impressum",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "player": "Spieler",
+    "players": "Spieler",
+    "club": "Verein",
+    "position": "Position",
+    "age": "Alter",
+    "league": "Liga",
+    "actions": "Aktionen",
+    "monthly": "Monatlich",
+    "annual": "Jährlich",
+    "mo": "/Mt.",
+    "yr": "/J.",
+    "of": "von",
+    "and": "und",
+    "or": "oder",
+    "yes": "Ja",
+    "no": "Nein",
+    "all": "Alle",
+    "none": "Keine",
+    "unlimited": "Unbegrenzt",
+    "active": "Aktiv",
+    "failedToSave": "Speichern fehlgeschlagen. Bitte erneut versuchen.",
+    "copyright": "© 2026 Predivo GmbH. Alle Rechte vorbehalten.",
+    "language": "Sprache",
+    "english": "English",
+    "german": "Deutsch"
+  },
+
+  "landing": {
+    "meta": {
+      "title": "ScoutCopilot — KI-Fussball-Scouting",
+      "description": "KI-gestützter Fussball-Scouting-Assistent. Erstellen Sie Spieler-Shortlists, Scouting-Berichte und Vergleichsanalysen in Sekunden — direkt aus Ihren Wyscout- oder StatsBomb-Daten."
+    },
+    "hero": {
+      "heading": "Schluss mit Tabellen-Chaos. KI-gestützte Shortlists in <highlight>30\u00a0Sekunden</highlight>.",
+      "subheading": "Ein KI-Assistent, der sich mit Ihrer Wyscout- oder StatsBomb-API verbindet und natürlichsprachliche Anfragen in bewertete Spieler-Shortlists, Vergleichsberichte und Scouting-Briefings verwandelt — in Sekunden statt Stunden.",
+      "noCreditCard": "Keine Kreditkarte nötig. 14 Tage kostenlos testen.",
+      "seePricing": "Preise ansehen",
+      "playerA": "Spieler A",
+      "playerB": "Spieler B"
+    },
+    "features": {
+      "heading": "Unverzichtbare Werkzeuge für modernes Recruiting",
+      "nlSearch": {
+        "title": "Natürlichsprachliche Suche",
+        "description": "Durchsuchen Sie Ihre Daten mit taktischen Konzepten statt starrer Tabellenfilter.",
+        "mock": "Linksfüssiger IV unter 24, Top 10% Kopfballquote in der 1. Liga"
+      },
+      "aiReports": {
+        "title": "KI-Scouting-Berichte",
+        "description": "Automatisierte taktische Analyse, die wie ein menschlicher Scout schreibt — mit 0% Verzerrung."
+      },
+      "comparison": {
+        "title": "Spielervergleich",
+        "description": "Seite-an-Seite Leistungsanalyse mit ligagewichteter Normalisierung."
+      },
+      "watchlist": {
+        "title": "Watchlist-Benachrichtigungen",
+        "description": "Echtzeit-Informationen zu Vertragsstatus und Marktwert-Signalen.",
+        "alertMock": "ALARM: E. Valenti (Crescent Athletic) Marktwert-Anstieg +12%",
+        "signalMock": "SIGNAL: T. Noronha (AS Lumière) 100. Perzentil Progressive Carries"
+      }
+    },
+    "roi": {
+      "heading": "Ein Junior-Analyst kostet <mono>50'000 $</mono>/Jahr. ScoutCopilot beginnt ab <mono>X $</mono>/Monat.",
+      "subheading": "Das sind <highlight>27-52 Stunden</highlight> pro Woche eingespart — zurück an Ihr Scouting-Team für das, was wirklich zählt.",
+      "colTask": "Aufgabe",
+      "colManual": "Manuell",
+      "colCopilot": "ScoutCopilot",
+      "row1": "Positionsspezifische Shortlist erstellen",
+      "row1Manual": "3-5 Stunden",
+      "row1Copilot": "2-5 Minuten",
+      "row2": "Scouting-Bericht erstellen",
+      "row2Manual": "2-4 Stunden",
+      "row2Copilot": "1-2 Minuten",
+      "row3": "5 Kandidaten vergleichen",
+      "row3Manual": "4-8 Stunden",
+      "row3Copilot": "5-10 Minuten",
+      "row4": "Transferfenster-Longlist (50+ Spieler)",
+      "row4Manual": "2-3 Wochen",
+      "row4Copilot": "1-2 Stunden"
+    },
+    "pricing": {
+      "heading": "Einfache, transparente Preise",
+      "subheading": "Weniger als 1% des Gehalts eines Junior-Analysten. 100x schnelleres Scouting.",
+      "saveAnnual": "17% sparen mit Jahresabrechnung",
+      "mostPopular": "Am beliebtesten",
+      "billedAnnually": "{{amount}}/J. bei jährlicher Abrechnung",
+      "feature": "Funktion"
+    },
+    "tiers": {
+      "scout": {
+        "name": "Scout",
+        "description": "Für einzelne Scouts und kleine Agenturen",
+        "features": [
+          "1 Datenquelle",
+          "Unbegrenzte NL-Spielersuche",
+          "10 KI-Scouting-Berichte/Mt.",
+          "25 Shortlists/Mt.",
+          "Vergleich von bis zu 3 Spielern",
+          "1 Liga",
+          "1 Benutzer",
+          "E-Mail-Support (48 Std.)"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Für professionelle Scouting-Abteilungen",
+        "features": [
+          "2 Datenquellen (Wyscout + StatsBomb)",
+          "Unbegrenzte NL-Spielersuche",
+          "Unbegrenzte KI-Scouting-Berichte",
+          "Unbegrenzte Shortlists",
+          "Vergleich von bis zu 10 Spielern",
+          "Alle Ligen",
+          "Taktische Passform-Analyse",
+          "PDF-Export (mit Branding)",
+          "3 Benutzer",
+          "Prioritäts-Support (24 Std.)"
+        ]
+      },
+      "club": {
+        "name": "Club",
+        "description": "Für Vereine mit grösseren Scouting-Abteilungen",
+        "features": [
+          "Alles aus Pro, plus:",
+          "10 Benutzer (erweiterbar)",
+          "Individuelle KI-Modelle",
+          "Scout Copilot API-Zugang",
+          "Massenoperationen",
+          "Individuelle Metriken",
+          "Persönliches Onboarding (1 Std.)",
+          "Dedizierter Support-Kanal"
+        ]
+      }
+    },
+    "comparison": {
+      "dataSourceConnections": "Datenquellen-Verbindungen",
+      "aiScoutingReports": "KI-Scouting-Berichte",
+      "shortlists": "Shortlists",
+      "playerComparison": "Spielervergleich",
+      "leagueScope": "Liga-Umfang",
+      "tacticalFitAnalysis": "Taktische Passform-Analyse",
+      "pdfExport": "PDF-Export (mit Branding)",
+      "userSeats": "Benutzerplätze"
+    },
+    "faqItems": [
+      {
+        "question": "Wie kann KI mit einem erfahrenen Scout mithalten?",
+        "answer": "Sie ersetzt Ihre Scouts nicht — sie eliminiert die 80% ihrer Arbeit, die kein Urteilsvermögen erfordert. Ihre Scouts verbringen den Grossteil ihrer Zeit mit Datenbankfiltern und Tabellenkalkulationen. ScoutCopilot übernimmt diese Vorauswahl in Sekunden, damit Ihre Scouts ihr Urteil auf eine vorgefilterte Shortlist anwenden können, statt sich durch 500 Spieler zu arbeiten."
+      },
+      {
+        "question": "Wir haben bereits Wyscout — warum mehr bezahlen?",
+        "answer": "Sie zahlen Tausende pro Jahr für den Datenzugang, nutzen diesen aber über manuelle Filter und Excel-Exporte. ScoutCopilot ist die KI-Schicht, die Ihre bestehende Dateninvestition in einen Wettbewerbsvorteil verwandelt — natürlichsprachliche Abfragen, taktische Passform-Analyse und Entwicklungsprognosen, die keine aktuelle Wyscout-Oberfläche bietet."
+      },
+      {
+        "question": "Was, wenn die KI Fehler macht?",
+        "answer": "Jede Empfehlung zeigt die zugrunde liegenden Daten und die Bewertungslogik — keine Black Box. Das Tool ist ein Assistent, keine Autorität: Es erstellt Shortlists, Ihr Team trifft die Entscheidungen. Beim Club-Tarif lernen individuelle Modelle mit der Zeit die spezifische Philosophie Ihres Vereins."
+      },
+      {
+        "question": "Sind unsere Daten sicher?",
+        "answer": "Ihre API-Zugangsdaten werden in Supabase Vault mit AES-256-GCM-Verschlüsselung gespeichert. Alle API-Aufrufe werden serverseitig mit Ihren Zugangsdaten ausgeführt. Wir speichern oder cachen keine Spielerdaten über Ihre aktive Sitzung hinaus. Ihre Daten verlassen niemals Ihr Konto."
+      },
+      {
+        "question": "Können wir es vor dem Kauf testen?",
+        "answer": "Ja. Starten Sie mit einer 14-tägigen kostenlosen Testphase bei jedem Tarif — keine Kreditkarte erforderlich. Ausserdem kommt jeder Tarif mit einer 30-tägigen Geld-zurück-Garantie, ohne Fragen."
+      }
+    ],
+    "faqHeading": "Häufig gestellte Fragen",
+    "cta": {
+      "heading": "Bereit für smarteres Scouting?",
+      "subheading": "Ihre Konkurrenten setzen bereits KI ein. Machen Sie Ihr Scouting KI-gestützt, bevor das nächste Transferfenster öffnet.",
+      "guarantee": "30-Tage-Geld-zurück-Garantie"
+    },
+    "footer": {
+      "tagline": "Entwickelt für professionelles Fussball-Scouting"
+    }
+  },
+
+  "auth": {
+    "signInTo": "Bei ScoutCopilot anmelden",
+    "passwordTab": "Passwort",
+    "emailCodeTab": "E-Mail-Code",
+    "emailLabel": "E-Mail",
+    "passwordLabel": "Passwort",
+    "forgotPassword": "Passwort vergessen?",
+    "signingIn": "Anmeldung läuft...",
+    "sendCodeDescription": "Wir senden einen Anmeldecode an Ihre E-Mail, sofern ein Konto existiert.",
+    "sendSignInCode": "Anmeldecode senden",
+    "sendingCode": "Code wird gesendet...",
+    "enterCodeSentTo": "Geben Sie den 6-stelligen Code ein, der an gesendet wurde:",
+    "verifying": "Wird überprüft...",
+    "didntReceiveCode": "Keinen Code erhalten? Stellen Sie sicher, dass Sie ein Konto haben oder",
+    "useDifferentEmail": "← Andere E-Mail verwenden",
+    "dontHaveAccount": "Noch kein Konto?",
+    "startFreeTrial": "Kostenlos testen",
+    "alreadyHaveAccount": "Bereits ein Konto?",
+
+    "signup": {
+      "heading": "Kostenlos testen",
+      "subheading": "14 Tage gratis. Keine Kreditkarte nötig.",
+      "workEmail": "Geschäftliche E-Mail",
+      "emailPlaceholder": "scout@verein.ch",
+      "termsAgreement": "Mit der Registrierung stimmen Sie unseren",
+      "termsOfService": "Nutzungsbedingungen",
+      "privacyPolicy": "Datenschutzrichtlinie",
+      "checkEmail": "Überprüfen Sie Ihre E-Mail",
+      "codeSentTo": "Wir haben einen 6-stelligen Code an gesendet:",
+      "completeAccount": "Konto vervollständigen",
+      "completeAccountSub": "Legen Sie Ihren Namen und ein Passwort für zukünftige Anmeldungen fest.",
+      "fullName": "Vollständiger Name",
+      "fullNamePlaceholder": "Maria Schmidt",
+      "minChars": "Min. 8 Zeichen",
+      "creatingAccount": "Konto wird erstellt...",
+      "createAccount": "Konto erstellen",
+      "weakPassword": "Bitte wählen Sie ein stärkeres Passwort"
+    },
+
+    "forgot": {
+      "heading": "Passwort zurücksetzen",
+      "description": "Geben Sie Ihre E-Mail ein und wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts.",
+      "sendResetLink": "Link senden",
+      "sending": "Wird gesendet...",
+      "backToSignIn": "← Zurück zur Anmeldung",
+      "checkEmail": "Überprüfen Sie Ihre E-Mail",
+      "resetLinkSentTo": "Wir haben einen Link zum Zurücksetzen an gesendet:",
+      "clickLink": "Klicken Sie auf den Link in der E-Mail, um ein neues Passwort zu wählen.",
+      "didntReceive": "Keine E-Mail erhalten? Prüfen Sie Ihren Spam-Ordner oder",
+      "tryAgain": "erneut versuchen"
+    },
+
+    "reset": {
+      "passwordsNoMatch": "Passwörter stimmen nicht überein",
+      "weakPassword": "Bitte wählen Sie ein stärkeres Passwort",
+      "passwordUpdated": "Passwort aktualisiert",
+      "passwordResetSuccess": "Ihr Passwort wurde erfolgreich zurückgesetzt. Sie können sich jetzt mit Ihrem neuen Passwort anmelden.",
+      "chooseNewPassword": "Neues Passwort wählen",
+      "enterNewPassword": "Geben Sie unten Ihr neues Passwort ein.",
+      "newPassword": "Neues Passwort",
+      "minChars": "Min. 8 Zeichen",
+      "confirmPassword": "Passwort bestätigen",
+      "confirmYourPassword": "Passwort bestätigen",
+      "updating": "Wird aktualisiert...",
+      "updatePassword": "Passwort aktualisieren"
+    },
+
+    "onboarding": {
+      "welcome": "Willkommen bei ScoutCopilot",
+      "welcomeSub": "Lassen Sie uns in wenigen Schritten loslegen. Verbinden Sie Ihre Scouting-Datenquelle und konfigurieren Sie Ihre Einstellungen, um schneller Spieler zu finden.",
+      "connectDataSource": "Datenquelle verbinden",
+      "connectDataSourceSub": "Verknüpfen Sie Ihre Wyscout- oder StatsBomb-API-Zugangsdaten. Sie können diesen Schritt überspringen und sie später in den Einstellungen hinzufügen.",
+      "wyscout": "Wyscout",
+      "wyscoutSub": "Offizielle API-Integration",
+      "statsbomb": "StatsBomb",
+      "statsbombSub": "Event-Daten-Synchronisation",
+      "username": "Benutzername",
+      "apiUsername": "API-Benutzername",
+      "apiPassword": "API-Passwort",
+      "setPreferences": "Einstellungen festlegen",
+      "setPreferencesSub": "Wählen Sie Standard-Ligen und -Positionen, um Ihr Scouting-Erlebnis zu personalisieren.",
+      "defaultLeagues": "Standard-Ligen",
+      "preferredPositions": "Bevorzugte Positionen",
+      "allSet": "Alles bereit!",
+      "allSetSub": "Ihr ScoutCopilot-Arbeitsbereich ist bereit. Suchen Sie Spieler mit natürlicher Sprache oder erkunden Sie das Dashboard.",
+      "goToDashboard": "Zum Dashboard",
+      "skipForNow": "Vorerst überspringen"
+    },
+
+    "passwordGate": {
+      "privateBeta": "Diese App befindet sich in der geschlossenen Beta.",
+      "enterAccessCode": "Zugangscode eingeben",
+      "enter": "Eingabe"
+    },
+
+    "resendTimer": {
+      "resendIn": "Code erneut senden in {{seconds}}s",
+      "sending": "Wird gesendet...",
+      "resendCode": "Code erneut senden"
+    },
+
+    "passwordStrength": {
+      "label": "Passwortstärke:",
+      "weak": "Schwach",
+      "fair": "Ausreichend",
+      "good": "Gut",
+      "strong": "Stark"
+    }
+  },
+
+  "nav": {
+    "dashboard": "Dashboard",
+    "search": "Suche",
+    "players": "Spieler",
+    "compare": "Vergleich",
+    "watchlists": "Watchlists",
+    "mySquads": "Meine Kader",
+    "settings": "Einstellungen",
+    "expandSidebar": "Seitenleiste ausklappen",
+    "collapseSidebar": "Seitenleiste einklappen"
+  },
+
+  "topbar": {
+    "searchPlaceholder": "Spieler suchen, Spiele finden oder NL-Abfragen starten...",
+    "alerts": "Benachrichtigungen",
+    "accountSettings": "Kontoeinstellungen",
+    "signOut": "Abmelden"
+  },
+
+  "dashboard": {
+    "heading": "Übersicht",
+    "subheading": "Echtzeit-Scouting-Analysen und Watchlist-Benachrichtigungen.",
+    "systemLive": "System: Aktiv",
+    "recentSearches": "Letzte Suchen",
+    "viewAll": "Alle anzeigen",
+    "query": "Abfrage",
+    "results": "Ergebnisse",
+    "date": "Datum",
+    "status": "Status",
+    "watchlistAlerts": "Watchlist-Benachrichtigungen",
+    "new": "NEU",
+    "quickActions": "Schnellaktionen",
+    "newPlayerSearch": "Neue Spielersuche",
+    "newPlayerSearchSub": "Komplexe Abfragen mit natürlicher Sprache oder metrischen Filtern ausführen.",
+    "viewPlayers": "Spieler anzeigen",
+    "viewPlayersSub": "Ihre gescouteten Spieler und deren detaillierte Berichte durchsuchen.",
+    "comparePlayers": "Spieler vergleichen",
+    "comparePlayersSub": "Visuelle Perzentil-Überlagerungen und Kopf-an-Kopf-Metrik-Analyse.",
+    "complete": "ABGESCHLOSSEN",
+    "processing": "IN BEARBEITUNG",
+    "failed": "FEHLGESCHLAGEN"
+  },
+
+  "search": {
+    "heading": "Spielersuche",
+    "placeholder": "Finde einen Linksverteidiger unter 23 mit >75% Flankengenauigkeit",
+    "cmdK": "CMD + K",
+    "searchBtn": "Suche",
+    "startSearch": "Suche starten",
+    "startSearchSub": "Geben Sie oben eine natürlichsprachliche Anfrage ein oder nutzen Sie die Filter zur Spielersuche. Ergebnisse erscheinen hier.",
+    "suggestedQueries": "Vorgeschlagene Abfragen",
+    "dbLastUpdated": "Datenbank zuletzt aktualisiert: 26.03.2026, 14:02 UTC",
+    "liveConnection": "Live-Verbindung aktiv",
+    "playersFound": "Spieler gefunden",
+    "downloadResults": "Ergebnisse herunterladen",
+    "gridView": "Rasteransicht",
+    "matchScore": "Passungswert",
+    "showingResults": "Zeige {{from}} bis {{to}} von {{total}} Ergebnissen",
+    "aiSteps": {
+      "querying": "Spielerdatenbank wird abgefragt...",
+      "analyzing": "Statistische Profile werden analysiert...",
+      "ranking": "Nach Passungswert sortieren...",
+      "compiling": "Ergebnisse werden zusammengestellt..."
+    }
+  },
+
+  "filters": {
+    "position": "Position",
+    "ageRange": "Altersbereich",
+    "league": "Liga",
+    "foot": "Fuss",
+    "advanced": "Erweitert",
+    "advancedFilters": "Erweiterte Filter",
+    "minMatchScore": "Min. Passungswert",
+    "any": "Beliebig",
+    "minAge": "Mindestalter",
+    "maxAge": "Höchstalter",
+    "resetAdvanced": "Erweiterte Filter zurücksetzen"
+  },
+
+  "report": {
+    "recommendSign": "VERPFLICHTUNG EMPFOHLEN",
+    "monitor": "BEOBACHTEN",
+    "pass": "ABSAGE",
+    "addToWatchlist": "Zur Watchlist",
+    "compare": "Vergleichen",
+    "exportPdf": "PDF exportieren",
+    "performanceProfile": "Leistungsprofil",
+    "seasonStats": "Saisonstatistiken",
+    "transferHistory": "Transferhistorie",
+    "contractOverview": "Vertragsübersicht",
+    "scoutAssessment": "Scout-Bewertung",
+    "strengthsWeaknesses": "Stärken & Schwächen",
+    "strengths": "Stärken",
+    "weaknesses": "Schwächen",
+    "styleOfPlay": "Spielstil",
+    "similarProfiles": "Ähnliche Profile"
+  },
+
+  "reportsList": {
+    "heading": "Spieler",
+    "scoutedCount": "{{count}} gescouteter Spieler",
+    "scoutedCount_other": "{{count}} gescoutete Spieler",
+    "noPlayersYet": "Noch keine Spieler gescouted",
+    "noPlayersSub": "Suchen Sie nach Spielern und erstellen Sie Berichte, um sie hier hinzuzufügen.",
+    "startSearch": "Suche starten",
+    "fitScore": "Passungswert",
+    "recommendation": "Empfehlung",
+    "score": "WERT:",
+    "removePlayer": "Spieler entfernen",
+    "removeConfirm": "Sind Sie sicher, dass Sie {{name}} aus Ihren gescouteten Spielern entfernen möchten? Der generierte Bericht wird gelöscht.",
+    "removeBtn": "Entfernen"
+  },
+
+  "comparison": {
+    "heading": "Spieler vergleichen",
+    "subheading": "Seite-an-Seite statistische Analyse mit KI-Bewertung.",
+    "tacticalContext": "Taktischer Kontext (optional)",
+    "tacticalPlaceholder": "z.B. Vergleich für ein 4-3-3 Hochpress-System",
+    "generateComparison": "Vergleich erstellen",
+    "performanceMatrix": "Leistungsmatrix",
+    "tacticalRadar": "Taktisches Radar",
+    "aiVerdict": "KI-Urteil",
+    "strategicFit": "STRATEGISCHE PASSUNG",
+    "noScoutedPlayers": "Noch keine gescouteten Spieler",
+    "noScoutedPlayersSub": "Suchen Sie zuerst nach Spielern und erstellen Sie Berichte. Gescoutete Spieler erscheinen dann hier zum Vergleich.",
+    "addPlayersToCompare": "Spieler zum Vergleich hinzufügen",
+    "addPlayersSub": "Wählen Sie 2–4 Spieler über die Slots oben aus, dann erstellen Sie einen Seite-an-Seite-Vergleich mit Radar-Überlagerungen und KI-Analyse.",
+    "addOneMore": "Mindestens einen weiteren Spieler hinzufügen",
+    "addOneMoreSub": "Sie brauchen mindestens 2 Spieler, um einen Vergleich zu erstellen. Fügen Sie einen weiteren Spieler über den Slot oben hinzu.",
+    "detailedMetrics": "Detaillierte Leistungsmetriken (Per 90)",
+    "currentSeason": "Aktuelle Saison",
+    "metric": "Metrik",
+    "addPlayer": "Spieler hinzufügen",
+    "searchPlayers": "Spieler suchen...",
+    "noPlayersFound": "Keine Spieler gefunden"
+  },
+
+  "watchlists": {
+    "heading": "Watchlists",
+    "subheading": "Verfolgen und beobachten Sie Ihre Zielspieler.",
+    "newWatchlist": "Neue Watchlist",
+    "createNew": "Neue Watchlist erstellen",
+    "watchlistName": "Name der Watchlist",
+    "descriptionOptional": "Beschreibung (optional)",
+    "all": "Alle",
+    "transferTargets": "Transferziele",
+    "youthProspects": "Nachwuchsspieler",
+    "positionSpecific": "Positionsspezifisch",
+    "updated": "Aktualisiert:",
+    "alerts": "ALARME",
+    "noAlerts": "Keine Alarme",
+    "stable": "Stabil",
+    "priceChange": "Preisänderung",
+    "injuryReport": "Verletzungsmeldung",
+    "formChange": "Formänderung",
+    "keyMetric": "Schlüsselmetrik",
+    "alertStatus": "Alarm-Status",
+    "added": "Hinzugefügt",
+    "noPlayersYet": "Noch keine Spieler in dieser Watchlist.",
+    "removeFromWatchlist": "Von Watchlist entfernen",
+    "removeConfirm": "Sind Sie sicher, dass Sie {{name}} aus {{watchlist}} entfernen möchten?",
+    "score": "WERT:"
+  },
+
+  "squad": {
+    "heading": "Meine Kader",
+    "subheading": "Verwalten Sie Ihre Kader und identifizieren Sie Positionslücken.",
+    "allSquads": "Alle Kader",
+    "season": "Saison",
+    "squadSize": "Kadergrösse",
+    "avgAge": "Ø Alter",
+    "injured": "Verletzt",
+    "onLoan": "Ausgeliehen",
+    "fullRoster": "Vollständiger Kader",
+    "fit": "Fit",
+    "suspended": "Gesperrt",
+    "number": "#",
+    "contract": "Vertrag",
+    "rating": "Bewertung",
+    "marketValue": "Marktwert",
+    "positionAnalysis": "Positionsanalyse",
+    "noGaps": "Ihr Kader hat keine kritischen Lücken. Alle Positionen sind gut besetzt.",
+    "positionsFlagged": "{{count}} Position markiert",
+    "positionsFlagged_other": "{{count}} Positionen markiert",
+    "findPlayers": "Spieler finden",
+    "formation": "Formation"
+  },
+
+  "settings": {
+    "heading": "Systemeinstellungen",
+    "tabs": {
+      "account": "Konto",
+      "apiKeys": "API-Schlüssel",
+      "teamManagement": "Teamverwaltung",
+      "notifications": "Benachrichtigungen",
+      "billing": "Abrechnung & Abonnement"
+    },
+    "profile": {
+      "heading": "Benutzerprofil",
+      "updateAvatar": "Avatar ändern",
+      "fullName": "Vollständiger Name",
+      "emailAddress": "E-Mail-Adresse",
+      "role": "Rolle",
+      "roles": {
+        "scout": "Scout",
+        "headOfRecruitment": "Leiter Rekrutierung",
+        "technicalDirector": "Technischer Direktor",
+        "analyst": "Analyst"
+      },
+      "saveProfile": "Profil speichern"
+    },
+    "password": {
+      "heading": "Passwort ändern",
+      "updatedSuccess": "Passwort erfolgreich aktualisiert.",
+      "newPassword": "Neues Passwort",
+      "minChars": "Min. 8 Zeichen",
+      "confirmPassword": "Passwort bestätigen",
+      "repeatPassword": "Passwort wiederholen",
+      "updating": "Wird aktualisiert...",
+      "updatePassword": "Passwort aktualisieren"
+    },
+    "org": {
+      "heading": "Organisationsdetails",
+      "clubOrg": "Verein / Organisation",
+      "saveOrg": "Organisation speichern"
+    },
+    "credentials": {
+      "heading": "Externe Datenquellen",
+      "addConnection": "+ Verbindung hinzufügen",
+      "connected": "Verbunden",
+      "notConnected": "Nicht verbunden",
+      "connectDataSource": "Datenquelle verbinden"
+    },
+    "team": {
+      "heading": "Teamverwaltung",
+      "seatsUsed": "{{used}} von {{total}} Plätzen belegt",
+      "inviteMember": "Mitglied einladen"
+    },
+    "notifications": {
+      "heading": "Benachrichtigungseinstellungen",
+      "emailAlerts": "E-Mail-Benachrichtigungen",
+      "emailAlertsSub": "Sofortige Berichte an primäre E-Mail",
+      "watchlistTriggers": "Watchlist-Auslöser",
+      "watchlistTriggersSub": "Statusänderungen für beobachtete Spieler",
+      "weeklyDigest": "Wöchentliche Zusammenfassung",
+      "weeklyDigestSub": "Zusammengefasste Scouting-Aktivitäten",
+      "transferUpdates": "Transferfenster-Updates",
+      "transferUpdatesSub": "Live-Marktnews für Zielspieler"
+    },
+    "billing": {
+      "heading": "Abrechnung & Abonnement",
+      "plan": "Tarif",
+      "billedMonthly": "/Mt. monatliche Abrechnung",
+      "manageBilling": "Abrechnung verwalten",
+      "currentUsage": "Aktuelle Nutzung",
+      "apiCalls": "API-Aufrufe",
+      "reports": "Berichte",
+      "searches": "Suchen",
+      "seats": "Plätze",
+      "unlockUnlimited": "Unbegrenzte Berichte und taktische Analysen freischalten",
+      "upgradeTo": "Auf {{tier}} upgraden",
+      "cancelSubscription": "Abonnement kündigen",
+      "cancelConfirm": "Sind Sie sicher, dass Sie kündigen möchten?",
+      "cancelDescription": "Ihr Abonnement bleibt bis zum Ende des aktuellen Abrechnungszeitraums aktiv. Danach verlieren Sie den Zugang zu {{tier}}-Funktionen.",
+      "cancelInStripe": "In Stripe kündigen",
+      "keepSubscription": "Abonnement behalten",
+      "ofLimit": "von {{limit}}"
+    },
+    "language": {
+      "heading": "Sprache",
+      "description": "Wählen Sie die Anzeigesprache für ScoutCopilot."
+    }
+  },
+
+  "pricing": {
+    "meta": {
+      "title": "Preise — ScoutCopilot",
+      "description": "Einfache, transparente Preise für KI-Fussball-Scouting. Scout-, Pro- und Club-Tarife. 14 Tage kostenlos testen, keine Kreditkarte nötig."
+    },
+    "heading": "Einfache, transparente Preise",
+    "subheading": "Weniger als 1% des Gehalts eines Junior-Analysten. 100x schnelleres Scouting.",
+    "signIn": "Anmelden",
+    "featureComparison": "Funktionsvergleich",
+    "faqHeading": "Häufig gestellte Fragen",
+    "guaranteed": "GARANTIERT",
+    "guarantee": "30-Tage-Geld-zurück-Garantie",
+    "contactSub": "Fragen? Wir helfen Ihrer Scouting-Abteilung gerne beim Einstieg.",
+    "contactSupport": "Support kontaktieren"
+  },
+
+  "legal": {
+    "privacy": {
+      "title": "Datenschutzerklärung",
+      "lastUpdated": "Zuletzt aktualisiert: 24. März 2026",
+      "controller": "1. Verantwortlicher",
+      "dataCollect": "2. Daten, die wir erheben",
+      "accountData": "Kontodaten:",
+      "apiCredentials": "API-Zugangsdaten:",
+      "usageData": "Nutzungsdaten:",
+      "paymentData": "Zahlungsdaten:",
+      "technicalData": "Technische Daten:",
+      "purpose": "3. Zweck & Rechtsgrundlage",
+      "contractPerformance": "Vertragserfüllung (Art. 6(1)(b) DSGVO):",
+      "legitimateInterest": "Berechtigtes Interesse (Art. 6(1)(f) DSGVO):",
+      "consent": "Einwilligung (Art. 6(1)(a) DSGVO):",
+      "thirdParty": "4. Drittanbieter-Dienste",
+      "retention": "5. Datenspeicherung",
+      "rights": "6. Ihre Rechte (DSGVO)",
+      "access": "Auskunft",
+      "rectification": "Berichtigung",
+      "erasure": "Löschung",
+      "portability": "Datenübertragbarkeit",
+      "restriction": "Einschränkung",
+      "objection": "Widerspruch",
+      "cookies": "7. Cookies",
+      "security": "8. Sicherheit",
+      "contact": "9. Kontakt"
+    },
+    "terms": {
+      "title": "Nutzungsbedingungen",
+      "lastUpdated": "Zuletzt aktualisiert: 24. März 2026",
+      "agreement": "1. Vereinbarung",
+      "serviceDescription": "2. Leistungsbeschreibung",
+      "accounts": "3. Konten",
+      "subscriptions": "4. Abonnements & Zahlung",
+      "moneyBackGuarantee": "30-Tage-Geld-zurück-Garantie:",
+      "acceptableUse": "5. Zulässige Nutzung",
+      "thirdPartyData": "6. Drittanbieter-Daten",
+      "intellectualProperty": "7. Geistiges Eigentum",
+      "liability": "8. Haftungsbeschränkung",
+      "termination": "9. Kontokündigung",
+      "governingLaw": "10. Anwendbares Recht",
+      "contact": "11. Kontakt"
+    },
+    "imprint": {
+      "title": "Impressum",
+      "company": "Unternehmen",
+      "contact": "Kontakt",
+      "commercialRegister": "Handelsregister",
+      "registeredIn": "Eingetragen im Handelsregister des Kantons Schwyz, Schweiz.",
+      "responsibleForContent": "Verantwortlich für den Inhalt",
+      "disclaimer": "Haftungsausschluss"
+    }
+  },
+
+  "addToWatchlist": {
+    "heading": "Zur Watchlist hinzufügen",
+    "createNew": "Neue Watchlist erstellen",
+    "done": "Fertig"
+  },
+
+  "searchBar": {
+    "placeholder": "Fragen Sie alles über Spieler...",
+    "clear": "Suche löschen"
+  },
+
+  "radarLabels": {
+    "aerial": "Kopfball",
+    "passing": "Passspiel",
+    "pace": "Tempo",
+    "defending": "Verteidigung",
+    "shooting": "Schuss",
+    "dribbling": "Dribbling"
+  }
+}

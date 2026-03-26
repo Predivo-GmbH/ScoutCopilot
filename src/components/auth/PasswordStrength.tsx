@@ -1,11 +1,21 @@
+import { useTranslation } from 'react-i18next'
 import { getPasswordScore } from './password-utils'
 
 export default function PasswordStrength({ password }: { password: string }) {
+  const { t } = useTranslation()
+
   if (!password) return null
 
   const score = getPasswordScore(password)
   const colors = ['bg-error', 'bg-error', 'bg-tertiary', 'bg-primary', 'bg-primary', 'bg-secondary']
-  const labels = ['Weak', 'Weak', 'Fair', 'Good', 'Good', 'Strong']
+  const labels = [
+    t('auth.passwordStrength.weak'),
+    t('auth.passwordStrength.weak'),
+    t('auth.passwordStrength.fair'),
+    t('auth.passwordStrength.good'),
+    t('auth.passwordStrength.good'),
+    t('auth.passwordStrength.strong'),
+  ]
 
   return (
     <div className="mt-2 space-y-2" role="status" aria-live="polite">
@@ -20,7 +30,7 @@ export default function PasswordStrength({ password }: { password: string }) {
         ))}
       </div>
       <p className="text-xs text-on-surface-variant">
-        Password strength:{' '}
+        {t('auth.passwordStrength.label')}{' '}
         <span
           className={`font-medium ${
             score <= 1

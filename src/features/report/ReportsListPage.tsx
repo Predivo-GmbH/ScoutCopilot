@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Search as SearchIcon, FileText, Trash2 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
@@ -14,6 +15,7 @@ const recommendation = {
 }
 
 export function ReportsListPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { generatedReportIds, removeReport } = useGeneratedReports()
   const reports = Object.values(playerReports).filter((r) => generatedReportIds.includes(r.playerId))
@@ -28,9 +30,9 @@ export function ReportsListPage() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-on-surface">Players</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-on-surface">{t('reportsList.heading')}</h1>
         <p className="text-sm text-on-surface-variant mt-1">
-          {reports.length} scouted {reports.length === 1 ? 'player' : 'players'}
+          {t('reportsList.scoutedCount', { count: reports.length })}
         </p>
       </div>
 
@@ -39,15 +41,15 @@ export function ReportsListPage() {
           <div className="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center mb-4">
             <SearchIcon size={32} strokeWidth={1.5} className="text-on-surface-variant" />
           </div>
-          <h3 className="text-lg font-semibold text-on-surface mb-2">No players scouted yet</h3>
+          <h3 className="text-lg font-semibold text-on-surface mb-2">{t('reportsList.noPlayersYet')}</h3>
           <p className="text-sm text-on-surface-variant max-w-md mb-6">
-            Search for players and generate reports to add them here.
+            {t('reportsList.noPlayersSub')}
           </p>
           <button
             onClick={() => navigate('/search')}
             className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary-light transition-colors"
           >
-            Start a search
+            {t('reportsList.startSearch')}
           </button>
         </div>
       ) : (
@@ -55,13 +57,13 @@ export function ReportsListPage() {
           <table className="w-full text-left">
             <thead>
               <tr className="bg-surface-container-low text-[0.625rem] font-medium text-on-surface-variant uppercase tracking-widest border-b border-outline-variant">
-                <th className="px-6 py-3">Player</th>
-                <th className="px-4 py-3 text-center">Club</th>
-                <th className="px-4 py-3 text-center">Position</th>
-                <th className="px-4 py-3 text-center">Age</th>
-                <th className="px-4 py-3 text-center">Fit Score</th>
-                <th className="px-4 py-3 text-center">Recommendation</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className="px-6 py-3">{t('common.player')}</th>
+                <th className="px-4 py-3 text-center">{t('common.club')}</th>
+                <th className="px-4 py-3 text-center">{t('common.position')}</th>
+                <th className="px-4 py-3 text-center">{t('common.age')}</th>
+                <th className="px-4 py-3 text-center">{t('reportsList.fitScore')}</th>
+                <th className="px-4 py-3 text-center">{t('reportsList.recommendation')}</th>
+                <th className="px-4 py-3 text-right">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody className="text-sm">
@@ -78,7 +80,7 @@ export function ReportsListPage() {
                         <div>
                           <p className="font-semibold text-on-surface">{report.playerName}</p>
                           <p className="text-[0.625rem] text-on-surface-variant font-data">
-                            {report.nationality} | SCORE: {report.fitScore}
+                            {report.nationality} | {t('reportsList.score')} {report.fitScore}
                           </p>
                         </div>
                       </div>
@@ -109,7 +111,7 @@ export function ReportsListPage() {
                             navigate(`/players/${report.playerId}`)
                           }}
                         >
-                          Report
+                          {t('common.report')}
                         </Button>
                         <button
                           onClick={(e) => {
@@ -132,9 +134,9 @@ export function ReportsListPage() {
 
       <ConfirmDialog
         open={deleteTarget !== null}
-        title="Remove Player"
-        message={`Are you sure you want to remove ${deleteTarget?.name ?? 'this player'} from your scouted players? This will delete the generated report.`}
-        confirmLabel="Remove"
+        title={t('reportsList.removePlayer')}
+        message={t('reportsList.removeConfirm', { name: deleteTarget?.name ?? 'this player' })}
+        confirmLabel={t('reportsList.removeBtn')}
         variant="destructive"
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}

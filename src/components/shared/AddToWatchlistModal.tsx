@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
-import { Plus, Check, X } from 'lucide-react'
+import { Plus, Check, Minus, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/Button'
 import { useWatchlistActions } from '../../lib/useWatchlistActions'
 import type { MockWatchlistPlayer } from '../../lib/mock-data'
@@ -17,8 +18,8 @@ export function AddToWatchlistModal({ open, player, onClose }: AddToWatchlistMod
 
 /** Inner component remounts each time the modal opens, so state resets automatically */
 function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPlayer; onClose: () => void }) {
-  const { watchlists, addPlayerToWatchlist, createWatchlist } = useWatchlistActions()
-  const [addedTo, setAddedTo] = useState<Set<string>>(new Set())
+  const { t } = useTranslation()
+  const { watchlists, addPlayerToWatchlist, removePlayerFromWatchlist, createWatchlist } = useWatchlistActions()
   const [creatingNew, setCreatingNew] = useState(false)
   const [newName, setNewName] = useState('')
   const [newDesc, setNewDesc] = useState('')
@@ -27,22 +28,23 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
     node?.focus()
   }, [])
 
-  // Check which watchlists already contain this player
-  const alreadyIn = new Set(
-    watchlists.filter((w) => w.players.some((p) => p.id === player.id)).map((w) => w.id),
-  )
+  function isPlayerInWatchlist(watchlistId: string): boolean {
+    const w = watchlists.find((wl) => wl.id === watchlistId)
+    return w ? w.players.some((p) => p.id === player.id) : false
+  }
 
-  function handleAdd(watchlistId: string) {
-    if (alreadyIn.has(watchlistId) || addedTo.has(watchlistId)) return
-    addPlayerToWatchlist(watchlistId, player)
-    setAddedTo((prev) => new Set(prev).add(watchlistId))
+  function handleToggle(watchlistId: string) {
+    if (isPlayerInWatchlist(watchlistId)) {
+      removePlayerFromWatchlist(watchlistId, player.id)
+    } else {
+      addPlayerToWatchlist(watchlistId, player)
+    }
   }
 
   function handleCreateAndAdd() {
     if (!newName.trim()) return
     const id = createWatchlist(newName.trim(), newDesc.trim())
     addPlayerToWatchlist(id, player)
-    setAddedTo((prev) => new Set(prev).add(id))
     setCreatingNew(false)
     setNewName('')
     setNewDesc('')
@@ -62,7 +64,7 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
       <div className="bg-surface-container rounded-md border border-outline-variant shadow-lg w-full max-w-md mx-4">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
-          <h3 className="text-base font-semibold text-on-surface">Add to Watchlist</h3>
+          <h3 className="text-base font-semibold text-on-surface">{t('addToWatchlist.heading')}</h3>
           <button onClick={onClose} className="text-on-surface-variant hover:text-on-surface transition-colors">
             <X size={18} strokeWidth={1.5} />
           </button>
@@ -77,24 +79,26 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
         {/* Watchlist List */}
         <div className="px-6 py-3 max-h-64 overflow-y-auto space-y-1">
           {watchlists.map((w) => {
-            const isIn = alreadyIn.has(w.id) || addedTo.has(w.id)
+            const isIn = isPlayerInWatchlist(w.id)
             return (
               <button
                 key={w.id}
-                onClick={() => handleAdd(w.id)}
-                disabled={isIn}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-left transition-colors ${
+                onClick={() => handleToggle(w.id)}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-left transition-colors group/item ${
                   isIn
-                    ? 'bg-secondary/5 text-on-surface-variant cursor-default'
+                    ? 'bg-secondary/5 text-on-surface hover:bg-error/5'
                     : 'hover:bg-surface-container-high text-on-surface cursor-pointer'
                 }`}
               >
                 <div>
                   <p className="text-sm font-medium">{w.name}</p>
-                  <p className="text-[0.625rem] text-on-surface-variant">{w.playerCount} players</p>
+                  <p className="text-[0.625rem] text-on-surface-variant">{w.playerCount} {t('common.players')}</p>
                 </div>
                 {isIn && (
-                  <Check size={16} strokeWidth={2} className="text-secondary shrink-0" />
+                  <div className="shrink-0">
+                    <Check size={16} strokeWidth={2} className="text-secondary group-hover/item:hidden" />
+                    <Minus size={16} strokeWidth={2} className="text-error hidden group-hover/item:block" />
+                  </div>
                 )}
               </button>
             )
@@ -110,7 +114,7 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
                 type="text"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                placeholder="Watchlist name"
+                placeholder={t('watchlists.watchlistName')}
                 className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-sm text-on-surface focus:outline-none focus:border-primary transition-colors"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleCreateAndAdd()
@@ -120,15 +124,15 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
                 type="text"
                 value={newDesc}
                 onChange={(e) => setNewDesc(e.target.value)}
-                placeholder="Description (optional)"
+                placeholder={t('watchlists.descriptionOptional')}
                 className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-sm text-on-surface focus:outline-none focus:border-primary transition-colors"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleCreateAndAdd()
                 }}
               />
               <div className="flex gap-2 justify-end">
-                <Button variant="ghost" size="sm" onClick={() => setCreatingNew(false)}>Cancel</Button>
-                <Button variant="primary" size="sm" onClick={handleCreateAndAdd} disabled={!newName.trim()}>Create & Add</Button>
+                <Button variant="ghost" size="sm" onClick={() => setCreatingNew(false)}>{t('common.cancel')}</Button>
+                <Button variant="primary" size="sm" onClick={handleCreateAndAdd} disabled={!newName.trim()}>{t('common.create')}</Button>
               </div>
             </div>
           ) : (
@@ -137,14 +141,14 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
               className="flex items-center gap-2 text-sm text-primary hover:text-primary-light transition-colors font-medium"
             >
               <Plus size={16} strokeWidth={1.5} />
-              Create new watchlist
+              {t('addToWatchlist.createNew')}
             </button>
           )}
         </div>
 
         {/* Footer */}
         <div className="px-6 py-3 border-t border-outline-variant flex justify-end">
-          <Button variant="secondary" size="sm" onClick={onClose}>Done</Button>
+          <Button variant="secondary" size="sm" onClick={onClose}>{t('addToWatchlist.done')}</Button>
         </div>
       </div>
     </div>

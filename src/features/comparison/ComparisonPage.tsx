@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Zap, GitCompareArrows, Loader2, ArrowRight } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
@@ -15,6 +16,7 @@ const GENERATE_STEPS = [
 ]
 
 export function ComparisonPage() {
+  const { t } = useTranslation()
   const {
     players,
     selectedPlayers,
@@ -34,8 +36,8 @@ export function ComparisonPage() {
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-on-surface">Compare Players</h1>
-          <p className="text-on-surface-variant mt-1 text-sm">Side-by-side statistical comparison with AI analysis.</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-on-surface">{t('comparison.heading')}</h1>
+          <p className="text-on-surface-variant mt-1 text-sm">{t('comparison.subheading')}</p>
         </div>
       </div>
 
@@ -51,13 +53,13 @@ export function ComparisonPage() {
       {/* Tactical Context */}
       <div>
         <label className="text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant block mb-1.5">
-          Tactical Context (optional)
+          {t('comparison.tacticalContext')}
         </label>
         <input
           type="text"
           value={tacticalContext}
           onChange={(e) => setTacticalContext(e.target.value)}
-          placeholder="e.g., Compare for a 4-3-3 high-press system"
+          placeholder={t('comparison.tacticalPlaceholder')}
           className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2.5 px-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-colors"
         />
       </div>
@@ -72,7 +74,7 @@ export function ComparisonPage() {
             onClick={generate}
             className="px-10"
           >
-            Generate Comparison
+            {t('comparison.generateComparison')}
           </Button>
         </div>
       )}
@@ -89,8 +91,8 @@ export function ComparisonPage() {
               <Card header={
                 <div className="flex justify-between items-center">
                   <div>
-                    <span className="text-[0.625rem] font-medium uppercase tracking-widest text-on-surface-variant block">Performance Matrix</span>
-                    <span className="text-sm font-semibold text-on-surface">Tactical Radar</span>
+                    <span className="text-[0.625rem] font-medium uppercase tracking-widest text-on-surface-variant block">{t('comparison.performanceMatrix')}</span>
+                    <span className="text-sm font-semibold text-on-surface">{t('comparison.tacticalRadar')}</span>
                   </div>
                   <div className="flex gap-4">
                     {players.map((p, i) => (
@@ -113,7 +115,7 @@ export function ComparisonPage() {
               <Card header={
                 <div className="flex items-center gap-2">
                   <Zap size={14} strokeWidth={1.5} className="text-tertiary" />
-                  <span className="text-sm font-semibold uppercase tracking-tight text-on-surface">AI Verdict</span>
+                  <span className="text-sm font-semibold uppercase tracking-tight text-on-surface">{t('comparison.aiVerdict')}</span>
                 </div>
               }>
                 <div className="space-y-4">
@@ -125,7 +127,7 @@ export function ComparisonPage() {
                   </p>
                   {tacticalContext && (
                     <div className="bg-surface-container-high p-4 rounded-md border-l-4 border-tertiary">
-                      <span className="text-[0.625rem] font-data text-tertiary font-semibold block mb-1">STRATEGIC FIT</span>
+                      <span className="text-[0.625rem] font-data text-tertiary font-semibold block mb-1">{t('comparison.strategicFit')}</span>
                       <p className="text-xs text-on-surface-variant">
                         For the specified tactical context, {players[0]?.name.split(' ').pop()} shows 88% compatibility vs 72% for {players[1]?.name.split(' ').pop()}.
                       </p>
@@ -133,7 +135,7 @@ export function ComparisonPage() {
                   )}
                   {!tacticalContext && (
                     <div className="bg-surface-container-high p-4 rounded-md border-l-4 border-tertiary">
-                      <span className="text-[0.625rem] font-data text-tertiary font-semibold block mb-1">STRATEGIC FIT</span>
+                      <span className="text-[0.625rem] font-data text-tertiary font-semibold block mb-1">{t('comparison.strategicFit')}</span>
                       <p className="text-xs text-on-surface-variant">
                         For a high-press system (Gegenpressing), {players[0]?.name.split(' ').pop()} shows 88% compatibility vs 72% for {players[1]?.name.split(' ').pop()}.
                       </p>
@@ -157,6 +159,8 @@ export function ComparisonPage() {
 // ─── Empty State ────────────────────────────────────────────
 
 function EmptyState({ playerCount, totalAvailable }: { playerCount: number; totalAvailable: number }) {
+  const { t } = useTranslation()
+
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
       <div className="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center mb-4">
@@ -164,23 +168,23 @@ function EmptyState({ playerCount, totalAvailable }: { playerCount: number; tota
       </div>
       {totalAvailable === 0 && playerCount === 0 ? (
         <>
-          <h3 className="text-lg font-semibold text-on-surface mb-2">No scouted players yet</h3>
+          <h3 className="text-lg font-semibold text-on-surface mb-2">{t('comparison.noScoutedPlayers')}</h3>
           <p className="text-sm text-on-surface-variant max-w-md">
-            Search for players and generate reports first. Scouted players will appear here for comparison.
+            {t('comparison.noScoutedPlayersSub')}
           </p>
         </>
       ) : playerCount === 0 ? (
         <>
-          <h3 className="text-lg font-semibold text-on-surface mb-2">Add players to compare</h3>
+          <h3 className="text-lg font-semibold text-on-surface mb-2">{t('comparison.addPlayersToCompare')}</h3>
           <p className="text-sm text-on-surface-variant max-w-md">
-            Select 2–4 players using the slots above, then generate a side-by-side comparison with radar overlays and AI analysis.
+            {t('comparison.addPlayersSub')}
           </p>
         </>
       ) : (
         <>
-          <h3 className="text-lg font-semibold text-on-surface mb-2">Add at least one more player</h3>
+          <h3 className="text-lg font-semibold text-on-surface mb-2">{t('comparison.addOneMore')}</h3>
           <p className="text-sm text-on-surface-variant max-w-md">
-            You need at least 2 players to generate a comparison. Add another player using the slot above.
+            {t('comparison.addOneMoreSub')}
           </p>
         </>
       )}

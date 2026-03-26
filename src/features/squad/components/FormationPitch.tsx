@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { FormationType, SquadPlayer } from '../../../lib/mock-data'
 import { formations } from '../../../lib/mock-data'
 
@@ -8,6 +9,7 @@ interface FormationPitchProps {
 }
 
 export function FormationPitch({ formation, players }: FormationPitchProps) {
+  const { t } = useTranslation()
   const slots = formations[formation]
   const [hoveredId, setHoveredId] = useState<string | null>(null)
 
@@ -70,7 +72,7 @@ export function FormationPitch({ formation, players }: FormationPitchProps) {
               {isHovered && player && (
                 <div className="absolute -top-12 bg-surface-container-low border border-outline-variant rounded-md px-2 py-1 shadow-lg whitespace-nowrap z-20">
                   <p className="text-[0.625rem] font-semibold text-on-surface">{player.name}</p>
-                  <p className="text-[0.5rem] text-on-surface-variant">{slot.label} | Rating: {player.overallRating}</p>
+                  <p className="text-[0.5rem] text-on-surface-variant">{slot.label} | {t('squad.rating')}: {player.overallRating}</p>
                 </div>
               )}
             </div>
@@ -82,11 +84,13 @@ export function FormationPitch({ formation, players }: FormationPitchProps) {
 }
 
 export function FormationSelector({ value, onChange }: { value: FormationType; onChange: (f: FormationType) => void }) {
+  const { t } = useTranslation()
   const options: FormationType[] = ['4-3-3', '4-4-2', '3-5-2', '4-2-3-1']
   return (
     <select
       value={value}
       onChange={(e) => onChange(e.target.value as FormationType)}
+      aria-label={t('squad.formation')}
       className="bg-surface-container-lowest border border-outline-variant rounded-md px-3 py-1.5 text-xs font-data text-on-surface focus:outline-none focus:border-primary transition-colors appearance-none"
     >
       {options.map((f) => <option key={f} value={f}>{f}</option>)}

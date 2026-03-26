@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeft, FileText, Trash2 } from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
@@ -13,14 +14,15 @@ interface WatchlistDetailProps {
 }
 
 export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: WatchlistDetailProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
 
   const alertStatusStyles: Record<string, { dot: string; text: string; label: string }> = {
-    stable: { dot: 'bg-secondary', text: 'text-secondary', label: 'Stable' },
-    price_change: { dot: 'bg-tertiary', text: 'text-tertiary', label: 'Price Change' },
-    injury: { dot: 'bg-error', text: 'text-error', label: 'Injury Report' },
-    form_change: { dot: 'bg-primary', text: 'text-primary', label: 'Form Change' },
+    stable: { dot: 'bg-secondary', text: 'text-secondary', label: t('watchlists.stable') },
+    price_change: { dot: 'bg-tertiary', text: 'text-tertiary', label: t('watchlists.priceChange') },
+    injury: { dot: 'bg-error', text: 'text-error', label: t('watchlists.injuryReport') },
+    form_change: { dot: 'bg-primary', text: 'text-primary', label: t('watchlists.formChange') },
   }
 
   function handleDelete() {
@@ -43,7 +45,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
           <h2 className="text-xl font-semibold text-on-surface">{watchlist.name}</h2>
           {watchlist.alertCount > 0 && (
             <span className="px-2 py-0.5 bg-tertiary/10 text-tertiary text-[0.625rem] font-semibold rounded-sm border border-tertiary/20">
-              {watchlist.alertCount} Alerts
+              {watchlist.alertCount} {t('watchlists.alerts')}
             </span>
           )}
         </div>
@@ -55,14 +57,14 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
           <table className="w-full text-left">
             <thead>
               <tr className="bg-surface-container-low text-[0.625rem] font-medium text-on-surface-variant uppercase tracking-widest border-b border-outline-variant">
-                <th className="px-6 py-3">Player</th>
-                <th className="px-4 py-3 text-center">Club</th>
-                <th className="px-4 py-3 text-center">Position</th>
-                <th className="px-4 py-3 text-center">Age</th>
-                <th className="px-4 py-3 text-center">Key Metric</th>
-                <th className="px-4 py-3">Alert Status</th>
-                <th className="px-4 py-3">Added</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className="px-6 py-3">{t('common.player')}</th>
+                <th className="px-4 py-3 text-center">{t('common.club')}</th>
+                <th className="px-4 py-3 text-center">{t('common.position')}</th>
+                <th className="px-4 py-3 text-center">{t('common.age')}</th>
+                <th className="px-4 py-3 text-center">{t('watchlists.keyMetric')}</th>
+                <th className="px-4 py-3">{t('watchlists.alertStatus')}</th>
+                <th className="px-4 py-3">{t('watchlists.added')}</th>
+                <th className="px-4 py-3 text-right">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody className="text-sm">
@@ -79,7 +81,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
                         <div>
                           <p className="font-semibold text-on-surface">{player.name}</p>
                           <p className="text-[0.625rem] text-on-surface-variant font-data">
-                            {player.nationality} | SCORE: {player.scoutScore}
+                            {player.nationality} | {t('watchlists.score')} {player.scoutScore}
                           </p>
                         </div>
                       </div>
@@ -117,7 +119,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
                             navigate(`/players/${player.id}`)
                           }}
                         >
-                          Report
+                          {t('common.report')}
                         </Button>
                         <button
                           onClick={(e) => {
@@ -138,15 +140,15 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <p className="text-sm text-on-surface-variant">No players in this watchlist yet.</p>
+          <p className="text-sm text-on-surface-variant">{t('watchlists.noPlayersYet')}</p>
         </div>
       )}
 
       <ConfirmDialog
         open={deleteTarget !== null}
-        title="Remove from Watchlist"
-        message={`Are you sure you want to remove ${deleteTarget?.name ?? 'this player'} from "${watchlist.name}"?`}
-        confirmLabel="Remove"
+        title={t('watchlists.removeFromWatchlist')}
+        message={t('watchlists.removeConfirm', { name: deleteTarget?.name ?? '', watchlist: watchlist.name })}
+        confirmLabel={t('common.remove')}
         variant="destructive"
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}

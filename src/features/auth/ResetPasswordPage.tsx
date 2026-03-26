@@ -1,6 +1,7 @@
 import { useState, useEffect, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { CheckCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from './useAuth'
 import AuthLayout from '../../components/auth/AuthLayout'
 import PasswordStrength from '../../components/auth/PasswordStrength'
@@ -8,6 +9,7 @@ import { getPasswordScore } from '../../components/auth/password-utils'
 import { friendlyAuthError } from '../../lib/utils'
 
 export function ResetPasswordPage() {
+  const { t } = useTranslation()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -16,7 +18,6 @@ export function ResetPasswordPage() {
   const { user, isLoading: authLoading, updatePassword } = useAuth()
   const navigate = useNavigate()
 
-  // If there's no session (e.g. user navigated here directly), redirect
   useEffect(() => {
     if (authLoading) return
     if (!user) {
@@ -29,11 +30,11 @@ export function ResetPasswordPage() {
     setError(null)
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      setError(t('auth.reset.passwordsNoMatch'))
       return
     }
     if (getPasswordScore(password) < 3) {
-      setError('Please choose a stronger password')
+      setError(t('auth.reset.weakPassword'))
       return
     }
 
@@ -56,16 +57,16 @@ export function ResetPasswordPage() {
             <CheckCircle className="h-7 w-7 text-secondary" strokeWidth={1.5} />
           </div>
           <h1 className="mt-5 text-2xl font-bold text-on-surface">
-            Password updated
+            {t('auth.reset.passwordUpdated')}
           </h1>
           <p className="mt-2 text-sm text-on-surface-variant">
-            Your password has been reset successfully. You can now sign in with your new password.
+            {t('auth.reset.passwordResetSuccess')}
           </p>
           <Link
             to="/login"
             className="mt-6 inline-block rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
           >
-            Sign in
+            {t('common.signIn')}
           </Link>
         </div>
       </AuthLayout>
@@ -75,10 +76,10 @@ export function ResetPasswordPage() {
   return (
     <AuthLayout>
       <h1 className="text-center text-2xl font-bold text-on-surface">
-        Choose a new password
+        {t('auth.reset.chooseNewPassword')}
       </h1>
       <p className="mt-2 text-center text-sm text-on-surface-variant">
-        Enter your new password below.
+        {t('auth.reset.enterNewPassword')}
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
@@ -89,7 +90,7 @@ export function ResetPasswordPage() {
         )}
         <div>
           <label htmlFor="new-password" className="block text-sm font-medium text-on-surface-variant">
-            New password
+            {t('auth.reset.newPassword')}
           </label>
           <input
             id="new-password"
@@ -101,13 +102,13 @@ export function ResetPasswordPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="mt-1 block w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
-            placeholder="Min. 8 characters"
+            placeholder={t('auth.reset.minChars')}
           />
           <PasswordStrength password={password} />
         </div>
         <div>
           <label htmlFor="confirm-password" className="block text-sm font-medium text-on-surface-variant">
-            Confirm password
+            {t('auth.reset.confirmPassword')}
           </label>
           <input
             id="confirm-password"
@@ -118,7 +119,7 @@ export function ResetPasswordPage() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="mt-1 block w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
-            placeholder="Confirm your password"
+            placeholder={t('auth.reset.confirmYourPassword')}
           />
         </div>
         <button
@@ -126,7 +127,7 @@ export function ResetPasswordPage() {
           disabled={loading}
           className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
         >
-          {loading ? 'Updating...' : 'Update Password'}
+          {loading ? t('auth.reset.updating') : t('auth.reset.updatePassword')}
         </button>
       </form>
     </AuthLayout>

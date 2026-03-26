@@ -1,12 +1,17 @@
+import { useTranslation } from 'react-i18next'
+import { Trash2 } from 'lucide-react'
 import type { MockWatchlist } from '../../../lib/mock-data'
 
 interface WatchlistCardProps {
   watchlist: MockWatchlist
   isSelected: boolean
   onClick: () => void
+  onDelete: () => void
 }
 
-export function WatchlistCard({ watchlist, isSelected, onClick }: WatchlistCardProps) {
+export function WatchlistCard({ watchlist, isSelected, onClick, onDelete }: WatchlistCardProps) {
+  const { t } = useTranslation()
+
   return (
     <div
       onClick={onClick}
@@ -20,20 +25,32 @@ export function WatchlistCard({ watchlist, isSelected, onClick }: WatchlistCardP
             {watchlist.name}
           </h3>
           <p className="text-xs text-on-surface-variant font-data mt-1 uppercase">
-            Updated: {watchlist.lastUpdated}
+            {t('watchlists.updated')} {watchlist.lastUpdated}
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <span className="px-2 py-0.5 bg-surface-container-highest text-[0.625rem] font-semibold text-on-surface-variant rounded-sm uppercase tracking-tight">
-            {watchlist.playerCount} Players
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onDelete()
+              }}
+              className="p-1 text-error/0 group-hover:text-error hover:bg-error/10 rounded-sm transition-all"
+              title="Delete watchlist"
+            >
+              <Trash2 size={14} strokeWidth={1.5} />
+            </button>
+            <span className="px-2 py-0.5 bg-surface-container-highest text-[0.625rem] font-semibold text-on-surface-variant rounded-sm uppercase tracking-tight">
+              {watchlist.playerCount} {t('common.players')}
+            </span>
+          </div>
           {watchlist.alertCount > 0 ? (
             <span className="px-2 py-0.5 bg-tertiary/10 text-tertiary text-[0.625rem] font-semibold rounded-sm border border-tertiary/20">
-              {watchlist.alertCount} ALERTS
+              {watchlist.alertCount} {t('watchlists.alerts')}
             </span>
           ) : (
             <span className="px-2 py-0.5 bg-surface-container-highest text-on-surface-variant text-[0.625rem] font-semibold rounded-sm uppercase">
-              No Alerts
+              {t('watchlists.noAlerts')}
             </span>
           )}
         </div>

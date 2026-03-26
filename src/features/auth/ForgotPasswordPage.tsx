@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { Mail } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from './useAuth'
 import AuthLayout from '../../components/auth/AuthLayout'
 import { friendlyAuthError } from '../../lib/utils'
@@ -8,6 +9,7 @@ import { friendlyAuthError } from '../../lib/utils'
 type Step = 'form' | 'sent'
 
 export function ForgotPasswordPage() {
+  const { t } = useTranslation()
   const [step, setStep] = useState<Step>('form')
   const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -33,10 +35,10 @@ export function ForgotPasswordPage() {
       {step === 'form' && (
         <div>
           <h1 className="text-center text-2xl font-bold text-on-surface">
-            Reset your password
+            {t('auth.forgot.heading')}
           </h1>
           <p className="mt-2 text-center text-sm text-on-surface-variant">
-            Enter your email and we'll send you a link to reset your password.
+            {t('auth.forgot.description')}
           </p>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
@@ -47,7 +49,7 @@ export function ForgotPasswordPage() {
             )}
             <div>
               <label htmlFor="reset-email" className="block text-sm font-medium text-on-surface-variant">
-                Email
+                {t('auth.emailLabel')}
               </label>
               <input
                 id="reset-email"
@@ -66,13 +68,13 @@ export function ForgotPasswordPage() {
               disabled={loading}
               className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
             >
-              {loading ? 'Sending...' : 'Send Reset Link'}
+              {loading ? t('auth.forgot.sending') : t('auth.forgot.sendResetLink')}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-on-surface-variant">
             <Link to="/login" className="font-medium text-primary-light hover:underline">
-              &larr; Back to sign in
+              {t('auth.forgot.backToSignIn')}
             </Link>
           </p>
         </div>
@@ -83,19 +85,18 @@ export function ForgotPasswordPage() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-md bg-primary/10">
             <Mail className="h-7 w-7 text-primary-light" strokeWidth={1.5} />
           </div>
-          <h1 className="mt-5 text-2xl font-bold text-on-surface">Check your email</h1>
+          <h1 className="mt-5 text-2xl font-bold text-on-surface">{t('auth.forgot.checkEmail')}</h1>
           <p className="mt-2 text-sm text-on-surface-variant">
-            We sent a password reset link to{' '}
-            <span className="font-medium text-on-surface">{email}</span>. Click the link in the
-            email to choose a new password.
+            {t('auth.forgot.resetLinkSentTo')}{' '}
+            <span className="font-medium text-on-surface">{email}</span>. {t('auth.forgot.clickLink')}
           </p>
           <p className="mt-4 text-xs text-on-surface-variant">
-            Didn't receive the email? Check your spam folder or{' '}
+            {t('auth.forgot.didntReceive')}{' '}
             <button
               onClick={() => setStep('form')}
               className="font-medium text-primary-light hover:underline"
             >
-              try again
+              {t('auth.forgot.tryAgain')}
             </button>
             .
           </p>
@@ -103,7 +104,7 @@ export function ForgotPasswordPage() {
             to="/login"
             className="mt-8 inline-block text-sm font-medium text-primary-light hover:underline"
           >
-            &larr; Back to sign in
+            {t('auth.forgot.backToSignIn')}
           </Link>
         </div>
       )}

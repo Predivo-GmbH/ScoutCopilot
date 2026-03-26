@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Card } from '../ui/Card'
 import { Input } from '../ui/Input'
 import { Button } from '../ui/Button'
@@ -16,6 +17,7 @@ async function sha256(message: string): Promise<string> {
 }
 
 export function PasswordGate({ children }: { children: ReactNode }) {
+  const { t } = useTranslation()
   const [unlocked, setUnlocked] = useState(
     () => sessionStorage.getItem(STORAGE_KEY) === 'true'
   )
@@ -43,13 +45,13 @@ export function PasswordGate({ children }: { children: ReactNode }) {
             <Logo size="lg" />
           </div>
           <p className="text-[0.875rem] text-on-surface-variant mt-1">
-            This app is in private beta.
+            {t('auth.passwordGate.privateBeta')}
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             type="password"
-            placeholder="Enter access code"
+            placeholder={t('auth.passwordGate.enterAccessCode')}
             value={password}
             onChange={(e) => {
               setPassword(e.target.value)
@@ -59,7 +61,7 @@ export function PasswordGate({ children }: { children: ReactNode }) {
             autoFocus
           />
           <Button type="submit" className="w-full">
-            Enter
+            {t('auth.passwordGate.enter')}
           </Button>
         </form>
       </Card>

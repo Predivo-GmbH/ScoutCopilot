@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { MockComparisonPlayer } from '../../../lib/mock-data'
 
 interface ComparisonTableProps {
@@ -5,6 +6,8 @@ interface ComparisonTableProps {
 }
 
 export function ComparisonTable({ players }: ComparisonTableProps) {
+  const { t } = useTranslation()
+
   if (players.length < 2) return null
 
   const metrics = Object.keys(players[0].metrics)
@@ -36,14 +39,14 @@ export function ComparisonTable({ players }: ComparisonTableProps) {
   return (
     <div className="bg-surface-container rounded-md border border-outline-variant overflow-hidden">
       <div className="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
-        <span className="text-sm font-semibold uppercase tracking-tight text-on-surface">Detailed Performance Metrics (Per 90)</span>
-        <span className="font-data text-[0.625rem] text-on-surface-variant uppercase">Current Season</span>
+        <span className="text-sm font-semibold uppercase tracking-tight text-on-surface">{t('comparison.detailedMetrics')}</span>
+        <span className="font-data text-[0.625rem] text-on-surface-variant uppercase">{t('comparison.currentSeason')}</span>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-outline-variant bg-surface-container-high">
-              <th className="px-6 py-3 text-[0.625rem] font-medium uppercase tracking-widest text-on-surface-variant">Metric</th>
+              <th className="px-6 py-3 text-[0.625rem] font-medium uppercase tracking-widest text-on-surface-variant">{t('comparison.metric')}</th>
               {players.map((p) => (
                 <th key={p.id} className="px-6 py-3 text-[0.625rem] font-medium uppercase tracking-widest text-on-surface-variant text-right">
                   {p.name.split(' ').pop()}

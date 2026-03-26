@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from './useAuth'
 import AuthLayout from '../../components/auth/AuthLayout'
 import OtpInput from '../../components/auth/OtpInput'
@@ -10,6 +11,7 @@ type Tab = 'password' | 'code'
 type CodeStep = 'email' | 'verify'
 
 export function LoginPage() {
+  const { t } = useTranslation()
   const [tab, setTab] = useState<Tab>('password')
   const [codeStep, setCodeStep] = useState<CodeStep>('email')
   const [email, setEmail] = useState('')
@@ -73,7 +75,7 @@ export function LoginPage() {
   return (
     <AuthLayout>
       <h1 className="text-center text-2xl font-bold text-on-surface">
-        Sign in to ScoutCopilot
+        {t('auth.signInTo')}
       </h1>
 
       {/* Tabs */}
@@ -86,7 +88,7 @@ export function LoginPage() {
               : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
-          Password
+          {t('auth.passwordTab')}
         </button>
         <button
           onClick={() => switchTab('code')}
@@ -96,7 +98,7 @@ export function LoginPage() {
               : 'text-on-surface-variant hover:text-on-surface'
           }`}
         >
-          Email Code
+          {t('auth.emailCodeTab')}
         </button>
       </div>
 
@@ -110,7 +112,7 @@ export function LoginPage() {
           )}
           <div>
             <label htmlFor="login-email" className="block text-sm font-medium text-on-surface-variant">
-              Email
+              {t('auth.emailLabel')}
             </label>
             <input
               id="login-email"
@@ -126,13 +128,13 @@ export function LoginPage() {
           <div>
             <div className="flex items-center justify-between">
               <label htmlFor="login-password" className="block text-sm font-medium text-on-surface-variant">
-                Password
+                {t('auth.passwordLabel')}
               </label>
               <Link
                 to="/forgot-password"
                 className="text-xs font-medium text-primary-light hover:underline"
               >
-                Forgot password?
+                {t('auth.forgotPassword')}
               </Link>
             </div>
             <input
@@ -143,7 +145,7 @@ export function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1 block w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
-              placeholder="Enter your password"
+              placeholder={t('auth.passwordLabel')}
             />
           </div>
           <button
@@ -151,7 +153,7 @@ export function LoginPage() {
             disabled={loading}
             className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? t('auth.signingIn') : t('common.signIn')}
           </button>
         </form>
       )}
@@ -165,11 +167,11 @@ export function LoginPage() {
             </div>
           )}
           <p className="text-center text-sm text-on-surface-variant">
-            We'll send a sign-in code to your email if you have an account.
+            {t('auth.sendCodeDescription')}
           </p>
           <div>
             <label htmlFor="code-email" className="block text-sm font-medium text-on-surface-variant">
-              Email
+              {t('auth.emailLabel')}
             </label>
             <input
               id="code-email"
@@ -187,7 +189,7 @@ export function LoginPage() {
             disabled={loading}
             className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
           >
-            {loading ? 'Sending code...' : 'Send Sign-In Code'}
+            {loading ? t('auth.sendingCode') : t('auth.sendSignInCode')}
           </button>
         </form>
       )}
@@ -196,7 +198,7 @@ export function LoginPage() {
       {tab === 'code' && codeStep === 'verify' && (
         <div className="mt-6 space-y-5">
           <p className="text-center text-sm text-on-surface-variant">
-            Enter the 6-digit code sent to{' '}
+            {t('auth.enterCodeSentTo')}{' '}
             <span className="font-medium text-on-surface">{email}</span>
           </p>
           {error && (
@@ -205,25 +207,25 @@ export function LoginPage() {
             </div>
           )}
           <OtpInput onComplete={handleVerifyCode} disabled={loading} />
-          {loading && <p className="text-center text-sm text-on-surface-variant">Verifying...</p>}
+          {loading && <p className="text-center text-sm text-on-surface-variant">{t('auth.verifying')}</p>}
           <ResendTimer onResend={handleResend} />
           <p className="text-center text-xs text-on-surface-variant">
-            Didn't receive a code? Make sure you have an account or{' '}
-            <Link to="/signup" className="text-primary-light hover:underline">sign up</Link>.
+            {t('auth.didntReceiveCode')}{' '}
+            <Link to="/signup" className="text-primary-light hover:underline">{t('common.signUp')}</Link>.
           </p>
           <button
             onClick={() => { setCodeStep('email'); setError(null) }}
             className="block w-full text-center text-sm font-medium text-on-surface-variant hover:text-on-surface"
           >
-            &larr; Use a different email
+            {t('auth.useDifferentEmail')}
           </button>
         </div>
       )}
 
       <p className="mt-6 text-center text-sm text-on-surface-variant">
-        Don&apos;t have an account?{' '}
+        {t('auth.dontHaveAccount')}{' '}
         <Link to="/signup" className="font-medium text-primary-light hover:underline">
-          Start free trial
+          {t('auth.startFreeTrial')}
         </Link>
       </p>
     </AuthLayout>

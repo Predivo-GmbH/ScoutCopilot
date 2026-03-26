@@ -9,8 +9,8 @@ export interface SearchParams {
   league: string
   foot: string
   minFitScore: number
-  maxAge: number
-  minAge: number
+  minPassAccuracy: number
+  minProgCarries: number
 }
 
 function hashQuery(str: string): number {
@@ -65,8 +65,8 @@ export function usePlayerSearch() {
     league: 'All Leagues',
     foot: 'Either Foot',
     minFitScore: 0,
-    maxAge: 99,
-    minAge: 0,
+    minPassAccuracy: 0,
+    minProgCarries: 0,
   })
   const [hasSearched, setHasSearched] = useState(false)
 
@@ -120,11 +120,11 @@ export function usePlayerSearch() {
       if (params.minFitScore > 0) {
         results = results.filter((p) => p.fitScore >= params.minFitScore)
       }
-      if (params.maxAge < 99) {
-        results = results.filter((p) => p.age <= params.maxAge)
+      if (params.minPassAccuracy > 0) {
+        results = results.filter((p) => p.stats['Pass %'] >= params.minPassAccuracy)
       }
-      if (params.minAge > 0) {
-        results = results.filter((p) => p.age >= params.minAge)
+      if (params.minProgCarries > 0) {
+        results = results.filter((p) => p.stats['Prog. Carries'] >= params.minProgCarries)
       }
 
       // Parse query for stat thresholds (e.g., ">75% crossing accuracy", "xG/90 > 0.45")

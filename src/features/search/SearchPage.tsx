@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Search as SearchIcon, ArrowRight, Sparkles } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { SearchFilters } from './components/SearchFilters'
@@ -16,6 +17,7 @@ const SUGGESTED_QUERIES = [
 ]
 
 export function SearchPage() {
+  const { t } = useTranslation()
   const { params, results, isLoading, hasSearched, search, updateFilters } = usePlayerSearch()
   const [searchParams] = useSearchParams()
   const initialQuery = searchParams.get('q') ?? ''
@@ -41,7 +43,7 @@ export function SearchPage() {
       {/* Header */}
       <div className="flex items-center gap-2">
         <Sparkles size={16} strokeWidth={1.5} className="text-primary" />
-        <span className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant">Player Search</span>
+        <span className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant">{t('search.heading')}</span>
       </div>
 
       {/* Search Bar */}
@@ -53,11 +55,11 @@ export function SearchPage() {
             value={queryInput}
             onChange={(e) => setQueryInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Find me a left-back under 23 with >75% crossing accuracy"
+            placeholder={t('search.placeholder')}
             className="w-full bg-surface-container border border-outline-variant rounded-md py-3.5 pl-12 pr-24 text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary transition-colors"
           />
           <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-surface-container-high px-2 py-0.5 rounded-sm border border-outline-variant/30">
-            <span className="text-[0.6rem] font-data text-on-surface-variant/50">CMD + K</span>
+            <span className="text-[0.6rem] font-data text-on-surface-variant/50">{t('search.cmdK')}</span>
           </div>
         </div>
         <Button
@@ -68,7 +70,7 @@ export function SearchPage() {
           loading={isLoading}
           className="px-8"
         >
-          Search
+          {t('search.searchBtn')}
         </Button>
       </div>
 
@@ -79,8 +81,8 @@ export function SearchPage() {
         league={params.league}
         foot={params.foot}
         minFitScore={params.minFitScore}
-        maxAge={params.maxAge}
-        minAge={params.minAge}
+        minPassAccuracy={params.minPassAccuracy}
+        minProgCarries={params.minProgCarries}
         onUpdate={(updates) => updateFilters(updates)}
       />
 
@@ -91,10 +93,10 @@ export function SearchPage() {
           {/* Footer status */}
           {results.length > 0 && (
             <div className="flex justify-between items-center text-[0.625rem] uppercase tracking-[0.2em] text-on-surface-variant/50 mt-4">
-              <span className="font-data">Database Last Updated: 2026-03-26 14:02 UTC</span>
+              <span className="font-data">{t('search.dbLastUpdated')}</span>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-secondary" />
-                <span className="font-data">Live Connection Active</span>
+                <span className="font-data">{t('search.liveConnection')}</span>
               </div>
             </div>
           )}
@@ -107,21 +109,22 @@ export function SearchPage() {
 }
 
 function EmptyState({ onSuggestionClick }: { onSuggestionClick: (query: string) => void }) {
+  const { t } = useTranslation()
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center mb-4">
         <SearchIcon size={32} strokeWidth={1.5} className="text-on-surface-variant" />
       </div>
-      <h3 className="text-lg font-semibold text-on-surface mb-2">Start a search</h3>
+      <h3 className="text-lg font-semibold text-on-surface mb-2">{t('search.startSearch')}</h3>
       <p className="text-sm text-on-surface-variant max-w-md mb-8">
-        Type a natural language query above or use the filters to find players. Results will appear here.
+        {t('search.startSearchSub')}
       </p>
 
       {/* Suggested Queries */}
       <div className="w-full max-w-2xl">
         <div className="flex items-center gap-2 mb-3 justify-center">
           <Sparkles size={14} strokeWidth={1.5} className="text-tertiary" />
-          <span className="text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant">Suggested Queries</span>
+          <span className="text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant">{t('search.suggestedQueries')}</span>
         </div>
         <div className="flex flex-wrap gap-2 justify-center">
           {SUGGESTED_QUERIES.map((query) => (

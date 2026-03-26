@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Search, Users } from 'lucide-react'
 import type { PositionGap } from '../../../lib/mock-data'
 
@@ -10,6 +11,7 @@ const priorityStyles: Record<string, { bg: string; text: string; border: string 
 }
 
 export function PositionGapCard({ gap }: { gap: PositionGap }) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const style = priorityStyles[gap.priority]
 
@@ -30,10 +32,10 @@ export function PositionGapCard({ gap }: { gap: PositionGap }) {
         <div className="flex gap-4 text-[0.625rem] font-data text-on-surface-variant">
           <div className="flex items-center gap-1">
             <Users size={12} strokeWidth={1.5} />
-            <span>{gap.depth} player{gap.depth !== 1 ? 's' : ''}</span>
+            <span>{gap.depth} {t('common.players', { count: gap.depth })}</span>
           </div>
-          {gap.avgAge > 0 && <span>Avg age: {gap.avgAge}</span>}
-          {gap.avgRating > 0 && <span>Avg rating: {gap.avgRating}</span>}
+          {gap.avgAge > 0 && <span>{t('squad.avgAge')}: {gap.avgAge}</span>}
+          {gap.avgRating > 0 && <span>{t('squad.rating')}: {gap.avgRating}</span>}
         </div>
 
         {/* Reasons */}
@@ -57,7 +59,7 @@ export function PositionGapCard({ gap }: { gap: PositionGap }) {
             className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary-light transition-colors"
           >
             <Search size={14} strokeWidth={1.5} />
-            Find Players
+            {t('squad.findPlayers')}
           </button>
         </div>
       )}

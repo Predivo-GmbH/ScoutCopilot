@@ -1,25 +1,29 @@
 import { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Plus, X } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { useWatchlists } from './hooks/useWatchlists'
 import { useWatchlistActions } from '../../lib/useWatchlistActions'
 import { WatchlistCard } from './components/WatchlistCard'
 import { WatchlistDetail } from './components/WatchlistDetail'
-
-const filterTabs = [
-  { key: 'all', label: 'All' },
-  { key: 'transfer', label: 'Transfer Targets' },
-  { key: 'youth', label: 'Youth Prospects' },
-  { key: 'position', label: 'Position-Specific' },
-] as const
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 
 export function WatchlistsPage() {
-  const { lists, isLoading, filter, setFilter, selectedWatchlist, selectWatchlist, clearSelection, removePlayerFromWatchlist } = useWatchlists()
+  const { t } = useTranslation()
+  const { lists, isLoading, filter, setFilter, selectedWatchlist, selectWatchlist, clearSelection, removePlayerFromWatchlist, deleteWatchlist } = useWatchlists()
   const { createWatchlist } = useWatchlistActions()
   const [showNewForm, setShowNewForm] = useState(false)
   const [newName, setNewName] = useState('')
   const [newDesc, setNewDesc] = useState('')
   const nameInputRef = useRef<HTMLInputElement>(null)
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
+
+  const filterTabs = [
+    { key: 'all', label: t('watchlists.all') },
+    { key: 'transfer', label: t('watchlists.transferTargets') },
+    { key: 'youth', label: t('watchlists.youthProspects') },
+    { key: 'position', label: t('watchlists.positionSpecific') },
+  ] as const
 
   useEffect(() => {
     if (showNewForm && nameInputRef.current) {
@@ -33,6 +37,12 @@ export function WatchlistsPage() {
     setNewName('')
     setNewDesc('')
     setShowNewForm(false)
+  }
+
+  function handleDeleteWatchlist() {
+    if (!deleteTarget) return
+    deleteWatchlist(deleteTarget.id)
+    setDeleteTarget(null)
   }
 
   if (selectedWatchlist) {
@@ -52,17 +62,17 @@ export function WatchlistsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-on-surface">Watchlists</h1>
-          <p className="text-on-surface-variant mt-1 text-sm">Track and monitor your target players.</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-on-surface">{t('watchlists.heading')}</h1>
+          <p className="text-on-surface-variant mt-1 text-sm">{t('watchlists.subheading')}</p>
         </div>
-        <Button variant="primary" leftIcon={Plus} onClick={() => setShowNewForm(true)}>New Watchlist</Button>
+        <Button variant="primary" leftIcon={Plus} onClick={() => setShowNewForm(true)}>{t('watchlists.newWatchlist')}</Button>
       </div>
 
       {/* New Watchlist Form */}
       {showNewForm && (
         <div className="bg-surface-container border border-outline-variant rounded-md p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-on-surface">Create New Watchlist</h3>
+            <h3 className="text-sm font-semibold text-on-surface">{t('watchlists.createNew')}</h3>
             <button onClick={() => setShowNewForm(false)} className="text-on-surface-variant hover:text-on-surface transition-colors">
               <X size={16} strokeWidth={1.5} />
             </button>
@@ -73,7 +83,7 @@ export function WatchlistsPage() {
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="Watchlist name"
+              placeholder={t('watchlists.watchlistName')}
               className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-sm text-on-surface focus:outline-none focus:border-primary transition-colors"
               onKeyDown={(e) => { if (e.key === 'Enter') handleCreate() }}
             />
@@ -81,13 +91,13 @@ export function WatchlistsPage() {
               type="text"
               value={newDesc}
               onChange={(e) => setNewDesc(e.target.value)}
-              placeholder="Description (optional)"
+              placeholder={t('watchlists.descriptionOptional')}
               className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-sm text-on-surface focus:outline-none focus:border-primary transition-colors"
               onKeyDown={(e) => { if (e.key === 'Enter') handleCreate() }}
             />
             <div className="flex justify-end gap-2">
-              <Button variant="ghost" size="sm" onClick={() => setShowNewForm(false)}>Cancel</Button>
-              <Button variant="primary" size="sm" onClick={handleCreate} disabled={!newName.trim()}>Create</Button>
+              <Button variant="ghost" size="sm" onClick={() => setShowNewForm(false)}>{t('common.cancel')}</Button>
+              <Button variant="primary" size="sm" onClick={handleCreate} disabled={!newName.trim()}>{t('common.create')}</Button>
             </div>
           </div>
         </div>
@@ -117,6 +127,10 @@ export function WatchlistsPage() {
             <div key={i} className="h-32 bg-surface-container-low rounded-md animate-pulse" />
           ))}
         </div>
+      ) : lists.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <p className="text-sm text-on-surface-variant">No watchlists found for this filter.</p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {lists.map((watchlist) => (
@@ -125,10 +139,21 @@ export function WatchlistsPage() {
               watchlist={watchlist}
               isSelected={false}
               onClick={() => selectWatchlist(watchlist.id)}
+              onDelete={() => setDeleteTarget({ id: watchlist.id, name: watchlist.name })}
             />
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title={t('common.delete')}
+        message={`Are you sure you want to delete "${deleteTarget?.name ?? ''}"? This will remove all players in this watchlist. This action cannot be undone.`}
+        confirmLabel={t('common.delete')}
+        variant="destructive"
+        onConfirm={handleDeleteWatchlist}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   )
 }

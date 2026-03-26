@@ -1,11 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Search, Bell, Settings, LogOut } from 'lucide-react'
 import { useAuth } from '../../features/auth/useAuth'
 import { ThemeToggle } from '../shared/ThemeToggle'
+import { LanguageSelector } from '../shared/LanguageSelector'
 
 export function TopBar() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const { profile, signOut } = useAuth()
   const [searchValue, setSearchValue] = useState('')
   const [profileOpen, setProfileOpen] = useState(false)
@@ -46,7 +49,7 @@ export function TopBar() {
           type="text"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
-          placeholder="Search for players, matches, or run NL queries..."
+          placeholder={t('topbar.searchPlaceholder')}
           className="w-full bg-surface-container-low border border-outline-variant rounded-md py-2 pl-10 pr-4 text-xs font-data text-on-surface placeholder:text-on-surface-variant/40 outline-none focus:border-primary transition-colors"
         />
       </form>
@@ -56,7 +59,7 @@ export function TopBar() {
         <button
           onClick={() => navigate('/watchlists')}
           className="relative p-2 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
-          aria-label="Alerts"
+          aria-label={t('topbar.alerts')}
         >
           <Bell size={18} strokeWidth={1.5} />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full" />
@@ -64,6 +67,9 @@ export function TopBar() {
 
         {/* Theme toggle */}
         <ThemeToggle className="p-2" />
+
+        {/* Language selector */}
+        <LanguageSelector />
 
         {/* Divider */}
         <div className="w-px h-6 bg-outline-variant/30 mx-1" />
@@ -102,14 +108,14 @@ export function TopBar() {
                 className="flex items-center gap-2.5 w-full px-3 py-2 text-xs text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
               >
                 <Settings size={14} strokeWidth={1.5} />
-                Account Settings
+                {t('topbar.accountSettings')}
               </button>
               <button
                 onClick={() => { setProfileOpen(false); signOut() }}
                 className="flex items-center gap-2.5 w-full px-3 py-2 text-xs text-on-surface-variant hover:bg-surface-container hover:text-error transition-colors"
               >
                 <LogOut size={14} strokeWidth={1.5} />
-                Sign Out
+                {t('topbar.signOut')}
               </button>
             </div>
           )}

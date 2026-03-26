@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation, Trans } from 'react-i18next'
 import {
   Search,
   FileText,
@@ -17,6 +18,7 @@ import {
 import { Button } from '../../components/ui/Button'
 import { Logo } from '../../components/shared/Logo'
 import { ThemeToggle } from '../../components/shared/ThemeToggle'
+import { LanguageSelector } from '../../components/shared/LanguageSelector'
 import {
   TIER_PRICES,
   TIER_ANNUAL_TOTAL,
@@ -24,121 +26,12 @@ import {
 } from '../../lib/stripe'
 import type { SubscriptionTier } from '../../types/database'
 
-/* ─── Data ──────────────────────────────────────────────────────── */
-
-const ROI_ROWS = [
-  { task: 'Build a position-specific shortlist', manual: '3-5 hours', copilot: '2-5 minutes' },
-  { task: 'Generate a scouting report', manual: '2-4 hours', copilot: '1-2 minutes' },
-  { task: 'Compare 5 candidates', manual: '4-8 hours', copilot: '5-10 minutes' },
-  { task: 'Pre-window longlist (50+ players)', manual: '2-3 weeks', copilot: '1-2 hours' },
-]
-
-const TIERS: Array<{
-  key: SubscriptionTier
-  name: string
-  description: string
-  highlighted: boolean
-  features: string[]
-}> = [
-  {
-    key: 'scout',
-    name: 'Scout',
-    description: 'For individual scouts and small agencies',
-    highlighted: false,
-    features: [
-      '1 data source connection',
-      'Unlimited NL player search',
-      '10 AI scouting reports/mo',
-      '25 shortlists/mo',
-      'Compare up to 3 players',
-      '1 league scope',
-      '1 user seat',
-      'Email support (48hr)',
-    ],
-  },
-  {
-    key: 'pro',
-    name: 'Pro',
-    description: 'For professional scouting departments',
-    highlighted: true,
-    features: [
-      '2 data sources (Wyscout + StatsBomb)',
-      'Unlimited NL player search',
-      'Unlimited AI scouting reports',
-      'Unlimited shortlists',
-      'Compare up to 10 players',
-      'All leagues',
-      'Tactical fit analysis',
-      'PDF export (branded)',
-      '3 user seats',
-      'Priority support (24hr)',
-    ],
-  },
-  {
-    key: 'club',
-    name: 'Club',
-    description: 'For clubs with larger scouting departments',
-    highlighted: false,
-    features: [
-      'Everything in Pro, plus:',
-      '10 user seats (expandable)',
-      'Custom AI models',
-      'Scout Copilot API access',
-      'Bulk operations',
-      'Custom metric definitions',
-      'Dedicated onboarding (1hr)',
-      'Dedicated support channel',
-    ],
-  },
-]
-
-const COMPARISON_ROWS: Array<{
-  feature: string
-  scout: string | boolean
-  pro: string | boolean
-  club: string | boolean
-}> = [
-  { feature: 'Data source connections', scout: '1', pro: '2', club: '2 + custom' },
-  { feature: 'AI scouting reports', scout: '10/mo', pro: 'Unlimited', club: 'Unlimited' },
-  { feature: 'Shortlists', scout: '25/mo', pro: 'Unlimited', club: 'Unlimited' },
-  { feature: 'Player comparison', scout: '3 players', pro: '10 players', club: '10 players' },
-  { feature: 'League scope', scout: '1 league', pro: 'All leagues', club: 'All leagues' },
-  { feature: 'Tactical fit analysis', scout: false, pro: true, club: true },
-  { feature: 'PDF export (branded)', scout: false, pro: true, club: true },
-  { feature: 'User seats', scout: '1', pro: '3', club: '10+' },
-]
-
-const FAQ_ITEMS = [
-  {
-    question: 'How can AI match an experienced scout?',
-    answer:
-      "It doesn't replace your scouts — it eliminates the 80% of their work that isn't judgment. Your scouts spend most of their time filtering databases and building spreadsheets. ScoutCopilot handles that pre-screening phase in seconds so your scouts apply their judgment to a pre-filtered shortlist instead of grinding through 500 players.",
-  },
-  {
-    question: 'We already have Wyscout — why pay more?',
-    answer:
-      "You're paying thousands per year for data access but querying it through manual filters and Excel exports. ScoutCopilot is the AI layer that turns your existing data investment into a competitive advantage — natural language queries, tactical fit analysis, and development trajectory predictions that no current Wyscout interface provides.",
-  },
-  {
-    question: 'What if the AI makes mistakes?',
-    answer:
-      "Every recommendation shows the underlying data and ranking rationale — no black box. The tool is an assistant, not an authority: it generates shortlists, your team makes decisions. At the Club tier, custom models learn your club's specific philosophy over time.",
-  },
-  {
-    question: 'Is our data secure?',
-    answer:
-      'Your API credentials are stored in Supabase Vault with AES-256-GCM encryption. All API calls execute server-side using your credentials. We never store or cache player data beyond your active session. Your data never leaves your account.',
-  },
-  {
-    question: 'Can we try before committing?',
-    answer:
-      'Yes. Start with a 14-day free trial on any plan — no credit card required. Plus every paid plan comes with a 30-day money-back guarantee, no questions asked.',
-  },
-]
-
 /* ─── SVG Visuals ───────────────────────────────────────────────── */
 
 function RadarChartSVG() {
+  const { t } = useTranslation()
+  const labels = ['aerial', 'passing', 'pace', 'defending', 'shooting', 'dribbling'] as const
+
   return (
     <svg viewBox="0 0 300 300" className="w-full max-w-[340px] mx-auto" aria-hidden="true">
       {/* Grid rings */}
@@ -187,13 +80,13 @@ function RadarChartSVG() {
         strokeWidth="2"
       />
       {/* Labels */}
-      {['Aerial', 'Passing', 'Pace', 'Defending', 'Shooting', 'Dribbling'].map((label, i) => {
+      {labels.map((key, i) => {
         const angle = (Math.PI * 2 * i) / 6 - Math.PI / 2
         const x = 150 + 140 * Math.cos(angle)
         const y = 150 + 140 * Math.sin(angle)
         return (
           <text
-            key={label}
+            key={key}
             x={x}
             y={y}
             textAnchor="middle"
@@ -202,7 +95,7 @@ function RadarChartSVG() {
             fontSize="11"
             fontFamily="var(--font-body)"
           >
-            {label}
+            {t(`radarLabels.${key}`)}
           </text>
         )
       })}
@@ -232,6 +125,7 @@ function radarPoints(cx: number, cy: number, values: number[], maxR: number) {
 /* ─── Component ─────────────────────────────────────────────────── */
 
 export function LandingPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [interval, setInterval] = useState<BillingInterval>('year')
   const [scrolled, setScrolled] = useState(false)
@@ -248,11 +142,40 @@ export function LandingPage() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  const tierKeys = ['scout', 'pro', 'club'] as const
+  const tiers = tierKeys.map((key) => ({
+    key: key as SubscriptionTier,
+    name: t(`landing.tiers.${key}.name`),
+    description: t(`landing.tiers.${key}.description`),
+    highlighted: key === 'pro',
+    features: t(`landing.tiers.${key}.features`, { returnObjects: true }) as string[],
+  }))
+
+  const COMPARISON_ROWS: Array<{ feature: string; scout: string | boolean; pro: string | boolean; club: string | boolean }> = [
+    { feature: t('landing.comparison.dataSourceConnections'), scout: '1', pro: '2', club: '2 + custom' },
+    { feature: t('landing.comparison.aiScoutingReports'), scout: '10/mo', pro: t('common.unlimited'), club: t('common.unlimited') },
+    { feature: t('landing.comparison.shortlists'), scout: '25/mo', pro: t('common.unlimited'), club: t('common.unlimited') },
+    { feature: t('landing.comparison.playerComparison'), scout: '3', pro: '10', club: '10' },
+    { feature: t('landing.comparison.leagueScope'), scout: '1', pro: t('common.all'), club: t('common.all') },
+    { feature: t('landing.comparison.tacticalFitAnalysis'), scout: false, pro: true, club: true },
+    { feature: t('landing.comparison.pdfExport'), scout: false, pro: true, club: true },
+    { feature: t('landing.comparison.userSeats'), scout: '1', pro: '3', club: '10+' },
+  ]
+
+  const ROI_ROWS = [
+    { task: t('landing.roi.row1'), manual: t('landing.roi.row1Manual'), copilot: t('landing.roi.row1Copilot') },
+    { task: t('landing.roi.row2'), manual: t('landing.roi.row2Manual'), copilot: t('landing.roi.row2Copilot') },
+    { task: t('landing.roi.row3'), manual: t('landing.roi.row3Manual'), copilot: t('landing.roi.row3Copilot') },
+    { task: t('landing.roi.row4'), manual: t('landing.roi.row4Manual'), copilot: t('landing.roi.row4Copilot') },
+  ]
+
+  const faqItems = t('landing.faqItems', { returnObjects: true }) as Array<{ question: string; answer: string }>
+
   return (
     <div className="min-h-screen bg-surface text-on-surface">
       <Helmet>
-        <title>ScoutCopilot — AI Football Scouting</title>
-        <meta name="description" content="AI-powered football scouting assistant. Get ranked player shortlists, scouting reports, and head-to-head comparisons in seconds — from your Wyscout or StatsBomb data." />
+        <title>{t('landing.meta.title')}</title>
+        <meta name="description" content={t('landing.meta.description')} />
       </Helmet>
       {/* ── Navigation ──────────────────────────────────────────── */}
       <header>
@@ -269,23 +192,24 @@ export function LandingPage() {
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-8 text-sm font-medium">
             <button onClick={() => scrollTo('features')} className="text-on-surface-variant hover:text-on-surface transition-colors">
-              Features
+              {t('common.features')}
             </button>
             <button onClick={() => scrollTo('pricing')} className="text-on-surface-variant hover:text-on-surface transition-colors">
-              Pricing
+              {t('common.pricing')}
             </button>
             <button onClick={() => scrollTo('faq')} className="text-on-surface-variant hover:text-on-surface transition-colors">
-              FAQ
+              {t('common.faq')}
             </button>
           </div>
 
           <div className="hidden md:flex items-center gap-3">
+            <LanguageSelector />
             <ThemeToggle className="p-2" />
             <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
-              Log In
+              {t('common.logIn')}
             </Button>
             <Button size="sm" onClick={() => navigate('/signup')}>
-              Get Started
+              {t('common.getStarted')}
             </Button>
           </div>
 
@@ -303,13 +227,14 @@ export function LandingPage() {
         {mobileMenuOpen && (
           <div className="md:hidden fixed inset-0 top-[64px] z-20" onClick={() => setMobileMenuOpen(false)}>
             <div className="bg-surface-container-low border-b border-outline-variant/40 px-6 pb-4 flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
-              <button onClick={() => scrollTo('features')} className="text-sm text-on-surface-variant text-left py-2">Features</button>
-              <button onClick={() => scrollTo('pricing')} className="text-sm text-on-surface-variant text-left py-2">Pricing</button>
-              <button onClick={() => scrollTo('faq')} className="text-sm text-on-surface-variant text-left py-2">FAQ</button>
+              <button onClick={() => scrollTo('features')} className="text-sm text-on-surface-variant text-left py-2">{t('common.features')}</button>
+              <button onClick={() => scrollTo('pricing')} className="text-sm text-on-surface-variant text-left py-2">{t('common.pricing')}</button>
+              <button onClick={() => scrollTo('faq')} className="text-sm text-on-surface-variant text-left py-2">{t('common.faq')}</button>
               <div className="flex items-center gap-3 pt-2">
+                <LanguageSelector />
                 <ThemeToggle className="p-2" />
-                <Button variant="secondary" size="sm" onClick={() => navigate('/login')}>Log In</Button>
-                <Button size="sm" onClick={() => navigate('/signup')}>Get Started</Button>
+                <Button variant="secondary" size="sm" onClick={() => navigate('/login')}>{t('common.logIn')}</Button>
+                <Button size="sm" onClick={() => navigate('/signup')}>{t('common.getStarted')}</Button>
               </div>
             </div>
           </div>
@@ -323,24 +248,23 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 md:gap-16 items-center">
           <div>
             <h1 className="text-[2.25rem] md:text-[3rem] font-bold leading-[1.1] tracking-[-0.02em] mb-6">
-              Stop drowning in spreadsheets. Get AI-ranked shortlists in{' '}
-              <span className="text-primary-light">30&nbsp;seconds</span>.
+              <Trans i18nKey="landing.hero.heading" components={{ highlight: <span className="text-primary-light" /> }}>
+                Stop drowning in spreadsheets. Get AI-ranked shortlists in <span className="text-primary-light">30&nbsp;seconds</span>.
+              </Trans>
             </h1>
             <p className="text-on-surface-variant text-base md:text-lg leading-relaxed mb-8 max-w-xl">
-              An AI assistant that connects to your Wyscout or StatsBomb API and turns
-              natural language questions into ranked player shortlists, comparison reports,
-              and scouting briefs — in seconds instead of hours.
+              {t('landing.hero.subheading')}
             </p>
             <div className="flex flex-wrap gap-3">
               <Button size="lg" rightIcon={ArrowRight} onClick={() => navigate('/signup')}>
-                Start Free Trial
+                {t('common.startFreeTrial')}
               </Button>
               <Button variant="secondary" size="lg" onClick={() => scrollTo('pricing')}>
-                See Pricing
+                {t('landing.hero.seePricing')}
               </Button>
             </div>
             <p className="text-on-surface-variant text-xs mt-4">
-              No credit card required. 14-day free trial.
+              {t('landing.hero.noCreditCard')}
             </p>
           </div>
 
@@ -349,11 +273,11 @@ export function LandingPage() {
             <div className="flex items-center gap-6 text-xs text-on-surface-variant">
               <div className="flex items-center gap-2">
                 <span className="inline-block w-3 h-0.5 bg-primary rounded-full" />
-                <span>Player A</span>
+                <span>{t('landing.hero.playerA')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="inline-block w-3 h-0.5 bg-secondary rounded-full" />
-                <span>Player B</span>
+                <span>{t('landing.hero.playerB')}</span>
               </div>
             </div>
           </div>
@@ -364,24 +288,24 @@ export function LandingPage() {
       <section id="features" className="py-24 px-6 md:px-8 bg-surface-container-lowest">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-12 text-center">
-            Mission-critical tools for modern recruitment
+            {t('landing.features.heading')}
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Natural Language Search */}
             <div className="bg-surface-container-low border border-outline-variant rounded-md p-6">
               <div className="flex items-start justify-between mb-2">
-                <h3 className="text-sm font-bold uppercase tracking-widest">Natural Language Search</h3>
+                <h3 className="text-sm font-bold uppercase tracking-widest">{t('landing.features.nlSearch.title')}</h3>
                 <Search size={20} strokeWidth={1.5} className="text-primary-light shrink-0" />
               </div>
               <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
-                Query your data using tactical concepts instead of rigid spreadsheet filters.
+                {t('landing.features.nlSearch.description')}
               </p>
               {/* Mock search input */}
               <div className="bg-surface-container border border-outline-variant rounded-md p-3 flex items-center gap-3">
                 <Search size={14} strokeWidth={1.5} className="text-on-surface-variant/50 shrink-0" />
                 <span className="font-mono text-xs text-on-surface-variant">
-                  Left-footed CB under 24, top 10% aerial win rate in Division 1
+                  {t('landing.features.nlSearch.mock')}
                 </span>
                 <div className="w-0.5 h-4 bg-primary animate-pulse ml-auto shrink-0" />
               </div>
@@ -390,11 +314,11 @@ export function LandingPage() {
             {/* AI Scouting Reports */}
             <div className="bg-surface-container-low border border-outline-variant rounded-md p-6">
               <div className="flex items-start justify-between mb-2">
-                <h3 className="text-sm font-bold uppercase tracking-widest">AI Scouting Reports</h3>
+                <h3 className="text-sm font-bold uppercase tracking-widest">{t('landing.features.aiReports.title')}</h3>
                 <FileText size={20} strokeWidth={1.5} className="text-primary-light shrink-0" />
               </div>
               <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
-                Automated tactical analysis that reads like a human scout's eye with 0% bias.
+                {t('landing.features.aiReports.description')}
               </p>
               {/* Mock report skeleton */}
               <div className="bg-surface-container border border-outline-variant rounded-md p-4 flex items-center gap-4">
@@ -416,19 +340,19 @@ export function LandingPage() {
             {/* Player Comparison */}
             <div className="bg-surface-container-low border border-outline-variant rounded-md p-6">
               <div className="flex items-start justify-between mb-2">
-                <h3 className="text-sm font-bold uppercase tracking-widest">Player Comparison</h3>
+                <h3 className="text-sm font-bold uppercase tracking-widest">{t('landing.features.comparison.title')}</h3>
                 <ArrowLeftRight size={20} strokeWidth={1.5} className="text-primary-light shrink-0" />
               </div>
               <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
-                Side-by-side performance delta analysis with league-weighted normalization.
+                {t('landing.features.comparison.description')}
               </p>
               {/* Mock comparison table */}
               <div className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
                 <table className="w-full text-xs font-mono">
                   <thead>
                     <tr className="border-b border-outline-variant/30">
-                      <th className="py-2 px-3 text-left text-on-surface-variant font-medium">PLAYER A</th>
-                      <th className="py-2 px-3 text-left text-primary-light font-medium">PLAYER B</th>
+                      <th className="py-2 px-3 text-left text-on-surface-variant font-medium">{t('landing.hero.playerA').toUpperCase()}</th>
+                      <th className="py-2 px-3 text-left text-primary-light font-medium">{t('landing.hero.playerB').toUpperCase()}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant/10">
@@ -448,24 +372,24 @@ export function LandingPage() {
             {/* Watchlist Alerts */}
             <div className="bg-surface-container-low border border-outline-variant rounded-md p-6">
               <div className="flex items-start justify-between mb-2">
-                <h3 className="text-sm font-bold uppercase tracking-widest">Watchlist Alerts</h3>
+                <h3 className="text-sm font-bold uppercase tracking-widest">{t('landing.features.watchlist.title')}</h3>
                 <Bell size={20} strokeWidth={1.5} className="text-primary-light shrink-0" />
               </div>
               <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
-                Real-time intelligence on contract status and market movement signals.
+                {t('landing.features.watchlist.description')}
               </p>
               {/* Mock alert rows */}
               <div className="space-y-2">
                 <div className="bg-surface-container border border-outline-variant rounded-md px-3 py-2.5 flex items-center gap-2.5">
                   <div className="w-2 h-2 rounded-sm bg-error shrink-0" />
                   <span className="font-mono text-xs text-on-surface-variant">
-                    ALERT: E. Valenti (Crescent Athletic) Market Value Spike +12%
+                    {t('landing.features.watchlist.alertMock')}
                   </span>
                 </div>
                 <div className="bg-surface-container border border-outline-variant rounded-md px-3 py-2.5 flex items-center gap-2.5">
                   <div className="w-2 h-2 rounded-sm bg-secondary shrink-0" />
                   <span className="font-mono text-xs text-on-surface-variant">
-                    SIGNAL: T. Noronha (AS Lumière) 100th percentile Progressive Carries
+                    {t('landing.features.watchlist.signalMock')}
                   </span>
                 </div>
               </div>
@@ -478,12 +402,14 @@ export function LandingPage() {
       <section className="py-24 px-6 md:px-8">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-4 text-center">
-            A junior analyst costs <span className="font-mono">$50K</span>/year.{' '}
-            ScoutCopilot starts at <span className="font-mono">$X</span>/month.
+            <Trans i18nKey="landing.roi.heading" components={{ mono: <span className="font-mono" /> }}>
+              A junior analyst costs <span className="font-mono">$50K</span>/year. ScoutCopilot starts at <span className="font-mono">$X</span>/month.
+            </Trans>
           </h2>
           <p className="text-on-surface-variant text-center max-w-2xl mx-auto mb-12">
-            That's <span className="font-mono font-bold text-secondary-light">27-52 hours</span> saved per week,
-            returned to your scouting staff for what actually matters.
+            <Trans i18nKey="landing.roi.subheading" components={{ highlight: <span className="font-mono font-bold text-secondary-light" /> }}>
+              That's <span className="font-mono font-bold text-secondary-light">27-52 hours</span> saved per week, returned to your scouting staff for what actually matters.
+            </Trans>
           </p>
 
           <div className="overflow-x-auto">
@@ -491,13 +417,13 @@ export function LandingPage() {
               <thead>
                 <tr className="border-b border-outline-variant/30">
                   <th className="py-4 px-6 text-[0.625rem] font-semibold text-on-surface-variant uppercase tracking-widest">
-                    Task
+                    {t('landing.roi.colTask')}
                   </th>
                   <th className="py-4 px-6 text-[0.625rem] font-semibold text-center uppercase tracking-widest">
-                    Manual
+                    {t('landing.roi.colManual')}
                   </th>
                   <th className="py-4 px-6 text-[0.625rem] font-semibold text-center uppercase tracking-widest text-secondary-light">
-                    ScoutCopilot
+                    {t('landing.roi.colCopilot')}
                   </th>
                 </tr>
               </thead>
@@ -523,10 +449,10 @@ export function LandingPage() {
       <section id="pricing" className="py-24 px-6 md:px-8 bg-surface-container-lowest">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-4 text-center">
-            Simple, transparent pricing
+            {t('landing.pricing.heading')}
           </h2>
           <p className="text-on-surface-variant text-center max-w-2xl mx-auto mb-10">
-            Less than 1% of a junior analyst's salary. 100x faster scouting.
+            {t('landing.pricing.subheading')}
           </p>
 
           {/* Toggle */}
@@ -540,7 +466,7 @@ export function LandingPage() {
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                Monthly
+                {t('common.monthly')}
               </button>
               <button
                 onClick={() => setInterval('year')}
@@ -550,17 +476,17 @@ export function LandingPage() {
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                Annual
+                {t('common.annual')}
               </button>
             </div>
             {interval === 'year' && (
-              <span className="text-xs font-medium text-tertiary-light">Save 17% with annual billing</span>
+              <span className="text-xs font-medium text-tertiary-light">{t('landing.pricing.saveAnnual')}</span>
             )}
           </div>
 
           {/* Tier cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-            {TIERS.map((tier) => {
+            {tiers.map((tier) => {
               const price = TIER_PRICES[tier.key]
               const displayPrice = interval === 'month' ? price.month : price.year
               const annualTotal = TIER_ANNUAL_TOTAL[tier.key]
@@ -576,7 +502,7 @@ export function LandingPage() {
                 >
                   {tier.highlighted && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[0.625rem] font-bold px-3 py-1 rounded-sm uppercase tracking-widest">
-                      Most Popular
+                      {t('landing.pricing.mostPopular')}
                     </div>
                   )}
 
@@ -590,11 +516,11 @@ export function LandingPage() {
                     </h3>
                     <div className="flex items-baseline gap-1">
                       <span className="font-mono text-4xl font-bold">${displayPrice}</span>
-                      <span className="text-on-surface-variant text-sm">/mo</span>
+                      <span className="text-on-surface-variant text-sm">{t('common.mo')}</span>
                     </div>
                     {interval === 'year' && (
                       <p className="text-on-surface-variant text-xs mt-1">
-                        ${annualTotal}/yr billed annually
+                        {t('landing.pricing.billedAnnually', { amount: `$${annualTotal}` })}
                       </p>
                     )}
                     <p className="text-on-surface-variant text-sm mt-3">{tier.description}</p>
@@ -615,7 +541,7 @@ export function LandingPage() {
                     rightIcon={ArrowRight}
                     onClick={() => navigate('/signup')}
                   >
-                    Get Started
+                    {t('common.getStarted')}
                   </Button>
                 </div>
               )
@@ -628,16 +554,16 @@ export function LandingPage() {
               <thead>
                 <tr className="border-b border-outline-variant/30">
                   <th className="py-4 px-6 text-[0.625rem] font-semibold text-on-surface-variant uppercase tracking-widest">
-                    Feature
+                    {t('landing.pricing.feature')}
                   </th>
                   <th className="py-4 px-6 text-[0.625rem] font-semibold text-center w-28 md:w-40 uppercase tracking-widest">
-                    Scout
+                    {t('landing.tiers.scout.name')}
                   </th>
                   <th className="py-4 px-6 text-[0.625rem] font-semibold text-center w-28 md:w-40 bg-surface-container/50 uppercase tracking-widest">
-                    Pro
+                    {t('landing.tiers.pro.name')}
                   </th>
                   <th className="py-4 px-6 text-[0.625rem] font-semibold text-center w-28 md:w-40 uppercase tracking-widest">
-                    Club
+                    {t('landing.tiers.club.name')}
                   </th>
                 </tr>
               </thead>
@@ -660,10 +586,10 @@ export function LandingPage() {
       <section id="faq" className="py-24 px-6 md:px-8">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-12 text-center">
-            Frequently asked questions
+            {t('landing.faqHeading')}
           </h2>
           <div className="space-y-4">
-            {FAQ_ITEMS.map((item) => (
+            {faqItems.map((item) => (
               <FaqItem key={item.question} question={item.question} answer={item.answer} />
             ))}
           </div>
@@ -674,20 +600,19 @@ export function LandingPage() {
       <section className="py-24 px-6 md:px-8 bg-surface-container-lowest">
         <div className="max-w-3xl mx-auto bg-surface-container border border-outline-variant rounded-lg p-10 text-center">
           <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-4">
-            Ready to scout smarter?
+            {t('landing.cta.heading')}
           </h2>
           <p className="text-on-surface-variant mb-8 max-w-lg mx-auto">
-            Your competitors are already using AI. Get your scouting AI operational before
-            the next transfer window opens.
+            {t('landing.cta.subheading')}
           </p>
           <div className="flex flex-wrap gap-3 justify-center mb-6">
             <Button size="lg" rightIcon={ArrowRight} onClick={() => navigate('/signup')}>
-              Start Free Trial
+              {t('common.startFreeTrial')}
             </Button>
           </div>
           <div className="flex items-center justify-center gap-2">
             <Shield size={14} strokeWidth={1.5} className="text-tertiary" />
-            <span className="text-xs text-on-surface-variant">30-day money-back guarantee</span>
+            <span className="text-xs text-on-surface-variant">{t('landing.cta.guarantee')}</span>
           </div>
         </div>
       </section>
@@ -699,23 +624,23 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
             <Logo size="sm" linkTo="/" />
-            <p className="text-on-surface-variant text-xs mt-1">Built for professional football scouting</p>
+            <p className="text-on-surface-variant text-xs mt-1">{t('landing.footer.tagline')}</p>
           </div>
           <div className="flex flex-wrap items-center gap-6 text-sm text-on-surface-variant">
             <button onClick={() => scrollTo('features')} className="hover:text-on-surface transition-colors">
-              Features
+              {t('common.features')}
             </button>
             <button onClick={() => scrollTo('pricing')} className="hover:text-on-surface transition-colors">
-              Pricing
+              {t('common.pricing')}
             </button>
             <button onClick={() => scrollTo('faq')} className="hover:text-on-surface transition-colors">
-              FAQ
+              {t('common.faq')}
             </button>
-            <Link to="/terms" className="hover:text-on-surface transition-colors">Terms</Link>
-            <Link to="/privacy" className="hover:text-on-surface transition-colors">Privacy</Link>
-            <Link to="/imprint" className="hover:text-on-surface transition-colors">Imprint</Link>
+            <Link to="/terms" className="hover:text-on-surface transition-colors">{t('common.terms')}</Link>
+            <Link to="/privacy" className="hover:text-on-surface transition-colors">{t('common.privacy')}</Link>
+            <Link to="/imprint" className="hover:text-on-surface transition-colors">{t('common.imprint')}</Link>
           </div>
-          <p className="text-on-surface-variant text-xs">&copy; 2026 Predivo GmbH. All rights reserved.</p>
+          <p className="text-on-surface-variant text-xs">{t('common.copyright')}</p>
         </div>
       </footer>
     </div>

@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Lock } from 'lucide-react'
 import { useAuth } from '../../auth/useAuth'
 import { getPasswordScore } from '../../../components/auth/password-utils'
 import PasswordStrength from '../../../components/auth/PasswordStrength'
 
 export function PasswordSettings() {
+  const { t } = useTranslation()
   const { updatePassword } = useAuth()
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -18,12 +20,12 @@ export function PasswordSettings() {
     setSuccess(false)
 
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match')
+      setError(t('auth.reset.passwordsNoMatch'))
       return
     }
 
     if (getPasswordScore(newPassword) < 3) {
-      setError('Please choose a stronger password')
+      setError(t('auth.reset.weakPassword'))
       return
     }
 
@@ -34,7 +36,7 @@ export function PasswordSettings() {
       setNewPassword('')
       setConfirmPassword('')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update password')
+      setError(err instanceof Error ? err.message : t('common.failedToSave'))
     } finally {
       setLoading(false)
     }
@@ -44,7 +46,7 @@ export function PasswordSettings() {
     <section className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
       <div className="px-6 py-4 bg-surface-container-high border-b border-outline-variant flex items-center gap-2">
         <Lock size={16} strokeWidth={1.5} className="text-on-surface-variant" />
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">Change Password</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">{t('settings.password.heading')}</h2>
       </div>
       <form onSubmit={handleSubmit} className="p-6 space-y-4">
         {error && (
@@ -54,13 +56,13 @@ export function PasswordSettings() {
         )}
         {success && (
           <div className="rounded-md bg-secondary/10 border border-secondary/30 px-4 py-3 text-sm text-secondary">
-            Password updated successfully.
+            {t('settings.password.updatedSuccess')}
           </div>
         )}
         <div className="grid grid-cols-2 gap-x-6 gap-y-4">
           <div>
             <label htmlFor="new-password" className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">
-              New Password
+              {t('settings.password.newPassword')}
             </label>
             <input
               id="new-password"
@@ -71,13 +73,13 @@ export function PasswordSettings() {
               value={newPassword}
               onChange={(e) => { setNewPassword(e.target.value); setError(null); setSuccess(false) }}
               className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-sm font-data text-on-surface focus:outline-none focus:border-primary transition-colors"
-              placeholder="Min. 8 characters"
+              placeholder={t('settings.password.minChars')}
             />
             <PasswordStrength password={newPassword} />
           </div>
           <div>
             <label htmlFor="confirm-password" className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">
-              Confirm Password
+              {t('settings.password.confirmPassword')}
             </label>
             <input
               id="confirm-password"
@@ -88,7 +90,7 @@ export function PasswordSettings() {
               value={confirmPassword}
               onChange={(e) => { setConfirmPassword(e.target.value); setError(null); setSuccess(false) }}
               className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-sm font-data text-on-surface focus:outline-none focus:border-primary transition-colors"
-              placeholder="Repeat password"
+              placeholder={t('settings.password.repeatPassword')}
             />
           </div>
         </div>
@@ -98,7 +100,7 @@ export function PasswordSettings() {
             disabled={loading || !newPassword || !confirmPassword}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
           >
-            {loading ? 'Updating...' : 'Update Password'}
+            {loading ? t('settings.password.updating') : t('settings.password.updatePassword')}
           </button>
         </div>
       </form>

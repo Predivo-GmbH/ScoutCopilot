@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Check, Loader2 } from 'lucide-react'
 
 interface OrgSettingsProps {
@@ -8,15 +9,17 @@ interface OrgSettingsProps {
 }
 
 export function OrgSettings({ org, onUpdate, onSave, saveStatus = 'idle' }: OrgSettingsProps) {
+  const { t } = useTranslation()
+
   return (
     <section className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
       <div className="px-6 py-4 bg-surface-container-high border-b border-outline-variant">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">Organization Details</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">{t('settings.org.heading')}</h2>
       </div>
       <div className="p-6">
         <div>
           <label className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">
-            Club / Organization
+            {t('settings.org.clubOrg')}
           </label>
           <input
             type="text"
@@ -34,13 +37,13 @@ export function OrgSettings({ org, onUpdate, onSave, saveStatus = 'idle' }: OrgS
             className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary-light transition-colors disabled:opacity-50"
           >
             {saveStatus === 'saving' ? (
-              <span className="flex items-center gap-2"><Loader2 size={14} className="animate-spin" /> Saving...</span>
+              <span className="flex items-center gap-2"><Loader2 size={14} className="animate-spin" /> {t('common.saving')}</span>
             ) : saveStatus === 'saved' ? (
-              <span className="flex items-center gap-2"><Check size={14} /> Saved</span>
-            ) : 'Save Organization'}
+              <span className="flex items-center gap-2"><Check size={14} /> {t('common.saved')}</span>
+            ) : t('settings.org.saveOrg')}
           </button>
           {saveStatus === 'error' && (
-            <span className="text-xs text-error">Failed to save. Please try again.</span>
+            <span className="text-xs text-error">{t('common.failedToSave')}</span>
           )}
         </div>
       )}

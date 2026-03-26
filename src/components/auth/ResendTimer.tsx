@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface ResendTimerProps {
   onResend: () => Promise<void>
@@ -6,6 +7,7 @@ interface ResendTimerProps {
 }
 
 export default function ResendTimer({ onResend, cooldownSeconds = 60 }: ResendTimerProps) {
+  const { t } = useTranslation()
   const [seconds, setSeconds] = useState(cooldownSeconds)
   const [sending, setSending] = useState(false)
 
@@ -28,8 +30,7 @@ export default function ResendTimer({ onResend, cooldownSeconds = 60 }: ResendTi
   if (seconds > 0) {
     return (
       <p className="text-center text-sm text-on-surface-variant">
-        Resend code in{' '}
-        <span className="font-medium text-on-surface">{seconds}s</span>
+        {t('auth.resendTimer.resendIn', { seconds })}
       </p>
     )
   }
@@ -40,7 +41,7 @@ export default function ResendTimer({ onResend, cooldownSeconds = 60 }: ResendTi
       disabled={sending}
       className="mx-auto block text-sm font-medium text-primary-light transition-colors hover:text-primary disabled:opacity-50"
     >
-      {sending ? 'Sending...' : 'Resend code'}
+      {sending ? t('auth.resendTimer.sending') : t('auth.resendTimer.resendCode')}
     </button>
   )
 }

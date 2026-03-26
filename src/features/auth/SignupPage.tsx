@@ -1,5 +1,6 @@
 import { useState, useEffect, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from './useAuth'
 import AuthLayout from '../../components/auth/AuthLayout'
 import OtpInput from '../../components/auth/OtpInput'
@@ -11,6 +12,7 @@ import { friendlyAuthError } from '../../lib/utils'
 type Step = 'email' | 'verify' | 'profile'
 
 export function SignupPage() {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const [step, setStep] = useState<Step>('email')
   const [email, setEmail] = useState('')
@@ -21,7 +23,6 @@ export function SignupPage() {
   const { sendOtp, verifyOtp, completeProfile, hasCompletedProfile } = useAuth()
   const navigate = useNavigate()
 
-  // Handle redirect from /auth/verify (OTP deep link from email)
   useEffect(() => {
     if (searchParams.get('verified') === 'true') {
       if (hasCompletedProfile()) {
@@ -66,7 +67,7 @@ export function SignupPage() {
   async function handleCompleteProfile(e: FormEvent) {
     e.preventDefault()
     if (getPasswordScore(password) < 3) {
-      setError('Please choose a stronger password')
+      setError(t('auth.signup.weakPassword'))
       return
     }
     setError(null)
@@ -91,13 +92,12 @@ export function SignupPage() {
       {step === 'email' && (
         <div>
           <h1 className="text-center text-2xl font-bold text-on-surface">
-            Start your free trial
+            {t('auth.signup.heading')}
           </h1>
           <p className="mt-2 text-center text-sm text-on-surface-variant">
-            14 days free. No credit card required.
+            {t('auth.signup.subheading')}
           </p>
 
-          {/* Step dots */}
           <div className="mt-5 flex justify-center gap-2">
             <div className="h-1.5 w-8 rounded-md bg-primary" />
             <div className="h-1.5 w-8 rounded-md bg-outline-variant" />
@@ -112,7 +112,7 @@ export function SignupPage() {
             )}
             <div>
               <label htmlFor="signup-email" className="block text-sm font-medium text-on-surface-variant">
-                Work email
+                {t('auth.signup.workEmail')}
               </label>
               <input
                 id="signup-email"
@@ -123,7 +123,7 @@ export function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 block w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
-                placeholder="scout@club.com"
+                placeholder={t('auth.signup.emailPlaceholder')}
               />
             </div>
             <button
@@ -131,19 +131,19 @@ export function SignupPage() {
               disabled={loading}
               className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
             >
-              {loading ? 'Sending code...' : 'Continue'}
+              {loading ? t('auth.sendingCode') : t('common.continue')}
             </button>
           </form>
           <p className="mt-4 text-center text-xs text-on-surface-variant">
-            By signing up, you agree to our{' '}
-            <Link to="/terms" className="text-primary-light hover:underline">Terms of Service</Link>
-            {' '}and{' '}
-            <Link to="/privacy" className="text-primary-light hover:underline">Privacy Policy</Link>.
+            {t('auth.signup.termsAgreement')}{' '}
+            <Link to="/terms" className="text-primary-light hover:underline">{t('auth.signup.termsOfService')}</Link>
+            {' '}{t('common.and')}{' '}
+            <Link to="/privacy" className="text-primary-light hover:underline">{t('auth.signup.privacyPolicy')}</Link>.
           </p>
           <p className="mt-6 text-center text-sm text-on-surface-variant">
-            Already have an account?{' '}
+            {t('auth.alreadyHaveAccount')}{' '}
             <Link to="/login" className="font-medium text-primary-light hover:underline">
-              Sign in
+              {t('common.signIn')}
             </Link>
           </p>
         </div>
@@ -153,14 +153,13 @@ export function SignupPage() {
       {step === 'verify' && (
         <div>
           <h1 className="text-center text-2xl font-bold text-on-surface">
-            Check your email
+            {t('auth.signup.checkEmail')}
           </h1>
           <p className="mt-2 text-center text-sm text-on-surface-variant">
-            We sent a 6-digit code to{' '}
+            {t('auth.signup.codeSentTo')}{' '}
             <span className="font-medium text-on-surface">{email}</span>
           </p>
 
-          {/* Step dots */}
           <div className="mt-5 flex justify-center gap-2">
             <div className="h-1.5 w-8 rounded-md bg-primary" />
             <div className="h-1.5 w-8 rounded-md bg-primary" />
@@ -175,7 +174,7 @@ export function SignupPage() {
             )}
             <OtpInput onComplete={handleVerify} disabled={loading} />
             {loading && (
-              <p className="text-center text-sm text-on-surface-variant">Verifying...</p>
+              <p className="text-center text-sm text-on-surface-variant">{t('auth.verifying')}</p>
             )}
             <ResendTimer onResend={handleResend} />
           </div>
@@ -184,7 +183,7 @@ export function SignupPage() {
             onClick={() => { setStep('email'); setError(null) }}
             className="mt-6 block w-full text-center text-sm font-medium text-on-surface-variant hover:text-on-surface"
           >
-            &larr; Use a different email
+            {t('auth.useDifferentEmail')}
           </button>
         </div>
       )}
@@ -193,13 +192,12 @@ export function SignupPage() {
       {step === 'profile' && (
         <div>
           <h1 className="text-center text-2xl font-bold text-on-surface">
-            Complete your account
+            {t('auth.signup.completeAccount')}
           </h1>
           <p className="mt-2 text-center text-sm text-on-surface-variant">
-            Set your name and password for future sign-ins.
+            {t('auth.signup.completeAccountSub')}
           </p>
 
-          {/* Step dots */}
           <div className="mt-5 flex justify-center gap-2">
             <div className="h-1.5 w-8 rounded-md bg-primary" />
             <div className="h-1.5 w-8 rounded-md bg-primary" />
@@ -214,7 +212,7 @@ export function SignupPage() {
             )}
             <div>
               <label htmlFor="signup-name" className="block text-sm font-medium text-on-surface-variant">
-                Full name
+                {t('auth.signup.fullName')}
               </label>
               <input
                 id="signup-name"
@@ -225,12 +223,12 @@ export function SignupPage() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 className="mt-1 block w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
-                placeholder="Maria Schmidt"
+                placeholder={t('auth.signup.fullNamePlaceholder')}
               />
             </div>
             <div>
               <label htmlFor="signup-password" className="block text-sm font-medium text-on-surface-variant">
-                Password
+                {t('auth.passwordLabel')}
               </label>
               <input
                 id="signup-password"
@@ -241,7 +239,7 @@ export function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 block w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
-                placeholder="Min. 8 characters"
+                placeholder={t('auth.signup.minChars')}
               />
               <PasswordStrength password={password} />
             </div>
@@ -250,7 +248,7 @@ export function SignupPage() {
               disabled={loading}
               className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
             >
-              {loading ? 'Creating account...' : 'Create Account'}
+              {loading ? t('auth.signup.creatingAccount') : t('auth.signup.createAccount')}
             </button>
           </form>
         </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { SlidersHorizontal, X } from 'lucide-react'
 import {
   positionOptions,
@@ -13,39 +14,40 @@ interface SearchFiltersProps {
   league: string
   foot: string
   minFitScore: number
-  maxAge: number
-  minAge: number
+  minPassAccuracy: number
+  minProgCarries: number
   onUpdate: (updates: Record<string, string | number>) => void
 }
 
-export function SearchFilters({ position, ageRange, league, foot, minFitScore, maxAge, minAge, onUpdate }: SearchFiltersProps) {
+export function SearchFilters({ position, ageRange, league, foot, minFitScore, minPassAccuracy, minProgCarries, onUpdate }: SearchFiltersProps) {
+  const { t } = useTranslation()
   const [showAdvanced, setShowAdvanced] = useState(false)
 
-  const hasAdvancedFilters = minFitScore > 0 || maxAge < 99 || minAge > 0
+  const hasAdvancedFilters = minFitScore > 0 || minPassAccuracy > 0 || minProgCarries > 0
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <FilterSelect
-          label="Position"
+          label={t('filters.position')}
           value={position}
           options={positionOptions}
           onChange={(v) => onUpdate({ position: v })}
         />
         <FilterSelect
-          label="Age Range"
+          label={t('filters.ageRange')}
           value={ageRange}
           options={ageRangeOptions}
           onChange={(v) => onUpdate({ ageRange: v })}
         />
         <FilterSelect
-          label="League"
+          label={t('filters.league')}
           value={league}
           options={leagueOptions}
           onChange={(v) => onUpdate({ league: v })}
         />
         <FilterSelect
-          label="Foot"
+          label={t('filters.foot')}
           value={foot}
           options={footOptions}
           onChange={(v) => onUpdate({ foot: v })}
@@ -63,7 +65,7 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
             }`}
           >
             <SlidersHorizontal size={14} strokeWidth={1.5} />
-            Advanced
+            {t('filters.advanced')}
             {hasAdvancedFilters && (
               <span className="w-1.5 h-1.5 rounded-full bg-primary" />
             )}
@@ -75,7 +77,7 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
       {showAdvanced && (
         <div className="bg-surface-container border border-outline-variant rounded-md p-5">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-on-surface">Advanced Filters</h4>
+            <h4 className="text-xs font-bold uppercase tracking-widest text-on-surface">{t('filters.advancedFilters')}</h4>
             <button
               onClick={() => setShowAdvanced(false)}
               className="text-on-surface-variant hover:text-on-surface transition-colors"
@@ -87,7 +89,7 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
             {/* Min Fit Score */}
             <div className="space-y-2">
               <label className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">
-                Min Match Score
+                {t('filters.minMatchScore')}
               </label>
               <div className="flex items-center gap-3">
                 <input
@@ -99,44 +101,49 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
                   className="flex-1 accent-primary"
                 />
                 <span className="font-data text-sm text-on-surface min-w-[3rem] text-right">
-                  {minFitScore > 0 ? `${minFitScore}%` : 'Any'}
+                  {minFitScore > 0 ? `${minFitScore}%` : t('filters.any')}
                 </span>
               </div>
             </div>
 
-            {/* Min Age */}
+            {/* Min Pass Accuracy */}
             <div className="space-y-2">
               <label className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">
-                Min Age
+                Min Pass Accuracy
               </label>
               <div className="flex items-center gap-3">
                 <input
-                  type="number"
+                  type="range"
                   min={0}
-                  max={45}
-                  value={minAge || ''}
-                  placeholder="Any"
-                  onChange={(e) => onUpdate({ minAge: Number(e.target.value) || 0 })}
-                  className="w-full bg-surface-container-lowest border border-outline-variant rounded-md text-sm py-2 px-3 text-on-surface focus:outline-none focus:border-primary transition-colors"
+                  max={100}
+                  value={minPassAccuracy}
+                  onChange={(e) => onUpdate({ minPassAccuracy: Number(e.target.value) })}
+                  className="flex-1 accent-primary"
                 />
+                <span className="font-data text-sm text-on-surface min-w-[3rem] text-right">
+                  {minPassAccuracy > 0 ? `${minPassAccuracy}%` : t('filters.any')}
+                </span>
               </div>
             </div>
 
-            {/* Max Age */}
+            {/* Min Progressive Carries */}
             <div className="space-y-2">
               <label className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">
-                Max Age
+                Min Prog. Carries/90
               </label>
               <div className="flex items-center gap-3">
                 <input
-                  type="number"
+                  type="range"
                   min={0}
-                  max={45}
-                  value={maxAge < 99 ? maxAge : ''}
-                  placeholder="Any"
-                  onChange={(e) => onUpdate({ maxAge: Number(e.target.value) || 99 })}
-                  className="w-full bg-surface-container-lowest border border-outline-variant rounded-md text-sm py-2 px-3 text-on-surface focus:outline-none focus:border-primary transition-colors"
+                  max={15}
+                  step={0.5}
+                  value={minProgCarries}
+                  onChange={(e) => onUpdate({ minProgCarries: Number(e.target.value) })}
+                  className="flex-1 accent-primary"
                 />
+                <span className="font-data text-sm text-on-surface min-w-[3rem] text-right">
+                  {minProgCarries > 0 ? minProgCarries.toString() : t('filters.any')}
+                </span>
               </div>
             </div>
           </div>
@@ -145,10 +152,10 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
           {hasAdvancedFilters && (
             <div className="mt-4 pt-4 border-t border-outline-variant/30">
               <button
-                onClick={() => onUpdate({ minFitScore: 0, maxAge: 99, minAge: 0 })}
+                onClick={() => onUpdate({ minFitScore: 0, minPassAccuracy: 0, minProgCarries: 0 })}
                 className="text-xs font-medium text-primary hover:text-primary-light transition-colors"
               >
-                Reset advanced filters
+                {t('filters.resetAdvanced')}
               </button>
             </div>
           )}

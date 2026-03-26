@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   LayoutDashboard,
   Search,
@@ -18,18 +19,19 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/search', label: 'Search', icon: Search },
-  { path: '/players', label: 'Players', icon: UserRoundSearch },
-  { path: '/compare', label: 'Compare', icon: GitCompareArrows },
-  { path: '/watchlists', label: 'Watchlists', icon: Star },
-  { path: '/squad', label: 'My Squads', icon: Users },
-  { path: '/settings', label: 'Settings', icon: Settings },
+  { path: '/dashboard', key: 'dashboard', icon: LayoutDashboard },
+  { path: '/search', key: 'search', icon: Search },
+  { path: '/players', key: 'players', icon: UserRoundSearch },
+  { path: '/compare', key: 'compare', icon: GitCompareArrows },
+  { path: '/watchlists', key: 'watchlists', icon: Star },
+  { path: '/squad', key: 'mySquads', icon: Users },
+  { path: '/settings', key: 'settings', icon: Settings },
 ]
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   return (
     <aside
@@ -64,7 +66,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   `}
                 >
                   <Icon size={20} strokeWidth={1.5} className="shrink-0" />
-                  {!collapsed && <span className="whitespace-nowrap">{item.label}</span>}
+                  {!collapsed && <span className="whitespace-nowrap">{t(`nav.${item.key}`)}</span>}
                 </button>
               </li>
             )
@@ -76,7 +78,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       <div className="border-t border-outline-variant p-2">
         <button
           onClick={onToggle}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={collapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
           className="flex w-full items-center justify-center rounded-md p-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors duration-[var(--duration-normal)]"
         >
           {collapsed ? <ChevronsRight size={20} strokeWidth={1.5} /> : <ChevronsLeft size={20} strokeWidth={1.5} />}
