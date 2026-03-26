@@ -54,6 +54,7 @@ jobs:
             $LFTP_SETTINGS
             open $FTP_HOST;
             mirror --reverse --no-perms --verbose ./dist/fonts/ /httpdocs/fonts/;
+            mirror --reverse --no-perms --verbose ./dist/avatars/ /httpdocs/avatars/;
             put ./dist/index.html -o /httpdocs/index.html;
             put ./dist/.htaccess -o /httpdocs/.htaccess;
             put ./dist/favicon.svg -o /httpdocs/favicon.svg;
