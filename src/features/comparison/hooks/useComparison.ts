@@ -14,7 +14,7 @@ function reportToComparison(id: string): MockComparisonPlayer | null {
     position: r.position,
     age: r.age,
     nationality: r.nationality,
-    image: r.image,
+    image: r.image ?? '',
     metrics: {
       'Goals/90': r.seasonStats['Goals'] != null && r.seasonStats['Minutes'] != null
         ? Number(((r.seasonStats['Goals'] as number) / ((r.seasonStats['Minutes'] as number) / 90)).toFixed(2))
