@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { FormationType, SquadPlayer, SquadPosition } from '../../../lib/mock-data'
+import type { FormationType, SquadPlayer } from '../../../lib/mock-data'
 import { formations } from '../../../lib/mock-data'
 
 interface FormationPitchProps {
