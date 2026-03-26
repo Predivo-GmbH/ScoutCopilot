@@ -361,7 +361,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Tactical Capabilities ─────────────────────────────── */}
-      <section id="features" className="py-24 px-6 md:px-8">
+      <section id="features" className="py-24 px-6 md:px-8 bg-surface-container-lowest">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-12 text-center">
             Mission-critical tools for modern recruitment
@@ -475,7 +475,7 @@ export function LandingPage() {
       </section>
 
       {/* ── ROI Calculator ──────────────────────────────────────── */}
-      <section className="py-24 px-6 md:px-8 bg-surface-container-lowest">
+      <section className="py-24 px-6 md:px-8">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-4 text-center">
             A junior analyst costs <span className="font-mono">$50K</span>/year.{' '}
@@ -520,7 +520,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Pricing Section ─────────────────────────────────────── */}
-      <section id="pricing" className="py-24 px-6 md:px-8">
+      <section id="pricing" className="py-24 px-6 md:px-8 bg-surface-container-lowest">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-4 text-center">
             Simple, transparent pricing
@@ -657,7 +657,7 @@ export function LandingPage() {
       </section>
 
       {/* ── FAQ Section ─────────────────────────────────────────── */}
-      <section id="faq" className="py-24 px-6 md:px-8 bg-surface-container-lowest">
+      <section id="faq" className="py-24 px-6 md:px-8">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-12 text-center">
             Frequently asked questions
@@ -671,7 +671,7 @@ export function LandingPage() {
       </section>
 
       {/* ── Final CTA ───────────────────────────────────────────── */}
-      <section className="py-24 px-6 md:px-8">
+      <section className="py-24 px-6 md:px-8 bg-surface-container-lowest">
         <div className="max-w-3xl mx-auto bg-surface-container border border-outline-variant rounded-lg p-10 text-center">
           <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-4">
             Ready to scout smarter?
