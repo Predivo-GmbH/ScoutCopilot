@@ -38,6 +38,7 @@ export function PasswordGate({ children }: { children: ReactNode }) {
     <div className="flex min-h-svh items-center justify-center bg-surface p-4">
       <Card className="w-full max-w-sm">
         <div className="text-center mb-4">
+          <img src="/logo.png" alt="" className="h-10 w-10 mx-auto mb-3" />
           <h1 className="text-2xl font-bold text-on-surface">ScoutCopilot</h1>
           <p className="text-[0.875rem] text-on-surface-variant mt-1">
             This app is in private beta.

@@ -41,9 +41,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
     >
       {/* Logo area */}
       <div className="flex h-16 items-center gap-3 border-b border-outline-variant px-4">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-bold text-white">
-          SC
-        </div>
+        <img src="/logo.png" alt="ScoutCopilot" className="h-8 w-8 shrink-0" />
         {!collapsed && (
           <span className="text-sm font-semibold text-on-surface whitespace-nowrap">
             ScoutCopilot

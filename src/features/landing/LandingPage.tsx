@@ -326,7 +326,10 @@ export function LandingPage() {
         }`}
       >
         <div className="flex justify-between items-center px-6 md:px-8 py-4 max-w-7xl mx-auto">
-          <span className="text-xl font-bold tracking-tight">ScoutCopilot</span>
+          <span className="flex items-center gap-2 text-xl font-bold tracking-tight">
+            <img src="/logo.png" alt="" className="h-7 w-7" />
+            ScoutCopilot
+          </span>
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-8 text-sm font-medium">
@@ -723,7 +726,10 @@ export function LandingPage() {
       <footer className="border-t border-outline-variant/20 py-12 px-6 md:px-8">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
-            <Link to="/" className="font-bold hover:text-primary-light transition-colors">ScoutCopilot</Link>
+            <Link to="/" className="inline-flex items-center gap-2 font-bold hover:text-primary-light transition-colors">
+              <img src="/logo.png" alt="" className="h-6 w-6" />
+              ScoutCopilot
+            </Link>
             <p className="text-on-surface-variant text-xs mt-1">Built for professional football scouting</p>
           </div>
           <div className="flex flex-wrap items-center gap-6 text-sm text-on-surface-variant">

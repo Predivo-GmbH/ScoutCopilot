@@ -14,9 +14,7 @@ export default function AuthLayout({
           to="/"
           className="inline-flex items-center gap-2 text-lg font-bold tracking-tight text-primary"
         >
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-xs font-bold text-white">
-            SC
-          </div>
+          <img src="/logo.png" alt="" className="h-7 w-7 shrink-0" />
           ScoutCopilot
         </Link>
       </div>
