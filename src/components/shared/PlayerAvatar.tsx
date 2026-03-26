@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 const JERSEY_COLORS = [
   ['#1e3a5f', '#142a47'], // navy
   ['#c8102e', '#9a0c23'], // red
@@ -29,9 +31,10 @@ interface PlayerAvatarProps {
   name: string
   size?: number
   className?: string
+  imageUrl?: string
 }
 
-export function PlayerAvatar({ name, size = 36, className = '' }: PlayerAvatarProps) {
+function SilhouetteFallback({ name, size }: { name: string; size: number }) {
   const colorIndex = hashName(name) % JERSEY_COLORS.length
   const [bg, silhouette] = JERSEY_COLORS[colorIndex]
 
@@ -40,18 +43,37 @@ export function PlayerAvatar({ name, size = 36, className = '' }: PlayerAvatarPr
       width={size}
       height={size}
       viewBox="0 0 120 120"
-      className={`rounded-md shrink-0 ${className}`}
+      className="rounded-md shrink-0"
       aria-label={name}
     >
       <rect width="120" height="120" rx="12" fill={bg} />
-      {/* Shoulders */}
       <ellipse cx="60" cy="118" rx="46" ry="34" fill={silhouette} />
-      {/* Neck */}
       <rect x="50" y="62" width="20" height="14" rx="4" fill={silhouette} />
-      {/* Head */}
       <circle cx="60" cy="46" r="22" fill={silhouette} />
-      {/* Jersey collar highlight */}
       <path d="M48 88 L60 96 L72 88" fill="none" stroke={bg} strokeWidth="2.5" strokeLinecap="round" opacity="0.5" />
     </svg>
+  )
+}
+
+export function PlayerAvatar({ name, size = 36, className = '', imageUrl }: PlayerAvatarProps) {
+  const [imgError, setImgError] = useState(false)
+
+  if (!imageUrl || imgError) {
+    return (
+      <div className={className}>
+        <SilhouetteFallback name={name} size={size} />
+      </div>
+    )
+  }
+
+  return (
+    <img
+      src={imageUrl}
+      alt={name}
+      width={size}
+      height={size}
+      className={`rounded-md shrink-0 object-cover ${className}`}
+      onError={() => setImgError(true)}
+    />
   )
 }
