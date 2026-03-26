@@ -87,7 +87,7 @@ export function DashboardPage() {
                 {t('dashboard.recentSearches')}
               </h3>
               <button
-                onClick={() => navigate('/search')}
+                onClick={() => navigate('/search-history')}
                 className="text-[0.625rem] font-data uppercase text-primary hover:underline flex items-center gap-1"
               >
                 {t('dashboard.viewAll')} <ArrowRight size={10} strokeWidth={1.5} />

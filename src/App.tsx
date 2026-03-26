@@ -19,6 +19,7 @@ const OnboardingPage = lazy(() => import('./features/auth/OnboardingPage').then(
 const DashboardPage = lazy(() => import('./features/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })))
 const AlertsPage = lazy(() => import('./features/dashboard/AlertsPage').then(m => ({ default: m.AlertsPage })))
 const SearchPage = lazy(() => import('./features/search/SearchPage').then(m => ({ default: m.SearchPage })))
+const SearchHistoryPage = lazy(() => import('./features/search/SearchHistoryPage').then(m => ({ default: m.SearchHistoryPage })))
 const PlayersListPage = lazy(() => import('./features/report/ReportsListPage').then(m => ({ default: m.ReportsListPage })))
 const PlayerDetailPage = lazy(() => import('./features/report/ReportPage').then(m => ({ default: m.ReportPage })))
 const ComparisonPage = lazy(() => import('./features/comparison/ComparisonPage').then(m => ({ default: m.ComparisonPage })))
@@ -73,6 +74,7 @@ export default function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/alerts" element={<AlertsPage />} />
                 <Route path="/search" element={<SearchPage />} />
+                <Route path="/search-history" element={<SearchHistoryPage />} />
                 <Route path="/players" element={<PlayersListPage />} />
                 <Route path="/players/:id" element={<PlayerDetailPage />} />
                 <Route path="/compare" element={<ComparisonPage />} />
