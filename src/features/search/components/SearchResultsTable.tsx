@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, Download, LayoutGrid, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { MockPlayer } from '../../../lib/mock-data'
+
+const PAGE_SIZE = 8
 
 interface SearchResultsTableProps {
   results: MockPlayer[]
@@ -9,13 +12,14 @@ interface SearchResultsTableProps {
 
 export function SearchResultsTable({ results, isLoading }: SearchResultsTableProps) {
   const navigate = useNavigate()
+  const [page, setPage] = useState(1)
 
   if (isLoading) {
     return (
       <div className="bg-surface-container rounded-md border border-outline-variant overflow-hidden">
         <div className="p-6 space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-16 bg-surface-container-high rounded-md animate-pulse" />
+            <div key={i} className="h-16 bg-surface-container-high rounded-sm animate-pulse" />
           ))}
         </div>
       </div>
@@ -27,18 +31,26 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
   }
 
   const statKeys = Object.keys(results[0]?.stats ?? {})
+  const totalPages = Math.ceil(results.length / PAGE_SIZE)
+  const paged = results.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const showFrom = (page - 1) * PAGE_SIZE + 1
+  const showTo = Math.min(page * PAGE_SIZE, results.length)
 
   return (
     <div className="bg-surface-container rounded-md border border-outline-variant overflow-hidden">
       {/* Header */}
-      <div className="px-6 py-4 flex justify-between items-center border-b border-outline-variant">
+      <div className="px-6 py-4 flex justify-between items-center border-b border-outline-variant/10">
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <span className="font-data text-primary text-lg">{results.length}</span>
           <span className="uppercase tracking-widest text-xs text-on-surface-variant">players found</span>
         </h3>
-        <div className="flex items-center gap-2 text-[0.625rem] text-on-surface-variant uppercase tracking-widest">
-          <span className="w-2 h-2 rounded-full bg-secondary" />
-          Ranked by Fit Score
+        <div className="flex items-center gap-2">
+          <button className="p-2 rounded-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" title="Download results">
+            <Download size={16} strokeWidth={1.5} />
+          </button>
+          <button className="p-2 rounded-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" title="Grid view">
+            <LayoutGrid size={16} strokeWidth={1.5} />
+          </button>
         </div>
       </div>
 
@@ -47,70 +59,127 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
         <table className="w-full text-left">
           <thead>
             <tr className="bg-surface-container-high border-b border-outline-variant">
-              <th className="px-6 py-3 text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant w-8">#</th>
-              <th className="px-4 py-3 text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant min-w-[200px]">Player</th>
-              <th className="px-4 py-3 text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant">Position</th>
-              <th className="px-4 py-3 text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant">Age</th>
-              <th className="px-4 py-3 text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant">League</th>
+              <th className="px-6 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant w-8">#</th>
+              <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant min-w-[200px]">Player</th>
+              <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">Position</th>
+              <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">Age</th>
+              <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">League</th>
               {statKeys.map((key) => (
-                <th key={key} className="px-4 py-3 text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant text-right">
+                <th key={key} className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant text-right">
                   {key}
                 </th>
               ))}
-              <th className="px-6 py-3 text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant w-48">Fit Score</th>
-              <th className="px-3 py-3 w-8" />
+              <th className="px-6 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant w-48">Match Score</th>
+              <th className="px-3 py-4 w-8" />
             </tr>
           </thead>
           <tbody className="text-sm">
-            {results.map((player, i) => (
-              <tr
-                key={player.id}
-                onClick={() => navigate(`/report/${player.id}`)}
-                className={`${i % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'} border-b border-outline-variant/30 hover:bg-surface-container-high transition-colors cursor-pointer group`}
-              >
-                <td className="px-6 py-4 font-data text-on-surface-variant text-xs">{i + 1}</td>
-                <td className="px-4 py-4">
-                  <div className="flex items-center gap-3">
-                    <PlayerAvatar name={player.name} nationality={player.nationality} />
-                    <div>
-                      <div className="font-semibold text-on-surface">{player.name}</div>
-                      <div className="text-[0.625rem] text-on-surface-variant flex items-center gap-1.5">
-                        <span className="uppercase tracking-tight">{player.club}</span>
-                        <span className="w-0.5 h-0.5 rounded-full bg-outline-variant" />
-                        <span>{player.nationality}</span>
+            {paged.map((player, i) => {
+              const globalIndex = (page - 1) * PAGE_SIZE + i
+              return (
+                <tr
+                  key={player.id}
+                  onClick={() => navigate(`/report/${player.id}`)}
+                  className={`${globalIndex % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'} border-b border-outline-variant/30 hover:bg-surface-variant/50 transition-colors cursor-pointer group`}
+                >
+                  <td className="px-6 py-4 font-data text-on-surface-variant text-xs">{globalIndex + 1}</td>
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-3">
+                      <PlayerAvatar name={player.name} nationality={player.nationality} />
+                      <div>
+                        <div className="font-bold text-on-surface">{player.name}</div>
+                        <div className="text-[0.625rem] text-on-surface-variant flex items-center gap-1.5">
+                          <span className="uppercase tracking-tight">{player.club}</span>
+                          <span className="w-0.5 h-0.5 rounded-full bg-outline-variant" />
+                          <span>{player.nationality}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </td>
-                <td className="px-4 py-4">
-                  <div className="flex gap-1">
-                    {player.position.split(', ').map((pos) => (
-                      <span key={pos} className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm">
-                        {pos}
-                      </span>
-                    ))}
-                  </div>
-                </td>
-                <td className="px-4 py-4 font-data">{player.age}</td>
-                <td className="px-4 py-4 text-on-surface-variant text-xs">{player.league}</td>
-                {statKeys.map((key) => (
-                  <td key={key} className="px-4 py-4 font-data text-right text-on-surface-variant">
-                    {player.stats[key]}
                   </td>
-                ))}
-                <td className="px-6 py-4">
-                  <FitScoreBar score={player.fitScore} />
-                </td>
-                <td className="px-3 py-4">
-                  <ArrowUpRight size={14} strokeWidth={1.5} className="text-on-surface-variant/0 group-hover:text-primary transition-colors" />
-                </td>
-              </tr>
-            ))}
+                  <td className="px-4 py-4">
+                    <div className="flex gap-1">
+                      {player.position.split(', ').map((pos) => (
+                        <span key={pos} className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm">
+                          {pos}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-4 py-4 font-data">{player.age}</td>
+                  <td className="px-4 py-4 text-on-surface-variant text-xs">{player.league}</td>
+                  {statKeys.map((key) => (
+                    <td key={key} className="px-4 py-4 font-data text-right text-on-surface-variant">
+                      {player.stats[key]}
+                    </td>
+                  ))}
+                  <td className="px-6 py-4">
+                    <FitScoreBar score={player.fitScore} />
+                  </td>
+                  <td className="px-3 py-4">
+                    <ArrowUpRight size={14} strokeWidth={1.5} className="text-on-surface-variant/0 group-hover:text-primary transition-colors" />
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="px-6 py-4 bg-surface-container-lowest flex justify-between items-center border-t border-outline-variant/10">
+          <span className="text-[0.625rem] font-data font-bold uppercase tracking-widest text-on-surface-variant">
+            Showing {showFrom} to {showTo} of {results.length} results
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage(Math.max(1, page - 1))}
+              disabled={page === 1}
+              className="w-8 h-8 flex items-center justify-center border border-outline-variant rounded-sm text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft size={14} strokeWidth={1.5} />
+            </button>
+            {getPageNumbers(page, totalPages).map((p, i) => (
+              p === '...' ? (
+                <span key={`ellipsis-${i}`} className="w-8 h-8 flex items-center justify-center text-on-surface-variant font-data text-xs">...</span>
+              ) : (
+                <button
+                  key={p}
+                  onClick={() => setPage(p as number)}
+                  className={`w-8 h-8 flex items-center justify-center rounded-sm font-data text-xs font-bold transition-colors ${
+                    page === p
+                      ? 'border border-primary-container bg-primary-container/10 text-primary-container'
+                      : 'border border-outline-variant text-on-surface-variant hover:bg-surface-container-high'
+                  }`}
+                >
+                  {p}
+                </button>
+              )
+            ))}
+            <button
+              onClick={() => setPage(Math.min(totalPages, page + 1))}
+              disabled={page === totalPages}
+              className="w-8 h-8 flex items-center justify-center border border-outline-variant rounded-sm text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronRight size={14} strokeWidth={1.5} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
+}
+
+function getPageNumbers(current: number, total: number): (number | '...')[] {
+  if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1)
+  const pages: (number | '...')[] = [1]
+  if (current > 3) pages.push('...')
+  for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+    pages.push(i)
+  }
+  if (current < total - 2) pages.push('...')
+  pages.push(total)
+  return pages
 }
 
 function PlayerAvatar({ name, nationality }: { name: string; nationality: string }) {
@@ -126,11 +195,11 @@ function PlayerAvatar({ name, nationality }: { name: string; nationality: string
 
   return (
     <div className="relative">
-      <div className={`w-10 h-10 rounded-md flex items-center justify-center text-xs font-semibold ${colors[colorIndex]}`}>
+      <div className={`w-8 h-8 rounded-sm flex items-center justify-center text-[0.625rem] font-semibold ${colors[colorIndex]}`}>
         {initials}
       </div>
       {flagEmoji && (
-        <span className="absolute -bottom-0.5 -right-0.5 text-[0.625rem] leading-none" title={nationality}>
+        <span className="absolute -bottom-0.5 -right-0.5 text-[0.5rem] leading-none" title={nationality}>
           {flagEmoji}
         </span>
       )}
@@ -162,15 +231,15 @@ function countryToFlag(country: string): string | null {
 }
 
 function FitScoreBar({ score }: { score: number }) {
-  const color = score >= 80 ? 'bg-secondary' : score >= 60 ? 'bg-tertiary' : 'bg-error'
-  const textColor = score >= 80 ? 'text-secondary' : score >= 60 ? 'text-tertiary' : 'text-error'
+  const color = score >= 80 ? 'bg-secondary' : score >= 60 ? 'bg-amber-500' : 'bg-error'
+  const textColor = score >= 80 ? 'text-secondary' : score >= 60 ? 'text-amber-500' : 'text-error'
 
   return (
     <div className="flex items-center gap-3">
-      <div className="flex-1 h-1.5 bg-surface-variant rounded-sm overflow-hidden">
-        <div className={`h-full ${color} rounded-sm transition-all`} style={{ width: `${score}%` }} />
+      <div className="flex-1 h-1.5 bg-surface-variant rounded-full overflow-hidden">
+        <div className={`h-full ${color} rounded-full transition-all`} style={{ width: `${score}%` }} />
       </div>
-      <span className={`font-data text-xs font-semibold min-w-[2rem] text-right ${textColor}`}>{score}%</span>
+      <span className={`font-data text-[0.625rem] font-medium min-w-[2rem] text-right ${textColor}`}>{score}%</span>
     </div>
   )
 }

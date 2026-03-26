@@ -1,3 +1,4 @@
+import { SlidersHorizontal } from 'lucide-react'
 import {
   positionOptions,
   leagueOptions,
@@ -15,7 +16,7 @@ interface SearchFiltersProps {
 
 export function SearchFilters({ position, ageRange, league, foot, onUpdate }: SearchFiltersProps) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
       <FilterSelect
         label="Position"
         value={position}
@@ -40,6 +41,15 @@ export function SearchFilters({ position, ageRange, league, foot, onUpdate }: Se
         options={footOptions}
         onChange={(v) => onUpdate({ foot: v })}
       />
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+          &nbsp;
+        </label>
+        <button className="flex items-center justify-center gap-2 bg-transparent border border-outline-variant rounded-md text-xs font-bold uppercase tracking-widest text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors h-[42px]">
+          <SlidersHorizontal size={14} strokeWidth={1.5} />
+          Advanced Filters
+        </button>
+      </div>
     </div>
   )
 }
@@ -52,7 +62,7 @@ function FilterSelect({ label, value, options, onChange }: {
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant">
+      <label className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">
         {label}
       </label>
       <select

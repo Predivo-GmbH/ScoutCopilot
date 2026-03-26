@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Search as SearchIcon, ArrowRight, Sparkles } from 'lucide-react'
+import { Search as SearchIcon, ArrowRight, Sparkles, Wand2 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { SearchFilters } from './components/SearchFilters'
 import { SearchResultsTable } from './components/SearchResultsTable'
@@ -43,25 +43,29 @@ export function SearchPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-on-surface">Player Search</h1>
-        <p className="text-on-surface-variant mt-1 text-sm">Ask anything about players using natural language.</p>
+    <div className="p-6 md:p-8 space-y-6">
+      {/* AI Intelligence Search header */}
+      <div className="flex items-center gap-2">
+        <Wand2 size={16} strokeWidth={1.5} className="text-primary" />
+        <span className="text-sm font-bold uppercase tracking-[0.2em] text-primary">AI Intelligence Search</span>
       </div>
 
       {/* Search Bar */}
       <div className="flex gap-4">
         <div className="relative flex-1">
-          <SearchIcon size={20} strokeWidth={1.5} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+          <SearchIcon size={20} strokeWidth={1.5} className="absolute left-5 top-1/2 -translate-y-1/2 text-on-surface-variant" />
           <input
             type="text"
             value={queryInput}
             onChange={(e) => setQueryInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Find me a left-back under 23 with >75% crossing accuracy"
-            className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-4 pl-12 pr-6 text-on-surface focus:outline-none focus:border-primary transition-colors text-base"
+            className="w-full bg-surface-container-lowest border border-outline-variant/20 rounded-md py-4 pl-14 pr-24 text-on-surface focus:outline-none focus:border-primary-container transition-colors text-lg"
           />
+          {/* Keyboard shortcut badge */}
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-surface-variant px-2 py-1 rounded-sm">
+            <span className="text-[0.625rem] font-data text-on-surface-variant">CMD + K</span>
+          </div>
         </div>
         <Button
           variant="primary"
@@ -69,6 +73,7 @@ export function SearchPage() {
           rightIcon={ArrowRight}
           onClick={handleSearch}
           loading={isLoading}
+          className="px-8"
         >
           Search
         </Button>
@@ -85,7 +90,19 @@ export function SearchPage() {
 
       {/* Results */}
       {hasSearched ? (
-        <SearchResultsTable results={results} isLoading={isLoading} />
+        <>
+          <SearchResultsTable results={results} isLoading={isLoading} />
+          {/* Footer status */}
+          {results.length > 0 && (
+            <div className="flex justify-between items-center text-[0.625rem] uppercase tracking-[0.2em] text-on-surface-variant/50 mt-4">
+              <span className="font-data">Database Last Updated: 2026-03-26 14:02 UTC</span>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-secondary" />
+                <span className="font-data">Live Connection Active</span>
+              </div>
+            </div>
+          )}
+        </>
       ) : (
         <EmptyState onSuggestionClick={handleSuggestion} />
       )}
