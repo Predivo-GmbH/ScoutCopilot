@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Search as SearchIcon, ArrowRight, Sparkles } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
@@ -18,13 +18,11 @@ const SUGGESTED_QUERIES = [
 export function SearchPage() {
   const { params, results, isLoading, hasSearched, search, updateFilters } = usePlayerSearch()
   const [searchParams] = useSearchParams()
-  const initialQuery = useMemo(() => searchParams.get('q') ?? '', [searchParams])
+  const initialQuery = searchParams.get('q') ?? ''
   const [queryInput, setQueryInput] = useState(initialQuery)
 
-  // Trigger search when arriving with ?q= from top bar
-  useMemo(() => {
-    if (initialQuery) search({ query: initialQuery })
-  }, [initialQuery]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Pre-fill input from ?q= but don't auto-search
+  // User can review and click Search manually
 
   function handleSearch() {
     search({ query: queryInput })
@@ -81,6 +79,9 @@ export function SearchPage() {
         ageRange={params.ageRange}
         league={params.league}
         foot={params.foot}
+        minFitScore={params.minFitScore}
+        maxAge={params.maxAge}
+        minAge={params.minAge}
         onUpdate={(updates) => updateFilters(updates)}
       />
 

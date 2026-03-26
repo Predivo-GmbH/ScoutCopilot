@@ -2,12 +2,15 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { searchResults, type MockPlayer } from '../../../lib/mock-data'
 
-interface SearchParams {
+export interface SearchParams {
   query: string
   position: string
   ageRange: string
   league: string
   foot: string
+  minFitScore: number
+  maxAge: number
+  minAge: number
 }
 
 function hashQuery(str: string): number {
@@ -61,6 +64,9 @@ export function usePlayerSearch() {
     ageRange: 'All Ages',
     league: 'All Leagues',
     foot: 'Either Foot',
+    minFitScore: 0,
+    maxAge: 99,
+    minAge: 0,
   })
   const [hasSearched, setHasSearched] = useState(false)
 
@@ -90,6 +96,35 @@ export function usePlayerSearch() {
         results = results.filter((p) =>
           p.position.toLowerCase().includes(params.position.split(' ')[0].toLowerCase()),
         )
+      }
+      if (params.ageRange !== 'All Ages') {
+        const [minStr, maxStr] = params.ageRange.split(/\s*-\s*/)
+        if (params.ageRange.includes('+')) {
+          const min = parseInt(minStr)
+          results = results.filter((p) => p.age >= min)
+        } else {
+          const min = parseInt(minStr)
+          const max = parseInt(maxStr)
+          results = results.filter((p) => p.age >= min && p.age <= max)
+        }
+      }
+      // Foot filter — mock data doesn't have foot, so simulate based on name hash
+      if (params.foot !== 'Either Foot') {
+        results = results.filter((p) => {
+          const h = hashQuery(p.name) % 3
+          const playerFoot = h === 0 ? 'Left' : h === 1 ? 'Right' : 'Both'
+          return playerFoot === params.foot
+        })
+      }
+      // Advanced filters
+      if (params.minFitScore > 0) {
+        results = results.filter((p) => p.fitScore >= params.minFitScore)
+      }
+      if (params.maxAge < 99) {
+        results = results.filter((p) => p.age <= params.maxAge)
+      }
+      if (params.minAge > 0) {
+        results = results.filter((p) => p.age >= params.minAge)
       }
 
       // Parse query for stat thresholds (e.g., ">75% crossing accuracy", "xG/90 > 0.45")

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Download, LayoutGrid, ChevronLeft, ChevronRight, FileText, Loader2, Eye } from 'lucide-react'
+import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, FileText, Loader2, Eye } from 'lucide-react'
 import type { MockPlayer } from '../../../lib/mock-data'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import { useGeneratedReports } from '../../../lib/useGeneratedReportsHook'
@@ -12,10 +12,39 @@ interface SearchResultsTableProps {
   isLoading: boolean
 }
 
+function exportResultsCsv(results: MockPlayer[]) {
+  if (results.length === 0) return
+  const statKeys = Object.keys(results[0].stats)
+  const headers = ['#', 'Name', 'Age', 'Nationality', 'Position', 'Club', 'League', ...statKeys, 'Match Score']
+  const rows = results.map((p, i) => [
+    i + 1,
+    p.name,
+    p.age,
+    p.nationality,
+    p.position,
+    p.club,
+    p.league,
+    ...statKeys.map((k) => p.stats[k]),
+    p.fitScore,
+  ])
+  const csv = [headers.join(','), ...rows.map((r) => r.map((v) => `"${v}"`).join(','))].join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `scout-search-results-${new Date().toISOString().slice(0, 10)}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export function SearchResultsTable({ results, isLoading }: SearchResultsTableProps) {
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
   const { generateReport, isGenerating, hasReport } = useGeneratedReports()
+
+  // Reset page when results change
+  useEffect(() => { setPage(1) }, [results.length])
 
   if (isLoading) {
     return <AIThinkingAnimation />
@@ -39,104 +68,147 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
           <span className="font-data text-primary text-lg">{results.length}</span>
           <span className="uppercase tracking-widest text-xs text-on-surface-variant">players found</span>
         </h3>
-        <div className="flex items-center gap-2">
-          <button className="p-2 rounded-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" title="Download results">
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => exportResultsCsv(results)}
+            className="p-2 rounded-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+            title="Download as CSV"
+          >
             <Download size={16} strokeWidth={1.5} />
           </button>
-          <button className="p-2 rounded-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" title="Grid view">
-            <LayoutGrid size={16} strokeWidth={1.5} />
-          </button>
+          <div className="flex items-center bg-surface-container-high rounded-sm border border-outline-variant/30">
+            <button
+              onClick={() => setViewMode('table')}
+              className={`p-2 rounded-sm transition-colors ${viewMode === 'table' ? 'text-primary bg-primary/10' : 'text-on-surface-variant hover:text-on-surface'}`}
+              title="Table view"
+            >
+              <LayoutList size={16} strokeWidth={1.5} />
+            </button>
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-2 rounded-sm transition-colors ${viewMode === 'grid' ? 'text-primary bg-primary/10' : 'text-on-surface-variant hover:text-on-surface'}`}
+              title="Grid view"
+            >
+              <LayoutGrid size={16} strokeWidth={1.5} />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="bg-surface-container-high border-b border-outline-variant">
-              <th className="px-6 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant w-8">#</th>
-              <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant min-w-[200px]">Player</th>
-              <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">Position</th>
-              <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">Age</th>
-              <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">League</th>
-              {statKeys.map((key) => (
-                <th key={key} className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant text-right">
-                  {key}
-                </th>
-              ))}
-              <th className="px-6 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant w-48">Match Score</th>
-              <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant text-center">Report</th>
-            </tr>
-          </thead>
-          <tbody className="text-sm">
-            {paged.map((player, i) => {
-              const globalIndex = (page - 1) * PAGE_SIZE + i
-              return (
-                <tr
-                  key={player.id}
-                  onClick={() => navigate(`/players/${player.id}`)}
-                  className={`${globalIndex % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'} border-b border-outline-variant/30 hover:bg-surface-variant/50 transition-colors cursor-pointer group`}
-                >
-                  <td className="px-6 py-4 font-data text-on-surface-variant text-xs">{globalIndex + 1}</td>
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-3">
-                      <PlayerAvatarWithFlag name={player.name} nationality={player.nationality} imageUrl={player.image} />
-                      <div>
-                        <div className="font-bold text-on-surface">{player.name}</div>
-                        <div className="text-[0.625rem] text-on-surface-variant flex items-center gap-1.5">
-                          <span className="uppercase tracking-tight">{player.club}</span>
-                          <span className="w-0.5 h-0.5 rounded-full bg-outline-variant" />
-                          <span>{player.nationality}</span>
+      {/* Content */}
+      {viewMode === 'table' ? (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-surface-container-high border-b border-outline-variant">
+                <th className="px-6 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant w-8">#</th>
+                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant min-w-[200px]">Player</th>
+                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">Position</th>
+                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">Age</th>
+                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">League</th>
+                {statKeys.map((key) => (
+                  <th key={key} className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant text-right">
+                    {key}
+                  </th>
+                ))}
+                <th className="px-6 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant w-48">Match Score</th>
+                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant text-center">Report</th>
+              </tr>
+            </thead>
+            <tbody className="text-sm">
+              {paged.map((player, i) => {
+                const globalIndex = (page - 1) * PAGE_SIZE + i
+                return (
+                  <tr
+                    key={player.id}
+                    onClick={() => navigate(`/players/${player.id}`)}
+                    className={`${globalIndex % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'} border-b border-outline-variant/30 hover:bg-surface-variant/50 transition-colors cursor-pointer group`}
+                  >
+                    <td className="px-6 py-4 font-data text-on-surface-variant text-xs">{globalIndex + 1}</td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-3">
+                        <PlayerAvatarWithFlag name={player.name} nationality={player.nationality} imageUrl={player.image} />
+                        <div>
+                          <div className="font-bold text-on-surface">{player.name}</div>
+                          <div className="text-[0.625rem] text-on-surface-variant flex items-center gap-1.5">
+                            <span className="uppercase tracking-tight">{player.club}</span>
+                            <span className="w-0.5 h-0.5 rounded-full bg-outline-variant" />
+                            <span>{player.nationality}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="flex gap-1">
-                      {player.position.split(', ').map((pos) => (
-                        <span key={pos} className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm">
-                          {pos}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 font-data">{player.age}</td>
-                  <td className="px-4 py-4 text-on-surface-variant text-xs">{player.league}</td>
-                  {statKeys.map((key) => (
-                    <td key={key} className="px-4 py-4 font-data text-right text-on-surface-variant">
-                      {player.stats[key]}
                     </td>
+                    <td className="px-4 py-4">
+                      <div className="flex gap-1">
+                        {player.position.split(', ').map((pos) => (
+                          <span key={pos} className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm">
+                            {pos}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 font-data">{player.age}</td>
+                    <td className="px-4 py-4 text-on-surface-variant text-xs">{player.league}</td>
+                    {statKeys.map((key) => (
+                      <td key={key} className="px-4 py-4 font-data text-right text-on-surface-variant">
+                        {player.stats[key]}
+                      </td>
+                    ))}
+                    <td className="px-6 py-4">
+                      <FitScoreBar score={player.fitScore} />
+                    </td>
+                    <td className="px-4 py-4 text-center">
+                      <ReportButton playerId={player.id} hasReport={hasReport} isGenerating={isGenerating} generateReport={generateReport} navigate={navigate} />
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {paged.map((player, i) => {
+            const globalIndex = (page - 1) * PAGE_SIZE + i
+            return (
+              <div
+                key={player.id}
+                onClick={() => navigate(`/players/${player.id}`)}
+                className="bg-surface-container-low border border-outline-variant rounded-md p-4 hover:border-primary/30 hover:bg-surface-container-high transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-[0.625rem] font-data text-on-surface-variant">{globalIndex + 1}</span>
+                  <PlayerAvatarWithFlag name={player.name} nationality={player.nationality} imageUrl={player.image} />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-on-surface text-sm truncate">{player.name}</div>
+                    <div className="text-[0.625rem] text-on-surface-variant truncate">{player.club} &middot; {player.nationality}</div>
+                  </div>
+                  <div className="flex gap-1">
+                    {player.position.split(', ').map((pos) => (
+                      <span key={pos} className="text-[0.5625rem] font-data bg-surface-container-highest text-on-surface px-1 py-0.5 rounded-sm">
+                        {pos}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 mb-3">
+                  <StatRow label="Age" value={String(player.age)} />
+                  <StatRow label="League" value={player.league} />
+                  {statKeys.map((key) => (
+                    <StatRow key={key} label={key} value={String(player.stats[key])} />
                   ))}
-                  <td className="px-6 py-4">
-                    <FitScoreBar score={player.fitScore} />
-                  </td>
-                  <td className="px-4 py-4 text-center">
-                    {hasReport(player.id) ? (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); navigate(`/players/${player.id}`) }}
-                        className="inline-flex items-center gap-1.5 text-secondary hover:text-secondary/80 transition-colors text-xs font-medium"
-                      >
-                        <Eye size={14} strokeWidth={1.5} />
-                        View
-                      </button>
-                    ) : isGenerating(player.id) ? (
-                      <Loader2 size={16} strokeWidth={1.5} className="animate-spin text-primary mx-auto" />
-                    ) : (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); generateReport(player.id) }}
-                        className="inline-flex items-center gap-1.5 text-primary hover:text-primary-light transition-colors text-xs font-medium"
-                      >
-                        <FileText size={14} strokeWidth={1.5} />
-                        Generate
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-3 border-t border-outline-variant/30">
+                  <FitScoreBar score={player.fitScore} />
+                  <ReportButton playerId={player.id} hasReport={hasReport} isGenerating={isGenerating} generateReport={generateReport} navigate={navigate} />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       {/* Pagination */}
       {totalPages > 1 && (
@@ -179,6 +251,47 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function ReportButton({ playerId, hasReport, isGenerating, generateReport, navigate }: {
+  playerId: string
+  hasReport: (id: string) => boolean
+  isGenerating: (id: string) => boolean
+  generateReport: (id: string) => void
+  navigate: (path: string) => void
+}) {
+  if (hasReport(playerId)) {
+    return (
+      <button
+        onClick={(e) => { e.stopPropagation(); navigate(`/players/${playerId}`) }}
+        className="inline-flex items-center gap-1.5 text-secondary hover:text-secondary/80 transition-colors text-xs font-medium"
+      >
+        <Eye size={14} strokeWidth={1.5} />
+        View
+      </button>
+    )
+  }
+  if (isGenerating(playerId)) {
+    return <Loader2 size={16} strokeWidth={1.5} className="animate-spin text-primary mx-auto" />
+  }
+  return (
+    <button
+      onClick={(e) => { e.stopPropagation(); generateReport(playerId) }}
+      className="inline-flex items-center gap-1.5 text-primary hover:text-primary-light transition-colors text-xs font-medium"
+    >
+      <FileText size={14} strokeWidth={1.5} />
+      Generate
+    </button>
+  )
+}
+
+function StatRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between items-center">
+      <span className="text-[0.5625rem] uppercase tracking-widest text-on-surface-variant">{label}</span>
+      <span className="font-data text-xs text-on-surface">{value}</span>
     </div>
   )
 }
