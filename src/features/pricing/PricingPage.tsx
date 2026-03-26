@@ -227,7 +227,7 @@ export function PricingPage() {
                   </div>
                   {interval === 'year' && (
                     <p className="text-on-surface-variant text-xs mt-1">
-                      ${annualTotal.toLocaleString()}/yr billed annually
+                      ${annualTotal}/yr billed annually
                     </p>
                   )}
                   <p className="text-on-surface-variant text-sm mt-3">{tier.description}</p>

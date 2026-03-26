@@ -109,7 +109,7 @@ export function BillingSettings() {
                 : 'Upgrade to Club for 10 seats, custom models, and API access.'}
             </p>
             <Button variant="primary" size="sm" onClick={() => navigate('/pricing')}>
-              {tier === 'scout' ? `Upgrade to Pro ($${TIER_PRICES.pro.month}/mo)` : `Upgrade to Club ($${TIER_PRICES.club.month}/mo)`}
+              {tier === 'scout' ? 'Upgrade to Pro' : 'Upgrade to Club'}
             </Button>
           </div>
         )}

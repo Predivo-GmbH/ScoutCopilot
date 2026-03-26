@@ -512,7 +512,7 @@ export function LandingPage() {
         <div className="max-w-4xl mx-auto">
           <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-4 text-center">
             A junior analyst costs <span className="font-mono">$50K</span>/year.{' '}
-            ScoutCopilot costs <span className="font-mono">$249</span>/month.
+            ScoutCopilot starts at <span className="font-mono">$X</span>/month.
           </h2>
           <p className="text-on-surface-variant text-center max-w-2xl mx-auto mb-12">
             That's <span className="font-mono font-bold text-secondary-light">27-52 hours</span> saved per week,
@@ -625,7 +625,7 @@ export function LandingPage() {
                     </div>
                     {interval === 'year' && (
                       <p className="text-on-surface-variant text-xs mt-1">
-                        ${annualTotal.toLocaleString()}/yr billed annually
+                        ${annualTotal}/yr billed annually
                       </p>
                     )}
                     <p className="text-on-surface-variant text-sm mt-3">{tier.description}</p>
