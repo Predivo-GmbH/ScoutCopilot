@@ -86,16 +86,16 @@ export function TopBar() {
               </div>
             )}
             <div className="hidden md:flex flex-col items-start">
-              <span className="text-xs font-semibold text-on-surface leading-tight">{profile?.full_name ?? 'Chief Scout'}</span>
-              <span className="text-[0.625rem] text-on-surface-variant leading-tight">{profile?.role ?? 'London Office'}</span>
+              <span className="text-xs font-semibold text-on-surface leading-tight">{profile?.full_name || 'User'}</span>
+              {profile?.role && <span className="text-[0.625rem] text-on-surface-variant leading-tight">{profile.role}</span>}
             </div>
           </button>
 
           {profileOpen && (
             <div className="absolute right-0 top-full mt-1 w-48 bg-surface-container-low border border-outline-variant rounded-md shadow-lg overflow-hidden z-50">
               <div className="px-3 py-2.5 border-b border-outline-variant/30">
-                <p className="text-xs font-semibold text-on-surface truncate">{profile?.full_name ?? 'Chief Scout'}</p>
-                <p className="text-[0.625rem] text-on-surface-variant truncate">{profile?.role ?? 'Scout'}</p>
+                <p className="text-xs font-semibold text-on-surface truncate">{profile?.full_name || 'User'}</p>
+                {profile?.role && <p className="text-[0.625rem] text-on-surface-variant truncate">{profile.role}</p>}
               </div>
               <button
                 onClick={() => { setProfileOpen(false); navigate('/settings') }}

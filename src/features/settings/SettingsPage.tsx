@@ -21,8 +21,11 @@ export function SettingsPage() {
     setActiveTab,
     profile,
     updateProfile,
+    saveProfile,
     org,
     updateOrg,
+    saveOrg,
+    saveStatus,
     credentials,
     preferences,
     togglePreference,
@@ -53,9 +56,9 @@ export function SettingsPage() {
         <div className="max-w-4xl space-y-6">
           {activeTab === 'profile' && (
             <>
-              <ProfileSettings profile={profile} onUpdate={updateProfile} />
+              <ProfileSettings profile={profile} onUpdate={updateProfile} onSave={saveProfile} saveStatus={saveStatus} />
               <PasswordSettings />
-              <OrgSettings org={org} onUpdate={updateOrg} />
+              <OrgSettings org={org} onUpdate={updateOrg} onSave={saveOrg} saveStatus={saveStatus} />
             </>
           )}
 
@@ -119,11 +122,6 @@ export function SettingsPage() {
             <BillingSettings />
           )}
 
-          {/* Save/Discard */}
-          <div className="pt-6 border-t border-outline-variant flex justify-end gap-4">
-            <Button variant="ghost" size="md">Discard</Button>
-            <Button variant="primary" size="md">Save Changes</Button>
-          </div>
         </div>
       </div>
     </div>

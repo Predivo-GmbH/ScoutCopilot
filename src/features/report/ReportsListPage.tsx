@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom'
-import { Eye } from 'lucide-react'
+import { Eye, Search as SearchIcon } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 import { playerReports } from '../../lib/mock-data'
+import { useGeneratedReports } from '../../lib/useGeneratedReportsHook'
 
 const recommendation = {
   sign: { label: 'Sign', className: 'text-secondary bg-secondary/10 border-secondary/20' },
@@ -12,7 +13,8 @@ const recommendation = {
 
 export function ReportsListPage() {
   const navigate = useNavigate()
-  const reports = Object.values(playerReports)
+  const { generatedReportIds } = useGeneratedReports()
+  const reports = Object.values(playerReports).filter((r) => generatedReportIds.includes(r.playerId))
 
   return (
     <div className="p-6 space-y-6">
@@ -23,6 +25,23 @@ export function ReportsListPage() {
         </p>
       </div>
 
+      {reports.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center mb-4">
+            <SearchIcon size={32} strokeWidth={1.5} className="text-on-surface-variant" />
+          </div>
+          <h3 className="text-lg font-semibold text-on-surface mb-2">No reports yet</h3>
+          <p className="text-sm text-on-surface-variant max-w-md mb-6">
+            Search for players and generate reports to see them here.
+          </p>
+          <button
+            onClick={() => navigate('/search')}
+            className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary-light transition-colors"
+          >
+            Start a search
+          </button>
+        </div>
+      ) : (
       <Card>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -82,6 +101,7 @@ export function ReportsListPage() {
           </table>
         </div>
       </Card>
+      )}
     </div>
   )
 }

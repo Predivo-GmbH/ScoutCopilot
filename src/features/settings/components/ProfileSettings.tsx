@@ -1,11 +1,13 @@
-import { User } from 'lucide-react'
+import { User, Check, Loader2 } from 'lucide-react'
 
 interface ProfileSettingsProps {
   profile: { fullName: string; email: string; role: string }
   onUpdate: (updates: Record<string, string>) => void
+  onSave?: () => void
+  saveStatus?: 'idle' | 'saving' | 'saved' | 'error'
 }
 
-export function ProfileSettings({ profile, onUpdate }: ProfileSettingsProps) {
+export function ProfileSettings({ profile, onUpdate, onSave, saveStatus = 'idle' }: ProfileSettingsProps) {
   return (
     <section className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
       <div className="px-6 py-4 bg-surface-container-high border-b border-outline-variant">
@@ -30,8 +32,9 @@ export function ProfileSettings({ profile, onUpdate }: ProfileSettingsProps) {
             <FormField
               label="Email Address"
               value={profile.email}
-              onChange={(v) => onUpdate({ email: v })}
+              onChange={() => {}}
               type="email"
+              readOnly
             />
             <div className="col-span-2">
               <label className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">Role</label>
@@ -46,6 +49,24 @@ export function ProfileSettings({ profile, onUpdate }: ProfileSettingsProps) {
                 <option>Analyst</option>
               </select>
             </div>
+            {onSave && (
+              <div className="col-span-2 flex items-center gap-3 pt-2">
+                <button
+                  onClick={onSave}
+                  disabled={saveStatus === 'saving'}
+                  className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary-light transition-colors disabled:opacity-50"
+                >
+                  {saveStatus === 'saving' ? (
+                    <span className="flex items-center gap-2"><Loader2 size={14} className="animate-spin" /> Saving...</span>
+                  ) : saveStatus === 'saved' ? (
+                    <span className="flex items-center gap-2"><Check size={14} /> Saved</span>
+                  ) : 'Save Profile'}
+                </button>
+                {saveStatus === 'error' && (
+                  <span className="text-xs text-error">Failed to save. Please try again.</span>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -53,11 +74,12 @@ export function ProfileSettings({ profile, onUpdate }: ProfileSettingsProps) {
   )
 }
 
-function FormField({ label, value, onChange, type = 'text' }: {
+function FormField({ label, value, onChange, type = 'text', readOnly }: {
   label: string
   value: string
   onChange: (v: string) => void
   type?: string
+  readOnly?: boolean
 }) {
   return (
     <div>
@@ -68,7 +90,8 @@ function FormField({ label, value, onChange, type = 'text' }: {
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-sm font-data text-on-surface focus:outline-none focus:border-primary transition-colors"
+        readOnly={readOnly}
+        className={`w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-sm font-data text-on-surface focus:outline-none focus:border-primary transition-colors ${readOnly ? 'opacity-60 cursor-not-allowed' : ''}`}
       />
     </div>
   )

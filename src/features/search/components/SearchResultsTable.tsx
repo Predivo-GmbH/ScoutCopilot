@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowUpRight, Download, LayoutGrid, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Download, LayoutGrid, ChevronLeft, ChevronRight, FileText, Loader2, Eye } from 'lucide-react'
 import type { MockPlayer } from '../../../lib/mock-data'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
+import { useGeneratedReports } from '../../../lib/useGeneratedReportsHook'
 
 const PAGE_SIZE = 8
 
@@ -14,17 +15,10 @@ interface SearchResultsTableProps {
 export function SearchResultsTable({ results, isLoading }: SearchResultsTableProps) {
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
+  const { generateReport, isGenerating, hasReport } = useGeneratedReports()
 
   if (isLoading) {
-    return (
-      <div className="bg-surface-container rounded-md border border-outline-variant overflow-hidden">
-        <div className="p-6 space-y-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-16 bg-surface-container-high rounded-sm animate-pulse" />
-          ))}
-        </div>
-      </div>
-    )
+    return <AIThinkingAnimation />
   }
 
   if (results.length === 0) {
@@ -71,7 +65,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
                 </th>
               ))}
               <th className="px-6 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant w-48">Match Score</th>
-              <th className="px-3 py-4 w-8" />
+              <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant text-center">Report</th>
             </tr>
           </thead>
           <tbody className="text-sm">
@@ -116,8 +110,26 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
                   <td className="px-6 py-4">
                     <FitScoreBar score={player.fitScore} />
                   </td>
-                  <td className="px-3 py-4">
-                    <ArrowUpRight size={14} strokeWidth={1.5} className="text-on-surface-variant/0 group-hover:text-primary transition-colors" />
+                  <td className="px-4 py-4 text-center">
+                    {hasReport(player.id) ? (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); navigate(`/report/${player.id}`) }}
+                        className="inline-flex items-center gap-1.5 text-secondary hover:text-secondary/80 transition-colors text-xs font-medium"
+                      >
+                        <Eye size={14} strokeWidth={1.5} />
+                        View
+                      </button>
+                    ) : isGenerating(player.id) ? (
+                      <Loader2 size={16} strokeWidth={1.5} className="animate-spin text-primary mx-auto" />
+                    ) : (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); generateReport(player.id) }}
+                        className="inline-flex items-center gap-1.5 text-primary hover:text-primary-light transition-colors text-xs font-medium"
+                      >
+                        <FileText size={14} strokeWidth={1.5} />
+                        Generate
+                      </button>
+                    )}
                   </td>
                 </tr>
               )
@@ -219,6 +231,53 @@ const FLAG_MAP: Record<string, string> = {
 
 function countryToFlag(country: string): string | null {
   return FLAG_MAP[country] ?? null
+}
+
+const AI_STEPS = [
+  'Querying player database...',
+  'Analyzing statistical profiles...',
+  'Ranking by fit score...',
+  'Compiling results...',
+]
+
+function AIThinkingAnimation() {
+  const [step, setStep] = useState(0)
+
+  useEffect(() => {
+    const timers = AI_STEPS.map((_, i) =>
+      i > 0 ? setTimeout(() => setStep(i), i * 700) : null,
+    )
+    return () => timers.forEach((t) => t && clearTimeout(t))
+  }, [])
+
+  return (
+    <div className="bg-surface-container rounded-md border border-outline-variant overflow-hidden">
+      <div className="flex flex-col items-center justify-center py-16 px-6">
+        <Loader2 size={32} strokeWidth={1.5} className="animate-spin text-primary mb-6" />
+        <div className="space-y-3 w-full max-w-xs">
+          {AI_STEPS.map((label, i) => (
+            <div
+              key={label}
+              className={`flex items-center gap-3 transition-opacity duration-300 ${i <= step ? 'opacity-100' : 'opacity-0'}`}
+            >
+              {i < step ? (
+                <span className="w-5 h-5 rounded-full bg-secondary/15 flex items-center justify-center text-secondary text-xs shrink-0">&#10003;</span>
+              ) : i === step ? (
+                <span className="w-5 h-5 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                </span>
+              ) : (
+                <span className="w-5 h-5 shrink-0" />
+              )}
+              <span className={`text-sm ${i < step ? 'text-on-surface-variant' : i === step ? 'text-on-surface font-medium' : 'text-on-surface-variant'}`}>
+                {label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function FitScoreBar({ score }: { score: number }) {

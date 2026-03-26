@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useAuth } from '../../auth/useAuth'
+import { supabase } from '../../../lib/supabase'
 
 export type SettingsTab = 'profile' | 'organization' | 'credentials' | 'billing' | 'preferences'
 
@@ -27,18 +29,36 @@ interface Preferences {
 }
 
 export function useSettings() {
+  const { user, profile: authProfile, organization: authOrg, refreshProfile } = useAuth()
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile')
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
 
   const [profile, setProfile] = useState<ProfileData>({
-    fullName: 'Alex Mercer',
-    email: 'alex.mercer@scoutcopilot.pro',
-    role: 'Technical Director',
+    fullName: '',
+    email: '',
+    role: '',
   })
 
   const [org, setOrg] = useState<OrgData>({
-    name: 'FC Nordhavn Academy',
-    country: 'Denmark',
+    name: '',
+    country: '',
   })
+
+  // Sync from auth context when it loads
+  useEffect(() => {
+    setProfile({
+      fullName: authProfile?.full_name ?? '',
+      email: user?.email ?? '',
+      role: authProfile?.role ?? '',
+    })
+  }, [authProfile, user])
+
+  useEffect(() => {
+    setOrg({
+      name: authOrg?.name ?? '',
+      country: authOrg?.country ?? '',
+    })
+  }, [authOrg])
 
   const [credentials] = useState<Credential[]>([
     { provider: 'wyscout', connected: true, maskedKey: '•••••••••••42A9' },
@@ -60,6 +80,56 @@ export function useSettings() {
     setOrg((prev) => ({ ...prev, ...updates }))
   }
 
+  const saveProfile = useCallback(async () => {
+    if (!user) return
+    setSaveStatus('saving')
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ full_name: profile.fullName, role: profile.role })
+        .eq('id', user.id)
+      if (error) throw error
+      await refreshProfile()
+      setSaveStatus('saved')
+      setTimeout(() => setSaveStatus('idle'), 2000)
+    } catch {
+      setSaveStatus('error')
+      setTimeout(() => setSaveStatus('idle'), 3000)
+    }
+  }, [user, profile.fullName, profile.role, refreshProfile])
+
+  const saveOrg = useCallback(async () => {
+    if (!user) return
+    setSaveStatus('saving')
+    try {
+      if (authOrg?.id) {
+        const { error } = await supabase
+          .from('organizations')
+          .update({ name: org.name, country: org.country })
+          .eq('id', authOrg.id)
+        if (error) throw error
+      } else {
+        const { data, error } = await supabase
+          .from('organizations')
+          .insert({ name: org.name, country: org.country })
+          .select('id')
+          .single()
+        if (error) throw error
+        // Link org to profile
+        await supabase
+          .from('profiles')
+          .update({ organization_id: data.id })
+          .eq('id', user.id)
+      }
+      await refreshProfile()
+      setSaveStatus('saved')
+      setTimeout(() => setSaveStatus('idle'), 2000)
+    } catch {
+      setSaveStatus('error')
+      setTimeout(() => setSaveStatus('idle'), 3000)
+    }
+  }, [user, authOrg, org.name, org.country, refreshProfile])
+
   function togglePreference(key: keyof Preferences) {
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }))
   }
@@ -69,8 +139,11 @@ export function useSettings() {
     setActiveTab,
     profile,
     updateProfile,
+    saveProfile,
     org,
     updateOrg,
+    saveOrg,
+    saveStatus,
     credentials,
     preferences,
     togglePreference,
