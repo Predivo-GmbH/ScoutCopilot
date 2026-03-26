@@ -14,7 +14,7 @@ interface OrgData {
 }
 
 interface Credential {
-  provider: 'wyscout' | 'statsbomb' | 'transfermarkt'
+  provider: 'wyscout' | 'statsbomb'
   connected: boolean
   maskedKey: string
 }
@@ -43,7 +43,6 @@ export function useSettings() {
   const [credentials] = useState<Credential[]>([
     { provider: 'wyscout', connected: true, maskedKey: '•••••••••••42A9' },
     { provider: 'statsbomb', connected: true, maskedKey: '•••••••••••K9L2' },
-    { provider: 'transfermarkt', connected: false, maskedKey: '' },
   ])
 
   const [preferences, setPreferences] = useState<Preferences>({
