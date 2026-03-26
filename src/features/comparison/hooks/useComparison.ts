@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { playerReports, type MockComparisonPlayer } from '../../../lib/mock-data'
 import { useGeneratedReports } from '../../../lib/useGeneratedReportsHook'
+import { useComparisonContext } from '../../../lib/ComparisonContext'
 
 /** Convert a player report into the comparison format */
 function reportToComparison(id: string): MockComparisonPlayer | null {
@@ -40,9 +41,26 @@ function reportToComparison(id: string): MockComparisonPlayer | null {
 
 export function useComparison() {
   const { generatedReportIds } = useGeneratedReports()
+  const { pendingPlayerIds, clearPending } = useComparisonContext()
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [tacticalContext, setTacticalContext] = useState('')
   const [generated, setGenerated] = useState(false)
+
+  // Auto-add pending players from context (e.g. navigated from report page)
+  useEffect(() => {
+    if (pendingPlayerIds.length === 0) return
+    setSelectedIds((prev) => {
+      const next = [...prev]
+      for (const id of pendingPlayerIds) {
+        if (!next.includes(id) && next.length < 4) {
+          next.push(id)
+        }
+      }
+      return next
+    })
+    setGenerated(false)
+    clearPending()
+  }, [pendingPlayerIds, clearPending])
 
   // All scouted players available for comparison
   const allPlayers = useMemo(() => {

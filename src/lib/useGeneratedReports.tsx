@@ -19,11 +19,15 @@ export function GeneratedReportsProvider({ children }: { children: ReactNode }) 
     setReportIds((prev) => [...prev, id])
   }, [reportIds, generatingIds])
 
+  const removeReport = useCallback((id: string) => {
+    setReportIds((prev) => prev.filter((rid) => rid !== id))
+  }, [])
+
   const isGenerating = useCallback((id: string) => generatingIds.has(id), [generatingIds])
   const hasReport = useCallback((id: string) => reportIds.includes(id), [reportIds])
 
   return (
-    <GeneratedReportsContext.Provider value={{ generatedReportIds: reportIds, generateReport, isGenerating, hasReport }}>
+    <GeneratedReportsContext.Provider value={{ generatedReportIds: reportIds, generateReport, removeReport, isGenerating, hasReport }}>
       {children}
     </GeneratedReportsContext.Provider>
   )

@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Eye, Search as SearchIcon } from 'lucide-react'
-import { Card } from '../../components/ui/Card'
+import { Search as SearchIcon, FileText, Trash2 } from 'lucide-react'
+import { Button } from '../../components/ui/Button'
 import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { playerReports } from '../../lib/mock-data'
 import { useGeneratedReports } from '../../lib/useGeneratedReportsHook'
 
@@ -13,8 +15,15 @@ const recommendation = {
 
 export function ReportsListPage() {
   const navigate = useNavigate()
-  const { generatedReportIds } = useGeneratedReports()
+  const { generatedReportIds, removeReport } = useGeneratedReports()
   const reports = Object.values(playerReports).filter((r) => generatedReportIds.includes(r.playerId))
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
+
+  function handleDelete() {
+    if (!deleteTarget) return
+    removeReport(deleteTarget.id)
+    setDeleteTarget(null)
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -42,57 +51,76 @@ export function ReportsListPage() {
           </button>
         </div>
       ) : (
-      <Card>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="bg-surface-container rounded-md overflow-hidden border border-outline-variant">
+          <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-outline-variant text-[0.625rem] uppercase tracking-widest text-on-surface-variant">
-                <th className="text-left py-3 px-4 font-medium">Player</th>
-                <th className="text-left py-3 px-4 font-medium">Position</th>
-                <th className="text-left py-3 px-4 font-medium">Club</th>
-                <th className="text-left py-3 px-4 font-medium">League</th>
-                <th className="text-center py-3 px-4 font-medium">Fit Score</th>
-                <th className="text-center py-3 px-4 font-medium">Recommendation</th>
-                <th className="text-center py-3 px-4 font-medium">Action</th>
+              <tr className="bg-surface-container-low text-[0.625rem] font-medium text-on-surface-variant uppercase tracking-widest border-b border-outline-variant">
+                <th className="px-6 py-3">Player</th>
+                <th className="px-4 py-3 text-center">Club</th>
+                <th className="px-4 py-3 text-center">Position</th>
+                <th className="px-4 py-3 text-center">Age</th>
+                <th className="px-4 py-3 text-center">Fit Score</th>
+                <th className="px-4 py-3 text-center">Recommendation</th>
+                <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {reports.map((report) => {
+            <tbody className="text-sm">
+              {reports.map((report, i) => {
                 const rec = recommendation[report.recommendation]
                 return (
                   <tr
                     key={report.playerId}
-                    className="border-b border-outline-variant/50 hover:bg-surface-container-low transition-colors cursor-pointer"
-                    onClick={() => navigate(`/players/${report.playerId}`)}
+                    className={`${i % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'} hover:bg-surface-container-high transition-colors group`}
                   >
-                    <td className="py-3 px-4">
+                    <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <PlayerAvatar name={report.playerName} size={36} imageUrl={report.image} />
+                        <PlayerAvatar name={report.playerName} size={40} imageUrl={report.image} />
                         <div>
-                          <div className="font-semibold text-on-surface">{report.playerName}</div>
-                          <div className="text-[0.625rem] text-on-surface-variant">{report.age}y &middot; {report.nationality}</div>
+                          <p className="font-semibold text-on-surface">{report.playerName}</p>
+                          <p className="text-[0.625rem] text-on-surface-variant font-data">
+                            {report.nationality} | SCORE: {report.fitScore}
+                          </p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-on-surface-variant">{report.position}</td>
-                    <td className="py-3 px-4 text-on-surface-variant">{report.club}</td>
-                    <td className="py-3 px-4 text-on-surface-variant">{report.league}</td>
-                    <td className="py-3 px-4 text-center">
-                      <span className="font-data font-semibold text-on-surface">{report.fitScore}</span>
+                    <td className="px-4 py-4 text-center">
+                      <span className="px-2 py-1 bg-surface-container-low rounded-sm text-[0.625rem] font-semibold text-on-surface-variant uppercase">
+                        {report.club}
+                      </span>
                     </td>
-                    <td className="py-3 px-4 text-center">
+                    <td className="px-4 py-4 text-center font-data text-on-surface-variant">{report.position}</td>
+                    <td className="px-4 py-4 text-center font-data">{report.age}</td>
+                    <td className="px-4 py-4 text-center">
+                      <span className="text-primary font-data font-semibold">{report.fitScore}</span>
+                    </td>
+                    <td className="px-4 py-4 text-center">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-sm text-[0.625rem] font-data font-medium uppercase border ${rec.className}`}>
                         {rec.label}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-center">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); navigate(`/players/${report.playerId}`) }}
-                        className="inline-flex items-center gap-1.5 text-primary hover:text-primary-light transition-colors text-xs"
-                      >
-                        <Eye size={14} strokeWidth={1.5} />
-                        View
-                      </button>
+                    <td className="px-4 py-4 text-right">
+                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          leftIcon={FileText}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            navigate(`/players/${report.playerId}`)
+                          }}
+                        >
+                          Report
+                        </Button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setDeleteTarget({ id: report.playerId, name: report.playerName })
+                          }}
+                          className="p-1 text-error hover:bg-error/10 rounded-sm transition-colors"
+                        >
+                          <Trash2 size={14} strokeWidth={1.5} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 )
@@ -100,8 +128,17 @@ export function ReportsListPage() {
             </tbody>
           </table>
         </div>
-      </Card>
       )}
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Remove Player"
+        message={`Are you sure you want to remove ${deleteTarget?.name ?? 'this player'} from your scouted players? This will delete the generated report.`}
+        confirmLabel="Remove"
+        variant="destructive"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   )
 }

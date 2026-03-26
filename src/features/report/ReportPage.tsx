@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useParams, useNavigate, Navigate } from 'react-router-dom'
 import {
   Star,
@@ -10,12 +11,18 @@ import {
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
+import { AddToWatchlistModal } from '../../components/shared/AddToWatchlistModal'
 import { usePlayerReport } from './hooks/usePlayerReport'
+import { useComparisonContext } from '../../lib/ComparisonContext'
+import { exportPlayerPdf } from '../../lib/exportPdf'
+import type { MockWatchlistPlayer } from '../../lib/mock-data'
 
 export function ReportPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data: report, isLoading } = usePlayerReport(id)
+  const { addPendingPlayer } = useComparisonContext()
+  const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
 
   if (!id) return <Navigate to="/players" replace />
 
@@ -73,11 +80,17 @@ export function ReportPage() {
           </div>
         </div>
         <div className="flex gap-3">
-          <Button variant="secondary" size="sm" leftIcon={Star}>Add to Watchlist</Button>
-          <Button variant="secondary" size="sm" leftIcon={GitCompareArrows} onClick={() => navigate('/compare')}>Compare</Button>
-          <Button variant="primary" size="sm" leftIcon={FileDown}>Export PDF</Button>
+          <Button variant="secondary" size="sm" leftIcon={Star} onClick={() => setWatchlistModalOpen(true)}>Add to Watchlist</Button>
+          <Button variant="secondary" size="sm" leftIcon={GitCompareArrows} onClick={() => { addPendingPlayer(report.playerId); navigate('/compare') }}>Compare</Button>
+          <Button variant="primary" size="sm" leftIcon={FileDown} onClick={() => exportPlayerPdf(report)}>Export PDF</Button>
         </div>
       </div>
+
+      <AddToWatchlistModal
+        open={watchlistModalOpen}
+        player={reportToWatchlistPlayer(report)}
+        onClose={() => setWatchlistModalOpen(false)}
+      />
 
       {/* Content Grid */}
       <div className="grid grid-cols-1 md:grid-cols-10 gap-6">
@@ -204,6 +217,24 @@ export function ReportPage() {
       </div>
     </div>
   )
+}
+
+// ─── Helpers ──────────────────────────────────────────────
+
+function reportToWatchlistPlayer(r: { playerId: string; playerName: string; club: string; position: string; age: number; nationality: string; image?: string; fitScore: number }): MockWatchlistPlayer {
+  return {
+    id: r.playerId,
+    name: r.playerName,
+    club: r.club,
+    position: r.position,
+    age: r.age,
+    nationality: r.nationality,
+    image: r.image,
+    keyMetric: { value: String(r.fitScore), label: 'Fit Score' },
+    alertStatus: 'stable',
+    addedDate: new Date().toISOString().split('T')[0],
+    scoutScore: r.fitScore,
+  }
 }
 
 // ─── Sub-components ────────────────────────────────────────

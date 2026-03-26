@@ -1,28 +1,26 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { watchlists, type MockWatchlist } from '../../../lib/mock-data'
+import { useWatchlistActions } from '../../../lib/WatchlistContext'
+import type { MockWatchlist } from '../../../lib/mock-data'
 
 export function useWatchlists() {
+  const { watchlists, removePlayerFromWatchlist } = useWatchlistActions()
   const [selectedWatchlistId, setSelectedWatchlistId] = useState<string | null>(null)
   const [filter, setFilter] = useState<'all' | 'transfer' | 'youth' | 'position'>('all')
 
-  const { data: lists, isLoading } = useQuery<MockWatchlist[]>({
-    queryKey: ['watchlists'],
-    queryFn: async () => {
-      await new Promise((r) => setTimeout(r, 300))
-      return watchlists
-    },
-  })
-
-  const selectedWatchlist = lists?.find((w) => w.id === selectedWatchlistId) ?? null
+  const selectedWatchlist: MockWatchlist | null = watchlists.find((w) => w.id === selectedWatchlistId) ?? null
 
   return {
-    lists: lists ?? [],
-    isLoading,
+    lists: watchlists,
+    isLoading: false,
     filter,
     setFilter,
     selectedWatchlist,
     selectWatchlist: setSelectedWatchlistId,
     clearSelection: () => setSelectedWatchlistId(null),
+    removePlayerFromWatchlist: (playerId: string) => {
+      if (selectedWatchlistId) {
+        removePlayerFromWatchlist(selectedWatchlistId, playerId)
+      }
+    },
   }
 }

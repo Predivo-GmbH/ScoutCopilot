@@ -1,22 +1,32 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, FileText, Trash2 } from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
+import { ConfirmDialog } from '../../../components/ui/ConfirmDialog'
 import type { MockWatchlist } from '../../../lib/mock-data'
 
 interface WatchlistDetailProps {
   watchlist: MockWatchlist
   onBack: () => void
+  onRemovePlayer: (playerId: string) => void
 }
 
-export function WatchlistDetail({ watchlist, onBack }: WatchlistDetailProps) {
+export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: WatchlistDetailProps) {
   const navigate = useNavigate()
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
 
   const alertStatusStyles: Record<string, { dot: string; text: string; label: string }> = {
     stable: { dot: 'bg-secondary', text: 'text-secondary', label: 'Stable' },
     price_change: { dot: 'bg-tertiary', text: 'text-tertiary', label: 'Price Change' },
     injury: { dot: 'bg-error', text: 'text-error', label: 'Injury Report' },
     form_change: { dot: 'bg-primary', text: 'text-primary', label: 'Form Change' },
+  }
+
+  function handleDelete() {
+    if (!deleteTarget) return
+    onRemovePlayer(deleteTarget.id)
+    setDeleteTarget(null)
   }
 
   return (
@@ -109,7 +119,13 @@ export function WatchlistDetail({ watchlist, onBack }: WatchlistDetailProps) {
                         >
                           Report
                         </Button>
-                        <button className="p-1 text-error hover:bg-error/10 rounded-sm transition-colors">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setDeleteTarget({ id: player.id, name: player.name })
+                          }}
+                          className="p-1 text-error hover:bg-error/10 rounded-sm transition-colors"
+                        >
                           <Trash2 size={14} strokeWidth={1.5} />
                         </button>
                       </div>
@@ -125,6 +141,16 @@ export function WatchlistDetail({ watchlist, onBack }: WatchlistDetailProps) {
           <p className="text-sm text-on-surface-variant">No players in this watchlist yet.</p>
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Remove from Watchlist"
+        message={`Are you sure you want to remove ${deleteTarget?.name ?? 'this player'} from "${watchlist.name}"?`}
+        confirmLabel="Remove"
+        variant="destructive"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   )
 }
