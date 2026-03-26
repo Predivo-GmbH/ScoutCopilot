@@ -5,6 +5,7 @@ import { ProfileSettings } from './components/ProfileSettings'
 import { OrgSettings } from './components/OrgSettings'
 import { CredentialSettings } from './components/CredentialSettings'
 import { BillingSettings } from './components/BillingSettings'
+import { PasswordSettings } from './components/PasswordSettings'
 
 const settingsTabs: { key: SettingsTab; label: string }[] = [
   { key: 'profile', label: 'Account' },
@@ -54,6 +55,7 @@ export function SettingsPage() {
           {activeTab === 'profile' && (
             <>
               <ProfileSettings profile={profile} onUpdate={updateProfile} />
+              <PasswordSettings />
               <OrgSettings org={org} onUpdate={updateOrg} />
             </>
           )}
