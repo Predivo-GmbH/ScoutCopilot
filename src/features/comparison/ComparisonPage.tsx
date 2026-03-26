@@ -1,12 +1,33 @@
-import { Zap } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Zap, GitCompareArrows, Loader2, ArrowRight } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
+import { Button } from '../../components/ui/Button'
 import { useComparison } from './hooks/useComparison'
 import { ComparisonTable } from './components/ComparisonTable'
 import { PlayerSelector } from './components/PlayerSelector'
 import { dotColors } from './constants'
 
+const GENERATE_STEPS = [
+  'Fetching player data...',
+  'Computing statistical overlays...',
+  'Running tactical fit analysis...',
+  'Generating AI verdict...',
+]
+
 export function ComparisonPage() {
-  const { players, tacticalContext, setTacticalContext, isLoading } = useComparison()
+  const {
+    players,
+    selectedPlayers,
+    selectedIds,
+    availablePlayers,
+    tacticalContext,
+    setTacticalContext,
+    isLoading,
+    generated,
+    addPlayer,
+    removePlayer,
+    generate,
+  } = useComparison()
 
   return (
     <div className="p-6 space-y-6">
@@ -20,9 +41,11 @@ export function ComparisonPage() {
 
       {/* Player Selection */}
       <PlayerSelector
-        players={players}
+        selectedPlayers={selectedPlayers}
+        availablePlayers={availablePlayers}
         maxPlayers={4}
-        onRemove={() => {}}
+        onAdd={addPlayer}
+        onRemove={removePlayer}
       />
 
       {/* Tactical Context */}
@@ -39,12 +62,25 @@ export function ComparisonPage() {
         />
       </div>
 
-      {isLoading ? (
-        <div className="space-y-6">
-          <div className="h-96 bg-surface-container-low rounded-md animate-pulse" />
-          <div className="h-64 bg-surface-container-low rounded-md animate-pulse" />
+      {/* Generate Button */}
+      {selectedIds.length >= 2 && !generated && (
+        <div className="flex justify-center">
+          <Button
+            variant="primary"
+            size="lg"
+            rightIcon={ArrowRight}
+            onClick={generate}
+            className="px-10"
+          >
+            Generate Comparison
+          </Button>
         </div>
-      ) : players.length >= 2 ? (
+      )}
+
+      {/* Results */}
+      {isLoading ? (
+        <GeneratingAnimation />
+      ) : generated && players.length >= 2 ? (
         <>
           {/* Radar + AI Verdict */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -87,12 +123,22 @@ export function ComparisonPage() {
                   <p className="text-sm text-on-surface/80 leading-relaxed">
                     However, <span className="text-primary font-semibold">{players[0]?.name}</span> provides significantly more value in high-intensity defensive actions and direct goal threat from wider zones.
                   </p>
-                  <div className="bg-surface-container-high p-4 rounded-md border-l-4 border-tertiary">
-                    <span className="text-[0.625rem] font-data text-tertiary font-semibold block mb-1">STRATEGIC FIT</span>
-                    <p className="text-xs text-on-surface-variant">
-                      For a high-press system (Gegenpressing), {players[0]?.name.split(' ').pop()} shows 88% compatibility vs 72% for {players[1]?.name.split(' ').pop()}.
-                    </p>
-                  </div>
+                  {tacticalContext && (
+                    <div className="bg-surface-container-high p-4 rounded-md border-l-4 border-tertiary">
+                      <span className="text-[0.625rem] font-data text-tertiary font-semibold block mb-1">STRATEGIC FIT</span>
+                      <p className="text-xs text-on-surface-variant">
+                        For the specified tactical context, {players[0]?.name.split(' ').pop()} shows 88% compatibility vs 72% for {players[1]?.name.split(' ').pop()}.
+                      </p>
+                    </div>
+                  )}
+                  {!tacticalContext && (
+                    <div className="bg-surface-container-high p-4 rounded-md border-l-4 border-tertiary">
+                      <span className="text-[0.625rem] font-data text-tertiary font-semibold block mb-1">STRATEGIC FIT</span>
+                      <p className="text-xs text-on-surface-variant">
+                        For a high-press system (Gegenpressing), {players[0]?.name.split(' ').pop()} shows 88% compatibility vs 72% for {players[1]?.name.split(' ').pop()}.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </Card>
             </div>
@@ -101,11 +147,78 @@ export function ComparisonPage() {
           {/* Comparison Table */}
           <ComparisonTable players={players} />
         </>
+      ) : !generated ? (
+        <EmptyState playerCount={selectedIds.length} />
+      ) : null}
+    </div>
+  )
+}
+
+// ─── Empty State ────────────────────────────────────────────
+
+function EmptyState({ playerCount }: { playerCount: number }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center mb-4">
+        <GitCompareArrows size={32} strokeWidth={1.5} className="text-on-surface-variant" />
+      </div>
+      {playerCount === 0 ? (
+        <>
+          <h3 className="text-lg font-semibold text-on-surface mb-2">Add players to compare</h3>
+          <p className="text-sm text-on-surface-variant max-w-md">
+            Select 2–4 players using the slots above, then generate a side-by-side comparison with radar overlays and AI analysis.
+          </p>
+        </>
       ) : (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="text-sm text-on-surface-variant">Select at least 2 players to compare.</p>
-        </div>
+        <>
+          <h3 className="text-lg font-semibold text-on-surface mb-2">Add at least one more player</h3>
+          <p className="text-sm text-on-surface-variant max-w-md">
+            You need at least 2 players to generate a comparison. Add another player using the slot above.
+          </p>
+        </>
       )}
+    </div>
+  )
+}
+
+// ─── Generating Animation ───────────────────────────────────
+
+function GeneratingAnimation() {
+  const [step, setStep] = useState(0)
+
+  useEffect(() => {
+    const timers = GENERATE_STEPS.map((_, i) =>
+      i > 0 ? setTimeout(() => setStep(i), i * 500) : null,
+    )
+    return () => timers.forEach((t) => t && clearTimeout(t))
+  }, [])
+
+  return (
+    <div className="bg-surface-container rounded-md border border-outline-variant overflow-hidden">
+      <div className="flex flex-col items-center justify-center py-16 px-6">
+        <Loader2 size={32} strokeWidth={1.5} className="animate-spin text-primary mb-6" />
+        <div className="space-y-3 w-full max-w-xs">
+          {GENERATE_STEPS.map((label, i) => (
+            <div
+              key={label}
+              className={`flex items-center gap-3 transition-opacity duration-300 ${i <= step ? 'opacity-100' : 'opacity-0'}`}
+            >
+              {i < step ? (
+                <span className="w-5 h-5 rounded-full bg-secondary/15 flex items-center justify-center text-secondary text-xs shrink-0">&#10003;</span>
+              ) : i === step ? (
+                <span className="w-5 h-5 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                </span>
+              ) : (
+                <span className="w-5 h-5 shrink-0" />
+              )}
+              <span className={`text-sm ${i < step ? 'text-on-surface-variant' : i === step ? 'text-on-surface font-medium' : 'text-on-surface-variant'}`}>
+                {label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
