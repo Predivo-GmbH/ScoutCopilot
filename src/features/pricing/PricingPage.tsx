@@ -174,25 +174,32 @@ export function PricingPage() {
           </p>
 
           {/* Interval Toggle */}
-          <div className="flex items-center justify-center gap-4">
-            <span className={`text-sm font-medium ${interval === 'month' ? 'text-on-surface' : 'text-on-surface-variant'}`}>
-              Monthly
-            </span>
-            <button
-              onClick={() => setInterval(interval === 'month' ? 'year' : 'month')}
-              className={`relative w-12 h-6 rounded-md border border-outline-variant p-0.5 transition-colors ${interval === 'year' ? 'bg-primary' : 'bg-surface-container'}`}
-            >
-              <div
-                className="w-5 h-5 bg-inverse-surface rounded-sm transition-transform"
-                style={{ transform: interval === 'year' ? 'translateX(24px)' : 'translateX(0)' }}
-              />
-            </button>
-            <div className="flex items-center gap-2">
-              <span className={`text-sm font-medium ${interval === 'year' ? 'text-on-surface' : 'text-on-surface-variant'}`}>
+          <div className="flex flex-col items-center gap-2">
+            <div className="inline-flex rounded-full bg-surface-container-low border border-outline-variant p-1">
+              <button
+                onClick={() => setInterval('month')}
+                className={`relative z-10 rounded-full px-5 py-1.5 text-sm font-medium transition-colors ${
+                  interval === 'month'
+                    ? 'bg-primary text-white'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setInterval('year')}
+                className={`relative z-10 rounded-full px-5 py-1.5 text-sm font-medium transition-colors ${
+                  interval === 'year'
+                    ? 'bg-primary text-white'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
                 Annual
-              </span>
-              <Badge variant="tertiary">Save 17%</Badge>
+              </button>
             </div>
+            {interval === 'year' && (
+              <span className="text-xs font-medium text-tertiary-light">Save 17% with annual billing</span>
+            )}
           </div>
         </header>
 
