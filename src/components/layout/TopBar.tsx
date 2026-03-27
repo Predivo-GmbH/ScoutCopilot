@@ -1,12 +1,16 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Search, Bell, Settings, LogOut } from 'lucide-react'
+import { Search, Bell, Settings, LogOut, Menu } from 'lucide-react'
 import { useAuth } from '../../features/auth/useAuth'
 import { ThemeToggle } from '../shared/ThemeToggle'
 import { LanguageSelector } from '../shared/LanguageSelector'
 
-export function TopBar() {
+interface TopBarProps {
+  onMenuToggle?: () => void
+}
+
+export function TopBar({ onMenuToggle }: TopBarProps) {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { profile, signOut } = useAuth()
@@ -41,16 +45,28 @@ export function TopBar() {
     .slice(0, 2) ?? '?'
 
   return (
-    <div className="h-14 flex items-center gap-4 px-6 border-b border-outline-variant bg-surface-container-low shrink-0">
+    <div className="h-14 flex items-center gap-4 px-3 md:px-6 border-b border-outline-variant bg-surface-container-low shrink-0">
+      {/* Mobile hamburger */}
+      {onMenuToggle && (
+        <button
+          onClick={onMenuToggle}
+          className="md:hidden p-2 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+          aria-label="Toggle menu"
+        >
+          <Menu size={20} strokeWidth={1.5} />
+        </button>
+      )}
+
       {/* Search bar */}
-      <form onSubmit={handleSearch} className="flex-1 max-w-xl relative">
+      <form onSubmit={handleSearch} className="flex-1 max-w-xl relative hidden sm:block">
         <Search size={16} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
         <input
           type="text"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           placeholder={t('topbar.searchPlaceholder')}
-          className="w-full bg-surface-container-low border border-outline-variant rounded-md py-2 pl-10 pr-4 text-xs font-data text-on-surface placeholder:text-on-surface-variant/40 outline-none focus:border-primary transition-colors"
+          aria-label={t('topbar.searchPlaceholder')}
+          className="w-full bg-surface-container-low border border-outline-variant rounded-md py-2 pl-10 pr-4 text-xs font-data text-on-surface placeholder:text-on-surface-variant/70 outline-none focus:border-primary transition-colors"
         />
       </form>
 
@@ -58,7 +74,7 @@ export function TopBar() {
         {/* Alerts */}
         <button
           onClick={() => navigate('/watchlists')}
-          className="relative p-2 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+          className="relative p-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label={t('topbar.alerts')}
         >
           <Bell size={18} strokeWidth={1.5} />
@@ -78,6 +94,8 @@ export function TopBar() {
         <div ref={profileRef} className="relative">
           <button
             onClick={() => setProfileOpen(!profileOpen)}
+            aria-expanded={profileOpen}
+            aria-haspopup="menu"
             className="flex items-center gap-2.5 p-1 pr-2 rounded-md hover:bg-surface-container transition-colors"
           >
             {profile?.avatar_url ? (
@@ -92,18 +110,19 @@ export function TopBar() {
               </div>
             )}
             <div className="hidden md:flex flex-col items-start">
-              <span className="text-xs font-semibold text-on-surface leading-tight">{profile?.full_name || 'User'}</span>
+              <span className="text-xs font-semibold text-on-surface leading-tight">{profile?.full_name || t('common.user')}</span>
               {profile?.role && <span className="text-[0.625rem] text-on-surface-variant leading-tight">{profile.role}</span>}
             </div>
           </button>
 
           {profileOpen && (
-            <div className="absolute right-0 top-full mt-1 w-48 bg-surface-container-low border border-outline-variant rounded-md shadow-lg overflow-hidden z-50">
+            <div role="menu" className="absolute right-0 top-full mt-1 w-48 bg-surface-container-low border border-outline-variant rounded-md shadow-lg overflow-hidden z-50">
               <div className="px-3 py-2.5 border-b border-outline-variant/30">
-                <p className="text-xs font-semibold text-on-surface truncate">{profile?.full_name || 'User'}</p>
+                <p className="text-xs font-semibold text-on-surface truncate">{profile?.full_name || t('common.user')}</p>
                 {profile?.role && <p className="text-[0.625rem] text-on-surface-variant truncate">{profile.role}</p>}
               </div>
               <button
+                role="menuitem"
                 onClick={() => { setProfileOpen(false); navigate('/settings') }}
                 className="flex items-center gap-2.5 w-full px-3 py-2 text-xs text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
               >
@@ -111,6 +130,7 @@ export function TopBar() {
                 {t('topbar.accountSettings')}
               </button>
               <button
+                role="menuitem"
                 onClick={() => { setProfileOpen(false); signOut() }}
                 className="flex items-center gap-2.5 w-full px-3 py-2 text-xs text-on-surface-variant hover:bg-surface-container hover:text-error transition-colors"
               >

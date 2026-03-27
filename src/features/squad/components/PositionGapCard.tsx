@@ -5,7 +5,7 @@ import type { PositionGap } from '../../../lib/mock-data'
 
 const priorityStyles: Record<string, { bg: string; text: string; border: string }> = {
   critical: { bg: 'bg-error/10', text: 'text-error', border: 'border-error/30' },
-  high: { bg: 'bg-amber-500/10', text: 'text-amber-500', border: 'border-amber-500/30' },
+  high: { bg: 'bg-warning/10', text: 'text-warning', border: 'border-warning/30' },
   medium: { bg: 'bg-primary/10', text: 'text-primary', border: 'border-primary/30' },
   low: { bg: 'bg-secondary/10', text: 'text-secondary', border: 'border-secondary/30' },
 }
@@ -19,9 +19,9 @@ export function PositionGapCard({ gap }: { gap: PositionGap }) {
     <div className={`bg-surface-container rounded-md border ${style.border} overflow-hidden`}>
       <div className="px-4 py-3 flex items-center justify-between border-b border-outline-variant/30">
         <div className="flex items-center gap-2">
-          <h4 className="text-sm font-semibold text-on-surface">{gap.positionLabel}</h4>
+          <h4 className="text-sm font-semibold text-on-surface">{t(gap.positionLabel)}</h4>
           <span className={`text-[0.5625rem] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm ${style.bg} ${style.text}`}>
-            {gap.priority}
+            {t(`squad.priority.${gap.priority}`)}
           </span>
         </div>
         <span className="text-[0.625rem] font-data text-on-surface-variant uppercase">{gap.position}</span>
@@ -43,7 +43,7 @@ export function PositionGapCard({ gap }: { gap: PositionGap }) {
           <ul className="space-y-1">
             {gap.reasons.map((reason, i) => (
               <li key={i} className="text-xs text-on-surface-variant flex items-start gap-1.5">
-                <span className={`mt-1.5 w-1 h-1 rounded-full shrink-0 ${style.text === 'text-error' ? 'bg-error' : style.text === 'text-amber-500' ? 'bg-amber-500' : 'bg-primary'}`} />
+                <span className={`mt-1.5 w-1 h-1 rounded-full shrink-0 ${style.text === 'text-error' ? 'bg-error' : style.text === 'text-warning' ? 'bg-warning' : 'bg-primary'}`} />
                 {reason}
               </li>
             ))}

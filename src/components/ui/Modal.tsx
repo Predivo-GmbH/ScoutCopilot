@@ -7,6 +7,7 @@ import {
   useRef,
 } from 'react'
 import { X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '../../lib/utils'
 
 interface ModalProps extends HTMLAttributes<HTMLDivElement> {
@@ -19,6 +20,7 @@ interface ModalProps extends HTMLAttributes<HTMLDivElement> {
 
 const Modal = forwardRef<HTMLDivElement, ModalProps>(
   ({ open, onClose, title, footer, className, children, ...props }, ref) => {
+    const { t } = useTranslation()
     const contentRef = useRef<HTMLDivElement>(null)
 
     const handleKeyDown = useCallback(
@@ -47,6 +49,8 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
 
     useEffect(() => {
       if (!open) return
+      const previouslyFocused = document.activeElement as HTMLElement | null
+
       document.addEventListener('keydown', handleKeyDown)
       document.body.style.overflow = 'hidden'
 
@@ -62,6 +66,7 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
         document.removeEventListener('keydown', handleKeyDown)
         document.body.style.overflow = ''
         clearTimeout(timer)
+        previouslyFocused?.focus()
       }
     }, [open, handleKeyDown])
 
@@ -84,8 +89,8 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
             else if (ref) ref.current = node
           }}
           className={cn(
-            'w-full max-w-lg mx-4 bg-surface-container border border-outline-variant rounded-lg',
-            'animate-in fade-in duration-200',
+            'w-full max-h-full sm:max-w-lg mx-0 sm:mx-4 bg-surface-container border border-outline-variant rounded-none sm:rounded-lg h-full sm:h-auto',
+            'animate-[fadeIn_200ms_ease-out]',
             className
           )}
           {...props}
@@ -99,7 +104,7 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
               <button
                 onClick={onClose}
                 className="p-1 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-[150ms]"
-                aria-label="Close"
+                aria-label={t('common.close')}
               >
                 <X size={20} strokeWidth={1.5} />
               </button>

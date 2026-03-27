@@ -1,7 +1,10 @@
 import { useState, useEffect, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from './useAuth'
+import { Button } from '../../components/ui/Button'
+import { Input } from '../../components/ui/Input'
 import AuthLayout from '../../components/auth/AuthLayout'
 import OtpInput from '../../components/auth/OtpInput'
 import ResendTimer from '../../components/auth/ResendTimer'
@@ -41,7 +44,7 @@ export function SignupPage() {
       await sendOtp(email)
       setStep('verify')
     } catch (err) {
-      setError(friendlyAuthError(err, 'Failed to send verification code'))
+      setError(t(friendlyAuthError(err, 'Failed to send verification code')))
     } finally {
       setLoading(false)
     }
@@ -58,7 +61,7 @@ export function SignupPage() {
         navigate('/dashboard')
       }
     } catch (err) {
-      setError(friendlyAuthError(err, 'Invalid verification code'))
+      setError(t(friendlyAuthError(err, 'Invalid verification code')))
     } finally {
       setLoading(false)
     }
@@ -76,7 +79,7 @@ export function SignupPage() {
       await completeProfile(password, fullName)
       navigate('/onboarding')
     } catch (err) {
-      setError(friendlyAuthError(err, 'Failed to create account'))
+      setError(t(friendlyAuthError(err, 'Failed to create account')))
     } finally {
       setLoading(false)
     }
@@ -88,6 +91,10 @@ export function SignupPage() {
 
   return (
     <AuthLayout>
+      <Helmet>
+        <title>Start Free Trial — ScoutCopilot</title>
+        <meta name="description" content="Create your ScoutCopilot account. 14-day free trial, no credit card required." />
+      </Helmet>
       {/* Step 1: Email */}
       {step === 'email' && (
         <div>
@@ -110,29 +117,25 @@ export function SignupPage() {
                 {error}
               </div>
             )}
-            <div>
-              <label htmlFor="signup-email" className="block text-sm font-medium text-on-surface-variant">
-                {t('auth.signup.workEmail')}
-              </label>
-              <input
-                id="signup-email"
-                type="email"
-                required
-                autoComplete="email"
-                autoFocus
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
-                placeholder={t('auth.signup.emailPlaceholder')}
-              />
-            </div>
-            <button
+            <Input
+              id="signup-email"
+              label={t('auth.signup.workEmail')}
+              type="email"
+              required
+              autoComplete="email"
+              autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={t('auth.signup.emailPlaceholder')}
+            />
+            <Button
               type="submit"
               disabled={loading}
-              className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
+              loading={loading}
+              className="w-full"
             >
               {loading ? t('auth.sendingCode') : t('common.continue')}
-            </button>
+            </Button>
           </form>
           <p className="mt-4 text-center text-xs text-on-surface-variant">
             {t('auth.signup.termsAgreement')}{' '}
@@ -210,46 +213,39 @@ export function SignupPage() {
                 {error}
               </div>
             )}
+            <Input
+              id="signup-name"
+              label={t('auth.signup.fullName')}
+              type="text"
+              required
+              autoComplete="name"
+              autoFocus
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder={t('auth.signup.fullNamePlaceholder')}
+            />
             <div>
-              <label htmlFor="signup-name" className="block text-sm font-medium text-on-surface-variant">
-                {t('auth.signup.fullName')}
-              </label>
-              <input
-                id="signup-name"
-                type="text"
-                required
-                autoComplete="name"
-                autoFocus
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
-                placeholder={t('auth.signup.fullNamePlaceholder')}
-              />
-            </div>
-            <div>
-              <label htmlFor="signup-password" className="block text-sm font-medium text-on-surface-variant">
-                {t('auth.passwordLabel')}
-              </label>
-              <input
+              <Input
                 id="signup-password"
+                label={t('auth.passwordLabel')}
                 type="password"
                 required
                 autoComplete="new-password"
                 minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
                 placeholder={t('auth.signup.minChars')}
               />
               <PasswordStrength password={password} />
             </div>
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
+              loading={loading}
+              className="w-full"
             >
               {loading ? t('auth.signup.creatingAccount') : t('auth.signup.createAccount')}
-            </button>
+            </Button>
           </form>
         </div>
       )}

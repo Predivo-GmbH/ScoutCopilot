@@ -1,8 +1,10 @@
 import { useState, useCallback, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { watchlists as initialWatchlists, type MockWatchlistPlayer } from './mock-data'
 import { WatchlistContext } from './WatchlistContextDef'
 
 export function WatchlistProvider({ children }: { children: ReactNode }) {
+  const { t } = useTranslation()
   const [lists, setLists] = useState(initialWatchlists)
 
   const addPlayerToWatchlist = useCallback((watchlistId: string, player: MockWatchlistPlayer) => {
@@ -14,7 +16,7 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
           ...w,
           players: [...w.players, player],
           playerCount: w.playerCount + 1,
-          lastUpdated: 'Just now',
+          lastUpdated: t('common.justNow'),
         }
       }),
     )
@@ -28,7 +30,7 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
           ...w,
           players: w.players.filter((p) => p.id !== playerId),
           playerCount: Math.max(0, w.playerCount - 1),
-          lastUpdated: 'Just now',
+          lastUpdated: t('common.justNow'),
         }
       }),
     )

@@ -1,7 +1,10 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from './useAuth'
+import { Button } from '../../components/ui/Button'
+import { Input } from '../../components/ui/Input'
 import AuthLayout from '../../components/auth/AuthLayout'
 import OtpInput from '../../components/auth/OtpInput'
 import ResendTimer from '../../components/auth/ResendTimer'
@@ -29,7 +32,7 @@ export function LoginPage() {
       await signInWithPassword(email, password)
       navigate('/dashboard')
     } catch (err) {
-      setError(friendlyAuthError(err, 'Login failed'))
+      setError(t(friendlyAuthError(err, 'Login failed')))
     } finally {
       setLoading(false)
     }
@@ -43,7 +46,7 @@ export function LoginPage() {
       await sendLoginOtp(email)
       setCodeStep('verify')
     } catch (err) {
-      setError(friendlyAuthError(err, 'Failed to send login code'))
+      setError(t(friendlyAuthError(err, 'Failed to send login code')))
     } finally {
       setLoading(false)
     }
@@ -56,7 +59,7 @@ export function LoginPage() {
       await verifyOtp(email, code)
       navigate('/dashboard')
     } catch (err) {
-      setError(friendlyAuthError(err, 'Invalid verification code'))
+      setError(t(friendlyAuthError(err, 'Invalid verification code')))
     } finally {
       setLoading(false)
     }
@@ -74,6 +77,10 @@ export function LoginPage() {
 
   return (
     <AuthLayout>
+      <Helmet>
+        <title>Sign In — ScoutCopilot</title>
+        <meta name="description" content="Sign in to your ScoutCopilot account to access AI-powered football scouting tools." />
+      </Helmet>
       <h1 className="text-center text-2xl font-bold text-on-surface">
         {t('auth.signInTo')}
       </h1>
@@ -110,24 +117,19 @@ export function LoginPage() {
               {error}
             </div>
           )}
+          <Input
+            id="login-email"
+            label={t('auth.emailLabel')}
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="scout@club.com"
+          />
           <div>
-            <label htmlFor="login-email" className="block text-sm font-medium text-on-surface-variant">
-              {t('auth.emailLabel')}
-            </label>
-            <input
-              id="login-email"
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
-              placeholder="scout@club.com"
-            />
-          </div>
-          <div>
-            <div className="flex items-center justify-between">
-              <label htmlFor="login-password" className="block text-sm font-medium text-on-surface-variant">
+            <div className="flex items-center justify-between mb-1.5">
+              <label htmlFor="login-password" className="text-[0.8125rem] font-medium tracking-[0.02em] text-on-surface-variant">
                 {t('auth.passwordLabel')}
               </label>
               <Link
@@ -137,24 +139,24 @@ export function LoginPage() {
                 {t('auth.forgotPassword')}
               </Link>
             </div>
-            <input
+            <Input
               id="login-password"
               type="password"
               required
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
               placeholder={t('auth.passwordLabel')}
             />
           </div>
-          <button
+          <Button
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
+            loading={loading}
+            className="w-full"
           >
             {loading ? t('auth.signingIn') : t('common.signIn')}
-          </button>
+          </Button>
         </form>
       )}
 
@@ -169,28 +171,24 @@ export function LoginPage() {
           <p className="text-center text-sm text-on-surface-variant">
             {t('auth.sendCodeDescription')}
           </p>
-          <div>
-            <label htmlFor="code-email" className="block text-sm font-medium text-on-surface-variant">
-              {t('auth.emailLabel')}
-            </label>
-            <input
-              id="code-email"
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
-              placeholder="scout@club.com"
-            />
-          </div>
-          <button
+          <Input
+            id="code-email"
+            label={t('auth.emailLabel')}
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="scout@club.com"
+          />
+          <Button
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
+            loading={loading}
+            className="w-full"
           >
             {loading ? t('auth.sendingCode') : t('auth.sendSignInCode')}
-          </button>
+          </Button>
         </form>
       )}
 

@@ -18,24 +18,28 @@ export function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
 }
 
-/** Map Supabase auth errors to user-friendly messages */
+/**
+ * Map Supabase auth errors to i18n translation keys.
+ * Returns a key like "errors.tooManyEmails" that the caller translates via t().
+ * If no match is found, returns the raw error message or the fallback.
+ */
 export function friendlyAuthError(err: unknown, fallback: string): string {
   const msg = err instanceof Error ? err.message.toLowerCase() : ''
   if (msg.includes('email rate limit exceeded'))
-    return 'Too many emails sent. Please wait a few minutes before trying again.'
+    return 'errors.tooManyEmails'
   if (msg.includes('rate limit') || msg.includes('too many requests'))
-    return 'Too many attempts. Please wait a moment and try again.'
+    return 'errors.tooManyAttempts'
   if (msg.includes('invalid login credentials'))
-    return 'Incorrect email or password. Please check your credentials and try again.'
+    return 'errors.incorrectCredentials'
   if (msg.includes('email not confirmed'))
-    return 'Your email address has not been verified yet. Please check your inbox.'
+    return 'errors.emailNotVerified'
   if (msg.includes('user not found') || msg.includes('no user found'))
-    return 'No account found with this email address.'
+    return 'errors.noAccount'
   if (msg.includes('token has expired') || msg.includes('otp expired'))
-    return 'Your verification code has expired. Please request a new one.'
+    return 'errors.codeExpired'
   if (msg.includes('invalid') && msg.includes('otp'))
-    return 'Invalid verification code. Please check and try again.'
+    return 'errors.invalidCode'
   if (msg.includes('network') || msg.includes('fetch'))
-    return 'Connection error. Please check your internet and try again.'
+    return 'errors.connectionError'
   return err instanceof Error ? err.message : fallback
 }

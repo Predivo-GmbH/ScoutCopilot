@@ -57,16 +57,51 @@
     "copyright": "© 2026 Predivo GmbH. Alle Rechte vorbehalten.",
     "language": "Sprache",
     "english": "English",
-    "german": "Deutsch"
+    "german": "Deutsch",
+    "darkMode": "Dunkelmodus",
+    "lightMode": "Hellmodus",
+    "close": "Schliessen",
+    "skipToContent": "Zum Hauptinhalt springen",
+    "user": "Benutzer",
+    "confirm": "Bestätigen",
+    "yrs": "J.",
+    "fitScore": "Passungswert",
+    "justNow": "Gerade eben",
+    "locale": "de-DE"
   },
-
+  "errors": {
+    "tooManyEmails": "Zu viele E-Mails gesendet. Bitte warten Sie einige Minuten.",
+    "tooManyAttempts": "Zu viele Versuche. Bitte warten Sie einen Moment.",
+    "incorrectCredentials": "Falsche E-Mail oder falsches Passwort. Bitte überprüfen Sie Ihre Zugangsdaten.",
+    "emailNotVerified": "Ihre E-Mail-Adresse wurde noch nicht verifiziert. Bitte überprüfen Sie Ihren Posteingang.",
+    "noAccount": "Kein Konto mit dieser E-Mail-Adresse gefunden.",
+    "codeExpired": "Ihr Bestätigungscode ist abgelaufen. Bitte fordern Sie einen neuen an.",
+    "invalidCode": "Ungültiger Bestätigungscode. Bitte überprüfen und erneut versuchen.",
+    "connectionError": "Verbindungsfehler. Bitte überprüfen Sie Ihre Internetverbindung.",
+    "incorrectAccessCode": "Falscher Zugangscode."
+  },
+  "pdf": {
+    "scoutAssessment": "SCOUT-BEWERTUNG",
+    "strengths": "STÄRKEN",
+    "weaknesses": "SCHWÄCHEN",
+    "seasonStats": "SAISONSTATISTIKEN",
+    "styleOfPlay": "SPIELSTIL",
+    "performanceProfile": "LEISTUNGSPROFIL",
+    "contractOverview": "VERTRAGSÜBERSICHT",
+    "transferHistory": "TRANSFERHISTORIE",
+    "generated": "Erstellt",
+    "page": "Seite",
+    "recommendSign": "VERPFLICHTUNG EMPFOHLEN",
+    "monitor": "BEOBACHTEN",
+    "pass": "ABSAGE"
+  },
   "landing": {
     "meta": {
       "title": "ScoutCopilot — KI-Fussball-Scouting",
       "description": "KI-gestützter Fussball-Scouting-Assistent. Erstellen Sie Spieler-Shortlists, Scouting-Berichte und Vergleichsanalysen in Sekunden — direkt aus Ihren Wyscout- oder StatsBomb-Daten."
     },
     "hero": {
-      "heading": "Schluss mit Tabellen-Chaos. KI-gestützte Shortlists in <highlight>30\u00a0Sekunden</highlight>.",
+      "heading": "Schluss mit Tabellen-Chaos. KI-gestützte Shortlists in <highlight>30 Sekunden</highlight>.",
       "subheading": "Ein KI-Assistent, der sich mit Ihrer Wyscout- oder StatsBomb-API verbindet und natürlichsprachliche Anfragen in bewertete Spieler-Shortlists, Vergleichsberichte und Scouting-Briefings verwandelt — in Sekunden statt Stunden.",
       "noCreditCard": "Keine Kreditkarte nötig. 14 Tage kostenlos testen.",
       "seePricing": "Preise ansehen",
@@ -210,7 +245,6 @@
       "tagline": "Entwickelt für professionelles Fussball-Scouting"
     }
   },
-
   "auth": {
     "signInTo": "Bei ScoutCopilot anmelden",
     "passwordTab": "Passwort",
@@ -229,7 +263,6 @@
     "dontHaveAccount": "Noch kein Konto?",
     "startFreeTrial": "Kostenlos testen",
     "alreadyHaveAccount": "Bereits ein Konto?",
-
     "signup": {
       "heading": "Kostenlos testen",
       "subheading": "14 Tage gratis. Keine Kreditkarte nötig.",
@@ -249,7 +282,6 @@
       "createAccount": "Konto erstellen",
       "weakPassword": "Bitte wählen Sie ein stärkeres Passwort"
     },
-
     "forgot": {
       "heading": "Passwort zurücksetzen",
       "description": "Geben Sie Ihre E-Mail ein und wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts.",
@@ -262,7 +294,6 @@
       "didntReceive": "Keine E-Mail erhalten? Prüfen Sie Ihren Spam-Ordner oder",
       "tryAgain": "erneut versuchen"
     },
-
     "reset": {
       "passwordsNoMatch": "Passwörter stimmen nicht überein",
       "weakPassword": "Bitte wählen Sie ein stärkeres Passwort",
@@ -277,7 +308,6 @@
       "updating": "Wird aktualisiert...",
       "updatePassword": "Passwort aktualisieren"
     },
-
     "onboarding": {
       "welcome": "Willkommen bei ScoutCopilot",
       "welcomeSub": "Lassen Sie uns in wenigen Schritten loslegen. Verbinden Sie Ihre Scouting-Datenquelle und konfigurieren Sie Ihre Einstellungen, um schneller Spieler zu finden.",
@@ -297,30 +327,57 @@
       "allSet": "Alles bereit!",
       "allSetSub": "Ihr ScoutCopilot-Arbeitsbereich ist bereit. Suchen Sie Spieler mit natürlicher Sprache oder erkunden Sie das Dashboard.",
       "goToDashboard": "Zum Dashboard",
-      "skipForNow": "Vorerst überspringen"
+      "skipForNow": "Vorerst überspringen",
+      "steps": {
+        "welcome": "Willkommen",
+        "connectData": "Daten verbinden",
+        "preferences": "Einstellungen",
+        "ready": "Bereit"
+      },
+      "leagues": {
+        "premierLeague": "Premier League",
+        "laLiga": "La Liga",
+        "serieA": "Serie A",
+        "bundesliga": "Bundesliga",
+        "ligue1": "Ligue 1",
+        "eredivisie": "Eredivisie",
+        "primeiraLiga": "Primeira Liga",
+        "championship": "Championship",
+        "zweiteBundesliga": "2. Bundesliga",
+        "serieB": "Serie B",
+        "belgianProLeague": "Belgian Pro League",
+        "superLig": "Süper Lig"
+      },
+      "positions": {
+        "goalkeeper": "Torwart",
+        "centreBack": "Innenverteidiger",
+        "fullBack": "Aussenverteidiger",
+        "defensiveMidfielder": "Defensives Mittelfeld",
+        "centralMidfielder": "Zentrales Mittelfeld",
+        "attackingMidfielder": "Offensives Mittelfeld",
+        "winger": "Flügelspieler",
+        "striker": "Stürmer"
+      }
     },
-
     "passwordGate": {
       "privateBeta": "Diese App befindet sich in der geschlossenen Beta.",
       "enterAccessCode": "Zugangscode eingeben",
       "enter": "Eingabe"
     },
-
     "resendTimer": {
       "resendIn": "Code erneut senden in {{seconds}}s",
       "sending": "Wird gesendet...",
       "resendCode": "Code erneut senden"
     },
-
     "passwordStrength": {
       "label": "Passwortstärke:",
       "weak": "Schwach",
       "fair": "Ausreichend",
       "good": "Gut",
       "strong": "Stark"
-    }
+    },
+    "processing": "Verarbeitung..."
   },
-
   "nav": {
     "dashboard": "Dashboard",
     "search": "Suche",
@@ -332,14 +389,12 @@
     "expandSidebar": "Seitenleiste ausklappen",
     "collapseSidebar": "Seitenleiste einklappen"
   },
-
   "topbar": {
     "searchPlaceholder": "Spieler suchen, Spiele finden oder NL-Abfragen starten...",
     "alerts": "Benachrichtigungen",
     "accountSettings": "Kontoeinstellungen",
     "signOut": "Abmelden"
   },
-
   "dashboard": {
     "heading": "Übersicht",
     "subheading": "Echtzeit-Scouting-Analysen und Watchlist-Benachrichtigungen.",
@@ -361,9 +416,9 @@
     "comparePlayersSub": "Visuelle Perzentil-Überlagerungen und Kopf-an-Kopf-Metrik-Analyse.",
     "complete": "ABGESCHLOSSEN",
     "processing": "IN BEARBEITUNG",
-    "failed": "FEHLGESCHLAGEN"
+    "failed": "FEHLGESCHLAGEN",
+    "viewAllAlerts": "Alle {{count}} Benachrichtigungen anzeigen"
   },
-
   "search": {
     "heading": "Spielersuche",
     "placeholder": "Finde einen Linksverteidiger unter 23 mit >75% Flankengenauigkeit",
@@ -384,9 +439,9 @@
       "analyzing": "Statistische Profile werden analysiert...",
       "ranking": "Nach Passungswert sortieren...",
       "compiling": "Ergebnisse werden zusammengestellt..."
-    }
+    },
+    "tableView": "Tabellenansicht"
   },
-
   "filters": {
     "position": "Position",
     "ageRange": "Altersbereich",
@@ -395,12 +450,13 @@
     "advanced": "Erweitert",
     "advancedFilters": "Erweiterte Filter",
     "minMatchScore": "Min. Passungswert",
+    "minPassAccuracy": "Min. Passgenauigkeit",
+    "minProgCarries": "Min. Prog. Carries/90",
     "any": "Beliebig",
     "minAge": "Mindestalter",
     "maxAge": "Höchstalter",
     "resetAdvanced": "Erweiterte Filter zurücksetzen"
   },
-
   "report": {
     "recommendSign": "VERPFLICHTUNG EMPFOHLEN",
     "monitor": "BEOBACHTEN",
@@ -417,9 +473,9 @@
     "strengths": "Stärken",
     "weaknesses": "Schwächen",
     "styleOfPlay": "Spielstil",
-    "similarProfiles": "Ähnliche Profile"
+    "similarProfiles": "Ähnliche Profile",
+    "watchlistAlert": "Watchlist-Alarm"
   },
-
   "reportsList": {
     "heading": "Spieler",
     "scoutedCount": "{{count}} gescouteter Spieler",
@@ -434,7 +490,6 @@
     "removeConfirm": "Sind Sie sicher, dass Sie {{name}} aus Ihren gescouteten Spielern entfernen möchten? Der generierte Bericht wird gelöscht.",
     "removeBtn": "Entfernen"
   },
-
   "comparison": {
     "heading": "Spieler vergleichen",
     "subheading": "Seite-an-Seite statistische Analyse mit KI-Bewertung.",
@@ -456,9 +511,12 @@
     "metric": "Metrik",
     "addPlayer": "Spieler hinzufügen",
     "searchPlayers": "Spieler suchen...",
-    "noPlayersFound": "Keine Spieler gefunden"
+    "noPlayersFound": "Keine Spieler gefunden",
+    "verdictEfficiency": "Der Vergleich zeigt, dass {{player}} eine höhere Effizienz in Übergangsphasen aufweist (+12% progressive Ballführungen).",
+    "verdictDefensive": "Allerdings bietet {{player}} deutlich mehr Mehrwert bei intensiven Defensivaktionen und direkter Torgefahr aus breiten Zonen.",
+    "verdictFitContext": "Für den angegebenen taktischen Kontext zeigt {{player1}} {{score1}}% Kompatibilität gegenüber {{score2}}% für {{player2}}.",
+    "verdictFitDefault": "Für ein Hochpress-System (Gegenpressing) zeigt {{player1}} {{score1}}% Kompatibilität gegenüber {{score2}}% für {{player2}}."
   },
-
   "watchlists": {
     "heading": "Watchlists",
     "subheading": "Verfolgen und beobachten Sie Ihre Zielspieler.",
@@ -483,9 +541,11 @@
     "noPlayersYet": "Noch keine Spieler in dieser Watchlist.",
     "removeFromWatchlist": "Von Watchlist entfernen",
     "removeConfirm": "Sind Sie sicher, dass Sie {{name}} aus {{watchlist}} entfernen möchten?",
-    "score": "WERT:"
+    "score": "WERT:",
+    "noWatchlistsFound": "Keine Watchlists für diesen Filter gefunden.",
+    "deleteConfirmMessage": "Möchten Sie \"{{name}}\" wirklich löschen? Alle Spieler in dieser Watchlist werden entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteWatchlist": "Watchlist löschen"
   },
-
   "squad": {
     "heading": "Meine Kader",
     "subheading": "Verwalten Sie Ihre Kader und identifizieren Sie Positionslücken.",
@@ -507,9 +567,16 @@
     "positionsFlagged": "{{count}} Position markiert",
     "positionsFlagged_other": "{{count}} Positionen markiert",
     "findPlayers": "Spieler finden",
-    "formation": "Formation"
+    "formation": "Formation",
+    "status": "Status",
+    "updated": "Aktualisiert",
+    "priority": {
+      "critical": "Kritisch",
+      "high": "Hoch",
+      "medium": "Mittel",
+      "low": "Niedrig"
+    }
   },
-
   "settings": {
     "heading": "Systemeinstellungen",
     "tabs": {
@@ -582,6 +649,9 @@
       "searches": "Suchen",
       "seats": "Plätze",
       "unlockUnlimited": "Unbegrenzte Berichte und taktische Analysen freischalten",
+      "needMoreSeats": "Mehr Plätze oder individuelle KI-Modelle benötigt?",
+      "upgradeToProSub": "Upgraden Sie auf Pro für unbegrenzte Berichte, alle Ligen und 3 Benutzerplätze.",
+      "upgradeToClubSub": "Upgraden Sie auf Club für 10 Plätze, individuelle Modelle und API-Zugang.",
       "upgradeTo": "Auf {{tier}} upgraden",
       "cancelSubscription": "Abonnement kündigen",
       "cancelConfirm": "Sind Sie sicher, dass Sie kündigen möchten?",
@@ -595,7 +665,6 @@
       "description": "Wählen Sie die Anzeigesprache für ScoutCopilot."
     }
   },
-
   "pricing": {
     "meta": {
       "title": "Preise — ScoutCopilot",
@@ -611,10 +680,10 @@
     "contactSub": "Fragen? Wir helfen Ihrer Scouting-Abteilung gerne beim Einstieg.",
     "contactSupport": "Support kontaktieren"
   },
-
   "legal": {
     "privacy": {
       "title": "Datenschutzerklärung",
+      "metaDescription": "Datenschutzerklärung von ScoutCopilot. Erfahren Sie, wie Predivo GmbH Ihre Daten verarbeitet, Ihre DSGVO-Rechte und unsere Sicherheitsmassnahmen.",
       "lastUpdated": "Zuletzt aktualisiert: 24. März 2026",
       "controller": "1. Verantwortlicher",
       "dataCollect": "2. Daten, die wir erheben",
@@ -642,6 +711,7 @@
     },
     "terms": {
       "title": "Nutzungsbedingungen",
+      "metaDescription": "Nutzungsbedingungen von ScoutCopilot. Vereinbarung, Abonnements, zulässige Nutzung und anwendbares Recht.",
       "lastUpdated": "Zuletzt aktualisiert: 24. März 2026",
       "agreement": "1. Vereinbarung",
       "serviceDescription": "2. Leistungsbeschreibung",
@@ -658,6 +728,7 @@
     },
     "imprint": {
       "title": "Impressum",
+      "metaDescription": "Impressum von ScoutCopilot der Predivo GmbH, Küssnacht am Rigi, Schweiz.",
       "company": "Unternehmen",
       "contact": "Kontakt",
       "commercialRegister": "Handelsregister",
@@ -666,18 +737,58 @@
       "disclaimer": "Haftungsausschluss"
     }
   },
-
   "addToWatchlist": {
     "heading": "Zur Watchlist hinzufügen",
     "createNew": "Neue Watchlist erstellen",
     "done": "Fertig"
   },
-
   "searchBar": {
     "placeholder": "Fragen Sie alles über Spieler...",
     "clear": "Suche löschen"
   },
-
+  "alerts": {
+    "backToDashboard": "Zurück zum Dashboard",
+    "heading": "Watchlist-Benachrichtigungen",
+    "subtitle": "Alle aktuellen Benachrichtigungen Ihrer beobachteten Spieler."
+  },
+  "searchHistory": {
+    "backToDashboard": "Zurück zum Dashboard",
+    "heading": "Suchverlauf",
+    "subtitle": "Alle Ihre bisherigen Suchen und deren Ergebnisse.",
+    "justNow": "Gerade eben",
+    "hoursAgo": "vor {{count}} Std.",
+    "yesterday": "Gestern",
+    "daysAgo": "vor {{count}} Tagen",
+    "complete": "Abgeschlossen",
+    "processing": "In Bearbeitung",
+    "failed": "Fehlgeschlagen",
+    "results": "Ergebnisse"
+  },
+  "comparisonSteps": {
+    "fetching": "Spielerdaten werden abgerufen...",
+    "computing": "Statistische Überlagerungen berechnen...",
+    "analyzing": "Taktische Passform-Analyse läuft...",
+    "generating": "KI-Urteil wird erstellt..."
+  },
+  "pricingRows": {
+    "dataSourceConnections": "Datenquellen-Verbindungen",
+    "nlPlayerSearch": "NL-Spielersuche",
+    "aiScoutingReports": "KI-Scouting-Berichte",
+    "shortlists": "Shortlists",
+    "playerComparison": "Spielervergleich",
+    "leagueScope": "Liga-Umfang",
+    "tacticalFitAnalysis": "Taktische Passform-Analyse",
+    "developmentTrajectory": "Entwicklungsprognose",
+    "pdfExport": "PDF-Export (mit Branding)",
+    "watchlists": "Watchlists",
+    "customAiModels": "Individuelle KI-Modelle",
+    "scoutCopilotApi": "Scout Copilot API",
+    "bulkOperations": "Massenoperationen",
+    "customMetrics": "Individuelle Metriken",
+    "userSeats": "Benutzerplätze",
+    "support": "Support",
+    "dataRetention": "Datenspeicherung"
+  },
   "radarLabels": {
     "aerial": "Kopfball",
     "passing": "Passspiel",
@@ -685,5 +796,101 @@
     "defending": "Verteidigung",
     "shooting": "Schuss",
     "dribbling": "Dribbling"
+  },
+  "csv": {
+    "name": "Name",
+    "age": "Alter",
+    "nationality": "Nationalität",
+    "position": "Position",
+    "club": "Verein",
+    "league": "Liga",
+    "matchScore": "Übereinstimmung"
+  },
+  "pricingValues": {
+    "unlimited": "Unbegrenzt",
+    "twoWyscoutStatsbomb": "2 (Wyscout + StatsBomb)",
+    "twoPlusCustom": "2 + benutzerdefiniert",
+    "tenPerMonth": "10/Monat",
+    "twentyFivePerMonth": "25/Monat",
+    "threePlayers": "3 Spieler",
+    "tenPlayers": "10 Spieler",
+    "oneLeague": "1 Liga",
+    "allLeagues": "Alle Ligen",
+    "email48hr": "E-Mail (48 Std.)",
+    "email24hr": "E-Mail (24 Std.)",
+    "dedicatedChannel": "Eigener Kanal",
+    "threeMonths": "3 Monate",
+    "sixMonths": "6 Monate",
+    "twentyFourMonths": "24 Monate"
+  },
+  "gapAnalysis": {
+    "search": {
+      "goalkeepers": "Torhüter",
+      "centrebacks": "Innenverteidiger",
+      "leftbacks": "Linksverteidiger",
+      "rightbacks": "Rechtsverteidiger",
+      "defensiveMidfielders": "Defensive Mittelfeldspieler",
+      "centralMidfielders": "Zentrale Mittelfeldspieler",
+      "attackingMidfielders": "Offensive Mittelfeldspieler",
+      "leftWingers": "Linksaussen",
+      "rightWingers": "Rechtsaussen",
+      "strikers": "Stürmer"
+    },
+    "reasons": {
+      "noPlayers": "Keine Spieler auf dieser Position verfügbar",
+      "onlyOnePlayer": "Nur 1 Spieler verfügbar — kein Ersatz",
+      "approachingRetirement": "Stammspieler {{name}} ({{age}}) steht vor dem Karriereende",
+      "aging": "Stammspieler {{name}} ({{age}}) altert",
+      "belowAverage": "Unterdurchschnittliche Kaderbewertung ({{rating}}/100)",
+      "contractExpiring": "{{name}}s Vertrag läuft in {{months}} Monaten aus"
+    }
+  },
+  "mockData": {
+    "playersAnalyzed": "Analysierte Spieler",
+    "activeWatchlists": "Aktive Watchlists",
+    "playersScouted": "Gescoutete Spieler",
+    "avgQueryTime": "Ø Anfragezeit",
+    "vsLastMonth": "ggü. letztem Monat",
+    "thisWeek": "diese Woche",
+    "threeAlerts": "3 MELDUNGEN",
+    "plus12ThisWeek": "+12 DIESE WOCHE"
+  },
+  "filterOptions": {
+    "allPositions": "Alle Positionen",
+    "goalkeeper": "Torwart",
+    "centreBack": "Innenverteidiger",
+    "fullBack": "Aussenverteidiger (LV/RV)",
+    "defensiveMidfielder": "Defensives Mittelfeld",
+    "centralMidfielder": "Zentrales Mittelfeld",
+    "attackingMidfielder": "Offensives Mittelfeld",
+    "winger": "Flügelspieler (LA/RA)",
+    "centreForward": "Mittelstürmer",
+    "allLeagues": "Alle Ligen",
+    "premierLeague": "Premier League",
+    "laLiga": "La Liga",
+    "bundesliga": "Bundesliga",
+    "serieA": "Serie A",
+    "ligue1": "Ligue 1",
+    "eredivisie": "Eredivisie",
+    "primeiraLiga": "Primeira Liga",
+    "championship": "Championship",
+    "mls": "MLS",
+    "allAges": "Alle Altersgruppen",
+    "eitherFoot": "Beidfüssig",
+    "left": "Links",
+    "right": "Rechts",
+    "both": "Beide"
+  },
+  "positionLabels": {
+    "goalkeeper": "Torwart",
+    "centreBack": "Innenverteidiger",
+    "leftBack": "Linksverteidiger",
+    "rightBack": "Rechtsverteidiger",
+    "defensiveMidfielder": "Defensives Mittelfeld",
+    "centralMidfielder": "Zentrales Mittelfeld",
+    "attackingMidfielder": "Offensives Mittelfeld",
+    "leftWinger": "Linksaussen",
+    "rightWinger": "Rechtsaussen",
+    "striker": "Stürmer"
   }
 }

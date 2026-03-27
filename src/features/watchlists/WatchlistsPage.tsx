@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Plus, X } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
@@ -59,6 +60,7 @@ export function WatchlistsPage() {
 
   return (
     <div className="p-6 space-y-6">
+      <Helmet><meta name="robots" content="noindex" /></Helmet>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
@@ -73,7 +75,7 @@ export function WatchlistsPage() {
         <div className="bg-surface-container border border-outline-variant rounded-md p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-on-surface">{t('watchlists.createNew')}</h3>
-            <button onClick={() => setShowNewForm(false)} className="text-on-surface-variant hover:text-on-surface transition-colors">
+            <button onClick={() => setShowNewForm(false)} aria-label="Close" className="text-on-surface-variant hover:text-on-surface transition-colors">
               <X size={16} strokeWidth={1.5} />
             </button>
           </div>
@@ -84,6 +86,7 @@ export function WatchlistsPage() {
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder={t('watchlists.watchlistName')}
+              aria-label={t('watchlists.watchlistName')}
               className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-sm text-on-surface focus:outline-none focus:border-primary transition-colors"
               onKeyDown={(e) => { if (e.key === 'Enter') handleCreate() }}
             />
@@ -92,6 +95,7 @@ export function WatchlistsPage() {
               value={newDesc}
               onChange={(e) => setNewDesc(e.target.value)}
               placeholder={t('watchlists.descriptionOptional')}
+              aria-label={t('watchlists.descriptionOptional')}
               className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-sm text-on-surface focus:outline-none focus:border-primary transition-colors"
               onKeyDown={(e) => { if (e.key === 'Enter') handleCreate() }}
             />
@@ -104,12 +108,12 @@ export function WatchlistsPage() {
       )}
 
       {/* Filter Tabs */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 overflow-x-auto">
         {filterTabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setFilter(tab.key)}
-            className={`px-4 py-1.5 text-xs font-semibold rounded-sm transition-colors ${
+            className={`px-4 py-2.5 text-xs font-semibold rounded-sm transition-colors whitespace-nowrap min-h-[44px] ${
               filter === tab.key
                 ? 'bg-surface-container-highest text-on-surface border border-primary/30'
                 : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
@@ -129,7 +133,7 @@ export function WatchlistsPage() {
         </div>
       ) : lists.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <p className="text-sm text-on-surface-variant">No watchlists found for this filter.</p>
+          <p className="text-sm text-on-surface-variant">{t('watchlists.noWatchlistsFound')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -148,7 +152,7 @@ export function WatchlistsPage() {
       <ConfirmDialog
         open={deleteTarget !== null}
         title={t('common.delete')}
-        message={`Are you sure you want to delete "${deleteTarget?.name ?? ''}"? This will remove all players in this watchlist. This action cannot be undone.`}
+        message={t('watchlists.deleteConfirmMessage', { name: deleteTarget?.name ?? '' })}
         confirmLabel={t('common.delete')}
         variant="destructive"
         onConfirm={handleDeleteWatchlist}

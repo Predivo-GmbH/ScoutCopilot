@@ -36,7 +36,7 @@ export function WatchlistCard({ watchlist, isSelected, onClick, onDelete }: Watc
                 onDelete()
               }}
               className="p-1 text-error/0 group-hover:text-error hover:bg-error/10 rounded-sm transition-all"
-              title="Delete watchlist"
+              title={t('watchlists.deleteWatchlist')}
             >
               <Trash2 size={14} strokeWidth={1.5} />
             </button>

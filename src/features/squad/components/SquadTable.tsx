@@ -17,14 +17,14 @@ const statusKeys: Record<string, string> = {
 const statusDotStyles: Record<string, string> = {
   fit: 'bg-secondary',
   injured: 'bg-error',
-  suspended: 'bg-amber-500',
+  suspended: 'bg-warning',
   on_loan: 'bg-tertiary',
 }
 
 const statusTextStyles: Record<string, string> = {
   fit: 'text-secondary',
   injured: 'text-error',
-  suspended: 'text-amber-500',
+  suspended: 'text-warning',
   on_loan: 'text-tertiary',
 }
 
@@ -35,6 +35,7 @@ export function SquadTable({ players }: SquadTableProps) {
 
   return (
     <div className="bg-surface-container rounded-md overflow-hidden border border-outline-variant">
+      <div className="overflow-x-auto">
       <table className="w-full text-left">
         <thead>
           <tr className="bg-surface-container-low text-[0.625rem] font-medium text-on-surface-variant uppercase tracking-widest border-b border-outline-variant">
@@ -44,7 +45,7 @@ export function SquadTable({ players }: SquadTableProps) {
             <th className="px-4 py-3 text-center">{t('common.age')}</th>
             <th className="px-4 py-3 text-center">{t('squad.contract')}</th>
             <th className="px-4 py-3 w-44">{t('squad.rating')}</th>
-            <th className="px-4 py-3">Status</th>
+            <th className="px-4 py-3">{t('squad.status')}</th>
             <th className="px-4 py-3 text-right">{t('squad.marketValue')}</th>
           </tr>
         </thead>
@@ -81,7 +82,7 @@ export function SquadTable({ players }: SquadTableProps) {
                 </td>
                 <td className="px-4 py-4 text-center font-data">{player.age}</td>
                 <td className="px-4 py-4 text-center font-data text-on-surface-variant text-xs">
-                  {new Date(player.contractUntil).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
+                  {new Date(player.contractUntil).toLocaleDateString(t('common.locale', 'en-GB'), { month: 'short', year: 'numeric' })}
                 </td>
                 <td className="px-4 py-4">
                   <RatingBar rating={player.overallRating} />
@@ -98,13 +99,14 @@ export function SquadTable({ players }: SquadTableProps) {
           })}
         </tbody>
       </table>
+      </div>
     </div>
   )
 }
 
 function RatingBar({ rating }: { rating: number }) {
-  const color = rating >= 78 ? 'bg-secondary' : rating >= 65 ? 'bg-amber-500' : 'bg-error'
-  const textColor = rating >= 78 ? 'text-secondary' : rating >= 65 ? 'text-amber-500' : 'text-error'
+  const color = rating >= 78 ? 'bg-secondary' : rating >= 65 ? 'bg-warning' : 'bg-error'
+  const textColor = rating >= 78 ? 'text-secondary' : rating >= 65 ? 'text-warning' : 'text-error'
 
   return (
     <div className="flex items-center gap-3">

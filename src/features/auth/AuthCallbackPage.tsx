@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 
 /**
@@ -7,8 +9,9 @@ import { supabase } from '../../lib/supabase'
  * Tokens arrive as URL hash fragments (#access_token=...&type=...)
  */
 export function AuthCallbackPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
-  const [status] = useState('Processing...')
+  const [status] = useState(t('auth.processing'))
 
   useEffect(() => {
     handleAuthCallback()
@@ -39,6 +42,7 @@ export function AuthCallbackPage() {
 
   return (
     <div className="flex h-screen items-center justify-center bg-background">
+      <Helmet><meta name="robots" content="noindex" /></Helmet>
       <div className="text-center">
         <div className="mx-auto h-6 w-6 animate-spin rounded-md border-2 border-primary border-t-transparent" />
         <p className="mt-4 text-sm text-on-surface-variant">{status}</p>

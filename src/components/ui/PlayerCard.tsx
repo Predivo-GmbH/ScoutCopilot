@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { cn } from '../../lib/utils'
 import { Badge } from './Badge'
 
@@ -43,6 +44,7 @@ function PlayerCard({
   className,
   onClick,
 }: PlayerCardProps) {
+  const { t } = useTranslation()
   return (
     <div
       onClick={onClick}
@@ -68,7 +70,7 @@ function PlayerCard({
           <div className="flex items-center gap-2 mt-0.5">
             <Badge variant="primary">{position}</Badge>
             <span className="text-[0.75rem] text-on-surface-variant">
-              {age} yrs
+              {age} {t('common.yrs')}
             </span>
             <span className="text-[0.75rem] text-on-surface-variant">
               {league}
@@ -98,7 +100,7 @@ function PlayerCard({
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[0.6875rem] uppercase tracking-[0.05em] text-on-surface-variant">
-              Fit Score
+              {t('common.fitScore')}
             </span>
             <span className="font-data text-[0.8125rem] font-medium text-on-surface">
               {fitScore}%

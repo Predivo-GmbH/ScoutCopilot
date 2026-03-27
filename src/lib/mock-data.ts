@@ -116,10 +116,10 @@ export const dashboardStats: DashboardStats = {
   playersTracked: 24,
   apiCallsThisMonth: 0,
   items: [
-    { value: 12847, label: 'Players Analyzed', change: 18, period: 'vs last month' },
-    { value: 24, label: 'Active Watchlists', change: 0, period: '', badge: '3 ALERTS' },
-    { value: 156, label: 'Players Scouted', change: 0, period: 'this week', badge: '+12 THIS WEEK' },
-    { value: '0.6s', label: 'Avg Query Time', change: 0, period: '' },
+    { value: 12847, label: 'mockData.playersAnalyzed', change: 18, period: 'mockData.vsLastMonth' },
+    { value: 24, label: 'mockData.activeWatchlists', change: 0, period: '', badge: 'mockData.threeAlerts' },
+    { value: 156, label: 'mockData.playersScouted', change: 0, period: 'mockData.thisWeek', badge: 'mockData.plus12ThisWeek' },
+    { value: '0.6s', label: 'mockData.avgQueryTime', change: 0, period: '' },
   ],
 }
 
@@ -137,43 +137,43 @@ export const recentSearches: RecentSearch[] = [
 ]
 
 export const watchlistAlerts: WatchlistAlert[] = [
-  { id: '1', playerId: 'wp6', playerName: 'Luca Marchetti', club: 'Lazio Blu', change: 'Progressive Carries +15%', changeType: 'positive', timeAgo: '2m ago', imageUrl: '/avatars/player-13.png' },
-  { id: '2', playerId: 'wp12', playerName: 'K. Papadopoulos', club: 'Olympique Azur', change: 'Injury Status: Doubtful', changeType: 'warning', timeAgo: '14m ago', imageUrl: '/avatars/player-14.png' },
-  { id: '3', playerId: 'wp4', playerName: 'Ousmane Diallo', club: 'Inter Azzurra', change: 'xG Chain Threshold Reached', changeType: 'positive', timeAgo: '1h ago', imageUrl: '/avatars/player-15.png' },
-  { id: '4', playerId: 'wp5', playerName: 'Lars Henriksen', club: 'Northgate United', change: 'Key Passes Peak Performance', changeType: 'positive', timeAgo: '3h ago', imageUrl: '/avatars/player-16.png' },
-  { id: '5', playerId: 'wp7', playerName: 'Alessandro Conti', club: 'Inter Azzurra', change: 'Returned to Full Training', changeType: 'positive', timeAgo: '4h ago', imageUrl: '/avatars/player-17.png' },
-  { id: '6', playerId: 'wp8', playerName: 'Nicolás Herrera', club: 'AS Roma Rossa', change: 'Market Value ↑ €2.5m → €3.8m', changeType: 'positive', timeAgo: '5h ago', imageUrl: '/avatars/player-18.png' },
-  { id: '7', playerId: 'p2', playerName: 'Enzo Valenti', club: 'Crescent Athletic', change: 'Contract Negotiations Stalled', changeType: 'warning', timeAgo: '6h ago', imageUrl: '/avatars/player-2.png' },
-  { id: '8', playerId: 'p3', playerName: 'Dani Cortez', club: 'Atlético Ronda', change: 'Started 3 Consecutive Matches', changeType: 'positive', timeAgo: '8h ago', imageUrl: '/avatars/player-3.png' },
-  { id: '9', playerId: 'wp10', playerName: 'Jakub Nowicki', club: 'Wisła Kraków', change: 'Called Up to U21 National Team', changeType: 'positive', timeAgo: '10h ago', imageUrl: '/avatars/player-19.png' },
-  { id: '10', playerId: 'wp11', playerName: 'Tomás Ferreira', club: 'Vitória Guimarães B', change: 'Hamstring Strain — 2 Weeks Out', changeType: 'warning', timeAgo: '12h ago', imageUrl: '/avatars/player-20.png' },
-  { id: '11', playerId: 'p6', playerName: 'Bálint Varga', club: 'Southport City', change: 'Tackles Won/90 Top 5% in League', changeType: 'positive', timeAgo: '14h ago', imageUrl: '/avatars/player-6.png' },
-  { id: '12', playerId: 'p10', playerName: 'Mateo Rivas', club: 'Miami Coast FC', change: 'Transfer Listed by Club', changeType: 'warning', timeAgo: '16h ago', imageUrl: '/avatars/player-10.png' },
+  { id: '1', playerId: 'wp6', playerName: 'Luca Marchetti', club: 'Lazio Blu', change: 'Progressive Carries +15%', changeType: 'positive', timeAgo: '2m ago', imageUrl: '/avatars/player-13.webp' },
+  { id: '2', playerId: 'wp12', playerName: 'K. Papadopoulos', club: 'Olympique Azur', change: 'Injury Status: Doubtful', changeType: 'warning', timeAgo: '14m ago', imageUrl: '/avatars/player-14.webp' },
+  { id: '3', playerId: 'wp4', playerName: 'Ousmane Diallo', club: 'Inter Azzurra', change: 'xG Chain Threshold Reached', changeType: 'positive', timeAgo: '1h ago', imageUrl: '/avatars/player-15.webp' },
+  { id: '4', playerId: 'wp5', playerName: 'Lars Henriksen', club: 'Northgate United', change: 'Key Passes Peak Performance', changeType: 'positive', timeAgo: '3h ago', imageUrl: '/avatars/player-16.webp' },
+  { id: '5', playerId: 'wp7', playerName: 'Alessandro Conti', club: 'Inter Azzurra', change: 'Returned to Full Training', changeType: 'positive', timeAgo: '4h ago', imageUrl: '/avatars/player-17.webp' },
+  { id: '6', playerId: 'wp8', playerName: 'Nicolás Herrera', club: 'AS Roma Rossa', change: 'Market Value ↑ €2.5m → €3.8m', changeType: 'positive', timeAgo: '5h ago', imageUrl: '/avatars/player-18.webp' },
+  { id: '7', playerId: 'p2', playerName: 'Enzo Valenti', club: 'Crescent Athletic', change: 'Contract Negotiations Stalled', changeType: 'warning', timeAgo: '6h ago', imageUrl: '/avatars/player-2.webp' },
+  { id: '8', playerId: 'p3', playerName: 'Dani Cortez', club: 'Atlético Ronda', change: 'Started 3 Consecutive Matches', changeType: 'positive', timeAgo: '8h ago', imageUrl: '/avatars/player-3.webp' },
+  { id: '9', playerId: 'wp10', playerName: 'Jakub Nowicki', club: 'Wisła Kraków', change: 'Called Up to U21 National Team', changeType: 'positive', timeAgo: '10h ago', imageUrl: '/avatars/player-19.webp' },
+  { id: '10', playerId: 'wp11', playerName: 'Tomás Ferreira', club: 'Vitória Guimarães B', change: 'Hamstring Strain — 2 Weeks Out', changeType: 'warning', timeAgo: '12h ago', imageUrl: '/avatars/player-20.webp' },
+  { id: '11', playerId: 'p6', playerName: 'Bálint Varga', club: 'Southport City', change: 'Tackles Won/90 Top 5% in League', changeType: 'positive', timeAgo: '14h ago', imageUrl: '/avatars/player-6.webp' },
+  { id: '12', playerId: 'p10', playerName: 'Mateo Rivas', club: 'Miami Coast FC', change: 'Transfer Listed by Club', changeType: 'warning', timeAgo: '16h ago', imageUrl: '/avatars/player-10.webp' },
   { id: '13', playerId: 'wp4', playerName: 'Ousmane Diallo', club: 'Inter Azzurra', change: 'Scored Brace in Derby Match', changeType: 'positive', timeAgo: '1d ago' },
   { id: '14', playerId: 'wp5', playerName: 'Lars Henriksen', club: 'Northgate United', change: 'Assist Record — 3 in Last Match', changeType: 'positive', timeAgo: '1d ago' },
-  { id: '15', playerId: 'wp6', playerName: 'Luca Marchetti', club: 'Lazio Blu', change: 'Rumoured Interest from Premier League', changeType: 'neutral', timeAgo: '2d ago', imageUrl: '/avatars/player-13.png' },
-  { id: '16', playerId: 'wp8', playerName: 'Nicolás Herrera', club: 'AS Roma Rossa', change: 'Yellow Card Accumulation — 1 Away from Ban', changeType: 'warning', timeAgo: '2d ago', imageUrl: '/avatars/player-18.png' },
-  { id: '17', playerId: 'p2', playerName: 'Enzo Valenti', club: 'Crescent Athletic', change: 'Prog. Carries/90 Season High', changeType: 'positive', timeAgo: '3d ago', imageUrl: '/avatars/player-2.png' },
-  { id: '18', playerId: 'wp12', playerName: 'K. Papadopoulos', club: 'Olympique Azur', change: 'Clean Sheet — 4th in 5 Games', changeType: 'positive', timeAgo: '3d ago', imageUrl: '/avatars/player-14.png' },
-  { id: '19', playerId: 'wp7', playerName: 'Alessandro Conti', club: 'Inter Azzurra', change: 'Contract Extension Offer Reported', changeType: 'neutral', timeAgo: '4d ago', imageUrl: '/avatars/player-17.png' },
-  { id: '20', playerId: 'p3', playerName: 'Dani Cortez', club: 'Atlético Ronda', change: 'Pass Accuracy Dropped to 82%', changeType: 'warning', timeAgo: '5d ago', imageUrl: '/avatars/player-3.png' },
+  { id: '15', playerId: 'wp6', playerName: 'Luca Marchetti', club: 'Lazio Blu', change: 'Rumoured Interest from Premier League', changeType: 'neutral', timeAgo: '2d ago', imageUrl: '/avatars/player-13.webp' },
+  { id: '16', playerId: 'wp8', playerName: 'Nicolás Herrera', club: 'AS Roma Rossa', change: 'Yellow Card Accumulation — 1 Away from Ban', changeType: 'warning', timeAgo: '2d ago', imageUrl: '/avatars/player-18.webp' },
+  { id: '17', playerId: 'p2', playerName: 'Enzo Valenti', club: 'Crescent Athletic', change: 'Prog. Carries/90 Season High', changeType: 'positive', timeAgo: '3d ago', imageUrl: '/avatars/player-2.webp' },
+  { id: '18', playerId: 'wp12', playerName: 'K. Papadopoulos', club: 'Olympique Azur', change: 'Clean Sheet — 4th in 5 Games', changeType: 'positive', timeAgo: '3d ago', imageUrl: '/avatars/player-14.webp' },
+  { id: '19', playerId: 'wp7', playerName: 'Alessandro Conti', club: 'Inter Azzurra', change: 'Contract Extension Offer Reported', changeType: 'neutral', timeAgo: '4d ago', imageUrl: '/avatars/player-17.webp' },
+  { id: '20', playerId: 'p3', playerName: 'Dani Cortez', club: 'Atlético Ronda', change: 'Pass Accuracy Dropped to 82%', changeType: 'warning', timeAgo: '5d ago', imageUrl: '/avatars/player-3.webp' },
 ]
 
 // ─── Player Search Results ───────────────────────────────────
 
 export const searchResults: MockPlayer[] = [
-  { id: 'p1', name: 'Marco Lindström', age: 25, nationality: 'Sweden', position: 'LB, LWB', club: 'FC Nordhavn', league: 'Bundesliga', fitScore: 94, stats: { 'xG/90': 0.12, 'Succ. Dribbles': 3.41, 'Prog. Carries': 8.2, 'Pass %': 89.2 }, image: '/avatars/player-1.png' },
-  { id: 'p2', name: 'Enzo Valenti', age: 23, nationality: 'Italy', position: 'LB, LM', club: 'Crescent Athletic', league: 'Premier League', fitScore: 88, stats: { 'xG/90': 0.08, 'Succ. Dribbles': 2.18, 'Prog. Carries': 6.7, 'Pass %': 85.1 }, image: '/avatars/player-2.png' },
-  { id: 'p3', name: 'Dani Cortez', age: 22, nationality: 'Spain', position: 'LB, RB', club: 'Atlético Ronda', league: 'La Liga', fitScore: 76, stats: { 'xG/90': 0.05, 'Succ. Dribbles': 1.94, 'Prog. Carries': 7.1, 'Pass %': 87.6 }, image: '/avatars/player-3.png' },
-  { id: 'p4', name: 'Tiago Noronha', age: 24, nationality: 'Portugal', position: 'LB', club: 'AS Lumière', league: 'Ligue 1', fitScore: 82, stats: { 'xG/90': 0.03, 'Succ. Dribbles': 2.88, 'Prog. Carries': 7.9, 'Pass %': 84.3 }, image: '/avatars/player-4.png' },
-  { id: 'p5', name: 'Rémi Blanchard', age: 23, nationality: 'France', position: 'LB, LM', club: 'Olympique Azur', league: 'Ligue 1', fitScore: 54, stats: { 'xG/90': 0.01, 'Succ. Dribbles': 1.12, 'Prog. Carries': 4.3, 'Pass %': 81.0 }, image: '/avatars/player-5.png' },
-  { id: 'p6', name: 'Bálint Varga', age: 22, nationality: 'Hungary', position: 'LB', club: 'Southport City', league: 'Premier League', fitScore: 79, stats: { 'xG/90': 0.04, 'Succ. Dribbles': 1.76, 'Prog. Carries': 5.8, 'Pass %': 82.4 }, image: '/avatars/player-6.png' },
-  { id: 'p7', name: 'Samir Benali', age: 23, nationality: 'Algeria', position: 'LB, LWB', club: 'Midland Rovers', league: 'Premier League', fitScore: 85, stats: { 'xG/90': 0.07, 'Succ. Dribbles': 2.34, 'Prog. Carries': 6.2, 'Pass %': 83.7 }, image: '/avatars/player-7.png' },
-  { id: 'p8', name: 'Pablo Navarro', age: 23, nationality: 'Spain', position: 'LB', club: 'Sporting Castilla', league: 'La Liga', fitScore: 73, stats: { 'xG/90': 0.06, 'Succ. Dribbles': 1.45, 'Prog. Carries': 5.4, 'Pass %': 86.2 }, image: '/avatars/player-8.png' },
-  { id: 'p9', name: 'Stijn de Graaf', age: 24, nationality: 'Netherlands', position: 'LB, LWB', club: 'Harton Villa', league: 'Premier League', fitScore: 81, stats: { 'xG/90': 0.09, 'Succ. Dribbles': 2.01, 'Prog. Carries': 6.9, 'Pass %': 84.8 }, image: '/avatars/player-9.png' },
-  { id: 'p10', name: 'Mateo Rivas', age: 19, nationality: 'Argentina', position: 'LB', club: 'Miami Coast FC', league: 'MLS', fitScore: 62, stats: { 'xG/90': 0.02, 'Succ. Dribbles': 1.1, 'Prog. Carries': 3.8, 'Pass %': 80.5 }, image: '/avatars/player-10.png' },
-  { id: 'p11', name: 'Adrien Morel', age: 28, nationality: 'France', position: 'LB, LWB', club: 'AC Stellare', league: 'Serie A', fitScore: 91, stats: { 'xG/90': 0.14, 'Succ. Dribbles': 2.67, 'Prog. Carries': 7.5, 'Pass %': 85.9 }, image: '/avatars/player-11.png' },
-  { id: 'p12', name: 'Emre Demir', age: 25, nationality: 'Turkey', position: 'LB, RB', club: 'Coastal FC', league: 'Premier League', fitScore: 77, stats: { 'xG/90': 0.05, 'Succ. Dribbles': 1.89, 'Prog. Carries': 5.6, 'Pass %': 87.1 }, image: '/avatars/player-12.png' },
+  { id: 'p1', name: 'Marco Lindström', age: 25, nationality: 'Sweden', position: 'LB, LWB', club: 'FC Nordhavn', league: 'Bundesliga', fitScore: 94, stats: { 'xG/90': 0.12, 'Succ. Dribbles': 3.41, 'Prog. Carries': 8.2, 'Pass %': 89.2 }, image: '/avatars/player-1.webp' },
+  { id: 'p2', name: 'Enzo Valenti', age: 23, nationality: 'Italy', position: 'LB, LM', club: 'Crescent Athletic', league: 'Premier League', fitScore: 88, stats: { 'xG/90': 0.08, 'Succ. Dribbles': 2.18, 'Prog. Carries': 6.7, 'Pass %': 85.1 }, image: '/avatars/player-2.webp' },
+  { id: 'p3', name: 'Dani Cortez', age: 22, nationality: 'Spain', position: 'LB, RB', club: 'Atlético Ronda', league: 'La Liga', fitScore: 76, stats: { 'xG/90': 0.05, 'Succ. Dribbles': 1.94, 'Prog. Carries': 7.1, 'Pass %': 87.6 }, image: '/avatars/player-3.webp' },
+  { id: 'p4', name: 'Tiago Noronha', age: 24, nationality: 'Portugal', position: 'LB', club: 'AS Lumière', league: 'Ligue 1', fitScore: 82, stats: { 'xG/90': 0.03, 'Succ. Dribbles': 2.88, 'Prog. Carries': 7.9, 'Pass %': 84.3 }, image: '/avatars/player-4.webp' },
+  { id: 'p5', name: 'Rémi Blanchard', age: 23, nationality: 'France', position: 'LB, LM', club: 'Olympique Azur', league: 'Ligue 1', fitScore: 54, stats: { 'xG/90': 0.01, 'Succ. Dribbles': 1.12, 'Prog. Carries': 4.3, 'Pass %': 81.0 }, image: '/avatars/player-5.webp' },
+  { id: 'p6', name: 'Bálint Varga', age: 22, nationality: 'Hungary', position: 'LB', club: 'Southport City', league: 'Premier League', fitScore: 79, stats: { 'xG/90': 0.04, 'Succ. Dribbles': 1.76, 'Prog. Carries': 5.8, 'Pass %': 82.4 }, image: '/avatars/player-6.webp' },
+  { id: 'p7', name: 'Samir Benali', age: 23, nationality: 'Algeria', position: 'LB, LWB', club: 'Midland Rovers', league: 'Premier League', fitScore: 85, stats: { 'xG/90': 0.07, 'Succ. Dribbles': 2.34, 'Prog. Carries': 6.2, 'Pass %': 83.7 }, image: '/avatars/player-7.webp' },
+  { id: 'p8', name: 'Pablo Navarro', age: 23, nationality: 'Spain', position: 'LB', club: 'Sporting Castilla', league: 'La Liga', fitScore: 73, stats: { 'xG/90': 0.06, 'Succ. Dribbles': 1.45, 'Prog. Carries': 5.4, 'Pass %': 86.2 }, image: '/avatars/player-8.webp' },
+  { id: 'p9', name: 'Stijn de Graaf', age: 24, nationality: 'Netherlands', position: 'LB, LWB', club: 'Harton Villa', league: 'Premier League', fitScore: 81, stats: { 'xG/90': 0.09, 'Succ. Dribbles': 2.01, 'Prog. Carries': 6.9, 'Pass %': 84.8 }, image: '/avatars/player-9.webp' },
+  { id: 'p10', name: 'Mateo Rivas', age: 19, nationality: 'Argentina', position: 'LB', club: 'Miami Coast FC', league: 'MLS', fitScore: 62, stats: { 'xG/90': 0.02, 'Succ. Dribbles': 1.1, 'Prog. Carries': 3.8, 'Pass %': 80.5 }, image: '/avatars/player-10.webp' },
+  { id: 'p11', name: 'Adrien Morel', age: 28, nationality: 'France', position: 'LB, LWB', club: 'AC Stellare', league: 'Serie A', fitScore: 91, stats: { 'xG/90': 0.14, 'Succ. Dribbles': 2.67, 'Prog. Carries': 7.5, 'Pass %': 85.9 }, image: '/avatars/player-11.webp' },
+  { id: 'p12', name: 'Emre Demir', age: 25, nationality: 'Turkey', position: 'LB, RB', club: 'Coastal FC', league: 'Premier League', fitScore: 77, stats: { 'xG/90': 0.05, 'Succ. Dribbles': 1.89, 'Prog. Carries': 5.6, 'Pass %': 87.1 }, image: '/avatars/player-12.webp' },
 ]
 
 // ─── Player Reports ─────────────────────────────────────────
@@ -187,7 +187,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'LB / LWB',
     club: 'FC Nordhavn',
     league: 'Bundesliga',
-    image: '/avatars/player-1.png',
+    image: '/avatars/player-1.webp',
     summary: 'Lindström continues to be one of the most dynamic full-backs in European football. His ability to transition from defense to attack at high speed is elite-level. While his tactical positioning has improved significantly, he remains most effective when allowed to overlap and drive into the final third. His progressive carrying numbers rank in the 97th percentile among all European full-backs.',
     strengths: [
       'Elite recovery speed and acceleration',
@@ -215,9 +215,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 68, average: 74 }, { label: 'Crossing', value: 74, average: 65 },
     ],
     similarPlayers: [
-      { playerId: 'p4', name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 94, image: '/avatars/player-4.png' },
-      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 91, image: '/avatars/player-3.png' },
-      { playerId: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 88, image: '/avatars/player-2.png' },
+      { playerId: 'p4', name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 94, image: '/avatars/player-4.webp' },
+      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 91, image: '/avatars/player-3.webp' },
+      { playerId: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 88, image: '/avatars/player-2.webp' },
     ],
     transferHistory: [
       { club: 'FC Nordhavn', date: 'Jan 2023', fee: '€10.00m' },
@@ -233,7 +233,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'LB / LM',
     club: 'Crescent Athletic',
     league: 'Premier League',
-    image: '/avatars/player-2.png',
+    image: '/avatars/player-2.webp',
     summary: 'Valenti is a technically gifted full-back who combines Italian defensive discipline with modern attacking output. His reading of the game allows him to intercept passes in advanced areas and quickly transition into attack. Particularly effective in build-up play, he offers a calm passing option under pressure and consistently finds progressive channels.',
     strengths: [
       'Exceptional passing range from deep',
@@ -260,9 +260,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 78, average: 74 }, { label: 'Crossing', value: 80, average: 65 },
     ],
     similarPlayers: [
-      { playerId: 'p1', name: 'Marco Lindström', club: 'FC Nordhavn', age: 25, similarity: 88, image: '/avatars/player-1.png' },
-      { playerId: 'p5', name: 'Rémi Blanchard', club: 'Olympique Azur', age: 23, similarity: 82, image: '/avatars/player-5.png' },
-      { playerId: 'p9', name: 'Stijn de Graaf', club: 'Harton Villa', age: 24, similarity: 79, image: '/avatars/player-9.png' },
+      { playerId: 'p1', name: 'Marco Lindström', club: 'FC Nordhavn', age: 25, similarity: 88, image: '/avatars/player-1.webp' },
+      { playerId: 'p5', name: 'Rémi Blanchard', club: 'Olympique Azur', age: 23, similarity: 82, image: '/avatars/player-5.webp' },
+      { playerId: 'p9', name: 'Stijn de Graaf', club: 'Harton Villa', age: 24, similarity: 79, image: '/avatars/player-9.webp' },
     ],
     transferHistory: [
       { club: 'Crescent Athletic', date: 'Aug 2024', fee: '€14.50m' },
@@ -279,7 +279,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'LB / RB',
     club: 'Atlético Ronda',
     league: 'La Liga',
-    image: '/avatars/player-3.png',
+    image: '/avatars/player-3.webp',
     summary: 'Cortez is a versatile defender capable of operating on either flank. His tactical awareness belies his age, and his ability to read the game makes him effective in both low-block and high-pressing systems. While his attacking output is modest, his defensive reliability and positional discipline make him a valuable squad asset with significant upside.',
     strengths: [
       'Versatility across both full-back positions',
@@ -306,9 +306,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 84, average: 74 }, { label: 'Crossing', value: 58, average: 65 },
     ],
     similarPlayers: [
-      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 90, image: '/avatars/player-6.png' },
-      { playerId: 'p12', name: 'Emre Demir', club: 'Coastal FC', age: 25, similarity: 85, image: '/avatars/player-12.png' },
-      { playerId: 'p8', name: 'Pablo Navarro', club: 'Sporting Castilla', age: 23, similarity: 83, image: '/avatars/player-8.png' },
+      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 90, image: '/avatars/player-6.webp' },
+      { playerId: 'p12', name: 'Emre Demir', club: 'Coastal FC', age: 25, similarity: 85, image: '/avatars/player-12.webp' },
+      { playerId: 'p8', name: 'Pablo Navarro', club: 'Sporting Castilla', age: 23, similarity: 83, image: '/avatars/player-8.webp' },
     ],
     transferHistory: [
       { club: 'Atlético Ronda', date: 'Jul 2024', fee: '€8.00m' },
@@ -324,7 +324,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'LB',
     club: 'AS Lumière',
     league: 'Ligue 1',
-    image: '/avatars/player-4.png',
+    image: '/avatars/player-4.webp',
     summary: 'Noronha is a dynamic attacking full-back in the Portuguese tradition. His dribbling ability and close control in tight spaces make him exceptionally difficult to press. He consistently beats his man on the outside and delivers dangerous crosses into the box. His defensive work rate has improved markedly this season under a more structured tactical system.',
     strengths: [
       'Outstanding dribbling and ball control',
@@ -351,9 +351,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 62, average: 74 }, { label: 'Crossing', value: 82, average: 65 },
     ],
     similarPlayers: [
-      { playerId: 'p1', name: 'Marco Lindström', club: 'FC Nordhavn', age: 25, similarity: 94, image: '/avatars/player-1.png' },
-      { playerId: 'p7', name: 'Samir Benali', club: 'Midland Rovers', age: 23, similarity: 86, image: '/avatars/player-7.png' },
-      { playerId: 'p11', name: 'Adrien Morel', club: 'AC Stellare', age: 28, similarity: 81, image: '/avatars/player-11.png' },
+      { playerId: 'p1', name: 'Marco Lindström', club: 'FC Nordhavn', age: 25, similarity: 94, image: '/avatars/player-1.webp' },
+      { playerId: 'p7', name: 'Samir Benali', club: 'Midland Rovers', age: 23, similarity: 86, image: '/avatars/player-7.webp' },
+      { playerId: 'p11', name: 'Adrien Morel', club: 'AC Stellare', age: 28, similarity: 81, image: '/avatars/player-11.webp' },
     ],
     transferHistory: [
       { club: 'AS Lumière', date: 'Jan 2025', fee: '€12.00m' },
@@ -370,7 +370,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'LB / LM',
     club: 'Olympique Azur',
     league: 'Ligue 1',
-    image: '/avatars/player-5.png',
+    image: '/avatars/player-5.webp',
     summary: 'Blanchard is a developing full-back with significant raw potential but inconsistent performances. His athletic profile is outstanding but his technical and tactical development has lagged. Shows flashes of brilliance in attacking phases but defensive lapses remain too frequent for a top-flight defender. A project player who needs time and coaching.',
     strengths: [
       'Explosive acceleration and top speed',
@@ -397,9 +397,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 60, average: 74 }, { label: 'Crossing', value: 45, average: 65 },
     ],
     similarPlayers: [
-      { playerId: 'p10', name: 'Mateo Rivas', club: 'Miami Coast FC', age: 19, similarity: 78, image: '/avatars/player-10.png' },
-      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 72, image: '/avatars/player-6.png' },
-      { playerId: 'p8', name: 'Pablo Navarro', club: 'Sporting Castilla', age: 23, similarity: 68, image: '/avatars/player-8.png' },
+      { playerId: 'p10', name: 'Mateo Rivas', club: 'Miami Coast FC', age: 19, similarity: 78, image: '/avatars/player-10.webp' },
+      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 72, image: '/avatars/player-6.webp' },
+      { playerId: 'p8', name: 'Pablo Navarro', club: 'Sporting Castilla', age: 23, similarity: 68, image: '/avatars/player-8.webp' },
     ],
     transferHistory: [
       { club: 'Olympique Azur', date: 'Jul 2024', fee: '€4.50m' },
@@ -415,7 +415,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'LB',
     club: 'Southport City',
     league: 'Premier League',
-    image: '/avatars/player-6.png',
+    image: '/avatars/player-6.webp',
     summary: 'Varga has adapted impressively to Premier League football since his move from Budapest. A disciplined defender who rarely gets caught out of position, he provides consistent performances without spectacular highs or lows. His steady improvement trajectory and young age make him an interesting prospect for clubs seeking defensive reliability.',
     strengths: [
       'Excellent defensive positioning',
@@ -442,9 +442,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 82, average: 74 }, { label: 'Crossing', value: 56, average: 65 },
     ],
     similarPlayers: [
-      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 90, image: '/avatars/player-3.png' },
-      { playerId: 'p8', name: 'Pablo Navarro', club: 'Sporting Castilla', age: 23, similarity: 84, image: '/avatars/player-8.png' },
-      { playerId: 'p12', name: 'Emre Demir', club: 'Coastal FC', age: 25, similarity: 80, image: '/avatars/player-12.png' },
+      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 90, image: '/avatars/player-3.webp' },
+      { playerId: 'p8', name: 'Pablo Navarro', club: 'Sporting Castilla', age: 23, similarity: 84, image: '/avatars/player-8.webp' },
+      { playerId: 'p12', name: 'Emre Demir', club: 'Coastal FC', age: 25, similarity: 80, image: '/avatars/player-12.webp' },
     ],
     transferHistory: [
       { club: 'Southport City', date: 'Aug 2025', fee: '€6.50m' },
@@ -461,7 +461,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'LB / LWB',
     club: 'Midland Rovers',
     league: 'Premier League',
-    image: '/avatars/player-7.png',
+    image: '/avatars/player-7.webp',
     summary: 'Benali is a technically accomplished wing-back who has flourished in a back-three system. His ability to beat defenders 1v1 and deliver quality final balls makes him a genuine attacking asset. Defensively, he has shown improvement in awareness and tracking runners, though he remains best suited to systems where he operates as a wing-back rather than a traditional full-back.',
     strengths: [
       'Exceptional 1v1 dribbling ability',
@@ -488,9 +488,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 58, average: 74 }, { label: 'Crossing', value: 84, average: 65 },
     ],
     similarPlayers: [
-      { playerId: 'p4', name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 91, image: '/avatars/player-4.png' },
-      { playerId: 'p11', name: 'Adrien Morel', club: 'AC Stellare', age: 28, similarity: 85, image: '/avatars/player-11.png' },
-      { playerId: 'p1', name: 'Marco Lindström', club: 'FC Nordhavn', age: 25, similarity: 82, image: '/avatars/player-1.png' },
+      { playerId: 'p4', name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 91, image: '/avatars/player-4.webp' },
+      { playerId: 'p11', name: 'Adrien Morel', club: 'AC Stellare', age: 28, similarity: 85, image: '/avatars/player-11.webp' },
+      { playerId: 'p1', name: 'Marco Lindström', club: 'FC Nordhavn', age: 25, similarity: 82, image: '/avatars/player-1.webp' },
     ],
     transferHistory: [
       { club: 'Midland Rovers', date: 'Jan 2025', fee: '€11.00m' },
@@ -506,7 +506,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'LB',
     club: 'Sporting Castilla',
     league: 'La Liga',
-    image: '/avatars/player-8.png',
+    image: '/avatars/player-8.webp',
     summary: 'Navarro is a solid, no-nonsense full-back who embodies the traditional Spanish defensive school. His positioning and reading of the game are mature beyond his years. While he lacks the flair of some modern attacking full-backs, his consistency and reliability make him a dependable option in a well-organized defensive unit.',
     strengths: [
       'Excellent reading of the game',
@@ -533,9 +533,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 80, average: 74 }, { label: 'Crossing', value: 60, average: 65 },
     ],
     similarPlayers: [
-      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 89, image: '/avatars/player-3.png' },
-      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 84, image: '/avatars/player-6.png' },
-      { playerId: 'p12', name: 'Emre Demir', club: 'Coastal FC', age: 25, similarity: 78, image: '/avatars/player-12.png' },
+      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 89, image: '/avatars/player-3.webp' },
+      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 84, image: '/avatars/player-6.webp' },
+      { playerId: 'p12', name: 'Emre Demir', club: 'Coastal FC', age: 25, similarity: 78, image: '/avatars/player-12.webp' },
     ],
     transferHistory: [
       { club: 'Sporting Castilla', date: 'Jul 2023', fee: '€5.00m' },
@@ -551,7 +551,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'LB / LWB',
     club: 'Harton Villa',
     league: 'Premier League',
-    image: '/avatars/player-9.png',
+    image: '/avatars/player-9.webp',
     summary: 'De Graaf brings a distinctly Dutch approach to the full-back role — technically sound, positionally intelligent, and comfortable receiving the ball in tight spaces. His development at the Ajax academy is evident in his spatial awareness and ability to contribute to build-up play. He has become a regular starter in the Premier League and continues to improve.',
     strengths: [
       'Technical quality on the ball',
@@ -578,9 +578,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 72, average: 74 }, { label: 'Crossing', value: 70, average: 65 },
     ],
     similarPlayers: [
-      { playerId: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 88, image: '/avatars/player-2.png' },
-      { playerId: 'p4', name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 82, image: '/avatars/player-4.png' },
-      { playerId: 'p11', name: 'Adrien Morel', club: 'AC Stellare', age: 28, similarity: 76, image: '/avatars/player-11.png' },
+      { playerId: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 88, image: '/avatars/player-2.webp' },
+      { playerId: 'p4', name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 82, image: '/avatars/player-4.webp' },
+      { playerId: 'p11', name: 'Adrien Morel', club: 'AC Stellare', age: 28, similarity: 76, image: '/avatars/player-11.webp' },
     ],
     transferHistory: [
       { club: 'Harton Villa', date: 'Aug 2024', fee: '€9.50m' },
@@ -597,7 +597,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'LB',
     club: 'Miami Coast FC',
     league: 'MLS',
-    image: '/avatars/player-10.png',
+    image: '/avatars/player-10.webp',
     summary: 'Rivas is a raw but exciting teenage prospect who has broken into the Miami Coast first team. At just 19, his physical and technical development is still ongoing. He shows glimpses of exceptional talent — particularly his ability to carry the ball at speed — but his inconsistency and lack of experience are evident. A long-term prospect who could develop into a top-level full-back with the right pathway.',
     strengths: [
       'Explosive pace and acceleration',
@@ -624,9 +624,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 48, average: 74 }, { label: 'Crossing', value: 50, average: 65 },
     ],
     similarPlayers: [
-      { playerId: 'p5', name: 'Rémi Blanchard', club: 'Olympique Azur', age: 23, similarity: 78, image: '/avatars/player-5.png' },
-      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 65, image: '/avatars/player-3.png' },
-      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 60, image: '/avatars/player-6.png' },
+      { playerId: 'p5', name: 'Rémi Blanchard', club: 'Olympique Azur', age: 23, similarity: 78, image: '/avatars/player-5.webp' },
+      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 65, image: '/avatars/player-3.webp' },
+      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 60, image: '/avatars/player-6.webp' },
     ],
     transferHistory: [
       { club: 'Miami Coast FC', date: 'Mar 2026', fee: '€1.80m' },
@@ -642,7 +642,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'LB / LWB',
     club: 'AC Stellare',
     league: 'Serie A',
-    image: '/avatars/player-11.png',
+    image: '/avatars/player-11.webp',
     summary: 'Morel is a seasoned full-back operating at the peak of his career. His combination of experience, technical quality, and tactical intelligence makes him one of the most complete full-backs in Serie A. He provides consistent high-level performances and is a leader in the dressing room. His age means limited resale value, but his immediate impact would be significant.',
     strengths: [
       'Complete full-back profile — attacks and defends well',
@@ -670,9 +670,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 80, average: 74 }, { label: 'Crossing', value: 88, average: 65 },
     ],
     similarPlayers: [
-      { playerId: 'p7', name: 'Samir Benali', club: 'Midland Rovers', age: 23, similarity: 85, image: '/avatars/player-7.png' },
-      { playerId: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 82, image: '/avatars/player-2.png' },
-      { playerId: 'p9', name: 'Stijn de Graaf', club: 'Harton Villa', age: 24, similarity: 78, image: '/avatars/player-9.png' },
+      { playerId: 'p7', name: 'Samir Benali', club: 'Midland Rovers', age: 23, similarity: 85, image: '/avatars/player-7.webp' },
+      { playerId: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 82, image: '/avatars/player-2.webp' },
+      { playerId: 'p9', name: 'Stijn de Graaf', club: 'Harton Villa', age: 24, similarity: 78, image: '/avatars/player-9.webp' },
     ],
     transferHistory: [
       { club: 'AC Stellare', date: 'Jul 2022', fee: '€18.00m' },
@@ -689,7 +689,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'LB / RB',
     club: 'Coastal FC',
     league: 'Premier League',
-    image: '/avatars/player-12.png',
+    image: '/avatars/player-12.webp',
     summary: 'Demir is a dependable squad full-back who can cover both flanks competently. His Turkish international experience adds valuable big-game composure. While unlikely to be a first-choice at a top-six club, his versatility, professionalism, and steady performances make him a useful squad player. Offers excellent value relative to his transfer cost.',
     strengths: [
       'Versatility across both flanks',
@@ -716,9 +716,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 76, average: 74 }, { label: 'Crossing', value: 62, average: 65 },
     ],
     similarPlayers: [
-      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 85, image: '/avatars/player-3.png' },
-      { playerId: 'p8', name: 'Pablo Navarro', club: 'Sporting Castilla', age: 23, similarity: 82, image: '/avatars/player-8.png' },
-      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 80, image: '/avatars/player-6.png' },
+      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 85, image: '/avatars/player-3.webp' },
+      { playerId: 'p8', name: 'Pablo Navarro', club: 'Sporting Castilla', age: 23, similarity: 82, image: '/avatars/player-8.webp' },
+      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 80, image: '/avatars/player-6.webp' },
     ],
     transferHistory: [
       { club: 'Coastal FC', date: 'Aug 2024', fee: '€7.00m' },
@@ -735,7 +735,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'CF / LW',
     club: 'Inter Azzurra',
     league: 'Serie A',
-    image: '/avatars/player-15.png',
+    image: '/avatars/player-15.webp',
     summary: 'Diallo is a clinical finisher with explosive acceleration and intelligent movement in the box. His ability to drift wide and cut inside makes him a dual threat as both a striker and inverted winger. Consistently among the top scorers in Serie A over the past three seasons, his off-the-ball runs are elite-level and he excels at finding pockets of space between centre-backs.',
     strengths: [
       'Elite finishing in the box',
@@ -763,9 +763,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 32, average: 40 }, { label: 'Crossing', value: 58, average: 55 },
     ],
     similarPlayers: [
-      { playerId: 'wp5', name: 'Lars Henriksen', club: 'Northgate United', age: 25, similarity: 88, image: '/avatars/player-16.png' },
-      { playerId: 'wp8', name: 'Nicolás Herrera', club: 'AS Roma Rossa', age: 23, similarity: 82, image: '/avatars/player-18.png' },
-      { playerId: 'p11', name: 'Kenji Tanaka', club: 'Coastal FC', age: 28, similarity: 79, image: '/avatars/player-11.png' },
+      { playerId: 'wp5', name: 'Lars Henriksen', club: 'Northgate United', age: 25, similarity: 88, image: '/avatars/player-16.webp' },
+      { playerId: 'wp8', name: 'Nicolás Herrera', club: 'AS Roma Rossa', age: 23, similarity: 82, image: '/avatars/player-18.webp' },
+      { playerId: 'p11', name: 'Kenji Tanaka', club: 'Coastal FC', age: 28, similarity: 79, image: '/avatars/player-11.webp' },
     ],
     transferHistory: [
       { club: 'Inter Azzurra', date: 'Jul 2022', fee: '€18.00m' },
@@ -782,7 +782,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'CF',
     club: 'Northgate United',
     league: 'Premier League',
-    image: '/avatars/player-16.png',
+    image: '/avatars/player-16.webp',
     summary: 'Henriksen is a modern centre-forward who combines physical dominance with technical quality. His hold-up play is among the best in the league, and his ability to bring midfielders into play while also finishing chances makes him a complete striker. Has improved his movement in behind over the past 12 months and is beginning to show consistency at the highest level.',
     strengths: [
       'Elite hold-up play and link-up',
@@ -810,9 +810,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 38, average: 40 }, { label: 'Crossing', value: 45, average: 52 },
     ],
     similarPlayers: [
-      { playerId: 'wp4', name: 'Ousmane Diallo', club: 'Inter Azzurra', age: 28, similarity: 88, image: '/avatars/player-15.png' },
-      { playerId: 'p11', name: 'Kenji Tanaka', club: 'Coastal FC', age: 28, similarity: 83, image: '/avatars/player-11.png' },
-      { playerId: 'p12', name: 'Tarık Çelik', club: 'Coastal FC', age: 27, similarity: 78, image: '/avatars/player-12.png' },
+      { playerId: 'wp4', name: 'Ousmane Diallo', club: 'Inter Azzurra', age: 28, similarity: 88, image: '/avatars/player-15.webp' },
+      { playerId: 'p11', name: 'Kenji Tanaka', club: 'Coastal FC', age: 28, similarity: 83, image: '/avatars/player-11.webp' },
+      { playerId: 'p12', name: 'Tarık Çelik', club: 'Coastal FC', age: 27, similarity: 78, image: '/avatars/player-12.webp' },
     ],
     transferHistory: [
       { club: 'Northgate United', date: 'Aug 2023', fee: '€14.00m' },
@@ -829,7 +829,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'LB / LWB',
     club: 'Lazio Blu',
     league: 'Serie A',
-    image: '/avatars/player-13.png',
+    image: '/avatars/player-13.webp',
     summary: 'Marchetti is an outstanding progressive ball-carrier from left-back, ranking in the 96th percentile for progressive carries among Serie A defenders. His overlapping runs create numerical advantages in the final third and his crossing delivery is consistently dangerous. Defensively solid in one-on-one situations with excellent recovery pace.',
     strengths: [
       'Elite progressive carrying ability',
@@ -857,9 +857,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 72, average: 74 }, { label: 'Crossing', value: 85, average: 65 },
     ],
     similarPlayers: [
-      { playerId: 'p1', name: 'Marco Lindström', club: 'FC Nordhavn', age: 25, similarity: 92, image: '/avatars/player-1.png' },
-      { playerId: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 87, image: '/avatars/player-2.png' },
-      { playerId: 'wp7', name: 'Alessandro Conti', club: 'Inter Azzurra', age: 28, similarity: 84, image: '/avatars/player-17.png' },
+      { playerId: 'p1', name: 'Marco Lindström', club: 'FC Nordhavn', age: 25, similarity: 92, image: '/avatars/player-1.webp' },
+      { playerId: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 87, image: '/avatars/player-2.webp' },
+      { playerId: 'wp7', name: 'Alessandro Conti', club: 'Inter Azzurra', age: 28, similarity: 84, image: '/avatars/player-17.webp' },
     ],
     transferHistory: [
       { club: 'Lazio Blu', date: 'Jul 2023', fee: '€12.00m' },
@@ -876,7 +876,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'LWB',
     club: 'Inter Azzurra',
     league: 'Serie A',
-    image: '/avatars/player-17.png',
+    image: '/avatars/player-17.webp',
     summary: 'Conti is a veteran wing-back whose tactical intelligence and reading of the game set him apart. His passing range from deep is exceptional and he orchestrates play from the left flank with calm authority. While not the fastest, his positioning and anticipation make him an effective defender. A reliable, high-floor option for any side playing with wing-backs.',
     strengths: [
       'Exceptional passing range and vision',
@@ -904,9 +904,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 78, average: 74 }, { label: 'Crossing', value: 80, average: 65 },
     ],
     similarPlayers: [
-      { playerId: 'wp6', name: 'Luca Marchetti', club: 'Lazio Blu', age: 26, similarity: 84, image: '/avatars/player-13.png' },
-      { playerId: 'p9', name: 'Stijn de Graaf', club: 'Harton Villa', age: 24, similarity: 81, image: '/avatars/player-9.png' },
-      { playerId: 'p7', name: 'Samir Benali', club: 'Midland Rovers', age: 23, similarity: 78, image: '/avatars/player-7.png' },
+      { playerId: 'wp6', name: 'Luca Marchetti', club: 'Lazio Blu', age: 26, similarity: 84, image: '/avatars/player-13.webp' },
+      { playerId: 'p9', name: 'Stijn de Graaf', club: 'Harton Villa', age: 24, similarity: 81, image: '/avatars/player-9.webp' },
+      { playerId: 'p7', name: 'Samir Benali', club: 'Midland Rovers', age: 23, similarity: 78, image: '/avatars/player-7.webp' },
     ],
     transferHistory: [
       { club: 'Inter Azzurra', date: 'Jul 2021', fee: '€15.00m' },
@@ -923,7 +923,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'RW / AM',
     club: 'AS Roma Rossa',
     league: 'Serie A',
-    image: '/avatars/player-18.png',
+    image: '/avatars/player-18.webp',
     summary: 'Herrera is an electrifying attacking talent who has quickly established himself as one of the most exciting young players in Serie A. His dribbling ability and creativity in the final third are outstanding, and he possesses the rare ability to beat defenders in tight spaces. Still developing his end product, but his shot-creating actions per 90 rank among the top 5% in Italy.',
     strengths: [
       'Exceptional dribbling and close control',
@@ -951,9 +951,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 28, average: 38 }, { label: 'Crossing', value: 72, average: 62 },
     ],
     similarPlayers: [
-      { playerId: 'wp4', name: 'Ousmane Diallo', club: 'Inter Azzurra', age: 28, similarity: 82, image: '/avatars/player-15.png' },
-      { playerId: 'p4', name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 80, image: '/avatars/player-4.png' },
-      { playerId: 'wp11', name: 'Tomás Ferreira', club: 'Vitória Guimarães B', age: 18, similarity: 76, image: '/avatars/player-20.png' },
+      { playerId: 'wp4', name: 'Ousmane Diallo', club: 'Inter Azzurra', age: 28, similarity: 82, image: '/avatars/player-15.webp' },
+      { playerId: 'p4', name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 80, image: '/avatars/player-4.webp' },
+      { playerId: 'wp11', name: 'Tomás Ferreira', club: 'Vitória Guimarães B', age: 18, similarity: 76, image: '/avatars/player-20.webp' },
     ],
     transferHistory: [
       { club: 'AS Roma Rossa', date: 'Jan 2025', fee: '€9.00m' },
@@ -970,7 +970,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'CM',
     club: 'Wisła Kraków',
     league: 'Ekstraklasa',
-    image: '/avatars/player-19.png',
+    image: '/avatars/player-19.webp',
     summary: 'Nowicki is a prodigiously talented central midfielder who has broken into Wisła Kraków\'s first team at just 17. His vision and passing ability are far beyond his years, and his composure on the ball in tight situations is remarkable for a player of his age. Still physically developing but his technical foundation and football intelligence suggest an extremely high ceiling.',
     strengths: [
       'Exceptional vision and passing range',
@@ -998,9 +998,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 52, average: 60 }, { label: 'Crossing', value: 60, average: 55 },
     ],
     similarPlayers: [
-      { playerId: 'wp11', name: 'Tomás Ferreira', club: 'Vitória Guimarães B', age: 18, similarity: 80, image: '/avatars/player-20.png' },
-      { playerId: 'p10', name: 'Mateo Rivas', club: 'Miami Coast FC', age: 19, similarity: 76, image: '/avatars/player-10.png' },
-      { playerId: 'p4', name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 72, image: '/avatars/player-4.png' },
+      { playerId: 'wp11', name: 'Tomás Ferreira', club: 'Vitória Guimarães B', age: 18, similarity: 80, image: '/avatars/player-20.webp' },
+      { playerId: 'p10', name: 'Mateo Rivas', club: 'Miami Coast FC', age: 19, similarity: 76, image: '/avatars/player-10.webp' },
+      { playerId: 'p4', name: 'Tiago Noronha', club: 'AS Lumière', age: 24, similarity: 72, image: '/avatars/player-4.webp' },
     ],
     transferHistory: [
       { club: 'Wisła Kraków', date: 'Youth', fee: 'Academy' },
@@ -1015,7 +1015,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'RW',
     club: 'Vitória Guimarães B',
     league: 'Liga Portugal 2',
-    image: '/avatars/player-20.png',
+    image: '/avatars/player-20.webp',
     summary: 'Ferreira is a rapid, direct winger who has caught the attention of several top-flight clubs with his performances for Vitória\'s B team. His ability to beat defenders with pace and skill is already at a high level, and his end product is developing rapidly. At 18, he offers significant upside and could develop into a top-tier wide forward with the right coaching environment.',
     strengths: [
       'Explosive pace and acceleration',
@@ -1043,9 +1043,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 25, average: 35 }, { label: 'Crossing', value: 70, average: 58 },
     ],
     similarPlayers: [
-      { playerId: 'wp8', name: 'Nicolás Herrera', club: 'AS Roma Rossa', age: 23, similarity: 76, image: '/avatars/player-18.png' },
-      { playerId: 'wp10', name: 'Jakub Nowicki', club: 'Wisła Kraków', age: 17, similarity: 72, image: '/avatars/player-19.png' },
-      { playerId: 'p10', name: 'Mateo Rivas', club: 'Miami Coast FC', age: 19, similarity: 70, image: '/avatars/player-10.png' },
+      { playerId: 'wp8', name: 'Nicolás Herrera', club: 'AS Roma Rossa', age: 23, similarity: 76, image: '/avatars/player-18.webp' },
+      { playerId: 'wp10', name: 'Jakub Nowicki', club: 'Wisła Kraków', age: 17, similarity: 72, image: '/avatars/player-19.webp' },
+      { playerId: 'p10', name: 'Mateo Rivas', club: 'Miami Coast FC', age: 19, similarity: 70, image: '/avatars/player-10.webp' },
     ],
     transferHistory: [
       { club: 'Vitória Guimarães B', date: 'Youth', fee: 'Academy' },
@@ -1060,7 +1060,7 @@ export const playerReports: Record<string, MockPlayerReport> = {
     position: 'LB/CB',
     club: 'Olympique Azur',
     league: 'Ligue 1',
-    image: '/avatars/player-14.png',
+    image: '/avatars/player-14.webp',
     summary: 'Papadopoulos is a versatile young defender who can operate comfortably at left-back or centre-back. His reading of the game and composure on the ball belie his age, and he has quickly established himself as a starter in Ligue 1. An injury concern has emerged recently, but when fit he is one of the most promising defensive talents in France.',
     strengths: [
       'Excellent positional awareness',
@@ -1088,9 +1088,9 @@ export const playerReports: Record<string, MockPlayerReport> = {
       { label: 'Defending', value: 82, average: 65 }, { label: 'Crossing', value: 65, average: 58 },
     ],
     similarPlayers: [
-      { playerId: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 78, image: '/avatars/player-2.png' },
-      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 74, image: '/avatars/player-3.png' },
-      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 71, image: '/avatars/player-6.png' },
+      { playerId: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', age: 23, similarity: 78, image: '/avatars/player-2.webp' },
+      { playerId: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', age: 22, similarity: 74, image: '/avatars/player-3.webp' },
+      { playerId: 'p6', name: 'Bálint Varga', club: 'Southport City', age: 22, similarity: 71, image: '/avatars/player-6.webp' },
     ],
     transferHistory: [
       { club: 'Olympiakos Youth', date: '2020', fee: 'Academy' },
@@ -1110,7 +1110,7 @@ export const comparisonPlayers: MockComparisonPlayer[] = [
     position: 'LW / CF',
     age: 28,
     nationality: 'Ghana',
-    image: '/avatars/player-11.png',
+    image: '/avatars/player-11.webp',
     metrics: { 'Goals/90': 0.68, 'Assists/90': 0.12, 'Pass %': 81.4, 'Tackles/90': 1.2, 'Interceptions/90': 0.3, 'xG/90': 0.62, 'Key Passes/90': 1.8, 'Aerial Won %': 48.2, 'Dribbles/90': 3.1, 'Prog. Carries/90': 5.4 },
     radarData: [
       { label: 'Shooting', value: 85 },
@@ -1128,7 +1128,7 @@ export const comparisonPlayers: MockComparisonPlayer[] = [
     position: 'LW / CF',
     age: 27,
     nationality: 'Portugal',
-    image: '/avatars/player-4.png',
+    image: '/avatars/player-4.webp',
     metrics: { 'Goals/90': 0.45, 'Assists/90': 0.34, 'Pass %': 76.8, 'Tackles/90': 0.4, 'Interceptions/90': 0.6, 'xG/90': 0.48, 'Key Passes/90': 2.4, 'Aerial Won %': 31.5, 'Dribbles/90': 4.2, 'Prog. Carries/90': 7.1 },
     radarData: [
       { label: 'Shooting', value: 72 },
@@ -1146,7 +1146,7 @@ export const comparisonPlayers: MockComparisonPlayer[] = [
     position: 'LB / LWB',
     age: 25,
     nationality: 'Sweden',
-    image: '/avatars/player-1.png',
+    image: '/avatars/player-1.webp',
     metrics: { 'Goals/90': 0.04, 'Assists/90': 0.17, 'Pass %': 89.2, 'Tackles/90': 2.8, 'Interceptions/90': 1.4, 'xG/90': 0.12, 'Key Passes/90': 1.4, 'Aerial Won %': 42.0, 'Dribbles/90': 3.4, 'Prog. Carries/90': 8.2 },
     radarData: [
       { label: 'Shooting', value: 38 },
@@ -1164,7 +1164,7 @@ export const comparisonPlayers: MockComparisonPlayer[] = [
     position: 'LB / LM',
     age: 23,
     nationality: 'Italy',
-    image: '/avatars/player-2.png',
+    image: '/avatars/player-2.webp',
     metrics: { 'Goals/90': 0.04, 'Assists/90': 0.22, 'Pass %': 85.1, 'Tackles/90': 3.1, 'Interceptions/90': 1.6, 'xG/90': 0.08, 'Key Passes/90': 1.6, 'Aerial Won %': 52.4, 'Dribbles/90': 2.2, 'Prog. Carries/90': 6.7 },
     radarData: [
       { label: 'Shooting', value: 32 },
@@ -1182,7 +1182,7 @@ export const comparisonPlayers: MockComparisonPlayer[] = [
     position: 'LB / RB',
     age: 22,
     nationality: 'Spain',
-    image: '/avatars/player-3.png',
+    image: '/avatars/player-3.webp',
     metrics: { 'Goals/90': 0.02, 'Assists/90': 0.14, 'Pass %': 87.6, 'Tackles/90': 2.6, 'Interceptions/90': 2.1, 'xG/90': 0.05, 'Key Passes/90': 1.1, 'Aerial Won %': 55.8, 'Dribbles/90': 1.9, 'Prog. Carries/90': 7.1 },
     radarData: [
       { label: 'Shooting', value: 28 },
@@ -1200,7 +1200,7 @@ export const comparisonPlayers: MockComparisonPlayer[] = [
     position: 'CF / LW',
     age: 28,
     nationality: 'Senegal',
-    image: '/avatars/player-15.png',
+    image: '/avatars/player-15.webp',
     metrics: { 'Goals/90': 0.57, 'Assists/90': 0.18, 'Pass %': 81.4, 'Tackles/90': 0.6, 'Interceptions/90': 0.2, 'xG/90': 0.52, 'Key Passes/90': 1.4, 'Aerial Won %': 38.0, 'Dribbles/90': 2.8, 'Prog. Carries/90': 4.1 },
     radarData: [
       { label: 'Shooting', value: 88 },
@@ -1218,7 +1218,7 @@ export const comparisonPlayers: MockComparisonPlayer[] = [
     position: 'LB / LWB',
     age: 23,
     nationality: 'Algeria',
-    image: '/avatars/player-7.png',
+    image: '/avatars/player-7.webp',
     metrics: { 'Goals/90': 0.03, 'Assists/90': 0.15, 'Pass %': 83.7, 'Tackles/90': 2.4, 'Interceptions/90': 1.2, 'xG/90': 0.07, 'Key Passes/90': 1.3, 'Aerial Won %': 48.6, 'Dribbles/90': 2.3, 'Prog. Carries/90': 6.2 },
     radarData: [
       { label: 'Shooting', value: 30 },
@@ -1236,7 +1236,7 @@ export const comparisonPlayers: MockComparisonPlayer[] = [
     position: 'RW / AM',
     age: 23,
     nationality: 'Argentina',
-    image: '/avatars/player-18.png',
+    image: '/avatars/player-18.webp',
     metrics: { 'Goals/90': 0.33, 'Assists/90': 0.38, 'Pass %': 83.1, 'Tackles/90': 0.8, 'Interceptions/90': 0.5, 'xG/90': 0.28, 'Key Passes/90': 2.4, 'Aerial Won %': 28.0, 'Dribbles/90': 4.8, 'Prog. Carries/90': 6.2 },
     radarData: [
       { label: 'Shooting', value: 68 },
@@ -1261,10 +1261,10 @@ export const watchlists: MockWatchlist[] = [
     alertCount: 2,
     category: 'position',
     players: [
-      { id: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', position: 'LB/LM', age: 23, nationality: 'Italy', image: '/avatars/player-2.png', keyMetric: { value: '6.7', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-02-15', scoutScore: 88 },
-      { id: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', position: 'LB/RB', age: 22, nationality: 'Spain', image: '/avatars/player-3.png', keyMetric: { value: '87.6%', label: 'Pass Accuracy' }, alertStatus: 'form_change', addedDate: '2026-02-18', scoutScore: 76 },
-      { id: 'p6', name: 'Bálint Varga', club: 'Southport City', position: 'LB', age: 22, nationality: 'Hungary', image: '/avatars/player-6.png', keyMetric: { value: '5.8', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-03-01', scoutScore: 79 },
-      { id: 'wp12', name: 'K. Papadopoulos', club: 'Olympique Azur', position: 'LB/CB', age: 21, nationality: 'Greece', image: '/avatars/player-14.png', keyMetric: { value: '7.2', label: 'Prog. Carries/90' }, alertStatus: 'injury', addedDate: '2026-03-12', scoutScore: 82 },
+      { id: 'p2', name: 'Enzo Valenti', club: 'Crescent Athletic', position: 'LB/LM', age: 23, nationality: 'Italy', image: '/avatars/player-2.webp', keyMetric: { value: '6.7', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-02-15', scoutScore: 88 },
+      { id: 'p3', name: 'Dani Cortez', club: 'Atlético Ronda', position: 'LB/RB', age: 22, nationality: 'Spain', image: '/avatars/player-3.webp', keyMetric: { value: '87.6%', label: 'Pass Accuracy' }, alertStatus: 'form_change', addedDate: '2026-02-18', scoutScore: 76 },
+      { id: 'p6', name: 'Bálint Varga', club: 'Southport City', position: 'LB', age: 22, nationality: 'Hungary', image: '/avatars/player-6.webp', keyMetric: { value: '5.8', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-03-01', scoutScore: 79 },
+      { id: 'wp12', name: 'K. Papadopoulos', club: 'Olympique Azur', position: 'LB/CB', age: 21, nationality: 'Greece', image: '/avatars/player-14.webp', keyMetric: { value: '7.2', label: 'Prog. Carries/90' }, alertStatus: 'injury', addedDate: '2026-03-12', scoutScore: 82 },
     ],
   },
   {
@@ -1276,8 +1276,8 @@ export const watchlists: MockWatchlist[] = [
     alertCount: 0,
     category: 'transfer',
     players: [
-      { id: 'wp4', name: 'Ousmane Diallo', club: 'Inter Azzurra', position: 'CF/LW', age: 28, nationality: 'Senegal', image: '/avatars/player-15.png', keyMetric: { value: '0.68', label: 'npxG/90' }, alertStatus: 'price_change', addedDate: '2025-12-02', scoutScore: 92 },
-      { id: 'wp5', name: 'Lars Henriksen', club: 'Northgate United', position: 'CF', age: 25, nationality: 'Denmark', image: '/avatars/player-16.png', keyMetric: { value: '2.45', label: 'Succ. Dribbles' }, alertStatus: 'stable', addedDate: '2025-12-18', scoutScore: 85 },
+      { id: 'wp4', name: 'Ousmane Diallo', club: 'Inter Azzurra', position: 'CF/LW', age: 28, nationality: 'Senegal', image: '/avatars/player-15.webp', keyMetric: { value: '0.68', label: 'npxG/90' }, alertStatus: 'price_change', addedDate: '2025-12-02', scoutScore: 92 },
+      { id: 'wp5', name: 'Lars Henriksen', club: 'Northgate United', position: 'CF', age: 25, nationality: 'Denmark', image: '/avatars/player-16.webp', keyMetric: { value: '2.45', label: 'Succ. Dribbles' }, alertStatus: 'stable', addedDate: '2025-12-18', scoutScore: 85 },
     ],
   },
   {
@@ -1289,9 +1289,9 @@ export const watchlists: MockWatchlist[] = [
     alertCount: 3,
     category: 'transfer',
     players: [
-      { id: 'wp6', name: 'Luca Marchetti', club: 'Lazio Blu', position: 'LB/LWB', age: 26, nationality: 'Italy', image: '/avatars/player-13.png', keyMetric: { value: '8.42', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2025-11-15', scoutScore: 88 },
-      { id: 'wp7', name: 'Alessandro Conti', club: 'Inter Azzurra', position: 'LWB', age: 28, nationality: 'Italy', image: '/avatars/player-17.png', keyMetric: { value: '3.12', label: 'Key Passes/90' }, alertStatus: 'injury', addedDate: '2025-12-10', scoutScore: 90 },
-      { id: 'wp8', name: 'Nicolás Herrera', club: 'AS Roma Rossa', position: 'RW/AM', age: 23, nationality: 'Argentina', image: '/avatars/player-18.png', keyMetric: { value: '4.18', label: 'SCA/90' }, alertStatus: 'price_change', addedDate: '2026-01-05', scoutScore: 87 },
+      { id: 'wp6', name: 'Luca Marchetti', club: 'Lazio Blu', position: 'LB/LWB', age: 26, nationality: 'Italy', image: '/avatars/player-13.webp', keyMetric: { value: '8.42', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2025-11-15', scoutScore: 88 },
+      { id: 'wp7', name: 'Alessandro Conti', club: 'Inter Azzurra', position: 'LWB', age: 28, nationality: 'Italy', image: '/avatars/player-17.webp', keyMetric: { value: '3.12', label: 'Key Passes/90' }, alertStatus: 'injury', addedDate: '2025-12-10', scoutScore: 90 },
+      { id: 'wp8', name: 'Nicolás Herrera', club: 'AS Roma Rossa', position: 'RW/AM', age: 23, nationality: 'Argentina', image: '/avatars/player-18.webp', keyMetric: { value: '4.18', label: 'SCA/90' }, alertStatus: 'price_change', addedDate: '2026-01-05', scoutScore: 87 },
     ],
   },
   {
@@ -1303,9 +1303,9 @@ export const watchlists: MockWatchlist[] = [
     alertCount: 1,
     category: 'youth',
     players: [
-      { id: 'p10', name: 'Mateo Rivas', club: 'Miami Coast FC', position: 'LB', age: 19, nationality: 'Argentina', image: '/avatars/player-10.png', keyMetric: { value: '3.8', label: 'Prog. Carries/90' }, alertStatus: 'form_change', addedDate: '2026-03-10', scoutScore: 62 },
-      { id: 'wp10', name: 'Jakub Nowicki', club: 'Wisła Kraków', position: 'CM', age: 17, nationality: 'Poland', image: '/avatars/player-19.png', keyMetric: { value: '2.8', label: 'Key Passes/90' }, alertStatus: 'stable', addedDate: '2026-02-28', scoutScore: 71 },
-      { id: 'wp11', name: 'Tomás Ferreira', club: 'Vitória Guimarães B', position: 'RW', age: 18, nationality: 'Portugal', image: '/avatars/player-20.png', keyMetric: { value: '4.2', label: 'Succ. Dribbles' }, alertStatus: 'stable', addedDate: '2026-02-20', scoutScore: 68 },
+      { id: 'p10', name: 'Mateo Rivas', club: 'Miami Coast FC', position: 'LB', age: 19, nationality: 'Argentina', image: '/avatars/player-10.webp', keyMetric: { value: '3.8', label: 'Prog. Carries/90' }, alertStatus: 'form_change', addedDate: '2026-03-10', scoutScore: 62 },
+      { id: 'wp10', name: 'Jakub Nowicki', club: 'Wisła Kraków', position: 'CM', age: 17, nationality: 'Poland', image: '/avatars/player-19.webp', keyMetric: { value: '2.8', label: 'Key Passes/90' }, alertStatus: 'stable', addedDate: '2026-02-28', scoutScore: 71 },
+      { id: 'wp11', name: 'Tomás Ferreira', club: 'Vitória Guimarães B', position: 'RW', age: 18, nationality: 'Portugal', image: '/avatars/player-20.webp', keyMetric: { value: '4.2', label: 'Succ. Dribbles' }, alertStatus: 'stable', addedDate: '2026-02-20', scoutScore: 68 },
     ],
   },
   {
@@ -1317,8 +1317,8 @@ export const watchlists: MockWatchlist[] = [
     alertCount: 0,
     category: 'position',
     players: [
-      { id: 'p7', name: 'Samir Benali', club: 'Midland Rovers', position: 'LB/LWB', age: 23, nationality: 'Algeria', image: '/avatars/player-7.png', keyMetric: { value: '6.2', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-01-15', scoutScore: 85 },
-      { id: 'p9', name: 'Stijn de Graaf', club: 'Harton Villa', position: 'LB/LWB', age: 24, nationality: 'Netherlands', image: '/avatars/player-9.png', keyMetric: { value: '6.9', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-01-20', scoutScore: 81 },
+      { id: 'p7', name: 'Samir Benali', club: 'Midland Rovers', position: 'LB/LWB', age: 23, nationality: 'Algeria', image: '/avatars/player-7.webp', keyMetric: { value: '6.2', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-01-15', scoutScore: 85 },
+      { id: 'p9', name: 'Stijn de Graaf', club: 'Harton Villa', position: 'LB/LWB', age: 24, nationality: 'Netherlands', image: '/avatars/player-9.webp', keyMetric: { value: '6.9', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-01-20', scoutScore: 81 },
     ],
   },
   {
@@ -1330,42 +1330,42 @@ export const watchlists: MockWatchlist[] = [
     alertCount: 4,
     category: 'transfer',
     players: [
-      { id: 'p5', name: 'Rémi Blanchard', club: 'Olympique Azur', position: 'LB/LM', age: 23, nationality: 'France', image: '/avatars/player-5.png', keyMetric: { value: '4.3', label: 'Prog. Carries/90' }, alertStatus: 'price_change', addedDate: '2026-02-05', scoutScore: 54 },
-      { id: 'p10', name: 'Mateo Rivas', club: 'Miami Coast FC', position: 'LB', age: 19, nationality: 'Argentina', image: '/avatars/player-10.png', keyMetric: { value: '3.8', label: 'Prog. Carries/90' }, alertStatus: 'price_change', addedDate: '2026-03-01', scoutScore: 62 },
-      { id: 'p8', name: 'Pablo Navarro', club: 'Sporting Castilla', position: 'LB', age: 23, nationality: 'Spain', image: '/avatars/player-8.png', keyMetric: { value: '5.4', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-02-12', scoutScore: 73 },
+      { id: 'p5', name: 'Rémi Blanchard', club: 'Olympique Azur', position: 'LB/LM', age: 23, nationality: 'France', image: '/avatars/player-5.webp', keyMetric: { value: '4.3', label: 'Prog. Carries/90' }, alertStatus: 'price_change', addedDate: '2026-02-05', scoutScore: 54 },
+      { id: 'p10', name: 'Mateo Rivas', club: 'Miami Coast FC', position: 'LB', age: 19, nationality: 'Argentina', image: '/avatars/player-10.webp', keyMetric: { value: '3.8', label: 'Prog. Carries/90' }, alertStatus: 'price_change', addedDate: '2026-03-01', scoutScore: 62 },
+      { id: 'p8', name: 'Pablo Navarro', club: 'Sporting Castilla', position: 'LB', age: 23, nationality: 'Spain', image: '/avatars/player-8.webp', keyMetric: { value: '5.4', label: 'Prog. Carries/90' }, alertStatus: 'stable', addedDate: '2026-02-12', scoutScore: 73 },
     ],
   },
 ]
 
 // ─── Filter Options ──────────────────────────────────────────
 
-export const positionOptions = [
-  'All Positions',
-  'Goalkeeper',
-  'Centre-Back',
-  'Full-Back (LB/RB)',
-  'Defensive Midfielder',
-  'Central Midfielder',
-  'Attacking Midfielder',
-  'Winger (LW/RW)',
-  'Centre-Forward',
+export const positionOptionKeys = [
+  'filterOptions.allPositions',
+  'filterOptions.goalkeeper',
+  'filterOptions.centreBack',
+  'filterOptions.fullBack',
+  'filterOptions.defensiveMidfielder',
+  'filterOptions.centralMidfielder',
+  'filterOptions.attackingMidfielder',
+  'filterOptions.winger',
+  'filterOptions.centreForward',
 ]
 
-export const leagueOptions = [
-  'All Leagues',
-  'Premier League',
-  'La Liga',
-  'Bundesliga',
-  'Serie A',
-  'Ligue 1',
-  'Eredivisie',
-  'Primeira Liga',
-  'Championship',
-  'MLS',
+export const leagueOptionKeys = [
+  'filterOptions.allLeagues',
+  'filterOptions.premierLeague',
+  'filterOptions.laLiga',
+  'filterOptions.bundesliga',
+  'filterOptions.serieA',
+  'filterOptions.ligue1',
+  'filterOptions.eredivisie',
+  'filterOptions.primeiraLiga',
+  'filterOptions.championship',
+  'filterOptions.mls',
 ]
 
-export const ageRangeOptions = [
-  'All Ages',
+export const ageRangeOptionKeys = [
+  'filterOptions.allAges',
   '16 - 19',
   '20 - 23',
   '24 - 27',
@@ -1373,28 +1373,34 @@ export const ageRangeOptions = [
   '32+',
 ]
 
-export const footOptions = [
-  'Either Foot',
-  'Left',
-  'Right',
-  'Both',
+export const footOptionKeys = [
+  'filterOptions.eitherFoot',
+  'filterOptions.left',
+  'filterOptions.right',
+  'filterOptions.both',
 ]
+
+// Backward-compatible exports (resolved at render time with t())
+export const positionOptions = positionOptionKeys
+export const leagueOptions = leagueOptionKeys
+export const ageRangeOptions = ageRangeOptionKeys
+export const footOptions = footOptionKeys
 
 // ─── Squad Types & Data ────────────────────────────────────────────
 
 export type SquadPosition = 'GK' | 'CB' | 'LB' | 'RB' | 'CDM' | 'CM' | 'CAM' | 'LW' | 'RW' | 'ST'
 
 export const positionLabels: Record<SquadPosition, string> = {
-  GK: 'Goalkeeper',
-  CB: 'Centre-Back',
-  LB: 'Left-Back',
-  RB: 'Right-Back',
-  CDM: 'Defensive Midfielder',
-  CM: 'Central Midfielder',
-  CAM: 'Attacking Midfielder',
-  LW: 'Left Winger',
-  RW: 'Right Winger',
-  ST: 'Striker',
+  GK: 'positionLabels.goalkeeper',
+  CB: 'positionLabels.centreBack',
+  LB: 'positionLabels.leftBack',
+  RB: 'positionLabels.rightBack',
+  CDM: 'positionLabels.defensiveMidfielder',
+  CM: 'positionLabels.centralMidfielder',
+  CAM: 'positionLabels.attackingMidfielder',
+  LW: 'positionLabels.leftWinger',
+  RW: 'positionLabels.rightWinger',
+  ST: 'positionLabels.striker',
 }
 
 export interface SquadPlayer {

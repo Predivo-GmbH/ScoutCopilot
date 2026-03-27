@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Zap, GitCompareArrows, Loader2, ArrowRight } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
@@ -8,12 +9,12 @@ import { ComparisonTable } from './components/ComparisonTable'
 import { PlayerSelector } from './components/PlayerSelector'
 import { dotColors } from './constants'
 
-const GENERATE_STEPS = [
-  'Fetching player data...',
-  'Computing statistical overlays...',
-  'Running tactical fit analysis...',
-  'Generating AI verdict...',
-]
+const GENERATE_STEP_KEYS = [
+  'comparisonSteps.fetching',
+  'comparisonSteps.computing',
+  'comparisonSteps.analyzing',
+  'comparisonSteps.generating',
+] as const
 
 export function ComparisonPage() {
   const { t } = useTranslation()
@@ -33,6 +34,7 @@ export function ComparisonPage() {
 
   return (
     <div className="p-6 space-y-6">
+      <Helmet><meta name="robots" content="noindex" /></Helmet>
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
@@ -52,10 +54,11 @@ export function ComparisonPage() {
 
       {/* Tactical Context */}
       <div>
-        <label className="text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant block mb-1.5">
+        <label htmlFor="tactical-context" className="text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant block mb-1.5">
           {t('comparison.tacticalContext')}
         </label>
         <input
+          id="tactical-context"
           type="text"
           value={tacticalContext}
           onChange={(e) => setTacticalContext(e.target.value)}
@@ -120,16 +123,16 @@ export function ComparisonPage() {
               }>
                 <div className="space-y-4">
                   <p className="text-sm text-on-surface/80 leading-relaxed">
-                    Comparison reveals <span className="text-secondary font-semibold">{players[1]?.name}</span> maintains a higher efficiency in transitional phases (+12% progressive carries).
+                    {t('comparison.verdictEfficiency', { player: players[1]?.name })}
                   </p>
                   <p className="text-sm text-on-surface/80 leading-relaxed">
-                    However, <span className="text-primary font-semibold">{players[0]?.name}</span> provides significantly more value in high-intensity defensive actions and direct goal threat from wider zones.
+                    {t('comparison.verdictDefensive', { player: players[0]?.name })}
                   </p>
                   {tacticalContext && (
                     <div className="bg-surface-container-high p-4 rounded-md border-l-4 border-tertiary">
                       <span className="text-[0.625rem] font-data text-tertiary font-semibold block mb-1">{t('comparison.strategicFit')}</span>
                       <p className="text-xs text-on-surface-variant">
-                        For the specified tactical context, {players[0]?.name.split(' ').pop()} shows 88% compatibility vs 72% for {players[1]?.name.split(' ').pop()}.
+                        {t('comparison.verdictFitContext', { player1: players[0]?.name.split(' ').pop(), player2: players[1]?.name.split(' ').pop(), score1: 88, score2: 72 })}
                       </p>
                     </div>
                   )}
@@ -137,7 +140,7 @@ export function ComparisonPage() {
                     <div className="bg-surface-container-high p-4 rounded-md border-l-4 border-tertiary">
                       <span className="text-[0.625rem] font-data text-tertiary font-semibold block mb-1">{t('comparison.strategicFit')}</span>
                       <p className="text-xs text-on-surface-variant">
-                        For a high-press system (Gegenpressing), {players[0]?.name.split(' ').pop()} shows 88% compatibility vs 72% for {players[1]?.name.split(' ').pop()}.
+                        {t('comparison.verdictFitDefault', { player1: players[0]?.name.split(' ').pop(), player2: players[1]?.name.split(' ').pop(), score1: 88, score2: 72 })}
                       </p>
                     </div>
                   )}
@@ -195,13 +198,14 @@ function EmptyState({ playerCount, totalAvailable }: { playerCount: number; tota
 // ─── Generating Animation ───────────────────────────────────
 
 function GeneratingAnimation() {
+  const { t } = useTranslation()
   const [step, setStep] = useState(0)
 
   useEffect(() => {
-    const timers = GENERATE_STEPS.map((_, i) =>
+    const timers = GENERATE_STEP_KEYS.map((_, i) =>
       i > 0 ? setTimeout(() => setStep(i), i * 500) : null,
     )
-    return () => timers.forEach((t) => t && clearTimeout(t))
+    return () => timers.forEach((timer) => timer && clearTimeout(timer))
   }, [])
 
   return (
@@ -209,9 +213,9 @@ function GeneratingAnimation() {
       <div className="flex flex-col items-center justify-center py-16 px-6">
         <Loader2 size={32} strokeWidth={1.5} className="animate-spin text-primary mb-6" />
         <div className="space-y-3 w-full max-w-xs">
-          {GENERATE_STEPS.map((label, i) => (
+          {GENERATE_STEP_KEYS.map((key, i) => (
             <div
-              key={label}
+              key={key}
               className={`flex items-center gap-3 transition-opacity duration-300 ${i <= step ? 'opacity-100' : 'opacity-0'}`}
             >
               {i < step ? (
@@ -224,7 +228,7 @@ function GeneratingAnimation() {
                 <span className="w-5 h-5 shrink-0" />
               )}
               <span className={`text-sm ${i < step ? 'text-on-surface-variant' : i === step ? 'text-on-surface font-medium' : 'text-on-surface-variant'}`}>
-                {label}
+                {t(key)}
               </span>
             </div>
           ))}
@@ -254,7 +258,7 @@ function ComparisonRadar({ players }: { players: { name: string; radarData: { la
   const gridLevels = [25, 50, 75, 100]
 
   return (
-    <div className="relative" style={{ width: size, height: size }}>
+    <div className="w-full max-w-[340px] mx-auto aspect-square relative">
       <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full" aria-hidden="true">
         {/* Grid */}
         {gridLevels.map((level) => (

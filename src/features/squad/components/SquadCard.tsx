@@ -40,7 +40,7 @@ export function SquadCard({ squad, isSelected, onClick }: SquadCardProps) {
         <p className="text-xs text-on-surface-variant leading-relaxed">{squad.description}</p>
       )}
       <p className="text-[0.625rem] text-on-surface-variant font-data mt-3 uppercase">
-        Updated: {squad.lastUpdated}
+        {t('squad.updated')}: {squad.lastUpdated}
       </p>
     </div>
   )

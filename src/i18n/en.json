@@ -57,16 +57,51 @@
     "copyright": "© 2026 Predivo GmbH. All rights reserved.",
     "language": "Language",
     "english": "English",
-    "german": "Deutsch"
+    "german": "Deutsch",
+    "darkMode": "Dark mode",
+    "lightMode": "Light mode",
+    "close": "Close",
+    "skipToContent": "Skip to main content",
+    "user": "User",
+    "confirm": "Confirm",
+    "yrs": "yrs",
+    "fitScore": "Fit Score",
+    "justNow": "Just now",
+    "locale": "en-GB"
   },
-
+  "errors": {
+    "tooManyEmails": "Too many emails sent. Please wait a few minutes before trying again.",
+    "tooManyAttempts": "Too many attempts. Please wait a moment and try again.",
+    "incorrectCredentials": "Incorrect email or password. Please check your credentials and try again.",
+    "emailNotVerified": "Your email address has not been verified yet. Please check your inbox.",
+    "noAccount": "No account found with this email address.",
+    "codeExpired": "Your verification code has expired. Please request a new one.",
+    "invalidCode": "Invalid verification code. Please check and try again.",
+    "connectionError": "Connection error. Please check your internet and try again.",
+    "incorrectAccessCode": "Incorrect access code."
+  },
+  "pdf": {
+    "scoutAssessment": "SCOUT ASSESSMENT",
+    "strengths": "STRENGTHS",
+    "weaknesses": "WEAKNESSES",
+    "seasonStats": "SEASON STATISTICS",
+    "styleOfPlay": "STYLE OF PLAY",
+    "performanceProfile": "PERFORMANCE PROFILE",
+    "contractOverview": "CONTRACT OVERVIEW",
+    "transferHistory": "TRANSFER HISTORY",
+    "generated": "Generated",
+    "page": "Page",
+    "recommendSign": "RECOMMEND SIGN",
+    "monitor": "MONITOR",
+    "pass": "PASS"
+  },
   "landing": {
     "meta": {
       "title": "ScoutCopilot — AI Football Scouting",
       "description": "AI-powered football scouting assistant. Get ranked player shortlists, scouting reports, and head-to-head comparisons in seconds — from your Wyscout or StatsBomb data."
     },
     "hero": {
-      "heading": "Stop drowning in spreadsheets. Get AI-ranked shortlists in <highlight>30\u00a0seconds</highlight>.",
+      "heading": "Stop drowning in spreadsheets. Get AI-ranked shortlists in <highlight>30 seconds</highlight>.",
       "subheading": "An AI assistant that connects to your Wyscout or StatsBomb API and turns natural language questions into ranked player shortlists, comparison reports, and scouting briefs — in seconds instead of hours.",
       "noCreditCard": "No credit card required. 14-day free trial.",
       "seePricing": "See Pricing",
@@ -210,7 +245,6 @@
       "tagline": "Built for professional football scouting"
     }
   },
-
   "auth": {
     "signInTo": "Sign in to ScoutCopilot",
     "passwordTab": "Password",
@@ -229,7 +263,6 @@
     "dontHaveAccount": "Don't have an account?",
     "startFreeTrial": "Start free trial",
     "alreadyHaveAccount": "Already have an account?",
-
     "signup": {
       "heading": "Start your free trial",
       "subheading": "14 days free. No credit card required.",
@@ -249,7 +282,6 @@
       "createAccount": "Create Account",
       "weakPassword": "Please choose a stronger password"
     },
-
     "forgot": {
       "heading": "Reset your password",
       "description": "Enter your email and we'll send you a link to reset your password.",
@@ -262,7 +294,6 @@
       "didntReceive": "Didn't receive the email? Check your spam folder or",
       "tryAgain": "try again"
     },
-
     "reset": {
       "passwordsNoMatch": "Passwords do not match",
       "weakPassword": "Please choose a stronger password",
@@ -277,7 +308,6 @@
       "updating": "Updating...",
       "updatePassword": "Update Password"
     },
-
     "onboarding": {
       "welcome": "Welcome to ScoutCopilot",
       "welcomeSub": "Let's get you set up in a few quick steps. Connect your scouting data source and configure your preferences to start finding players faster.",
@@ -297,30 +327,57 @@
       "allSet": "You're All Set!",
       "allSetSub": "Your ScoutCopilot workspace is ready. Start searching for players using natural language or explore the dashboard.",
       "goToDashboard": "Go to Dashboard",
-      "skipForNow": "Skip for now"
+      "skipForNow": "Skip for now",
+      "steps": {
+        "welcome": "Welcome",
+        "connectData": "Connect Data",
+        "preferences": "Preferences",
+        "ready": "Ready"
+      },
+      "leagues": {
+        "premierLeague": "Premier League",
+        "laLiga": "La Liga",
+        "serieA": "Serie A",
+        "bundesliga": "Bundesliga",
+        "ligue1": "Ligue 1",
+        "eredivisie": "Eredivisie",
+        "primeiraLiga": "Primeira Liga",
+        "championship": "Championship",
+        "zweiteBundesliga": "2. Bundesliga",
+        "serieB": "Serie B",
+        "belgianProLeague": "Belgian Pro League",
+        "superLig": "Super Lig"
+      },
+      "positions": {
+        "goalkeeper": "Goalkeeper",
+        "centreBack": "Centre-Back",
+        "fullBack": "Full-Back",
+        "defensiveMidfielder": "Defensive Midfielder",
+        "centralMidfielder": "Central Midfielder",
+        "attackingMidfielder": "Attacking Midfielder",
+        "winger": "Winger",
+        "striker": "Striker"
+      }
     },
-
     "passwordGate": {
       "privateBeta": "This app is in private beta.",
       "enterAccessCode": "Enter access code",
       "enter": "Enter"
     },
-
     "resendTimer": {
       "resendIn": "Resend code in {{seconds}}s",
       "sending": "Sending...",
       "resendCode": "Resend code"
     },
-
     "passwordStrength": {
       "label": "Password strength:",
       "weak": "Weak",
       "fair": "Fair",
       "good": "Good",
       "strong": "Strong"
-    }
+    },
+    "processing": "Processing..."
   },
-
   "nav": {
     "dashboard": "Dashboard",
     "search": "Search",
@@ -332,14 +389,12 @@
     "expandSidebar": "Expand sidebar",
     "collapseSidebar": "Collapse sidebar"
   },
-
   "topbar": {
     "searchPlaceholder": "Search for players, matches, or run NL queries...",
     "alerts": "Alerts",
     "accountSettings": "Account Settings",
     "signOut": "Sign Out"
   },
-
   "dashboard": {
     "heading": "Intelligence Overview",
     "subheading": "Real-time scouting analytics and watchlist triggers.",
@@ -361,9 +416,9 @@
     "comparePlayersSub": "Visual percentile overlays and head-to-head metric analysis.",
     "complete": "COMPLETE",
     "processing": "PROCESSING",
-    "failed": "FAILED"
+    "failed": "FAILED",
+    "viewAllAlerts": "View all {{count}} alerts"
   },
-
   "search": {
     "heading": "Player Search",
     "placeholder": "Find me a left-back under 23 with >75% crossing accuracy",
@@ -384,9 +439,9 @@
       "analyzing": "Analyzing statistical profiles...",
       "ranking": "Ranking by fit score...",
       "compiling": "Compiling results..."
-    }
+    },
+    "tableView": "Table view"
   },
-
   "filters": {
     "position": "Position",
     "ageRange": "Age Range",
@@ -395,12 +450,13 @@
     "advanced": "Advanced",
     "advancedFilters": "Advanced Filters",
     "minMatchScore": "Min Match Score",
+    "minPassAccuracy": "Min Pass Accuracy",
+    "minProgCarries": "Min Prog. Carries/90",
     "any": "Any",
     "minAge": "Min Age",
     "maxAge": "Max Age",
     "resetAdvanced": "Reset advanced filters"
   },
-
   "report": {
     "recommendSign": "RECOMMEND SIGN",
     "monitor": "MONITOR",
@@ -417,9 +473,9 @@
     "strengths": "Strengths",
     "weaknesses": "Weaknesses",
     "styleOfPlay": "Style of Play",
-    "similarProfiles": "Similar Profiles"
+    "similarProfiles": "Similar Profiles",
+    "watchlistAlert": "Watchlist Alert"
   },
-
   "reportsList": {
     "heading": "Players",
     "scoutedCount": "{{count}} scouted player",
@@ -434,7 +490,6 @@
     "removeConfirm": "Are you sure you want to remove {{name}} from your scouted players? This will delete the generated report.",
     "removeBtn": "Remove"
   },
-
   "comparison": {
     "heading": "Compare Players",
     "subheading": "Side-by-side statistical comparison with AI analysis.",
@@ -456,9 +511,12 @@
     "metric": "Metric",
     "addPlayer": "Add Player",
     "searchPlayers": "Search players...",
-    "noPlayersFound": "No players found"
+    "noPlayersFound": "No players found",
+    "verdictEfficiency": "Comparison reveals {{player}} maintains a higher efficiency in transitional phases (+12% progressive carries).",
+    "verdictDefensive": "However, {{player}} provides significantly more value in high-intensity defensive actions and direct goal threat from wider zones.",
+    "verdictFitContext": "For the specified tactical context, {{player1}} shows {{score1}}% compatibility vs {{score2}}% for {{player2}}.",
+    "verdictFitDefault": "For a high-press system (Gegenpressing), {{player1}} shows {{score1}}% compatibility vs {{score2}}% for {{player2}}."
   },
-
   "watchlists": {
     "heading": "Watchlists",
     "subheading": "Track and monitor your target players.",
@@ -483,9 +541,11 @@
     "noPlayersYet": "No players in this watchlist yet.",
     "removeFromWatchlist": "Remove from Watchlist",
     "removeConfirm": "Are you sure you want to remove {{name}} from {{watchlist}}?",
-    "score": "SCORE:"
+    "score": "SCORE:",
+    "noWatchlistsFound": "No watchlists found for this filter.",
+    "deleteConfirmMessage": "Are you sure you want to delete \"{{name}}\"? This will remove all players in this watchlist. This action cannot be undone.",
+    "deleteWatchlist": "Delete watchlist"
   },
-
   "squad": {
     "heading": "My Squads",
     "subheading": "Manage your rosters and identify positional gaps.",
@@ -507,9 +567,16 @@
     "positionsFlagged": "{{count}} position flagged",
     "positionsFlagged_other": "{{count}} positions flagged",
     "findPlayers": "Find Players",
-    "formation": "Formation"
+    "formation": "Formation",
+    "status": "Status",
+    "updated": "Updated",
+    "priority": {
+      "critical": "Critical",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    }
   },
-
   "settings": {
     "heading": "System Settings",
     "tabs": {
@@ -582,6 +649,9 @@
       "searches": "Searches",
       "seats": "Seats",
       "unlockUnlimited": "Unlock unlimited reports and tactical analysis",
+      "needMoreSeats": "Need more seats or custom AI models?",
+      "upgradeToProSub": "Upgrade to Pro for unlimited reports, all leagues, and 3 user seats.",
+      "upgradeToClubSub": "Upgrade to Club for 10 seats, custom models, and API access.",
       "upgradeTo": "Upgrade to {{tier}}",
       "cancelSubscription": "Cancel subscription",
       "cancelConfirm": "Are you sure you want to cancel?",
@@ -595,7 +665,6 @@
       "description": "Choose the display language for ScoutCopilot."
     }
   },
-
   "pricing": {
     "meta": {
       "title": "Pricing — ScoutCopilot",
@@ -611,10 +680,10 @@
     "contactSub": "Questions? We are here to help your scouting department get started.",
     "contactSupport": "Contact Support"
   },
-
   "legal": {
     "privacy": {
       "title": "Privacy Policy",
+      "metaDescription": "ScoutCopilot privacy policy. Learn how Predivo GmbH handles your data, GDPR rights, and security measures.",
       "lastUpdated": "Last updated: 24 March 2026",
       "controller": "1. Controller",
       "dataCollect": "2. Data We Collect",
@@ -642,6 +711,7 @@
     },
     "terms": {
       "title": "Terms of Service",
+      "metaDescription": "ScoutCopilot terms of service. Agreement, subscriptions, acceptable use, and governing law.",
       "lastUpdated": "Last updated: 24 March 2026",
       "agreement": "1. Agreement",
       "serviceDescription": "2. Service Description",
@@ -658,6 +728,7 @@
     },
     "imprint": {
       "title": "Imprint",
+      "metaDescription": "Legal imprint for ScoutCopilot by Predivo GmbH, Küssnacht am Rigi, Switzerland.",
       "company": "Company",
       "contact": "Contact",
       "commercialRegister": "Commercial Register",
@@ -666,18 +737,58 @@
       "disclaimer": "Disclaimer"
     }
   },
-
   "addToWatchlist": {
     "heading": "Add to Watchlist",
     "createNew": "Create new watchlist",
     "done": "Done"
   },
-
   "searchBar": {
     "placeholder": "Ask anything about players...",
     "clear": "Clear search"
   },
-
+  "alerts": {
+    "backToDashboard": "Back to Dashboard",
+    "heading": "Watchlist Alerts",
+    "subtitle": "All recent alerts from your watched players."
+  },
+  "searchHistory": {
+    "backToDashboard": "Back to Dashboard",
+    "heading": "Search History",
+    "subtitle": "All your previous searches and their results.",
+    "justNow": "Just now",
+    "hoursAgo": "{{count}}h ago",
+    "yesterday": "Yesterday",
+    "daysAgo": "{{count}}d ago",
+    "complete": "Complete",
+    "processing": "Processing",
+    "failed": "Failed",
+    "results": "results"
+  },
+  "comparisonSteps": {
+    "fetching": "Fetching player data...",
+    "computing": "Computing statistical overlays...",
+    "analyzing": "Running tactical fit analysis...",
+    "generating": "Generating AI verdict..."
+  },
+  "pricingRows": {
+    "dataSourceConnections": "Data source connections",
+    "nlPlayerSearch": "NL player search",
+    "aiScoutingReports": "AI scouting reports",
+    "shortlists": "Shortlists",
+    "playerComparison": "Player comparison",
+    "leagueScope": "League scope",
+    "tacticalFitAnalysis": "Tactical fit analysis",
+    "developmentTrajectory": "Development trajectory",
+    "pdfExport": "PDF export (branded)",
+    "watchlists": "Watchlists",
+    "customAiModels": "Custom AI models",
+    "scoutCopilotApi": "Scout Copilot API",
+    "bulkOperations": "Bulk operations",
+    "customMetrics": "Custom metrics",
+    "userSeats": "User seats",
+    "support": "Support",
+    "dataRetention": "Data retention"
+  },
   "radarLabels": {
     "aerial": "Aerial",
     "passing": "Passing",
@@ -685,5 +796,101 @@
     "defending": "Defending",
     "shooting": "Shooting",
     "dribbling": "Dribbling"
+  },
+  "csv": {
+    "name": "Name",
+    "age": "Age",
+    "nationality": "Nationality",
+    "position": "Position",
+    "club": "Club",
+    "league": "League",
+    "matchScore": "Match Score"
+  },
+  "pricingValues": {
+    "unlimited": "Unlimited",
+    "twoWyscoutStatsbomb": "2 (Wyscout + StatsBomb)",
+    "twoPlusCustom": "2 + custom",
+    "tenPerMonth": "10/mo",
+    "twentyFivePerMonth": "25/mo",
+    "threePlayers": "3 players",
+    "tenPlayers": "10 players",
+    "oneLeague": "1 league",
+    "allLeagues": "All leagues",
+    "email48hr": "Email (48hr)",
+    "email24hr": "Email (24hr)",
+    "dedicatedChannel": "Dedicated channel",
+    "threeMonths": "3 months",
+    "sixMonths": "6 months",
+    "twentyFourMonths": "24 months"
+  },
+  "gapAnalysis": {
+    "search": {
+      "goalkeepers": "Goalkeepers",
+      "centrebacks": "Centre-backs",
+      "leftbacks": "Left-backs",
+      "rightbacks": "Right-backs",
+      "defensiveMidfielders": "Defensive midfielders",
+      "centralMidfielders": "Central midfielders",
+      "attackingMidfielders": "Attacking midfielders",
+      "leftWingers": "Left wingers",
+      "rightWingers": "Right wingers",
+      "strikers": "Strikers"
+    },
+    "reasons": {
+      "noPlayers": "No players available at this position",
+      "onlyOnePlayer": "Only 1 player available — no backup",
+      "approachingRetirement": "Starter {{name}} ({{age}}) approaching retirement",
+      "aging": "Starter {{name}} ({{age}}) is aging",
+      "belowAverage": "Below-average squad rating ({{rating}}/100)",
+      "contractExpiring": "{{name}}'s contract expires in {{months}} months"
+    }
+  },
+  "mockData": {
+    "playersAnalyzed": "Players Analyzed",
+    "activeWatchlists": "Active Watchlists",
+    "playersScouted": "Players Scouted",
+    "avgQueryTime": "Avg Query Time",
+    "vsLastMonth": "vs last month",
+    "thisWeek": "this week",
+    "threeAlerts": "3 ALERTS",
+    "plus12ThisWeek": "+12 THIS WEEK"
+  },
+  "filterOptions": {
+    "allPositions": "All Positions",
+    "goalkeeper": "Goalkeeper",
+    "centreBack": "Centre-Back",
+    "fullBack": "Full-Back (LB/RB)",
+    "defensiveMidfielder": "Defensive Midfielder",
+    "centralMidfielder": "Central Midfielder",
+    "attackingMidfielder": "Attacking Midfielder",
+    "winger": "Winger (LW/RW)",
+    "centreForward": "Centre-Forward",
+    "allLeagues": "All Leagues",
+    "premierLeague": "Premier League",
+    "laLiga": "La Liga",
+    "bundesliga": "Bundesliga",
+    "serieA": "Serie A",
+    "ligue1": "Ligue 1",
+    "eredivisie": "Eredivisie",
+    "primeiraLiga": "Primeira Liga",
+    "championship": "Championship",
+    "mls": "MLS",
+    "allAges": "All Ages",
+    "eitherFoot": "Either Foot",
+    "left": "Left",
+    "right": "Right",
+    "both": "Both"
+  },
+  "positionLabels": {
+    "goalkeeper": "Goalkeeper",
+    "centreBack": "Centre-Back",
+    "leftBack": "Left-Back",
+    "rightBack": "Right-Back",
+    "defensiveMidfielder": "Defensive Midfielder",
+    "centralMidfielder": "Central Midfielder",
+    "attackingMidfielder": "Attacking Midfielder",
+    "leftWinger": "Left Winger",
+    "rightWinger": "Right Winger",
+    "striker": "Striker"
   }
 }

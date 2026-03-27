@@ -27,7 +27,7 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
         <FilterSelect
           label={t('filters.position')}
           value={position}
@@ -80,6 +80,7 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
             <h4 className="text-xs font-bold uppercase tracking-widest text-on-surface">{t('filters.advancedFilters')}</h4>
             <button
               onClick={() => setShowAdvanced(false)}
+              aria-label={t('filters.closeAdvancedFilters', 'Close advanced filters')}
               className="text-on-surface-variant hover:text-on-surface transition-colors"
             >
               <X size={14} strokeWidth={1.5} />
@@ -88,11 +89,12 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Min Fit Score */}
             <div className="space-y-2">
-              <label className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+              <label htmlFor="filter-min-match-score" className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">
                 {t('filters.minMatchScore')}
               </label>
               <div className="flex items-center gap-3">
                 <input
+                  id="filter-min-match-score"
                   type="range"
                   min={0}
                   max={100}
@@ -108,11 +110,12 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
 
             {/* Min Pass Accuracy */}
             <div className="space-y-2">
-              <label className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">
-                Min Pass Accuracy
+              <label htmlFor="filter-min-pass-accuracy" className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+                {t('filters.minPassAccuracy')}
               </label>
               <div className="flex items-center gap-3">
                 <input
+                  id="filter-min-pass-accuracy"
                   type="range"
                   min={0}
                   max={100}
@@ -128,11 +131,12 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
 
             {/* Min Progressive Carries */}
             <div className="space-y-2">
-              <label className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">
-                Min Prog. Carries/90
+              <label htmlFor="filter-min-prog-carries" className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+                {t('filters.minProgCarries')}
               </label>
               <div className="flex items-center gap-3">
                 <input
+                  id="filter-min-prog-carries"
                   type="range"
                   min={0}
                   max={15}
@@ -171,18 +175,21 @@ function FilterSelect({ label, value, options, onChange }: {
   options: string[]
   onChange: (v: string) => void
 }) {
+  const { t } = useTranslation()
+  const selectId = `filter-${label.replace(/\s+/g, '-').toLowerCase()}`
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+      <label htmlFor={selectId} className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">
         {label}
       </label>
       <select
+        id={selectId}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="bg-surface-container border border-outline-variant rounded-md text-sm py-2.5 px-3 text-on-surface focus:outline-none focus:border-primary transition-colors appearance-none"
       >
         {options.map((opt) => (
-          <option key={opt} value={opt}>{opt}</option>
+          <option key={opt} value={opt}>{opt.startsWith('filterOptions.') ? t(opt) : opt}</option>
         ))}
       </select>
     </div>

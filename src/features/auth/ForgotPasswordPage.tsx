@@ -1,8 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from './useAuth'
+import { Button } from '../../components/ui/Button'
+import { Input } from '../../components/ui/Input'
 import AuthLayout from '../../components/auth/AuthLayout'
 import { friendlyAuthError } from '../../lib/utils'
 
@@ -24,7 +27,7 @@ export function ForgotPasswordPage() {
       await resetPassword(email)
       setStep('sent')
     } catch (err) {
-      setError(friendlyAuthError(err, 'Failed to send reset email'))
+      setError(t(friendlyAuthError(err, 'Failed to send reset email')))
     } finally {
       setLoading(false)
     }
@@ -32,6 +35,10 @@ export function ForgotPasswordPage() {
 
   return (
     <AuthLayout>
+      <Helmet>
+        <title>Reset Password — ScoutCopilot</title>
+        <meta name="description" content="Reset your ScoutCopilot account password." />
+      </Helmet>
       {step === 'form' && (
         <div>
           <h1 className="text-center text-2xl font-bold text-on-surface">
@@ -47,29 +54,25 @@ export function ForgotPasswordPage() {
                 {error}
               </div>
             )}
-            <div>
-              <label htmlFor="reset-email" className="block text-sm font-medium text-on-surface-variant">
-                {t('auth.emailLabel')}
-              </label>
-              <input
-                id="reset-email"
-                type="email"
-                required
-                autoComplete="email"
-                autoFocus
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
-                placeholder="scout@club.com"
-              />
-            </div>
-            <button
+            <Input
+              id="reset-email"
+              label={t('auth.emailLabel')}
+              type="email"
+              required
+              autoComplete="email"
+              autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="scout@club.com"
+            />
+            <Button
               type="submit"
               disabled={loading}
-              className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
+              loading={loading}
+              className="w-full"
             >
               {loading ? t('auth.forgot.sending') : t('auth.forgot.sendResetLink')}
-            </button>
+            </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-on-surface-variant">

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import {
   PartyPopper,
@@ -16,39 +17,46 @@ import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Card } from '../../components/ui/Card'
 
-const STEPS = ['Welcome', 'Connect Data', 'Preferences', 'Ready'] as const
+const STEPS = ['welcome', 'connectData', 'preferences', 'ready'] as const
 
 const STEP_ICONS = {
-  Welcome: PartyPopper,
-  'Connect Data': Database,
-  Preferences: Settings2,
-  Ready: Rocket,
+  welcome: PartyPopper,
+  connectData: Database,
+  preferences: Settings2,
+  ready: Rocket,
 } as const
 
-const LEAGUES = [
-  'Premier League',
-  'La Liga',
-  'Serie A',
-  'Bundesliga',
-  'Ligue 1',
-  'Eredivisie',
-  'Primeira Liga',
-  'Championship',
-  '2. Bundesliga',
-  'Serie B',
-  'Belgian Pro League',
-  'Super Lig',
+const STEP_LABEL_KEYS: Record<string, string> = {
+  welcome: 'auth.onboarding.steps.welcome',
+  connectData: 'auth.onboarding.steps.connectData',
+  preferences: 'auth.onboarding.steps.preferences',
+  ready: 'auth.onboarding.steps.ready',
+}
+
+const LEAGUE_KEYS = [
+  'auth.onboarding.leagues.premierLeague',
+  'auth.onboarding.leagues.laLiga',
+  'auth.onboarding.leagues.serieA',
+  'auth.onboarding.leagues.bundesliga',
+  'auth.onboarding.leagues.ligue1',
+  'auth.onboarding.leagues.eredivisie',
+  'auth.onboarding.leagues.primeiraLiga',
+  'auth.onboarding.leagues.championship',
+  'auth.onboarding.leagues.zweiteBundesliga',
+  'auth.onboarding.leagues.serieB',
+  'auth.onboarding.leagues.belgianProLeague',
+  'auth.onboarding.leagues.superLig',
 ]
 
-const POSITIONS = [
-  'Goalkeeper',
-  'Centre-Back',
-  'Full-Back',
-  'Defensive Midfielder',
-  'Central Midfielder',
-  'Attacking Midfielder',
-  'Winger',
-  'Striker',
+const POSITION_KEYS = [
+  'auth.onboarding.positions.goalkeeper',
+  'auth.onboarding.positions.centreBack',
+  'auth.onboarding.positions.fullBack',
+  'auth.onboarding.positions.defensiveMidfielder',
+  'auth.onboarding.positions.centralMidfielder',
+  'auth.onboarding.positions.attackingMidfielder',
+  'auth.onboarding.positions.winger',
+  'auth.onboarding.positions.striker',
 ]
 
 export function OnboardingPage() {
@@ -88,6 +96,7 @@ export function OnboardingPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <Helmet><meta name="robots" content="noindex" /></Helmet>
       {/* Top stepper */}
       <header className="w-full border-b border-outline-variant/20 bg-background">
         <div className="flex justify-between items-center max-w-3xl mx-auto px-6 py-4">
@@ -102,14 +111,14 @@ export function OnboardingPage() {
                   key={step}
                   className={`flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider transition-colors ${
                     isDone
-                      ? 'text-emerald-400'
+                      ? 'text-secondary'
                       : isActive
                         ? 'text-on-surface'
-                        : 'text-on-surface-variant/50'
+                        : 'text-on-surface-variant/70'
                   }`}
                 >
                   <Icon size={14} strokeWidth={1.5} />
-                  <span className="hidden sm:inline">{step}</span>
+                  <span className="hidden sm:inline">{t(STEP_LABEL_KEYS[step])}</span>
                 </div>
               )
             })}
@@ -122,7 +131,7 @@ export function OnboardingPage() {
       <main className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-[640px]">
           {/* Step 1: Welcome */}
-          {currentStep === 'Welcome' && (
+          {currentStep === 'welcome' && (
             <Card className="text-center">
               <PartyPopper size={40} strokeWidth={1.5} className="mx-auto text-primary mb-4" />
               <h1 className="text-2xl font-semibold text-on-surface mb-2">
@@ -135,7 +144,7 @@ export function OnboardingPage() {
           )}
 
           {/* Step 2: Connect Data */}
-          {currentStep === 'Connect Data' && (
+          {currentStep === 'connectData' && (
             <Card>
               <h2 className="text-xl font-semibold text-on-surface mb-1">{t('auth.onboarding.connectDataSource')}</h2>
               <p className="text-sm text-on-surface-variant mb-6">
@@ -207,7 +216,7 @@ export function OnboardingPage() {
           )}
 
           {/* Step 3: Preferences */}
-          {currentStep === 'Preferences' && (
+          {currentStep === 'preferences' && (
             <Card>
               <h2 className="text-xl font-semibold text-on-surface mb-1">{t('auth.onboarding.setPreferences')}</h2>
               <p className="text-sm text-on-surface-variant mb-6">
@@ -220,18 +229,18 @@ export function OnboardingPage() {
                     {t('auth.onboarding.defaultLeagues')}
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {LEAGUES.map(league => (
+                    {LEAGUE_KEYS.map(key => (
                       <button
-                        key={league}
+                        key={key}
                         type="button"
-                        onClick={() => toggleItem(selectedLeagues, league, setSelectedLeagues)}
+                        onClick={() => toggleItem(selectedLeagues, key, setSelectedLeagues)}
                         className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors ${
-                          selectedLeagues.includes(league)
+                          selectedLeagues.includes(key)
                             ? 'bg-primary/20 border-primary text-on-surface'
                             : 'bg-transparent border-outline-variant/40 text-on-surface-variant hover:text-on-surface'
                         }`}
                       >
-                        {league}
+                        {t(key)}
                       </button>
                     ))}
                   </div>
@@ -242,18 +251,18 @@ export function OnboardingPage() {
                     {t('auth.onboarding.preferredPositions')}
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {POSITIONS.map(pos => (
+                    {POSITION_KEYS.map(key => (
                       <button
-                        key={pos}
+                        key={key}
                         type="button"
-                        onClick={() => toggleItem(selectedPositions, pos, setSelectedPositions)}
+                        onClick={() => toggleItem(selectedPositions, key, setSelectedPositions)}
                         className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors ${
-                          selectedPositions.includes(pos)
+                          selectedPositions.includes(key)
                             ? 'bg-primary/20 border-primary text-on-surface'
                             : 'bg-transparent border-outline-variant/40 text-on-surface-variant hover:text-on-surface'
                         }`}
                       >
-                        {pos}
+                        {t(key)}
                       </button>
                     ))}
                   </div>
@@ -263,9 +272,9 @@ export function OnboardingPage() {
           )}
 
           {/* Step 4: Ready */}
-          {currentStep === 'Ready' && (
+          {currentStep === 'ready' && (
             <Card className="text-center">
-              <Rocket size={40} strokeWidth={1.5} className="mx-auto text-emerald-400 mb-4" />
+              <Rocket size={40} strokeWidth={1.5} className="mx-auto text-secondary mb-4" />
               <h1 className="text-2xl font-semibold text-on-surface mb-2">{t('auth.onboarding.allSet')}</h1>
               <p className="text-sm text-on-surface-variant max-w-md mx-auto leading-relaxed mb-6">
                 {t('auth.onboarding.allSetSub')}
@@ -283,7 +292,7 @@ export function OnboardingPage() {
                 key={i}
                 className={`w-8 h-1 rounded-md transition-colors ${
                   i < stepIndex
-                    ? 'bg-emerald-400'
+                    ? 'bg-secondary'
                     : i === stepIndex
                       ? 'bg-primary'
                       : 'bg-outline-variant/40'
@@ -303,14 +312,14 @@ export function OnboardingPage() {
                 {t('common.back')}
               </Button>
             )}
-            {currentStep === 'Connect Data' && (
+            {currentStep === 'connectData' && (
               <Button variant="ghost" leftIcon={SkipForward} onClick={next}>
                 {t('auth.onboarding.skipForNow')}
               </Button>
             )}
           </div>
           <div>
-            {currentStep !== 'Ready' && (
+            {currentStep !== 'ready' && (
               <Button rightIcon={ArrowRight} onClick={next}>
                 {t('common.continue')}
               </Button>

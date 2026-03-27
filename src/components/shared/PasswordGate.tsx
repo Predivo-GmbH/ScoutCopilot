@@ -52,12 +52,13 @@ export function PasswordGate({ children }: { children: ReactNode }) {
           <Input
             type="password"
             placeholder={t('auth.passwordGate.enterAccessCode')}
+            aria-label={t('auth.passwordGate.enterAccessCode')}
             value={password}
             onChange={(e) => {
               setPassword(e.target.value)
               setError(false)
             }}
-            error={error ? 'Incorrect access code.' : undefined}
+            error={error ? t('errors.incorrectAccessCode') : undefined}
             autoFocus
           />
           <Button type="submit" className="w-full">

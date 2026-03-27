@@ -19,28 +19,28 @@ const TIER_META: Record<string, { key: SubscriptionTier; highlighted: boolean }>
 }
 
 const COMPARISON_ROWS: Array<{
-  feature: string
+  featureKey: string
   scout: string | boolean
   pro: string | boolean
   club: string | boolean
 }> = [
-  { feature: 'Data source connections', scout: '1', pro: '2 (Wyscout + StatsBomb)', club: '2 + custom' },
-  { feature: 'NL player search', scout: 'Unlimited', pro: 'Unlimited', club: 'Unlimited' },
-  { feature: 'AI scouting reports', scout: '10/mo', pro: 'Unlimited', club: 'Unlimited' },
-  { feature: 'Shortlists', scout: '25/mo', pro: 'Unlimited', club: 'Unlimited' },
-  { feature: 'Player comparison', scout: '3 players', pro: '10 players', club: '10 players' },
-  { feature: 'League scope', scout: '1 league', pro: 'All leagues', club: 'All leagues' },
-  { feature: 'Tactical fit analysis', scout: false, pro: true, club: true },
-  { feature: 'Development trajectory', scout: false, pro: true, club: true },
-  { feature: 'PDF export (branded)', scout: false, pro: true, club: true },
-  { feature: 'Watchlists', scout: false, pro: true, club: true },
-  { feature: 'Custom AI models', scout: false, pro: false, club: true },
-  { feature: 'Scout Copilot API', scout: false, pro: false, club: true },
-  { feature: 'Bulk operations', scout: false, pro: false, club: true },
-  { feature: 'Custom metrics', scout: false, pro: false, club: true },
-  { feature: 'User seats', scout: '1', pro: '3', club: '10+' },
-  { feature: 'Support', scout: 'Email (48hr)', pro: 'Email (24hr)', club: 'Dedicated channel' },
-  { feature: 'Data retention', scout: '3 months', pro: '6 months', club: '24 months' },
+  { featureKey: 'pricingRows.dataSourceConnections', scout: '1', pro: 'pricingValues.twoWyscoutStatsbomb', club: 'pricingValues.twoPlusCustom' },
+  { featureKey: 'pricingRows.nlPlayerSearch', scout: 'pricingValues.unlimited', pro: 'pricingValues.unlimited', club: 'pricingValues.unlimited' },
+  { featureKey: 'pricingRows.aiScoutingReports', scout: 'pricingValues.tenPerMonth', pro: 'pricingValues.unlimited', club: 'pricingValues.unlimited' },
+  { featureKey: 'pricingRows.shortlists', scout: 'pricingValues.twentyFivePerMonth', pro: 'pricingValues.unlimited', club: 'pricingValues.unlimited' },
+  { featureKey: 'pricingRows.playerComparison', scout: 'pricingValues.threePlayers', pro: 'pricingValues.tenPlayers', club: 'pricingValues.tenPlayers' },
+  { featureKey: 'pricingRows.leagueScope', scout: 'pricingValues.oneLeague', pro: 'pricingValues.allLeagues', club: 'pricingValues.allLeagues' },
+  { featureKey: 'pricingRows.tacticalFitAnalysis', scout: false, pro: true, club: true },
+  { featureKey: 'pricingRows.developmentTrajectory', scout: false, pro: true, club: true },
+  { featureKey: 'pricingRows.pdfExport', scout: false, pro: true, club: true },
+  { featureKey: 'pricingRows.watchlists', scout: false, pro: true, club: true },
+  { featureKey: 'pricingRows.customAiModels', scout: false, pro: false, club: true },
+  { featureKey: 'pricingRows.scoutCopilotApi', scout: false, pro: false, club: true },
+  { featureKey: 'pricingRows.bulkOperations', scout: false, pro: false, club: true },
+  { featureKey: 'pricingRows.customMetrics', scout: false, pro: false, club: true },
+  { featureKey: 'pricingRows.userSeats', scout: '1', pro: '3', club: '10+' },
+  { featureKey: 'pricingRows.support', scout: 'pricingValues.email48hr', pro: 'pricingValues.email24hr', club: 'pricingValues.dedicatedChannel' },
+  { featureKey: 'pricingRows.dataRetention', scout: 'pricingValues.threeMonths', pro: 'pricingValues.sixMonths', club: 'pricingValues.twentyFourMonths' },
 ]
 
 export function PricingPage() {
@@ -78,10 +78,28 @@ export function PricingPage() {
       <Helmet>
         <title>{t('pricing.meta.title')}</title>
         <meta name="description" content={t('pricing.meta.description')} />
+        <link rel="canonical" href="https://scoutcopilot.com/pricing" />
+        <meta property="og:title" content={t('pricing.meta.title')} />
+        <meta property="og:description" content={t('pricing.meta.description')} />
+        <meta property="og:url" content="https://scoutcopilot.com/pricing" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: faqItems.map((item) => ({
+              '@type': 'Question',
+              name: item.question,
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: item.answer,
+              },
+            })),
+          })}
+        </script>
       </Helmet>
       {/* Nav */}
       <nav className="w-full sticky top-0 z-30 bg-surface border-b border-outline-variant/20">
-        <div className="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto">
+        <div className="flex justify-between items-center px-4 md:px-8 py-4 max-w-7xl mx-auto">
           <div className="flex items-center gap-8">
             <Logo size="md" linkTo="/" />
             <div className="hidden md:flex gap-6 text-sm">
@@ -97,7 +115,7 @@ export function PricingPage() {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-8 py-16">
+      <main className="max-w-7xl mx-auto px-4 md:px-8 py-16">
         {/* Header */}
         <header className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">{t('pricing.heading')}</h1>
@@ -215,8 +233,8 @@ export function PricingPage() {
               </thead>
               <tbody className="divide-y divide-outline-variant/10">
                 {COMPARISON_ROWS.map((row) => (
-                  <tr key={row.feature}>
-                    <td className="py-3 px-6 text-sm">{row.feature}</td>
+                  <tr key={row.featureKey}>
+                    <td className="py-3 px-6 text-sm">{t(row.featureKey)}</td>
                     <ComparisonCell value={row.scout} />
                     <ComparisonCell value={row.pro} highlighted />
                     <ComparisonCell value={row.club} />
@@ -233,7 +251,7 @@ export function PricingPage() {
           <div className="space-y-4">
             {faqItems.map((item) => (
               <div key={item.question} className="bg-surface-container-low border border-outline-variant p-6 rounded-md">
-                <h4 className="font-semibold mb-2">{item.question}</h4>
+                <h3 className="font-semibold mb-2">{item.question}</h3>
                 <p className="text-on-surface-variant text-sm leading-relaxed">{item.answer}</p>
               </div>
             ))}
@@ -262,7 +280,7 @@ export function PricingPage() {
 
       {/* Footer */}
       <footer className="w-full border-t border-outline-variant/20 bg-surface text-sm">
-        <div className="flex flex-col md:flex-row justify-between items-center px-8 py-12 max-w-7xl mx-auto gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-center px-4 md:px-8 py-12 max-w-7xl mx-auto gap-4">
           <Logo size="sm" linkTo="/" />
           <div className="text-on-surface-variant text-xs">{t('common.copyright')}</div>
           <div className="flex gap-6">
@@ -277,6 +295,7 @@ export function PricingPage() {
 }
 
 function ComparisonCell({ value, highlighted }: { value: string | boolean; highlighted?: boolean }) {
+  const { t } = useTranslation()
   const bgClass = highlighted ? 'bg-surface-container/50' : ''
 
   if (typeof value === 'boolean') {
@@ -291,7 +310,9 @@ function ComparisonCell({ value, highlighted }: { value: string | boolean; highl
     )
   }
 
+  // Values starting with 'pricingValues.' are translation keys; plain numbers stay as-is
+  const display = value.startsWith('pricingValues.') ? t(value) : value
   return (
-    <td className={`py-3 px-6 text-center font-mono text-xs ${bgClass}`}>{value}</td>
+    <td className={`py-3 px-6 text-center font-mono text-xs ${bgClass}`}>{display}</td>
   )
 }

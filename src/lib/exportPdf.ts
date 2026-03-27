@@ -1,4 +1,5 @@
 import { jsPDF } from 'jspdf'
+import i18n from '../i18n'
 import type { MockPlayerReport } from './mock-data'
 
 const COLORS = {
@@ -32,7 +33,8 @@ export function exportPlayerPdf(report: MockPlayerReport) {
   doc.setFontSize(10)
   doc.text(`${report.club}  |  ${report.position}  |  Age ${report.age}  |  ${report.nationality}`, margin, 24)
 
-  const recLabel = report.recommendation === 'sign' ? 'RECOMMEND SIGN' : report.recommendation === 'monitor' ? 'MONITOR' : 'PASS'
+  const t = i18n.t.bind(i18n)
+  const recLabel = report.recommendation === 'sign' ? t('pdf.recommendSign') : report.recommendation === 'monitor' ? t('pdf.monitor') : t('pdf.pass')
   const recColor = COLORS[report.recommendation]
   doc.setFontSize(9)
   const recWidth = doc.getTextWidth(recLabel) + 8
@@ -47,7 +49,7 @@ export function exportPlayerPdf(report: MockPlayerReport) {
   doc.setTextColor(...COLORS.primary)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(11)
-  doc.text('SCOUT ASSESSMENT', margin, y)
+  doc.text(t('pdf.scoutAssessment'), margin, y)
   y += 6
 
   doc.setTextColor(...COLORS.text)
@@ -63,8 +65,8 @@ export function exportPlayerPdf(report: MockPlayerReport) {
   doc.setTextColor(...COLORS.primary)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(11)
-  doc.text('STRENGTHS', margin, y)
-  doc.text('WEAKNESSES', margin + colW + 4, y)
+  doc.text(t('pdf.strengths'), margin, y)
+  doc.text(t('pdf.weaknesses'), margin + colW + 4, y)
   y += 6
 
   doc.setFont('helvetica', 'normal')
@@ -87,7 +89,7 @@ export function exportPlayerPdf(report: MockPlayerReport) {
   doc.setTextColor(...COLORS.primary)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(11)
-  doc.text('SEASON STATISTICS', margin, y)
+  doc.text(t('pdf.seasonStats'), margin, y)
   y += 6
 
   const statEntries = Object.entries(report.seasonStats)
@@ -128,7 +130,7 @@ export function exportPlayerPdf(report: MockPlayerReport) {
   doc.setTextColor(...COLORS.primary)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(11)
-  doc.text('STYLE OF PLAY', margin, y)
+  doc.text(t('pdf.styleOfPlay'), margin, y)
   y += 6
 
   doc.setTextColor(...COLORS.text)
@@ -147,7 +149,7 @@ export function exportPlayerPdf(report: MockPlayerReport) {
   doc.setTextColor(...COLORS.primary)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(11)
-  doc.text('PERFORMANCE PROFILE', margin, y)
+  doc.text(t('pdf.performanceProfile'), margin, y)
   y += 6
 
   doc.setFontSize(8)
@@ -189,7 +191,7 @@ export function exportPlayerPdf(report: MockPlayerReport) {
   doc.setTextColor(...COLORS.primary)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(11)
-  doc.text('CONTRACT OVERVIEW', margin, y)
+  doc.text(t('pdf.contractOverview'), margin, y)
   y += 6
 
   const contractEntries = Object.entries(report.contractInfo)
@@ -220,7 +222,7 @@ export function exportPlayerPdf(report: MockPlayerReport) {
   doc.setTextColor(...COLORS.primary)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(11)
-  doc.text('TRANSFER HISTORY', margin, y)
+  doc.text(t('pdf.transferHistory'), margin, y)
   y += 6
 
   doc.setFont('helvetica', 'normal')
@@ -245,7 +247,7 @@ export function exportPlayerPdf(report: MockPlayerReport) {
     doc.setFontSize(7)
     doc.setTextColor(...COLORS.muted)
     doc.text(
-      `ScoutCopilot  ·  ${report.playerName}  ·  Generated ${new Date().toLocaleDateString()}  ·  Page ${p}/${pageCount}`,
+      `ScoutCopilot  ·  ${report.playerName}  ·  ${t('pdf.generated')} ${new Date().toLocaleDateString()}  ·  ${t('pdf.page')} ${p}/${pageCount}`,
       margin,
       doc.internal.pageSize.getHeight() - 8,
     )

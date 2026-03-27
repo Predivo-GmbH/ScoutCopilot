@@ -13,10 +13,10 @@ interface SearchResultsTableProps {
   isLoading: boolean
 }
 
-function exportResultsCsv(results: MockPlayer[]) {
+function exportResultsCsv(results: MockPlayer[], t: (key: string) => string) {
   if (results.length === 0) return
   const statKeys = Object.keys(results[0].stats)
-  const headers = ['#', 'Name', 'Age', 'Nationality', 'Position', 'Club', 'League', ...statKeys, 'Match Score']
+  const headers = ['#', t('csv.name'), t('csv.age'), t('csv.nationality'), t('csv.position'), t('csv.club'), t('csv.league'), ...statKeys, t('csv.matchScore')]
   const rows = results.map((p, i) => [
     i + 1,
     p.name,
@@ -43,7 +43,9 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const [prevResultsLen, setPrevResultsLen] = useState(results.length)
-  const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
+  const [viewMode, setViewMode] = useState<'table' | 'grid'>(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches ? 'grid' : 'table'
+  )
   const { generateReport, isGenerating, hasReport } = useGeneratedReports()
 
   // Reset page when results change (React-recommended pattern)
@@ -76,9 +78,10 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
         </h3>
         <div className="flex items-center gap-1">
           <button
-            onClick={() => exportResultsCsv(results)}
+            onClick={() => exportResultsCsv(results, t)}
             className="p-2 rounded-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
             title={t('search.downloadResults')}
+            aria-label={t('search.downloadResults')}
           >
             <Download size={16} strokeWidth={1.5} />
           </button>
@@ -86,7 +89,8 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
             <button
               onClick={() => setViewMode('table')}
               className={`p-2 rounded-sm transition-colors ${viewMode === 'table' ? 'text-primary bg-primary/10' : 'text-on-surface-variant hover:text-on-surface'}`}
-              title="Table view"
+              title={t('search.tableView')}
+              aria-label={t('search.tableView')}
             >
               <LayoutList size={16} strokeWidth={1.5} />
             </button>
@@ -94,6 +98,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-sm transition-colors ${viewMode === 'grid' ? 'text-primary bg-primary/10' : 'text-on-surface-variant hover:text-on-surface'}`}
               title={t('search.gridView')}
+              aria-label={t('search.gridView')}
             >
               <LayoutGrid size={16} strokeWidth={1.5} />
             </button>
@@ -127,8 +132,11 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
                 return (
                   <tr
                     key={player.id}
+                    tabIndex={0}
+                    role="link"
                     onClick={() => navigate(`/players/${player.id}`)}
-                    className={`${globalIndex % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'} border-b border-outline-variant/30 hover:bg-surface-variant/50 transition-colors cursor-pointer group`}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/players/${player.id}`) } }}
+                    className={`${globalIndex % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'} border-b border-outline-variant/30 hover:bg-surface-variant/50 transition-colors cursor-pointer group focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1`}
                   >
                     <td className="px-6 py-4 font-data text-on-surface-variant text-xs">{globalIndex + 1}</td>
                     <td className="px-4 py-4">
@@ -226,18 +234,18 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
             <button
               onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page === 1}
-              className="w-8 h-8 flex items-center justify-center border border-outline-variant rounded-sm text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="w-9 h-9 flex items-center justify-center border border-outline-variant rounded-sm text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft size={14} strokeWidth={1.5} />
             </button>
             {getPageNumbers(page, totalPages).map((p, i) => (
               p === '...' ? (
-                <span key={`ellipsis-${i}`} className="w-8 h-8 flex items-center justify-center text-on-surface-variant font-data text-xs">...</span>
+                <span key={`ellipsis-${i}`} className="w-9 h-9 flex items-center justify-center text-on-surface-variant font-data text-xs">...</span>
               ) : (
                 <button
                   key={p}
                   onClick={() => setPage(p as number)}
-                  className={`w-8 h-8 flex items-center justify-center rounded-sm font-data text-xs font-bold transition-colors ${
+                  className={`w-9 h-9 flex items-center justify-center rounded-sm font-data text-xs font-bold transition-colors ${
                     page === p
                       ? 'border border-primary-container bg-primary-container/10 text-primary-container'
                       : 'border border-outline-variant text-on-surface-variant hover:bg-surface-container-high'
@@ -250,7 +258,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
             <button
               onClick={() => setPage(Math.min(totalPages, page + 1))}
               disabled={page === totalPages}
-              className="w-8 h-8 flex items-center justify-center border border-outline-variant rounded-sm text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="w-9 h-9 flex items-center justify-center border border-outline-variant rounded-sm text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronRight size={14} strokeWidth={1.5} />
             </button>
@@ -369,7 +377,7 @@ function AIThinkingAnimation() {
       i > 0 ? setTimeout(() => setStep(i), i * 700) : null,
     )
     return () => timers.forEach((t) => t && clearTimeout(t))
-  }, [])
+  }, [AI_STEPS])
 
   return (
     <div className="bg-surface-container rounded-md border border-outline-variant overflow-hidden">
@@ -402,8 +410,8 @@ function AIThinkingAnimation() {
 }
 
 function FitScoreBar({ score }: { score: number }) {
-  const color = score >= 80 ? 'bg-secondary' : score >= 60 ? 'bg-amber-500' : 'bg-error'
-  const textColor = score >= 80 ? 'text-secondary' : score >= 60 ? 'text-amber-500' : 'text-error'
+  const color = score >= 80 ? 'bg-secondary' : score >= 60 ? 'bg-warning' : 'bg-error'
+  const textColor = score >= 80 ? 'text-secondary' : score >= 60 ? 'text-warning' : 'text-error'
 
   return (
     <div className="flex items-center gap-3">

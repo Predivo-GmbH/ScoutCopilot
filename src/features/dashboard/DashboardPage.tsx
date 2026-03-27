@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import {
   Search,
@@ -20,7 +21,8 @@ export function DashboardPage() {
   const { data: alerts, isLoading: alertsLoading } = useWatchlistAlerts()
 
   return (
-    <div className="p-6 md:p-8 space-y-8 max-h-[calc(100vh-3.5rem)] overflow-y-auto">
+    <div className="p-6 md:p-8 space-y-8">
+      <Helmet><meta name="robots" content="noindex" /></Helmet>
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
@@ -38,15 +40,16 @@ export function DashboardPage() {
       {/* Metric Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {stats?.items.map((item) => {
+          const locale = t('common.locale', 'en-GB')
           const displayValue = typeof item.value === 'string'
             ? item.value
-            : item.value.toLocaleString('en-GB')
+            : item.value.toLocaleString(locale)
           return (
             <div
               key={item.label}
               className="bg-surface-container border border-outline-variant p-5 rounded-md flex flex-col justify-between min-h-[110px]"
             >
-              <p className="text-[0.625rem] font-data uppercase tracking-widest text-on-surface-variant">{item.label}</p>
+              <p className="text-[0.625rem] font-data uppercase tracking-widest text-on-surface-variant">{t(item.label)}</p>
               <div className="flex items-end justify-between mt-auto">
                 <span className="text-3xl font-data font-bold text-on-surface">
                   {displayValue}
@@ -60,7 +63,7 @@ export function DashboardPage() {
                   )}
                   {item.badge && (
                     <span className="text-[0.6rem] font-data font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-sm">
-                      {item.badge}
+                      {t(item.badge)}
                     </span>
                   )}
                 </div>
@@ -100,6 +103,7 @@ export function DashboardPage() {
                 ))}
               </div>
             ) : (
+              <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-outline-variant/30">
@@ -113,8 +117,11 @@ export function DashboardPage() {
                   {searches?.slice(0, 5).map((search) => (
                     <tr
                       key={search.id}
-                      className="hover:bg-surface-container-high transition-colors cursor-pointer"
+                      tabIndex={0}
+                      role="link"
+                      className="hover:bg-surface-container-high transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1"
                       onClick={() => navigate(`/search?q=${encodeURIComponent(search.query)}&saved=1`)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/search?q=${encodeURIComponent(search.query)}&saved=1`) } }}
                     >
                       <td className="px-6 py-3 text-xs font-medium text-on-surface max-w-[320px] truncate">
                         {search.query}
@@ -132,6 +139,7 @@ export function DashboardPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
         </div>
@@ -147,7 +155,7 @@ export function DashboardPage() {
                 <Zap size={14} strokeWidth={1.5} className="text-tertiary" />
                 {t('dashboard.watchlistAlerts')}
               </h3>
-              <span className="text-[0.625rem] font-data font-medium text-white bg-error-container px-2 py-0.5 rounded-sm">
+              <span className="text-[0.625rem] font-data font-medium text-on-error-container bg-error-container px-2 py-0.5 rounded-sm">
                 {String(alerts?.length ?? 0).padStart(2, '0')} {t('dashboard.new')}
               </span>
             </button>
@@ -160,7 +168,7 @@ export function DashboardPage() {
             ) : (
               <div className="p-2 space-y-2">
                 {alerts?.slice(0, 4).map((alert) => {
-                  const borderColor = alert.changeType === 'warning' ? 'border-l-amber-500' : 'border-l-tertiary'
+                  const borderColor = alert.changeType === 'warning' ? 'border-l-warning' : 'border-l-tertiary'
                   return (
                     <div
                       key={alert.id}
@@ -176,12 +184,12 @@ export function DashboardPage() {
                           <h4 className="text-sm font-bold text-on-surface leading-tight">{alert.playerName}</h4>
                           <p className="text-[0.625rem] font-data text-on-surface-variant">{alert.club}</p>
                         </div>
-                        <span className="text-[0.6rem] font-data text-on-surface-variant/50 shrink-0">{alert.timeAgo}</span>
+                        <span className="text-[0.6rem] font-data text-on-surface-variant/70 shrink-0">{alert.timeAgo}</span>
                       </div>
                       <div className={`bg-surface-container-lowest p-2 rounded-sm border-l-2 ${borderColor}`}>
                         <p className={`text-xs leading-relaxed ${
                           alert.changeType === 'positive' ? 'text-secondary font-data' :
-                          alert.changeType === 'warning' ? 'text-amber-500 font-data' :
+                          alert.changeType === 'warning' ? 'text-warning font-data' :
                           'text-on-surface-variant'
                         }`}>
                           {alert.change}
@@ -195,7 +203,7 @@ export function DashboardPage() {
                     onClick={() => navigate('/alerts')}
                     className="w-full py-2.5 text-[0.625rem] font-bold uppercase tracking-widest text-primary hover:text-primary-light transition-colors flex items-center justify-center gap-1.5"
                   >
-                    View all {alerts?.length} alerts
+                    {t('dashboard.viewAllAlerts', { count: alerts?.length })}
                     <ArrowRight size={12} strokeWidth={1.5} />
                   </button>
                 )}

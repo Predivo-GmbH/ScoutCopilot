@@ -1,8 +1,11 @@
 import { useState, useEffect, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { CheckCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from './useAuth'
+import { Button } from '../../components/ui/Button'
+import { Input } from '../../components/ui/Input'
 import AuthLayout from '../../components/auth/AuthLayout'
 import PasswordStrength from '../../components/auth/PasswordStrength'
 import { getPasswordScore } from '../../components/auth/password-utils'
@@ -43,7 +46,7 @@ export function ResetPasswordPage() {
       await updatePassword(password)
       setDone(true)
     } catch (err) {
-      setError(friendlyAuthError(err, 'Failed to update password'))
+      setError(t(friendlyAuthError(err, 'Failed to update password')))
     } finally {
       setLoading(false)
     }
@@ -52,6 +55,10 @@ export function ResetPasswordPage() {
   if (done) {
     return (
       <AuthLayout>
+        <Helmet>
+          <title>Password Updated — ScoutCopilot</title>
+          <meta name="robots" content="noindex" />
+        </Helmet>
         <div className="text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-md bg-secondary/10">
             <CheckCircle className="h-7 w-7 text-secondary" strokeWidth={1.5} />
@@ -75,6 +82,10 @@ export function ResetPasswordPage() {
 
   return (
     <AuthLayout>
+      <Helmet>
+        <title>Reset Password — ScoutCopilot</title>
+        <meta name="description" content="Choose a new password for your ScoutCopilot account." />
+      </Helmet>
       <h1 className="text-center text-2xl font-bold text-on-surface">
         {t('auth.reset.chooseNewPassword')}
       </h1>
@@ -89,11 +100,9 @@ export function ResetPasswordPage() {
           </div>
         )}
         <div>
-          <label htmlFor="new-password" className="block text-sm font-medium text-on-surface-variant">
-            {t('auth.reset.newPassword')}
-          </label>
-          <input
+          <Input
             id="new-password"
+            label={t('auth.reset.newPassword')}
             type="password"
             required
             autoComplete="new-password"
@@ -101,34 +110,29 @@ export function ResetPasswordPage() {
             minLength={8}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
             placeholder={t('auth.reset.minChars')}
           />
           <PasswordStrength password={password} />
         </div>
-        <div>
-          <label htmlFor="confirm-password" className="block text-sm font-medium text-on-surface-variant">
-            {t('auth.reset.confirmPassword')}
-          </label>
-          <input
-            id="confirm-password"
-            type="password"
-            required
-            autoComplete="new-password"
-            minLength={8}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none"
-            placeholder={t('auth.reset.confirmYourPassword')}
-          />
-        </div>
-        <button
+        <Input
+          id="confirm-password"
+          label={t('auth.reset.confirmPassword')}
+          type="password"
+          required
+          autoComplete="new-password"
+          minLength={8}
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          placeholder={t('auth.reset.confirmYourPassword')}
+        />
+        <Button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
+          loading={loading}
+          className="w-full"
         >
           {loading ? t('auth.reset.updating') : t('auth.reset.updatePassword')}
-        </button>
+        </Button>
       </form>
     </AuthLayout>
   )

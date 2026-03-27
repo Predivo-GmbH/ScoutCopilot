@@ -1,5 +1,6 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { AlertTriangle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from './Button'
 
 interface ConfirmDialogProps {
@@ -17,13 +18,56 @@ export function ConfirmDialog({
   open,
   title,
   message,
-  confirmLabel = 'Confirm',
-  cancelLabel = 'Cancel',
+  confirmLabel,
+  cancelLabel,
   variant = 'default',
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const { t } = useTranslation()
+  const resolvedConfirmLabel = confirmLabel ?? t('common.confirm')
+  const resolvedCancelLabel = cancelLabel ?? t('common.cancel')
   const overlayRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  // Focus trap and auto-focus
+  useEffect(() => {
+    if (!open) return
+    const previouslyFocused = document.activeElement as HTMLElement | null
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCancel()
+      if (e.key === 'Tab' && contentRef.current) {
+        const focusable = contentRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    // Auto-focus first button
+    const timer = setTimeout(() => {
+      const el = contentRef.current?.querySelector<HTMLElement>('button')
+      el?.focus()
+    }, 50)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      clearTimeout(timer)
+      previouslyFocused?.focus()
+    }
+  }, [open, onCancel])
 
   if (!open) return null
 
@@ -34,11 +78,11 @@ export function ConfirmDialog({
       onClick={(e) => {
         if (e.target === overlayRef.current) onCancel()
       }}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') onCancel()
-      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirm-dialog-title"
     >
-      <div className="bg-surface-container rounded-md border border-outline-variant shadow-lg w-full max-w-sm mx-4 p-6">
+      <div ref={contentRef} className="bg-surface-container rounded-md border border-outline-variant shadow-lg w-full max-w-sm mx-4 p-6">
         <div className="flex items-start gap-3 mb-4">
           {variant === 'destructive' && (
             <div className="w-10 h-10 rounded-md bg-error/10 flex items-center justify-center shrink-0">
@@ -46,20 +90,20 @@ export function ConfirmDialog({
             </div>
           )}
           <div>
-            <h3 className="text-base font-semibold text-on-surface">{title}</h3>
+            <h3 id="confirm-dialog-title" className="text-base font-semibold text-on-surface">{title}</h3>
             <p className="text-sm text-on-surface-variant mt-1">{message}</p>
           </div>
         </div>
         <div className="flex justify-end gap-3">
           <Button variant="ghost" size="sm" onClick={onCancel}>
-            {cancelLabel}
+            {resolvedCancelLabel}
           </Button>
           <Button
             variant={variant === 'destructive' ? 'destructive' : 'primary'}
             size="sm"
             onClick={onConfirm}
           >
-            {confirmLabel}
+            {resolvedConfirmLabel}
           </Button>
         </div>
       </div>
