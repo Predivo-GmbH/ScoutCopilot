@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ScoutCopilot — AI Football Scouting</title>
     <meta name="description" content="AI-powered football scouting assistant. Get ranked player shortlists, scouting reports, and head-to-head comparisons in seconds — from your Wyscout or StatsBomb data." />
@@ -10,10 +12,11 @@
     <meta property="og:description" content="Stop drowning in spreadsheets. Get AI-ranked shortlists in 30 seconds from your existing scouting data." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://scoutcopilot.com" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="de_DE" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="ScoutCopilot — AI Football Scouting" />
     <meta name="twitter:description" content="AI-ranked player shortlists, scouting reports, and comparisons in seconds." />
-    <link rel="canonical" href="https://scoutcopilot.com" />
     <meta property="og:image" content="https://scoutcopilot.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -42,10 +45,24 @@
       }
     }
     </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "ScoutCopilot",
+      "url": "https://scoutcopilot.com",
+      "description": "AI-powered football scouting assistant. Get ranked player shortlists, scouting reports, and head-to-head comparisons in seconds.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Predivo GmbH",
+        "url": "https://predivo.ch"
+      }
+    }
+    </script>
   </head>
   <body>
     <script>
-      (function(){var t=localStorage.getItem('scoutcopilot-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme',window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}})();
+      (function(){var t=localStorage.getItem('scoutcopilot-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme','dark')}})();
     </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
