@@ -97,7 +97,7 @@ export function ForgotPasswordPage() {
             {t('auth.forgot.didntReceive')}{' '}
             <button
               onClick={() => setStep('form')}
-              className="font-medium text-primary-light hover:underline"
+              className="font-medium text-primary-light hover:underline min-h-[44px] inline-flex items-center"
             >
               {t('auth.forgot.tryAgain')}
             </button>
@@ -105,7 +105,7 @@ export function ForgotPasswordPage() {
           </p>
           <Link
             to="/login"
-            className="mt-8 inline-block text-sm font-medium text-primary-light hover:underline"
+            className="mt-8 text-sm font-medium text-primary-light hover:underline min-h-[44px] inline-flex items-center"
           >
             {t('auth.forgot.backToSignIn')}
           </Link>

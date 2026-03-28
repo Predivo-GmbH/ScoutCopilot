@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { ChevronRight } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
+import { ScrollableTabBar } from '../../components/ui/ScrollableTabBar'
 import { useSettings, type SettingsTab } from './hooks/useSettings'
 import { ProfileSettings } from './components/ProfileSettings'
 import { OrgSettings } from './components/OrgSettings'
@@ -38,22 +39,12 @@ export function SettingsPage() {
     <div className="flex flex-col md:flex-row min-h-[calc(100vh-64px)]">
       <Helmet><meta name="robots" content="noindex" /></Helmet>
       {/* Mobile horizontal tabs */}
-      <div className="md:hidden overflow-x-auto border-b border-outline-variant">
-        <div className="flex px-4 py-2 gap-2 min-w-max">
-          {settingsTabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`px-3 py-2 text-xs whitespace-nowrap rounded-md transition-colors min-h-[44px] ${
-                activeTab === tab.key
-                  ? 'font-semibold bg-surface-container text-primary'
-                  : 'text-on-surface-variant hover:bg-surface-container/50'
-              }`}
-            >
-              {t(tab.labelKey)}
-            </button>
-          ))}
-        </div>
+      <div className="md:hidden">
+        <ScrollableTabBar
+          tabs={settingsTabs.map((tab) => ({ key: tab.key, label: t(tab.labelKey) }))}
+          activeKey={activeTab}
+          onTabChange={(key) => setActiveTab(key as SettingsTab)}
+        />
       </div>
 
       {/* Desktop sub-sidebar */}
@@ -168,12 +159,12 @@ function TeamMember({ name, email, role }: { name: string; email: string; role: 
         <div className="w-8 h-8 rounded-md bg-surface-container-highest flex items-center justify-center text-xs font-semibold text-on-surface-variant">
           {name.split(' ').map((n) => n[0]).join('')}
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="text-sm font-semibold text-on-surface">{name}</p>
-          <p className="text-[0.625rem] text-on-surface-variant">{email}</p>
+          <p className="text-[0.625rem] text-on-surface-variant truncate">{email}</p>
         </div>
       </div>
-      <span className="text-[0.625rem] font-data font-medium text-on-surface-variant uppercase">{role}</span>
+      <span className="text-[0.625rem] font-data font-medium text-on-surface-variant uppercase shrink-0">{role}</span>
     </div>
   )
 }
@@ -185,8 +176,8 @@ function ToggleRow({ title, description, enabled, onToggle }: {
   onToggle: () => void
 }) {
   return (
-    <div className={`flex items-center justify-between ${!enabled ? 'opacity-50' : ''}`}>
-      <div>
+    <div className={`flex items-center justify-between gap-3 ${!enabled ? 'opacity-50' : ''}`}>
+      <div className="min-w-0 flex-1">
         <p className="text-xs font-semibold text-on-surface">{title}</p>
         <p className="text-[0.625rem] text-on-surface-variant">{description}</p>
       </div>

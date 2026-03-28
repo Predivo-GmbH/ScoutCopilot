@@ -38,7 +38,7 @@ export function DashboardPage() {
       </div>
 
       {/* Metric Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4" role={statsLoading ? 'status' : undefined} aria-live={statsLoading ? 'polite' : undefined}>
         {stats?.items.map((item) => {
           const locale = t('common.locale', 'en-GB')
           const displayValue = typeof item.value === 'string'
@@ -49,7 +49,7 @@ export function DashboardPage() {
               key={item.label}
               className="bg-surface-container border border-outline-variant p-3 sm:p-5 rounded-md flex flex-col justify-between min-h-[90px] sm:min-h-[110px]"
             >
-              <p className="text-[0.625rem] font-data uppercase tracking-widest text-on-surface-variant">{t(item.label)}</p>
+              <p className="text-[0.625rem] font-data uppercase tracking-widest text-on-surface-variant truncate">{t(item.label)}</p>
               <div className="flex items-end justify-between mt-auto">
                 <span className="text-2xl sm:text-3xl font-data font-bold text-on-surface">
                   {displayValue}
@@ -71,12 +71,17 @@ export function DashboardPage() {
             </div>
           )
         })}
-        {statsLoading && <div role="status" aria-live="polite">{Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="bg-surface-container border border-outline-variant p-5 rounded-md">
-            <div className="h-3 w-24 bg-surface-container-high rounded-sm animate-pulse mb-8" />
-            <div className="h-8 w-20 bg-surface-container-high rounded-sm animate-pulse" />
-          </div>
-        ))}<span className="sr-only">{t('common.loading', 'Loading...')}</span></div>}
+        {statsLoading && (
+          <>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-surface-container border border-outline-variant p-5 rounded-md">
+                <div className="h-3 w-24 bg-surface-container-high rounded-sm animate-pulse mb-8" />
+                <div className="h-8 w-20 bg-surface-container-high rounded-sm animate-pulse" />
+              </div>
+            ))}
+            <span className="sr-only">{t('common.loading', 'Loading...')}</span>
+          </>
+        )}
       </div>
 
       {/* Two-Column: Recent Searches + Watchlist Alerts */}
@@ -91,7 +96,7 @@ export function DashboardPage() {
               </h3>
               <button
                 onClick={() => navigate('/search-history')}
-                className="text-[0.625rem] font-data uppercase text-primary hover:underline flex items-center gap-1"
+                className="text-[0.625rem] font-data uppercase text-primary hover:underline min-h-[44px] flex items-center gap-1"
               >
                 {t('dashboard.viewAll')} <ArrowRight size={10} strokeWidth={1.5} />
               </button>
@@ -120,7 +125,7 @@ export function DashboardPage() {
                       key={search.id}
                       tabIndex={0}
                       role="link"
-                      className="hover:bg-surface-container-high transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1"
+                      className="min-h-[44px] hover:bg-surface-container-high transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1"
                       onClick={() => navigate(`/search?q=${encodeURIComponent(search.query)}&saved=1`)}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/search?q=${encodeURIComponent(search.query)}&saved=1`) } }}
                     >
@@ -203,7 +208,7 @@ export function DashboardPage() {
                 {(alerts?.length ?? 0) > 4 && (
                   <button
                     onClick={() => navigate('/alerts')}
-                    className="w-full py-2.5 text-[0.625rem] font-bold uppercase tracking-widest text-primary hover:text-primary-light transition-colors flex items-center justify-center gap-1.5"
+                    className="w-full py-2.5 text-[0.625rem] font-bold uppercase tracking-widest text-primary hover:text-primary-light transition-colors min-h-[44px] flex items-center justify-center gap-1.5"
                   >
                     {t('dashboard.viewAllAlerts', { count: alerts?.length })}
                     <ArrowRight size={12} strokeWidth={1.5} />

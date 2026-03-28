@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from './useAuth'
 import { Button } from '../../components/ui/Button'
+import { ScrollableTabBar } from '../../components/ui/ScrollableTabBar'
 import { Input } from '../../components/ui/Input'
 import AuthLayout from '../../components/auth/AuthLayout'
 import OtpInput from '../../components/auth/OtpInput'
@@ -87,28 +88,15 @@ export function LoginPage() {
       </h1>
 
       {/* Tabs */}
-      <div className="mt-6 flex rounded-md border border-outline-variant bg-surface-container-low p-1">
-        <button
-          onClick={() => switchTab('password')}
-          className={`flex-1 rounded-md py-2 text-sm font-medium transition-colors ${
-            tab === 'password'
-              ? 'bg-surface-container-high text-on-surface'
-              : 'text-on-surface-variant hover:text-on-surface'
-          }`}
-        >
-          {t('auth.passwordTab')}
-        </button>
-        <button
-          onClick={() => switchTab('code')}
-          className={`flex-1 rounded-md py-2 text-sm font-medium transition-colors ${
-            tab === 'code'
-              ? 'bg-surface-container-high text-on-surface'
-              : 'text-on-surface-variant hover:text-on-surface'
-          }`}
-        >
-          {t('auth.emailCodeTab')}
-        </button>
-      </div>
+      <ScrollableTabBar
+        tabs={[
+          { key: 'password', label: t('auth.passwordTab') },
+          { key: 'code', label: t('auth.emailCodeTab') },
+        ]}
+        activeKey={tab}
+        onTabChange={(key) => switchTab(key as Tab)}
+        className="mt-6"
+      />
 
       {/* Password Tab */}
       {tab === 'password' && (
@@ -135,7 +123,7 @@ export function LoginPage() {
               </label>
               <Link
                 to="/forgot-password"
-                className="text-xs font-medium text-primary-light hover:underline"
+                className="text-xs font-medium text-primary-light hover:underline min-h-[44px] inline-flex items-center"
               >
                 {t('auth.forgotPassword')}
               </Link>
@@ -214,7 +202,7 @@ export function LoginPage() {
           </p>
           <button
             onClick={() => { setCodeStep('email'); setError(null) }}
-            className="block w-full text-center text-sm font-medium text-on-surface-variant hover:text-on-surface"
+            className="block w-full text-center text-sm font-medium text-on-surface-variant hover:text-on-surface min-h-[44px]"
           >
             {t('auth.useDifferentEmail')}
           </button>

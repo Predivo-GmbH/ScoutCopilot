@@ -64,7 +64,7 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
     .slice(0, 2) ?? '?'
 
   return (
-    <div className="h-14 flex items-center gap-4 px-3 md:px-6 border-b border-outline-variant bg-surface-container-low shrink-0">
+    <div className="h-14 flex items-center gap-2 sm:gap-4 px-2 sm:px-3 md:px-6 border-b border-outline-variant bg-surface-container-low shrink-0 overflow-hidden">
       {/* Mobile hamburger */}
       {onMenuToggle && (
         <button
@@ -107,7 +107,7 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
         <LanguageSelector />
 
         {/* Divider */}
-        <div className="w-px h-6 bg-outline-variant/30 mx-1" />
+        <div className="w-px h-6 bg-outline-variant/30 mx-1 hidden sm:block" />
 
         {/* Profile */}
         <div ref={profileRef} className="relative">

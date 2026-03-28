@@ -497,7 +497,10 @@
     "score": "WERT:",
     "removePlayer": "Spieler entfernen",
     "removeConfirm": "Sind Sie sicher, dass Sie {{name}} aus Ihren gescouteten Spielern entfernen möchten? Der generierte Bericht wird gelöscht.",
-    "removeBtn": "Entfernen"
+    "removeBtn": "Entfernen",
+    "badgeSign": "Empfohlen",
+    "badgeMonitor": "Beobachten",
+    "badgePass": "Ablehnen"
   },
   "comparison": {
     "heading": "Spieler vergleichen",

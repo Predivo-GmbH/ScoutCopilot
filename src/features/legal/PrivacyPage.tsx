@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Logo } from '../../components/shared/Logo'
+import { LanguageSelector } from '../../components/shared/LanguageSelector'
 
 export function PrivacyPage() {
   const { t } = useTranslation()
@@ -20,6 +21,7 @@ export function PrivacyPage() {
         <div className="flex justify-between items-center px-6 md:px-8 py-4 max-w-7xl mx-auto">
           <Logo size="md" linkTo="/" />
           <div className="flex items-center gap-4">
+            <LanguageSelector />
             <Link to="/login" className="text-sm text-on-surface-variant hover:text-on-surface transition-colors min-h-[44px] flex items-center">{t('common.signIn')}</Link>
             <Link to="/signup" className="text-sm bg-primary text-on-primary px-4 py-2 rounded-md font-medium hover:bg-primary-dark transition-colors min-h-[44px] flex items-center">{t('common.getStarted')}</Link>
           </div>
@@ -120,9 +122,9 @@ export function PrivacyPage() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-on-surface-variant">
           <p>{t('common.copyright')}</p>
           <div className="flex gap-6">
-            <Link to="/terms" className="hover:text-on-surface transition-colors">{t('common.terms')}</Link>
-            <Link to="/privacy" className="hover:text-on-surface transition-colors">{t('common.privacy')}</Link>
-            <Link to="/imprint" className="hover:text-on-surface transition-colors">{t('common.imprint')}</Link>
+            <Link to="/terms" className="hover:text-on-surface transition-colors min-h-[44px] flex items-center">{t('common.terms')}</Link>
+            <Link to="/privacy" className="hover:text-on-surface transition-colors min-h-[44px] flex items-center">{t('common.privacy')}</Link>
+            <Link to="/imprint" className="hover:text-on-surface transition-colors min-h-[44px] flex items-center">{t('common.imprint')}</Link>
           </div>
         </div>
       </footer>

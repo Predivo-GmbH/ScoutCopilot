@@ -200,7 +200,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
                     <div className="font-bold text-on-surface text-sm truncate">{player.name}</div>
                     <div className="text-[0.625rem] text-on-surface-variant truncate">{player.club} &middot; {player.nationality}</div>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex flex-wrap gap-1">
                     {player.position.split(', ').map((pos) => (
                       <span key={pos} className="text-[0.5625rem] font-data bg-surface-container-highest text-on-surface px-1 py-0.5 rounded-sm">
                         {pos}
@@ -286,7 +286,7 @@ function ReportButton({ playerId, hasReport, isGenerating, generateReport, navig
     return (
       <button
         onClick={(e) => { e.stopPropagation(); navigate(`/players/${playerId}`) }}
-        className="inline-flex items-center gap-1.5 text-secondary hover:text-secondary/80 transition-colors text-xs font-medium"
+        className="inline-flex items-center gap-1.5 text-secondary hover:text-secondary/80 transition-colors text-xs font-medium min-h-[44px]"
       >
         <Eye size={14} strokeWidth={1.5} />
         {t('common.view')}
@@ -299,7 +299,7 @@ function ReportButton({ playerId, hasReport, isGenerating, generateReport, navig
   return (
     <button
       onClick={(e) => { e.stopPropagation(); generateReport(playerId) }}
-      className="inline-flex items-center gap-1.5 text-primary hover:text-primary-light transition-colors text-xs font-medium"
+      className="inline-flex items-center gap-1.5 text-primary hover:text-primary-light transition-colors text-xs font-medium min-h-[44px]"
     >
       <FileText size={14} strokeWidth={1.5} />
       {t('common.generate')}

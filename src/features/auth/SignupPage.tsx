@@ -184,7 +184,7 @@ export function SignupPage() {
 
           <button
             onClick={() => { setStep('email'); setError(null) }}
-            className="mt-6 block w-full text-center text-sm font-medium text-on-surface-variant hover:text-on-surface"
+            className="mt-6 block w-full text-center text-sm font-medium text-on-surface-variant hover:text-on-surface min-h-[44px]"
           >
             {t('auth.useDifferentEmail')}
           </button>

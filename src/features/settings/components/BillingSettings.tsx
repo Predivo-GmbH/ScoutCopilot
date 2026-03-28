@@ -121,7 +121,7 @@ export function BillingSettings() {
         <div className="border-t border-outline-variant/30 pt-6">
           {!showCancelConfirm ? (
             <button
-              className="text-xs text-on-surface-variant hover:text-error transition-colors"
+              className="text-xs text-on-surface-variant hover:text-error transition-colors min-h-[44px] inline-flex items-center"
               onClick={() => setShowCancelConfirm(true)}
             >
               {t('settings.billing.cancelSubscription')}
@@ -135,17 +135,18 @@ export function BillingSettings() {
                   <p className="text-xs text-on-surface-variant mb-3">
                     {t('settings.billing.cancelDescription', { tier: tierLabel })}
                   </p>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <Button
                       variant="destructive"
                       size="sm"
                       leftIcon={ExternalLink}
                       onClick={handleManageBilling}
                       loading={portalLoading}
+                      className="w-full sm:w-auto"
                     >
                       {t('settings.billing.cancelInStripe')}
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => setShowCancelConfirm(false)}>
+                    <Button variant="ghost" size="sm" onClick={() => setShowCancelConfirm(false)} className="w-full sm:w-auto">
                       {t('settings.billing.keepSubscription')}
                     </Button>
                   </div>

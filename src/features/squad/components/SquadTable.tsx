@@ -36,7 +36,7 @@ export function SquadTable({ players }: SquadTableProps) {
   return (
     <>
       {/* Mobile card layout */}
-      <div className="block sm:hidden space-y-3">
+      <div className="block md:hidden space-y-3">
         {sorted.map((player) => {
           const dot = statusDotStyles[player.status]
           const textColor = statusTextStyles[player.status]
@@ -89,7 +89,7 @@ export function SquadTable({ players }: SquadTableProps) {
       </div>
 
       {/* Desktop table layout */}
-      <div className="hidden sm:block bg-surface-container rounded-md overflow-hidden border border-outline-variant">
+      <div className="hidden md:block bg-surface-container rounded-md overflow-hidden border border-outline-variant">
         <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>

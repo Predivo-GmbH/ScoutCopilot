@@ -56,7 +56,7 @@ export function PositionGapCard({ gap }: { gap: PositionGap }) {
         <div className="px-4 py-3 border-t border-outline-variant/30">
           <button
             onClick={() => navigate(`/search?q=${encodeURIComponent(gap.searchQuery)}`)}
-            className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary-light transition-colors"
+            className="min-h-[44px] flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary-light transition-colors"
           >
             <Search size={14} strokeWidth={1.5} />
             {t('squad.findPlayers')}

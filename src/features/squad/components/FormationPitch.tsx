@@ -55,6 +55,7 @@ export function FormationPitch({ formation, players }: FormationPitchProps) {
               style={{ left: `${safeX}%`, bottom: `${safeY}%` }}
               onMouseEnter={() => player && setHoveredId(player.id)}
               onMouseLeave={() => setHoveredId(null)}
+              onClick={() => player && setHoveredId(hoveredId === player.id ? null : player.id)}
             >
               <div
                 className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-[0.625rem] sm:text-xs font-bold border-2 transition-transform ${

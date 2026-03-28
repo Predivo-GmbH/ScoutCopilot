@@ -17,7 +17,7 @@ export function CredentialSettings({ credentials }: CredentialSettingsProps) {
 
   return (
     <section className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h3 className="text-sm font-semibold uppercase tracking-widest text-on-surface-variant">{t('settings.credentials.heading')}</h3>
         <Button variant="secondary" size="sm">{t('settings.credentials.addConnection')}</Button>
       </div>
@@ -45,7 +45,7 @@ export function CredentialSettings({ credentials }: CredentialSettingsProps) {
             {cred.connected ? (
               <div className="bg-surface-container-lowest px-3 py-2 rounded-sm flex items-center justify-between border border-outline-variant">
                 <span className="font-data text-xs text-on-surface-variant">{cred.maskedKey}</span>
-                <div className="flex gap-3">
+                <div className="flex gap-1">
                   <button className="text-on-surface-variant hover:text-primary transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label={t('settings.credentials.revealKey', 'Reveal key')}>
                     <Eye size={14} strokeWidth={1.5} />
                   </button>

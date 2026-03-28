@@ -311,7 +311,7 @@ function RadarChart({ data }: { data: { label: string; value: number; average: n
   const gridLevels = [25, 50, 75, 100]
 
   return (
-    <div className="w-full max-w-[256px] mx-auto aspect-square relative">
+    <div className="w-full max-w-[256px] mx-auto aspect-square relative overflow-hidden">
       <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full" aria-hidden="true">
         {/* Grid */}
         {gridLevels.map((level) => (

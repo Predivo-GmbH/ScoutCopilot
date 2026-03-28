@@ -71,7 +71,7 @@ export function ResetPasswordPage() {
           </p>
           <Link
             to="/login"
-            className="mt-6 inline-block rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-primary-dark"
+            className="mt-6 rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-primary-dark min-h-[44px] inline-flex items-center"
           >
             {t('common.signIn')}
           </Link>

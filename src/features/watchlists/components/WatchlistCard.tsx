@@ -18,11 +18,11 @@ export function WatchlistCard({ watchlist, isSelected, onClick, onDelete }: Watc
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } }}
-      className={`bg-surface-container p-4 sm:p-6 rounded-md border transition-all cursor-pointer group focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1 ${
+      className={`bg-surface-container p-3 sm:p-5 rounded-md border transition-all cursor-pointer group focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1 ${
         isSelected ? 'border-primary' : 'border-outline-variant hover:border-outline-variant/60'
       }`}
     >
-      <div className="flex justify-between items-start gap-2 mb-3">
+      <div className="flex justify-between items-start gap-2 mb-2">
         <div className="min-w-0 flex-1">
           <h3 className="text-base font-semibold group-hover:text-primary transition-colors text-on-surface truncate">
             {watchlist.name}
@@ -50,11 +50,11 @@ export function WatchlistCard({ watchlist, isSelected, onClick, onDelete }: Watc
             e.stopPropagation()
             onDelete()
           }}
-          className="p-1 text-error md:text-error/0 md:group-hover:text-error hover:bg-error/10 rounded-sm transition-all min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0"
+          className="p-2 text-error md:text-error/0 md:group-hover:text-error hover:bg-error/10 rounded-sm transition-all min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0"
           aria-label={t('watchlists.deleteWatchlist')}
           title={t('watchlists.deleteWatchlist')}
         >
-          <Trash2 size={14} strokeWidth={1.5} />
+          <Trash2 size={16} strokeWidth={1.5} />
         </button>
       </div>
       {watchlist.description && (

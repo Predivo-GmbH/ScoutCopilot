@@ -42,7 +42,7 @@ export function AlertsPage() {
           <span className="sr-only">{t('common.loading', 'Loading...')}</span>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {alerts?.map((alert) => {
             const borderColor = alert.changeType === 'warning' ? 'border-l-warning' : alert.changeType === 'positive' ? 'border-l-tertiary' : 'border-l-outline-variant'
             return (

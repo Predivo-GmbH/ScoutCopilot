@@ -9,15 +9,15 @@ import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { playerReports } from '../../lib/mock-data'
 import { useGeneratedReports } from '../../lib/useGeneratedReportsHook'
 
-const recommendation = {
-  sign: { label: 'Sign', className: 'text-secondary bg-secondary/10 border-secondary/20' },
-  monitor: { label: 'Monitor', className: 'text-tertiary bg-tertiary/10 border-tertiary/20' },
-  pass: { label: 'Pass', className: 'text-error bg-error/10 border-error/20' },
-}
-
 export function ReportsListPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+
+  const recommendation = {
+    sign: { label: t('reportsList.badgeSign'), className: 'text-secondary bg-secondary/10 border-secondary/20' },
+    monitor: { label: t('reportsList.badgeMonitor'), className: 'text-tertiary bg-tertiary/10 border-tertiary/20' },
+    pass: { label: t('reportsList.badgePass'), className: 'text-error bg-error/10 border-error/20' },
+  }
   const { generatedReportIds, removeReport } = useGeneratedReports()
   const reports = Object.values(playerReports).filter((r) => generatedReportIds.includes(r.playerId))
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
@@ -49,7 +49,7 @@ export function ReportsListPage() {
           </p>
           <button
             onClick={() => navigate('/search')}
-            className="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-dark transition-colors"
+            className="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-dark transition-colors min-h-[44px]"
           >
             {t('reportsList.startSearch')}
           </button>
@@ -80,15 +80,15 @@ export function ReportsListPage() {
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div>
-                    <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('common.position')}</p>
+                    <p className="text-[0.625rem] text-on-surface-variant uppercase">{t('common.position')}</p>
                     <p className="font-data text-sm text-on-surface-variant">{report.position}</p>
                   </div>
                   <div>
-                    <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('common.age')}</p>
+                    <p className="text-[0.625rem] text-on-surface-variant uppercase">{t('common.age')}</p>
                     <p className="font-data text-sm">{report.age}</p>
                   </div>
                   <div>
-                    <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('reportsList.fitScore')}</p>
+                    <p className="text-[0.625rem] text-on-surface-variant uppercase">{t('reportsList.fitScore')}</p>
                     <p className="text-primary font-data font-semibold text-sm">{report.fitScore}</p>
                   </div>
                 </div>

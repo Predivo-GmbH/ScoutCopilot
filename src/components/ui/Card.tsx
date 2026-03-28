@@ -22,7 +22,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
           {header}
         </div>
       )}
-      <div className="p-6">{children}</div>
+      <div className="p-4 sm:p-6">{children}</div>
       {footer && (
         <div className="px-6 py-4 border-t border-outline-variant">
           {footer}

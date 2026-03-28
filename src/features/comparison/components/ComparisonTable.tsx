@@ -42,11 +42,12 @@ export function ComparisonTable({ players }: ComparisonTableProps) {
         <span className="text-sm font-semibold uppercase tracking-tight text-on-surface">{t('comparison.detailedMetrics')}</span>
         <span className="font-data text-[0.625rem] text-on-surface-variant uppercase">{t('comparison.currentSeason')}</span>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="border-b border-outline-variant bg-surface-container-high">
-              <th className="px-4 sm:px-6 py-3 text-[0.625rem] font-medium uppercase tracking-widest text-on-surface-variant sticky left-0 bg-surface-container-high z-10 min-w-[120px]">{t('comparison.metric')}</th>
+      <div className="relative">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-outline-variant bg-surface-container-high">
+                <th className="px-4 sm:px-6 py-3 text-[0.625rem] font-medium uppercase tracking-widest text-on-surface-variant sticky left-0 bg-surface-container-high z-10 min-w-[120px]">{t('comparison.metric')}</th>
               {players.map((p) => (
                 <th key={p.id} className="px-4 sm:px-6 py-3 text-[0.625rem] font-medium uppercase tracking-widest text-on-surface-variant text-right min-w-[80px]">
                   {p.name.split(' ').pop()}
@@ -77,8 +78,10 @@ export function ComparisonTable({ players }: ComparisonTableProps) {
                 </tr>
               )
             })}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface-container to-transparent" />
       </div>
     </div>
   )

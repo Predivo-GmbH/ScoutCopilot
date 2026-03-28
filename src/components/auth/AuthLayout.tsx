@@ -1,5 +1,6 @@
 import { Logo } from '../shared/Logo'
 import { ThemeToggle } from '../shared/ThemeToggle'
+import { LanguageSelector } from '../shared/LanguageSelector'
 
 export default function AuthLayout({
   children,
@@ -12,7 +13,10 @@ export default function AuthLayout({
     <div className="flex min-h-screen flex-col bg-background">
       <div className="flex h-14 shrink-0 items-center justify-between px-6">
         <Logo size="md" linkTo="/" />
-        <ThemeToggle className="p-2" />
+        <div className="flex items-center gap-2">
+          <LanguageSelector />
+          <ThemeToggle className="p-2" />
+        </div>
       </div>
       <div className="flex flex-1 items-center justify-center px-4">
         <div className={`w-full ${maxWidth}`}>{children}</div>

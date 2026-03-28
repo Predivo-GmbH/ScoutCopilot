@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { Plus, X } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
+import { Modal } from '../../components/ui/Modal'
+import { ScrollableTabBar } from '../../components/ui/ScrollableTabBar'
 import { useWatchlists } from './hooks/useWatchlists'
 import { useWatchlistActions } from '../../lib/useWatchlistActions'
 import { WatchlistCard } from './components/WatchlistCard'
@@ -70,61 +72,42 @@ export function WatchlistsPage() {
         <Button variant="primary" leftIcon={Plus} onClick={() => setShowNewForm(true)}>{t('watchlists.newWatchlist')}</Button>
       </div>
 
-      {/* New Watchlist Form */}
-      {showNewForm && (
-        <div className="bg-surface-container border border-outline-variant rounded-md p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-on-surface">{t('watchlists.createNew')}</h3>
-            <button onClick={() => setShowNewForm(false)} aria-label={t('common.close')} className="text-on-surface-variant hover:text-on-surface transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
-              <X size={16} strokeWidth={1.5} />
-            </button>
-          </div>
-          <div className="space-y-3">
-            <input
-              ref={nameInputRef}
-              type="text"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder={t('watchlists.watchlistName')}
-              aria-label={t('watchlists.watchlistName')}
-              className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
-              onKeyDown={(e) => { if (e.key === 'Enter') handleCreate() }}
-            />
-            <input
-              type="text"
-              value={newDesc}
-              onChange={(e) => setNewDesc(e.target.value)}
-              placeholder={t('watchlists.descriptionOptional')}
-              aria-label={t('watchlists.descriptionOptional')}
-              className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
-              onKeyDown={(e) => { if (e.key === 'Enter') handleCreate() }}
-            />
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" size="sm" onClick={() => setShowNewForm(false)}>{t('common.cancel')}</Button>
-              <Button variant="primary" size="sm" onClick={handleCreate} disabled={!newName.trim()}>{t('common.create')}</Button>
-            </div>
+      {/* New Watchlist Form — Modal */}
+      <Modal open={showNewForm} onClose={() => setShowNewForm(false)} title={t('watchlists.createNew')}>
+        <div className="space-y-3">
+          <input
+            ref={nameInputRef}
+            type="text"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder={t('watchlists.watchlistName')}
+            aria-label={t('watchlists.watchlistName')}
+            className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
+            onKeyDown={(e) => { if (e.key === 'Enter') handleCreate() }}
+          />
+          <input
+            type="text"
+            value={newDesc}
+            onChange={(e) => setNewDesc(e.target.value)}
+            placeholder={t('watchlists.descriptionOptional')}
+            aria-label={t('watchlists.descriptionOptional')}
+            className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
+            onKeyDown={(e) => { if (e.key === 'Enter') handleCreate() }}
+          />
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setShowNewForm(false)}>{t('common.cancel')}</Button>
+            <Button variant="primary" size="sm" onClick={handleCreate} disabled={!newName.trim()}>{t('common.create')}</Button>
           </div>
         </div>
-      )}
+      </Modal>
 
       {/* Filter Tabs */}
-      <div className="-mx-4 sm:-mx-6 px-4 sm:px-6">
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {filterTabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setFilter(tab.key)}
-              className={`px-4 py-2.5 text-xs font-semibold rounded-sm transition-colors whitespace-nowrap min-h-[44px] ${
-                filter === tab.key
-                  ? 'bg-surface-container-highest text-on-surface border border-primary/30'
-                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <ScrollableTabBar
+        tabs={filterTabs.map((t) => ({ key: t.key, label: t.label }))}
+        activeKey={filter}
+        onTabChange={(key) => setFilter(key as typeof filter)}
+        className="-mx-4 sm:-mx-6 px-4 sm:px-6"
+      />
 
       {/* Watchlist Grid */}
       {isLoading ? (

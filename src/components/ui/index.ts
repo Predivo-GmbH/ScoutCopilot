@@ -39,6 +39,9 @@ export type { SkeletonProps, SkeletonVariant } from './Skeleton'
 export { EmptyState } from './EmptyState'
 export type { EmptyStateProps } from './EmptyState'
 
+export { ScrollableTabBar } from './ScrollableTabBar'
+export type { ScrollableTabBarProps } from './ScrollableTabBar'
+
 // Domain-specific
 export { StatCard } from './StatCard'
 export type { StatCardProps, AccentColor } from './StatCard'

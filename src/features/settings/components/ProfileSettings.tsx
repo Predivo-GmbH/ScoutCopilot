@@ -58,7 +58,7 @@ export function ProfileSettings({ profile, onUpdate, onSave, saveStatus = 'idle'
                 <button
                   onClick={onSave}
                   disabled={saveStatus === 'saving'}
-                  className="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-light transition-colors disabled:opacity-50"
+                  className="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-light transition-colors disabled:opacity-50 min-h-[44px]"
                 >
                   {saveStatus === 'saving' ? (
                     <span className="flex items-center gap-2"><Loader2 size={14} className="animate-spin" /> {t('common.saving')}</span>

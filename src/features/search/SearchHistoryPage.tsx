@@ -90,7 +90,7 @@ export function SearchHistoryPage() {
                 <div className="w-10 h-10 rounded-md bg-surface-container-highest flex items-center justify-center shrink-0">
                   <Search size={16} strokeWidth={1.5} className="text-on-surface-variant" />
                 </div>
-                <div className="flex-1 min-w-0 order-last sm:order-none w-full sm:w-auto">
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-on-surface truncate">{s.query}</p>
                   <div className="flex items-center gap-3 mt-1 flex-wrap">
                     <span className="text-[0.625rem] font-data text-on-surface-variant">{formatDate(s.timestamp)}</span>

@@ -497,7 +497,10 @@
     "score": "SCORE:",
     "removePlayer": "Remove Player",
     "removeConfirm": "Are you sure you want to remove {{name}} from your scouted players? This will delete the generated report.",
-    "removeBtn": "Remove"
+    "removeBtn": "Remove",
+    "badgeSign": "Sign",
+    "badgeMonitor": "Monitor",
+    "badgePass": "Pass"
   },
   "comparison": {
     "heading": "Compare Players",

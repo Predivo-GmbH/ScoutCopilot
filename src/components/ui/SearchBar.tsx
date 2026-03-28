@@ -67,7 +67,7 @@ function SearchBar({
         {query && (
           <button
             onClick={() => { setQuery(''); onSearch('') }}
-            className="absolute right-14 p-1 text-on-surface-variant hover:text-on-surface rounded-md transition-colors"
+            className="absolute right-14 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-on-surface-variant hover:text-on-surface rounded-md transition-colors"
             aria-label={t('searchBar.clear')}
           >
             <X size={16} strokeWidth={1.5} />
@@ -75,7 +75,7 @@ function SearchBar({
         )}
         <button
           onClick={() => handleSubmit()}
-          className="absolute right-2 h-8 px-3 bg-primary text-on-primary text-[0.8125rem] font-medium rounded-md hover:bg-primary-dark transition-colors duration-[150ms]"
+          className="absolute right-2 h-10 min-h-[44px] px-3 bg-primary text-on-primary text-[0.8125rem] font-medium rounded-md hover:bg-primary-dark transition-colors duration-[150ms]"
         >
           {t('common.search')}
         </button>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { SlidersHorizontal, X } from 'lucide-react'
+import { SlidersHorizontal, X, ChevronDown } from 'lucide-react'
 import {
   positionOptions,
   leagueOptions,
@@ -75,7 +75,7 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
 
       {/* Advanced Filters Panel */}
       {showAdvanced && (
-        <div className="bg-surface-container border border-outline-variant rounded-md p-5">
+        <div className="bg-surface-container border border-outline-variant rounded-md p-3 sm:p-5">
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-xs font-bold uppercase tracking-widest text-on-surface">{t('filters.advancedFilters')}</h4>
             <button
@@ -157,7 +157,7 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
             <div className="mt-4 pt-4 border-t border-outline-variant/30">
               <button
                 onClick={() => onUpdate({ minFitScore: 0, minPassAccuracy: 0, minProgCarries: 0 })}
-                className="text-xs font-medium text-primary hover:text-primary-light transition-colors"
+                className="text-xs font-medium text-primary hover:text-primary-light transition-colors min-h-[44px] flex items-center"
               >
                 {t('filters.resetAdvanced')}
               </button>
@@ -182,16 +182,19 @@ function FilterSelect({ label, value, options, onChange }: {
       <label htmlFor={selectId} className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">
         {label}
       </label>
-      <select
-        id={selectId}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-surface-container border border-outline-variant rounded-md text-base md:text-sm py-2.5 px-3 text-on-surface focus:outline-none focus:border-primary transition-colors appearance-none min-h-[44px]"
-      >
-        {options.map((opt) => (
-          <option key={opt} value={opt}>{opt.startsWith('filterOptions.') ? t(opt) : opt}</option>
-        ))}
-      </select>
+      <div className="relative">
+        <select
+          id={selectId}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full bg-surface-container border border-outline-variant rounded-md text-base md:text-sm py-2.5 px-3 pr-9 text-on-surface focus:outline-none focus:border-primary transition-colors appearance-none min-h-[44px]"
+        >
+          {options.map((opt) => (
+            <option key={opt} value={opt}>{opt.startsWith('filterOptions.') ? t(opt) : opt}</option>
+          ))}
+        </select>
+        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" />
+      </div>
     </div>
   )
 }

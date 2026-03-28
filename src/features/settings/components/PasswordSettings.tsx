@@ -98,7 +98,7 @@ export function PasswordSettings() {
           <button
             type="submit"
             disabled={loading || !newPassword || !confirmPassword}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-on-primary transition-colors hover:bg-primary-dark disabled:opacity-50"
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-on-primary transition-colors hover:bg-primary-dark disabled:opacity-50 min-h-[44px]"
           >
             {loading ? t('settings.password.updating') : t('settings.password.updatePassword')}
           </button>

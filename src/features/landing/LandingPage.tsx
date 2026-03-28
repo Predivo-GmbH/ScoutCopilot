@@ -245,7 +245,7 @@ export function LandingPage() {
 
         {/* Mobile menu overlay */}
         {mobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 top-[64px] z-20" onClick={() => setMobileMenuOpen(false)}>
+          <div className="md:hidden fixed inset-0 top-[64px] z-20 bg-surface/80 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}>
             <div className="bg-surface-container-low border-b border-outline-variant/40 px-6 pb-4 flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
               <button onClick={() => scrollTo('features')} className="text-sm text-on-surface-variant text-left py-3 min-h-[44px]">{t('common.features')}</button>
               <button onClick={() => scrollTo('pricing')} className="text-sm text-on-surface-variant text-left py-3 min-h-[44px]">{t('common.pricing')}</button>
@@ -434,7 +434,7 @@ export function LandingPage() {
             </Trans>
           </p>
 
-          <div>
+          <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse bg-surface-container-low rounded-md overflow-hidden border border-outline-variant">
               <thead>
                 <tr className="border-b border-outline-variant/30">
@@ -482,7 +482,7 @@ export function LandingPage() {
             <div className="inline-flex rounded-full bg-surface-container-low border border-outline-variant p-1">
               <button
                 onClick={() => setInterval('month')}
-                className={`relative z-10 rounded-full px-5 py-1.5 text-sm font-medium transition-colors ${
+                className={`relative z-10 rounded-full px-5 py-1.5 text-sm font-medium transition-colors min-h-[44px] ${
                   interval === 'month'
                     ? 'bg-primary text-on-primary'
                     : 'text-on-surface-variant hover:text-on-surface'
@@ -492,7 +492,7 @@ export function LandingPage() {
               </button>
               <button
                 onClick={() => setInterval('year')}
-                className={`relative z-10 rounded-full px-5 py-1.5 text-sm font-medium transition-colors ${
+                className={`relative z-10 rounded-full px-5 py-1.5 text-sm font-medium transition-colors min-h-[44px] ${
                   interval === 'year'
                     ? 'bg-primary text-on-primary'
                     : 'text-on-surface-variant hover:text-on-surface'
@@ -575,7 +575,7 @@ export function LandingPage() {
             <table className="w-full min-w-[600px] text-left border-collapse bg-surface-container-low rounded-md overflow-hidden border border-outline-variant">
               <thead>
                 <tr className="border-b border-outline-variant/30">
-                  <th className="py-4 px-6 text-[0.625rem] font-semibold text-on-surface-variant uppercase tracking-widest">
+                  <th className="py-4 px-6 text-[0.625rem] font-semibold text-on-surface-variant uppercase tracking-widest sticky left-0 bg-surface-container-low z-10">
                     {t('landing.pricing.feature')}
                   </th>
                   <th className="py-4 px-6 text-[0.625rem] font-semibold text-center w-28 md:w-40 uppercase tracking-widest">
@@ -592,7 +592,7 @@ export function LandingPage() {
               <tbody className="divide-y divide-outline-variant/10">
                 {COMPARISON_ROWS.map((row) => (
                   <tr key={row.feature}>
-                    <td className="py-3 px-6 text-sm">{row.feature}</td>
+                    <td className="py-3 px-6 text-sm sticky left-0 bg-surface-container-low z-10">{row.feature}</td>
                     <ComparisonCell value={row.scout} />
                     <ComparisonCell value={row.pro} highlighted />
                     <ComparisonCell value={row.club} />
@@ -620,7 +620,7 @@ export function LandingPage() {
 
       {/* ── Final CTA ───────────────────────────────────────────── */}
       <section className="py-24 px-6 md:px-8 bg-surface-container-lowest">
-        <div className="max-w-3xl mx-auto bg-surface-container border border-outline-variant rounded-lg p-10 text-center">
+        <div className="max-w-3xl mx-auto bg-surface-container border border-outline-variant rounded-lg p-6 sm:p-10 text-center">
           <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-4">
             {t('landing.cta.heading')}
           </h2>

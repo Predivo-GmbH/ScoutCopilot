@@ -108,8 +108,8 @@ export function PricingPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
-            <LanguageSelector className="hidden sm:block" />
-            <Button variant="ghost" size="sm" onClick={() => navigate('/login')} className="hidden sm:inline-flex">{t('pricing.signIn')}</Button>
+            <LanguageSelector />
+            <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>{t('pricing.signIn')}</Button>
             <Button size="sm" onClick={() => navigate('/signup')}>{t('common.startFreeTrial')}</Button>
           </div>
         </div>

@@ -35,15 +35,15 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-outline-variant pb-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <button
             onClick={onBack}
-            className="text-on-surface-variant hover:text-on-surface transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="text-on-surface-variant hover:text-on-surface transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0"
             aria-label={t('common.back', 'Back')}
           >
             <ArrowLeft size={20} strokeWidth={1.5} />
           </button>
-          <h2 className="text-xl font-semibold text-on-surface">{watchlist.name}</h2>
+          <h2 className="text-xl font-semibold text-on-surface truncate">{watchlist.name}</h2>
           {watchlist.alertCount > 0 && (
             <span className="px-2 py-0.5 bg-tertiary/10 text-tertiary text-[0.625rem] font-semibold rounded-sm border border-tertiary/20">
               {watchlist.alertCount} {t('watchlists.alerts')}
@@ -56,7 +56,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
       {watchlist.players.length > 0 ? (
         <>
         {/* Mobile card layout */}
-        <div className="block sm:hidden space-y-3">
+        <div className="block md:hidden space-y-3">
           {watchlist.players.map((player) => {
             const alert = alertStatusStyles[player.alertStatus]
             return (
@@ -122,7 +122,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
         </div>
 
         {/* Desktop table layout */}
-        <div className="hidden sm:block bg-surface-container rounded-md overflow-hidden border border-outline-variant">
+        <div className="hidden md:block bg-surface-container rounded-md overflow-hidden border border-outline-variant">
           <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
