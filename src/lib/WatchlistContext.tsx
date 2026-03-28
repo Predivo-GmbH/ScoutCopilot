@@ -1,5 +1,6 @@
 import { useState, useCallback, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+// TODO [CQ-003]: Replace mock watchlist data with real Supabase queries (watchlists + watchlist_players tables)
 import { watchlists as initialWatchlists, type MockWatchlistPlayer } from './mock-data'
 import { WatchlistContext } from './WatchlistContextDef'
 
@@ -20,7 +21,7 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
         }
       }),
     )
-  }, [])
+  }, [t])
 
   const removePlayerFromWatchlist = useCallback((watchlistId: string, playerId: string) => {
     setLists((prev) =>
@@ -34,7 +35,7 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
         }
       }),
     )
-  }, [])
+  }, [t])
 
   const createWatchlist = useCallback((name: string, description: string): string => {
     const id = `w${Date.now()}`

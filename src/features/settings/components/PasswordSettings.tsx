@@ -59,7 +59,7 @@ export function PasswordSettings() {
             {t('settings.password.updatedSuccess')}
           </div>
         )}
-        <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
           <div>
             <label htmlFor="new-password" className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">
               {t('settings.password.newPassword')}
@@ -72,7 +72,7 @@ export function PasswordSettings() {
               minLength={8}
               value={newPassword}
               onChange={(e) => { setNewPassword(e.target.value); setError(null); setSuccess(false) }}
-              className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-sm font-data text-on-surface focus:outline-none focus:border-primary transition-colors"
+              className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-base md:text-sm font-data text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
               placeholder={t('settings.password.minChars')}
             />
             <PasswordStrength password={newPassword} />
@@ -89,7 +89,7 @@ export function PasswordSettings() {
               minLength={8}
               value={confirmPassword}
               onChange={(e) => { setConfirmPassword(e.target.value); setError(null); setSuccess(false) }}
-              className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-sm font-data text-on-surface focus:outline-none focus:border-primary transition-colors"
+              className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-base md:text-sm font-data text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
               placeholder={t('settings.password.repeatPassword')}
             />
           </div>
@@ -98,7 +98,7 @@ export function PasswordSettings() {
           <button
             type="submit"
             disabled={loading || !newPassword || !confirmPassword}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-on-primary transition-colors hover:bg-primary-dark disabled:opacity-50"
           >
             {loading ? t('settings.password.updating') : t('settings.password.updatePassword')}
           </button>

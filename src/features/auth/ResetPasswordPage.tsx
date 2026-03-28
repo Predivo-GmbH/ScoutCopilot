@@ -56,7 +56,7 @@ export function ResetPasswordPage() {
     return (
       <AuthLayout>
         <Helmet>
-          <title>Password Updated — ScoutCopilot</title>
+          <title>{t('auth.reset.passwordUpdated')} — ScoutCopilot</title>
           <meta name="robots" content="noindex" />
         </Helmet>
         <div className="text-center">
@@ -71,7 +71,7 @@ export function ResetPasswordPage() {
           </p>
           <Link
             to="/login"
-            className="mt-6 inline-block rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+            className="mt-6 inline-block rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-primary-dark"
           >
             {t('common.signIn')}
           </Link>
@@ -83,8 +83,8 @@ export function ResetPasswordPage() {
   return (
     <AuthLayout>
       <Helmet>
-        <title>Reset Password — ScoutCopilot</title>
-        <meta name="description" content="Choose a new password for your ScoutCopilot account." />
+        <title>{t('auth.reset.chooseNewPassword')} — ScoutCopilot</title>
+        <meta name="robots" content="noindex" />
       </Helmet>
       <h1 className="text-center text-2xl font-bold text-on-surface">
         {t('auth.reset.chooseNewPassword')}

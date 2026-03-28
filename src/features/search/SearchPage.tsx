@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Search as SearchIcon, ArrowRight, Sparkles } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
@@ -47,27 +48,29 @@ export function SearchPage() {
   }
 
   return (
-    <div className="p-6 md:p-8 space-y-6">
+    <div className="p-4 sm:p-6 md:p-8 space-y-6">
+      <Helmet><meta name="robots" content="noindex" /></Helmet>
       {/* Header */}
       <div className="flex items-center gap-2">
         <Sparkles size={16} strokeWidth={1.5} className="text-primary" />
         <span className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant">{t('search.heading')}</span>
       </div>
 
-      {/* Search Bar */}
-      <div className="flex gap-3">
-        <div className="relative flex-1">
-          <SearchIcon size={18} strokeWidth={1.5} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50" />
+      {/* Search Bar — full-width and prominent on mobile */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1 w-full">
+          <SearchIcon size={18} strokeWidth={1.5} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/70" />
           <input
             type="text"
             value={queryInput}
             onChange={(e) => setQueryInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={t('search.placeholder')}
-            className="w-full bg-surface-container border border-outline-variant rounded-md py-3.5 pl-12 pr-24 text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary transition-colors"
+            aria-label={t('search.placeholder')}
+            className="w-full bg-surface-container border border-outline-variant rounded-md py-3.5 pl-12 pr-4 sm:pr-24 text-base md:text-sm text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus:border-primary transition-colors min-h-[48px] sm:min-h-[44px]"
           />
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-surface-container-high px-2 py-0.5 rounded-sm border border-outline-variant/30">
-            <span className="text-[0.6rem] font-data text-on-surface-variant/50">{t('search.cmdK')}</span>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-surface-container-high px-2 py-0.5 rounded-sm border border-outline-variant/30 hidden sm:block">
+            <span className="text-[0.625rem] font-data text-on-surface-variant/70">{t('search.cmdK')}</span>
           </div>
         </div>
         <Button
@@ -76,7 +79,7 @@ export function SearchPage() {
           rightIcon={ArrowRight}
           onClick={handleSearch}
           loading={isLoading}
-          className="px-8"
+          className="w-full sm:w-auto px-8 min-h-[48px] sm:min-h-[44px]"
         >
           {t('search.searchBtn')}
         </Button>
@@ -100,7 +103,7 @@ export function SearchPage() {
           <SearchResultsTable results={results} isLoading={isLoading} />
           {/* Footer status */}
           {results.length > 0 && (
-            <div className="flex justify-between items-center text-[0.625rem] uppercase tracking-[0.2em] text-on-surface-variant/50 mt-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-[0.625rem] uppercase tracking-[0.2em] text-on-surface-variant/70 mt-4">
               <span className="font-data">{t('search.dbLastUpdated')}</span>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-secondary" />
@@ -139,7 +142,7 @@ function EmptyState({ onSuggestionClick }: { onSuggestionClick: (query: string) 
             <button
               key={query}
               onClick={() => onSuggestionClick(query)}
-              className="px-3 py-1.5 text-xs bg-surface-container-low border border-outline-variant rounded-md text-on-surface-variant hover:text-on-surface hover:border-primary/30 hover:bg-surface-container transition-colors"
+              className="px-3 py-2.5 text-xs bg-surface-container-low border border-outline-variant rounded-md text-on-surface-variant hover:text-on-surface hover:border-primary/30 hover:bg-surface-container transition-colors min-h-[44px]"
             >
               "{query}"
             </button>

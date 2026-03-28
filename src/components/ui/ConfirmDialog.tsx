@@ -74,7 +74,7 @@ export function ConfirmDialog({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-surface/80 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === overlayRef.current) onCancel()
       }}
@@ -82,7 +82,7 @@ export function ConfirmDialog({
       aria-modal="true"
       aria-labelledby="confirm-dialog-title"
     >
-      <div ref={contentRef} className="bg-surface-container rounded-md border border-outline-variant shadow-lg w-full max-w-sm mx-4 p-6">
+      <div ref={contentRef} className="bg-surface-container rounded-md border border-outline-variant shadow-lg w-full max-w-sm mx-4 p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-start gap-3 mb-4">
           {variant === 'destructive' && (
             <div className="w-10 h-10 rounded-md bg-error/10 flex items-center justify-center shrink-0">
@@ -94,14 +94,15 @@ export function ConfirmDialog({
             <p className="text-sm text-on-surface-variant mt-1">{message}</p>
           </div>
         </div>
-        <div className="flex justify-end gap-3">
-          <Button variant="ghost" size="sm" onClick={onCancel}>
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
+          <Button variant="ghost" size="sm" onClick={onCancel} className="w-full sm:w-auto">
             {resolvedCancelLabel}
           </Button>
           <Button
             variant={variant === 'destructive' ? 'destructive' : 'primary'}
             size="sm"
             onClick={onConfirm}
+            className="w-full sm:w-auto"
           >
             {resolvedConfirmLabel}
           </Button>

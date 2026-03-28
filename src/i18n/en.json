@@ -61,6 +61,8 @@
     "darkMode": "Dark mode",
     "lightMode": "Light mode",
     "close": "Close",
+    "dismiss": "Dismiss",
+    "toggleMenu": "Toggle menu",
     "skipToContent": "Skip to main content",
     "user": "User",
     "confirm": "Confirm",
@@ -376,7 +378,11 @@
       "good": "Good",
       "strong": "Strong"
     },
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "otp": {
+      "verificationCode": "Verification code",
+      "digit": "Digit {{current}} of {{total}}"
+    }
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -387,7 +393,10 @@
     "mySquads": "My Squads",
     "settings": "Settings",
     "expandSidebar": "Expand sidebar",
-    "collapseSidebar": "Collapse sidebar"
+    "collapseSidebar": "Collapse sidebar",
+    "navigationSidebar": "Navigation sidebar",
+    "navigationMenu": "Navigation menu",
+    "mainContent": "Main content"
   },
   "topbar": {
     "searchPlaceholder": "Search for players, matches, or run NL queries...",

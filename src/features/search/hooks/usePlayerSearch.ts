@@ -81,8 +81,8 @@ export function usePlayerSearch() {
 
       // Parse query for age constraints
       const age = parseAgeFromQuery(q)
-      if (age.max) results = results.filter((p) => p.age <= age.max!)
-      if (age.min) results = results.filter((p) => p.age >= age.min!)
+      if (age.max !== undefined) results = results.filter((p) => p.age <= (age.max as number))
+      if (age.min !== undefined) results = results.filter((p) => p.age >= (age.min as number))
 
       // Parse query for league
       const queryLeague = parseLeagueFromQuery(q)

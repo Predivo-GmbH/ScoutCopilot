@@ -5,13 +5,13 @@
  * Body: {} (uses authenticated user's JWT)
  */
 
-import { corsHeaders, handleCors } from '../_shared/cors.ts'
+import { handleCors } from '../_shared/cors.ts'
 import { sendEmail, accountDeletedEmail } from '../_shared/email.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
 Deno.serve(async (req) => {
-  const corsResponse = handleCors(req)
-  if (corsResponse) return corsResponse
+  const { corsHeaders, preflightResponse } = handleCors(req)
+  if (preflightResponse) return preflightResponse
 
   try {
     // Verify the user's JWT
@@ -125,12 +125,19 @@ Deno.serve(async (req) => {
       .delete()
       .eq('id', user.id)
 
-    // 10. Delete organization (if user was the owner)
+    // 10. Delete organization only if user is the sole member
     if (orgId) {
-      await supabaseAdmin
-        .from('organizations')
-        .delete()
-        .eq('id', orgId)
+      const { count: remainingMembers } = await supabaseAdmin
+        .from('profiles')
+        .select('id', { count: 'exact', head: true })
+        .eq('organization_id', orgId)
+
+      if (remainingMembers === 0) {
+        await supabaseAdmin
+          .from('organizations')
+          .delete()
+          .eq('id', orgId)
+      }
     }
 
     // Capture user info for confirmation email before deleting auth user

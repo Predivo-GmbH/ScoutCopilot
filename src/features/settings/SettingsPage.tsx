@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { ChevronRight } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
@@ -34,15 +35,35 @@ export function SettingsPage() {
     togglePreference,
   } = useSettings()
   return (
-    <div className="flex min-h-[calc(100vh-64px)]">
-      {/* Sub-Sidebar */}
-      <nav className="w-56 p-6 space-y-2 border-r border-outline-variant">
+    <div className="flex flex-col md:flex-row min-h-[calc(100vh-64px)]">
+      <Helmet><meta name="robots" content="noindex" /></Helmet>
+      {/* Mobile horizontal tabs */}
+      <div className="md:hidden overflow-x-auto border-b border-outline-variant">
+        <div className="flex px-4 py-2 gap-2 min-w-max">
+          {settingsTabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`px-3 py-2 text-xs whitespace-nowrap rounded-md transition-colors min-h-[44px] ${
+                activeTab === tab.key
+                  ? 'font-semibold bg-surface-container text-primary'
+                  : 'text-on-surface-variant hover:bg-surface-container/50'
+              }`}
+            >
+              {t(tab.labelKey)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop sub-sidebar */}
+      <nav className="hidden md:block w-56 p-6 space-y-2 border-r border-outline-variant">
         <p className="text-[0.625rem] font-medium text-on-surface-variant uppercase tracking-widest mb-4">{t('settings.heading')}</p>
         {settingsTabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center justify-between w-full px-3 py-2 text-xs rounded-md transition-colors ${
+            className={`flex items-center justify-between w-full px-3 py-2 text-xs rounded-md transition-colors min-h-[44px] ${
               activeTab === tab.key
                 ? 'font-semibold bg-surface-container text-primary'
                 : 'text-on-surface-variant hover:bg-surface-container/50'
@@ -55,7 +76,7 @@ export function SettingsPage() {
       </nav>
 
       {/* Content */}
-      <div className="flex-1 p-6 overflow-y-auto">
+      <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
         <div className="max-w-4xl space-y-6">
           {activeTab === 'profile' && (
             <>
@@ -84,7 +105,7 @@ export function SettingsPage() {
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">{t('settings.team.heading')}</h2>
               </div>
               <div className="p-6 space-y-4">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-wrap justify-between items-center gap-3">
                   <p className="text-sm text-on-surface-variant">{t('settings.team.seatsUsed', { used: 2, total: 3 })}</p>
                   <Button variant="secondary" size="sm">{t('settings.team.inviteMember')}</Button>
                 </div>
@@ -101,7 +122,7 @@ export function SettingsPage() {
               <div className="px-6 py-4 bg-surface-container-high border-b border-outline-variant">
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">{t('settings.notifications.heading')}</h2>
               </div>
-              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+              <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                 <ToggleRow
                   title={t('settings.notifications.emailAlerts')}
                   description={t('settings.notifications.emailAlertsSub')}
@@ -171,15 +192,20 @@ function ToggleRow({ title, description, enabled, onToggle }: {
       </div>
       <button
         onClick={onToggle}
-        className={`relative inline-flex h-5 w-9 items-center rounded-md transition-colors ${
-          enabled ? 'bg-secondary' : 'bg-surface-container-high'
-        }`}
+        role="switch"
+        aria-checked={enabled}
+        aria-label={title}
+        className="relative inline-flex items-center justify-center min-w-[44px] min-h-[44px]"
       >
-        <span
-          className={`inline-block h-3.5 w-3.5 transform rounded-sm bg-on-surface transition-transform ${
-            enabled ? 'translate-x-[18px]' : 'translate-x-[3px]'
-          }`}
-        />
+        <span className={`relative inline-flex h-6 w-11 items-center rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1 ${
+          enabled ? 'bg-secondary' : 'bg-surface-container-high'
+        }`}>
+          <span
+            className={`inline-block h-4 w-4 transform rounded-sm bg-on-surface transition-transform ${
+              enabled ? 'translate-x-[22px]' : 'translate-x-[3px]'
+            }`}
+          />
+        </span>
       </button>
     </div>
   )

@@ -1,3 +1,16 @@
+// SEC-020: Credentials are stored as plaintext JSON in `encrypted_credentials`
+// column (misnomer). Supabase Vault (pgsodium) is required for at-rest
+// encryption but is NOT available on the current Free plan. Migration steps
+// when upgrading to Pro: 1) enable pgsodium extension via Dashboard >
+// Database > Extensions, 2) create an encryption key via
+// `select * from pgsodium.create_key()`, 3) add DB functions
+// `encrypt_credentials(jsonb, uuid)` / `decrypt_credentials(bytea, uuid)`
+// wrapping pgsodium_encrypt/pgsodium_decrypt, 4) alter table to store
+// bytea instead of jsonb, 5) update this edge function to call the DB
+// functions. Current mitigation: RLS restricts access to org owners/admins,
+// GET never returns credential values, and the service-role key is only
+// available in edge functions (not client-side).
+
 // Credentials Edge Function — BYOK API credential management
 // GET    /credentials       — list org's credentials (masked)
 // POST   /credentials       — add new credential
@@ -5,12 +18,12 @@
 // DELETE /credentials       — remove credential
 
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
-import { corsHeaders, handleCors } from "../_shared/cors.ts";
+import { handleCors } from "../_shared/cors.ts";
 import { AuthError, getAuthContext, getServiceClient } from "../_shared/auth.ts";
 
 serve(async (req: Request) => {
-  const corsResponse = handleCors(req);
-  if (corsResponse) return corsResponse;
+  const { corsHeaders, preflightResponse } = handleCors(req);
+  if (preflightResponse) return preflightResponse;
 
   try {
     const auth = await getAuthContext(req);
@@ -27,13 +40,13 @@ serve(async (req: Request) => {
 
     switch (req.method) {
       case "GET":
-        return await handleGet(supabase, auth.organizationId);
+        return await handleGet(supabase, auth.organizationId, corsHeaders);
       case "POST":
-        return await handlePost(supabase, auth.organizationId, req);
+        return await handlePost(supabase, auth.organizationId, req, corsHeaders);
       case "PUT":
-        return await handlePut(supabase, auth.organizationId, req);
+        return await handlePut(supabase, auth.organizationId, req, corsHeaders);
       case "DELETE":
-        return await handleDelete(supabase, auth.organizationId, req);
+        return await handleDelete(supabase, auth.organizationId, req, corsHeaders);
       default:
         return new Response(JSON.stringify({ error: "Method not allowed" }), {
           status: 405,
@@ -59,7 +72,8 @@ serve(async (req: Request) => {
 
 async function handleGet(
   supabase: ReturnType<typeof getServiceClient>,
-  organizationId: string
+  organizationId: string,
+  corsHeaders: Record<string, string>
 ): Promise<Response> {
   const { data, error } = await supabase
     .from("api_credentials")
@@ -85,7 +99,8 @@ async function handleGet(
 async function handlePost(
   supabase: ReturnType<typeof getServiceClient>,
   organizationId: string,
-  req: Request
+  req: Request,
+  corsHeaders: Record<string, string>
 ): Promise<Response> {
   const { provider, username, password } = await req.json();
 
@@ -147,7 +162,8 @@ async function handlePost(
 async function handlePut(
   supabase: ReturnType<typeof getServiceClient>,
   organizationId: string,
-  req: Request
+  req: Request,
+  corsHeaders: Record<string, string>
 ): Promise<Response> {
   const { id, username, password, is_active } = await req.json();
 
@@ -232,7 +248,8 @@ async function handlePut(
 async function handleDelete(
   supabase: ReturnType<typeof getServiceClient>,
   organizationId: string,
-  req: Request
+  req: Request,
+  corsHeaders: Record<string, string>
 ): Promise<Response> {
   const { id } = await req.json();
 

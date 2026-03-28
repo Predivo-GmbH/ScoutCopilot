@@ -1,4 +1,5 @@
 import { useRef, useCallback, type ClipboardEvent, type KeyboardEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface OtpInputProps {
   length?: number
@@ -7,6 +8,7 @@ interface OtpInputProps {
 }
 
 export default function OtpInput({ length = 6, onComplete, disabled }: OtpInputProps) {
+  const { t } = useTranslation()
   const inputsRef = useRef<(HTMLInputElement | null)[]>([])
 
   const focusInput = useCallback((index: number) => {
@@ -81,7 +83,7 @@ export default function OtpInput({ length = 6, onComplete, disabled }: OtpInputP
   )
 
   return (
-    <div className="flex justify-center gap-2.5" role="group" aria-label="Verification code">
+    <div className="flex justify-center gap-2.5" role="group" aria-label={t('auth.otp.verificationCode')}>
       {Array.from({ length }, (_, i) => (
         <input
           key={i}
@@ -93,7 +95,7 @@ export default function OtpInput({ length = 6, onComplete, disabled }: OtpInputP
           disabled={disabled}
           autoFocus={i === 0}
           autoComplete="one-time-code"
-          aria-label={`Digit ${i + 1} of ${length}`}
+          aria-label={t('auth.otp.digit', { current: i + 1, total: length })}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           onPaste={i === 0 ? handlePaste : undefined}

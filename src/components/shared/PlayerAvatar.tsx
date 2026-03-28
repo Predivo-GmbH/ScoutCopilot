@@ -72,6 +72,7 @@ export function PlayerAvatar({ name, size = 36, className = '', imageUrl }: Play
       alt={name}
       width={size}
       height={size}
+      loading="lazy"
       className={`rounded-md shrink-0 object-cover ${className}`}
       onError={() => setImgError(true)}
     />

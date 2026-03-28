@@ -10,14 +10,18 @@ export function ImprintPage() {
     <div className="min-h-screen bg-surface text-on-surface">
       <Helmet>
         <title>{t('legal.imprint.title')} — ScoutCopilot</title>
-        <meta name="description" content="Legal imprint for ScoutCopilot by Predivo GmbH, Küssnacht am Rigi, Switzerland." />
+        <meta name="description" content={t('legal.imprint.metaDescription')} />
+        <link rel="canonical" href="https://scoutcopilot.com/imprint" />
+        <meta property="og:title" content={`${t('legal.imprint.title')} — ScoutCopilot`} />
+        <meta property="og:description" content={t('legal.imprint.metaDescription')} />
+        <meta property="og:url" content="https://scoutcopilot.com/imprint" />
       </Helmet>
       <nav className="w-full sticky top-0 z-30 bg-surface border-b border-outline-variant/20">
         <div className="flex justify-between items-center px-6 md:px-8 py-4 max-w-7xl mx-auto">
           <Logo size="md" linkTo="/" />
           <div className="flex items-center gap-4">
-            <Link to="/login" className="text-sm text-on-surface-variant hover:text-on-surface transition-colors">{t('common.signIn')}</Link>
-            <Link to="/signup" className="text-sm bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary-dark transition-colors">{t('common.getStarted')}</Link>
+            <Link to="/login" className="text-sm text-on-surface-variant hover:text-on-surface transition-colors min-h-[44px] flex items-center">{t('common.signIn')}</Link>
+            <Link to="/signup" className="text-sm bg-primary text-on-primary px-4 py-2 rounded-md font-medium hover:bg-primary-dark transition-colors min-h-[44px] flex items-center">{t('common.getStarted')}</Link>
           </div>
         </div>
       </nav>

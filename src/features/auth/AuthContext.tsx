@@ -64,7 +64,15 @@ async function fetchOrganization(orgId: string): Promise<Organization | null> {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>({
+  const isScreenshotMode = import.meta.env.VITE_SCREENSHOT_MODE === 'true'
+
+  const [state, setState] = useState<AuthState>(isScreenshotMode ? {
+    user: { id: 'screenshot-user', email: 'screenshot@test.com' } as User,
+    session: {} as Session,
+    profile: { id: 'screenshot-user', full_name: 'Screenshot User', organization_id: 'org-1' } as Profile,
+    organization: { id: 'org-1', name: 'Demo Club', slug: 'demo-club' } as Organization,
+    isLoading: false,
+  } : {
     user: null,
     session: null,
     profile: null,
@@ -101,6 +109,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [state.user])
 
   useEffect(() => {
+    if (isScreenshotMode) return
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       loadUserData(session?.user ?? null, session)
     })
@@ -112,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     )
 
     return () => subscription.unsubscribe()
-  }, [loadUserData])
+  }, [loadUserData, isScreenshotMode])
 
   // ── Auth methods ──────────────────────────────────────────────────────
 
@@ -157,8 +167,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
     if (error) throw error
 
-    // Send welcome email (best-effort)
-    supabase.functions.invoke('send-welcome', { method: 'POST' }).catch(() => {})
+    // Send welcome email (best-effort — silent fail in production)
+    supabase.functions.invoke('send-welcome', { method: 'POST' }).catch(() => { /* best-effort, no client-side logging */ })
   }, [])
 
   const hasCompletedProfile = useCallback(() => {

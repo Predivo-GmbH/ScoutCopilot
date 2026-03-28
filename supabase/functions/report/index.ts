@@ -2,7 +2,7 @@
 // POST /report { player_external_id: string, player_name: string }
 
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
-import { corsHeaders, handleCors } from "../_shared/cors.ts";
+import { handleCors } from "../_shared/cors.ts";
 import { AuthError, getAuthContext, getServiceClient } from "../_shared/auth.ts";
 import { generateScoutingReport } from "../_shared/claude.ts";
 import { getMockPlayer } from "../_shared/mock-data.ts";
@@ -10,8 +10,8 @@ import { getPlayerStats as wyscoutStats, getPlayerDetails as wyscoutDetails } fr
 import { getPlayerSeasonStats as statsbombStats } from "../_shared/providers/statsbomb.ts";
 
 serve(async (req: Request) => {
-  const corsResponse = handleCors(req);
-  if (corsResponse) return corsResponse;
+  const { corsHeaders, preflightResponse } = handleCors(req);
+  if (preflightResponse) return preflightResponse;
 
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {

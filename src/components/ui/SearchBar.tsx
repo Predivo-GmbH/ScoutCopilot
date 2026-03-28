@@ -43,7 +43,7 @@ function SearchBar({
   )
 
   return (
-    <div className={cn('w-full', className)}>
+    <div role="search" className={cn('w-full', className)}>
       <div className="relative flex items-center">
         <Search
           size={20}
@@ -56,9 +56,10 @@ function SearchBar({
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder ?? t('searchBar.placeholder')}
+          aria-label={placeholder ?? t('searchBar.placeholder')}
           className={cn(
-            'h-12 w-full pl-12 pr-4 bg-surface-container border border-outline-variant rounded-md',
-            'text-[0.9375rem] text-on-surface placeholder:text-on-surface-variant/50',
+            'h-12 min-h-[44px] w-full pl-12 pr-4 bg-surface-container border border-outline-variant rounded-md',
+            'text-base md:text-[0.9375rem] text-on-surface placeholder:text-on-surface-variant/70',
             'focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20',
             'transition-colors duration-[150ms] ease-out'
           )}
@@ -74,7 +75,7 @@ function SearchBar({
         )}
         <button
           onClick={() => handleSubmit()}
-          className="absolute right-2 h-8 px-3 bg-primary text-white text-[0.8125rem] font-medium rounded-md hover:bg-primary-dark transition-colors duration-[150ms]"
+          className="absolute right-2 h-8 px-3 bg-primary text-on-primary text-[0.8125rem] font-medium rounded-md hover:bg-primary-dark transition-colors duration-[150ms]"
         >
           {t('common.search')}
         </button>
@@ -86,6 +87,7 @@ function SearchBar({
             <button
               key={f.id}
               onClick={() => onRemoveFilter?.(f.id)}
+              aria-label={`${t('common.remove', 'Remove')}: ${f.label}`}
               className="group inline-flex items-center gap-1"
             >
               <Badge variant="primary">

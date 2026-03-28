@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate, useLocation, Navigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import {
   Star,
@@ -16,7 +17,6 @@ import { Card } from '../../components/ui/Card'
 import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 import { AddToWatchlistModal } from '../../components/shared/AddToWatchlistModal'
 import { usePlayerReport } from './hooks/usePlayerReport'
-import { exportPlayerPdf } from '../../lib/exportPdf'
 import type { MockWatchlistPlayer, WatchlistAlert } from '../../lib/mock-data'
 
 export function ReportPage() {
@@ -33,7 +33,7 @@ export function ReportPage() {
 
   if (isLoading || !report) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="p-4 sm:p-6 space-y-6">
         <div className="h-32 bg-surface-container-low rounded-md animate-pulse" />
         <div className="grid grid-cols-1 md:grid-cols-10 gap-6">
           <div className="md:col-span-6 space-y-6">
@@ -57,53 +57,54 @@ export function ReportPage() {
   const rec = recommendation[report.recommendation]
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
+      <Helmet><meta name="robots" content="noindex" /></Helmet>
       {/* Alert Context Banner */}
       {alertContext && showAlertBanner && (
         <div className={`rounded-md p-4 border flex items-center gap-3 ${
           alertContext.changeType === 'warning'
-            ? 'bg-amber-500/10 border-amber-500/30'
+            ? 'bg-warning/10 border-warning/30'
             : alertContext.changeType === 'positive'
             ? 'bg-secondary/10 border-secondary/30'
             : 'bg-surface-container border-outline-variant'
         }`}>
           <Zap size={16} strokeWidth={1.5} className={
-            alertContext.changeType === 'warning' ? 'text-amber-500' :
+            alertContext.changeType === 'warning' ? 'text-warning' :
             alertContext.changeType === 'positive' ? 'text-secondary' : 'text-on-surface-variant'
           } />
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-0.5">Watchlist Alert</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-0.5">{t('report.watchlistAlert')}</p>
             <p className={`text-sm font-data font-medium ${
-              alertContext.changeType === 'warning' ? 'text-amber-500' :
+              alertContext.changeType === 'warning' ? 'text-warning' :
               alertContext.changeType === 'positive' ? 'text-secondary' : 'text-on-surface'
             }`}>
               {alertContext.change}
             </p>
             <p className="text-[0.625rem] font-data text-on-surface-variant mt-0.5">{alertContext.timeAgo}</p>
           </div>
-          <button onClick={() => setShowAlertBanner(false)} className="text-on-surface-variant hover:text-on-surface transition-colors shrink-0">
+          <button onClick={() => setShowAlertBanner(false)} aria-label={t('common.dismiss')} className="text-on-surface-variant hover:text-on-surface transition-colors shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center">
             <X size={14} strokeWidth={1.5} />
           </button>
         </div>
       )}
 
       {/* Player Header */}
-      <div className="bg-surface-container rounded-md p-6 border border-outline-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="flex items-center gap-6">
+      <div className="bg-surface-container rounded-md p-4 sm:p-6 border border-outline-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center gap-4 sm:gap-6">
           <PlayerAvatar name={report.playerName} size={80} imageUrl={report.image} />
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-on-surface uppercase">{report.playerName}</h1>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
               <span className="text-sm text-on-surface-variant">{report.club}</span>
-              <span className="w-1 h-1 rounded-md bg-outline-variant" />
+              <span className="w-1 h-1 rounded-full bg-outline-variant" />
               {report.position.split(' / ').map((pos) => (
                 <span key={pos} className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-2 py-0.5 rounded-sm">
                   {pos}
                 </span>
               ))}
-              <span className="w-1 h-1 rounded-md bg-outline-variant" />
-              <span className="text-sm text-on-surface-variant">Age: {report.age}</span>
-              <span className="w-1 h-1 rounded-md bg-outline-variant" />
+              <span className="w-1 h-1 rounded-full bg-outline-variant" />
+              <span className="text-sm text-on-surface-variant">{t('common.age')}: {report.age}</span>
+              <span className="w-1 h-1 rounded-full bg-outline-variant" />
               <span className="text-sm text-on-surface-variant">{report.nationality}</span>
             </div>
             <div className="mt-2">
@@ -113,16 +114,19 @@ export function ReportPage() {
             </div>
           </div>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
           <Button variant="secondary" size="sm" leftIcon={Star} onClick={() => setWatchlistModalOpen(true)}>{t('report.addToWatchlist')}</Button>
           <Button variant="secondary" size="sm" leftIcon={GitCompareArrows} onClick={() => navigate(`/compare?add=${report.playerId}`)}>{t('report.compare')}</Button>
-          <Button variant="primary" size="sm" leftIcon={FileDown} onClick={() => exportPlayerPdf(report)}>{t('report.exportPdf')}</Button>
+          <Button variant="primary" size="sm" leftIcon={FileDown} onClick={async () => {
+            const { exportPlayerPdf } = await import('../../lib/exportPdf')
+            exportPlayerPdf(report)
+          }}>{t('report.exportPdf')}</Button>
         </div>
       </div>
 
       <AddToWatchlistModal
         open={watchlistModalOpen}
-        player={reportToWatchlistPlayer(report)}
+        player={reportToWatchlistPlayer(report, t)}
         onClose={() => setWatchlistModalOpen(false)}
       />
 
@@ -255,7 +259,7 @@ export function ReportPage() {
 
 // ─── Helpers ──────────────────────────────────────────────
 
-function reportToWatchlistPlayer(r: { playerId: string; playerName: string; club: string; position: string; age: number; nationality: string; image?: string; fitScore: number }): MockWatchlistPlayer {
+function reportToWatchlistPlayer(r: { playerId: string; playerName: string; club: string; position: string; age: number; nationality: string; image?: string; fitScore: number }, t: (key: string) => string): MockWatchlistPlayer {
   return {
     id: r.playerId,
     name: r.playerName,
@@ -264,7 +268,7 @@ function reportToWatchlistPlayer(r: { playerId: string; playerName: string; club
     age: r.age,
     nationality: r.nationality,
     image: r.image,
-    keyMetric: { value: String(r.fitScore), label: 'Fit Score' },
+    keyMetric: { value: String(r.fitScore), label: t('common.fitScore') },
     alertStatus: 'stable',
     addedDate: new Date().toISOString().split('T')[0],
     scoutScore: r.fitScore,
@@ -307,7 +311,7 @@ function RadarChart({ data }: { data: { label: string; value: number; average: n
   const gridLevels = [25, 50, 75, 100]
 
   return (
-    <div className="relative" style={{ width: size, height: size }}>
+    <div className="w-full max-w-[256px] mx-auto aspect-square relative">
       <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full" aria-hidden="true">
         {/* Grid */}
         {gridLevels.map((level) => (

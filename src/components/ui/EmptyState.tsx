@@ -16,7 +16,7 @@ function EmptyState({ icon: Icon, title, description, action, className }: Empty
       <Icon
         size={40}
         strokeWidth={1.5}
-        className="text-on-surface-variant/50 mb-4"
+        className="text-on-surface-variant/70 mb-4"
       />
       <h3 className="text-[1.125rem] font-semibold text-on-surface mb-1">
         {title}

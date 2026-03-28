@@ -61,6 +61,8 @@
     "darkMode": "Dunkelmodus",
     "lightMode": "Hellmodus",
     "close": "Schliessen",
+    "dismiss": "Verwerfen",
+    "toggleMenu": "Menü umschalten",
     "skipToContent": "Zum Hauptinhalt springen",
     "user": "Benutzer",
     "confirm": "Bestätigen",
@@ -376,7 +378,11 @@
       "good": "Gut",
       "strong": "Stark"
     },
-    "processing": "Verarbeitung..."
+    "processing": "Verarbeitung...",
+    "otp": {
+      "verificationCode": "Bestätigungscode",
+      "digit": "Ziffer {{current}} von {{total}}"
+    }
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -387,7 +393,10 @@
     "mySquads": "Meine Kader",
     "settings": "Einstellungen",
     "expandSidebar": "Seitenleiste ausklappen",
-    "collapseSidebar": "Seitenleiste einklappen"
+    "collapseSidebar": "Seitenleiste einklappen",
+    "navigationSidebar": "Navigationsleiste",
+    "navigationMenu": "Navigationsmenü",
+    "mainContent": "Hauptinhalt"
   },
   "topbar": {
     "searchPlaceholder": "Spieler suchen, Spiele finden oder NL-Abfragen starten...",

@@ -182,6 +182,7 @@ returns uuid
 language sql
 stable
 security definer
+set search_path = public
 as $$
   select organization_id
   from profiles

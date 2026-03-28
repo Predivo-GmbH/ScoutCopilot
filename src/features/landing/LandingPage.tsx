@@ -173,9 +173,28 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-primary focus:text-on-primary focus:px-4 focus:py-2 focus:rounded-md">{t('common.skipToContent')}</a>
       <Helmet>
         <title>{t('landing.meta.title')}</title>
         <meta name="description" content={t('landing.meta.description')} />
+        <link rel="canonical" href="https://scoutcopilot.com" />
+        <meta property="og:title" content={t('landing.meta.title')} />
+        <meta property="og:description" content={t('landing.meta.description')} />
+        <meta property="og:url" content="https://scoutcopilot.com" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: faqItems.map((item) => ({
+              '@type': 'Question',
+              name: item.question,
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: item.answer,
+              },
+            })),
+          })}
+        </script>
       </Helmet>
       {/* ── Navigation ──────────────────────────────────────────── */}
       <header>
@@ -215,9 +234,10 @@ export function LandingPage() {
 
           {/* Mobile hamburger */}
           <button
-            className="md:hidden text-on-surface-variant"
+            className="md:hidden text-on-surface-variant min-w-[44px] min-h-[44px] flex items-center justify-center"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
+            aria-label={t('common.toggleMenu')}
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <XIcon size={24} strokeWidth={1.5} /> : <Menu size={24} strokeWidth={1.5} />}
           </button>
@@ -226,13 +246,15 @@ export function LandingPage() {
         {/* Mobile menu overlay */}
         {mobileMenuOpen && (
           <div className="md:hidden fixed inset-0 top-[64px] z-20" onClick={() => setMobileMenuOpen(false)}>
-            <div className="bg-surface-container-low border-b border-outline-variant/40 px-6 pb-4 flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
-              <button onClick={() => scrollTo('features')} className="text-sm text-on-surface-variant text-left py-2">{t('common.features')}</button>
-              <button onClick={() => scrollTo('pricing')} className="text-sm text-on-surface-variant text-left py-2">{t('common.pricing')}</button>
-              <button onClick={() => scrollTo('faq')} className="text-sm text-on-surface-variant text-left py-2">{t('common.faq')}</button>
-              <div className="flex items-center gap-3 pt-2">
+            <div className="bg-surface-container-low border-b border-outline-variant/40 px-6 pb-4 flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
+              <button onClick={() => scrollTo('features')} className="text-sm text-on-surface-variant text-left py-3 min-h-[44px]">{t('common.features')}</button>
+              <button onClick={() => scrollTo('pricing')} className="text-sm text-on-surface-variant text-left py-3 min-h-[44px]">{t('common.pricing')}</button>
+              <button onClick={() => scrollTo('faq')} className="text-sm text-on-surface-variant text-left py-3 min-h-[44px]">{t('common.faq')}</button>
+              <div className="flex flex-wrap items-center gap-3 pt-2">
                 <LanguageSelector />
                 <ThemeToggle className="p-2" />
+              </div>
+              <div className="flex flex-wrap gap-3 pt-2">
                 <Button variant="secondary" size="sm" onClick={() => navigate('/login')}>{t('common.logIn')}</Button>
                 <Button size="sm" onClick={() => navigate('/signup')}>{t('common.getStarted')}</Button>
               </div>
@@ -242,7 +264,7 @@ export function LandingPage() {
       </nav>
       </header>
 
-      <main>
+      <main id="main-content">
       {/* ── Hero ────────────────────────────────────────────────── */}
       <section className="pt-32 pb-24 md:pt-40 md:pb-32 px-6 md:px-8">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 md:gap-16 items-center">
@@ -303,7 +325,7 @@ export function LandingPage() {
               </p>
               {/* Mock search input */}
               <div className="bg-surface-container border border-outline-variant rounded-md p-3 flex items-center gap-3">
-                <Search size={14} strokeWidth={1.5} className="text-on-surface-variant/50 shrink-0" />
+                <Search size={14} strokeWidth={1.5} className="text-on-surface-variant/70 shrink-0" />
                 <span className="font-mono text-xs text-on-surface-variant">
                   {t('landing.features.nlSearch.mock')}
                 </span>
@@ -412,17 +434,17 @@ export function LandingPage() {
             </Trans>
           </p>
 
-          <div className="overflow-x-auto">
+          <div>
             <table className="w-full text-left border-collapse bg-surface-container-low rounded-md overflow-hidden border border-outline-variant">
               <thead>
                 <tr className="border-b border-outline-variant/30">
-                  <th className="py-4 px-6 text-[0.625rem] font-semibold text-on-surface-variant uppercase tracking-widest">
+                  <th className="py-4 px-3 sm:px-6 text-[0.625rem] font-semibold text-on-surface-variant uppercase tracking-widest">
                     {t('landing.roi.colTask')}
                   </th>
-                  <th className="py-4 px-6 text-[0.625rem] font-semibold text-center uppercase tracking-widest">
+                  <th className="py-4 px-3 sm:px-6 text-[0.625rem] font-semibold text-center uppercase tracking-widest">
                     {t('landing.roi.colManual')}
                   </th>
-                  <th className="py-4 px-6 text-[0.625rem] font-semibold text-center uppercase tracking-widest text-secondary-light">
+                  <th className="py-4 px-3 sm:px-6 text-[0.625rem] font-semibold text-center uppercase tracking-widest text-secondary-light">
                     {t('landing.roi.colCopilot')}
                   </th>
                 </tr>
@@ -430,11 +452,11 @@ export function LandingPage() {
               <tbody className="divide-y divide-outline-variant/10">
                 {ROI_ROWS.map((r) => (
                   <tr key={r.task}>
-                    <td className="py-3 px-6 text-sm">{r.task}</td>
-                    <td className="py-3 px-6 text-center font-mono text-xs text-on-surface-variant">
+                    <td className="py-3 px-3 sm:px-6 text-sm">{r.task}</td>
+                    <td className="py-3 px-3 sm:px-6 text-center font-mono text-xs text-on-surface-variant">
                       {r.manual}
                     </td>
-                    <td className="py-3 px-6 text-center font-mono text-xs text-secondary-light">
+                    <td className="py-3 px-3 sm:px-6 text-center font-mono text-xs text-secondary-light">
                       {r.copilot}
                     </td>
                   </tr>
@@ -462,7 +484,7 @@ export function LandingPage() {
                 onClick={() => setInterval('month')}
                 className={`relative z-10 rounded-full px-5 py-1.5 text-sm font-medium transition-colors ${
                   interval === 'month'
-                    ? 'bg-primary text-white'
+                    ? 'bg-primary text-on-primary'
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
@@ -472,7 +494,7 @@ export function LandingPage() {
                 onClick={() => setInterval('year')}
                 className={`relative z-10 rounded-full px-5 py-1.5 text-sm font-medium transition-colors ${
                   interval === 'year'
-                    ? 'bg-primary text-white'
+                    ? 'bg-primary text-on-primary'
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
@@ -501,7 +523,7 @@ export function LandingPage() {
                   }`}
                 >
                   {tier.highlighted && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[0.625rem] font-bold px-3 py-1 rounded-sm uppercase tracking-widest">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-on-primary text-[0.625rem] font-bold px-3 py-1 rounded-sm uppercase tracking-widest">
                       {t('landing.pricing.mostPopular')}
                     </div>
                   )}
@@ -550,7 +572,7 @@ export function LandingPage() {
 
           {/* Comparison table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse bg-surface-container-low rounded-md overflow-hidden border border-outline-variant">
+            <table className="w-full min-w-[600px] text-left border-collapse bg-surface-container-low rounded-md overflow-hidden border border-outline-variant">
               <thead>
                 <tr className="border-b border-outline-variant/30">
                   <th className="py-4 px-6 text-[0.625rem] font-semibold text-on-surface-variant uppercase tracking-widest">
@@ -626,20 +648,20 @@ export function LandingPage() {
             <Logo size="sm" linkTo="/" />
             <p className="text-on-surface-variant text-xs mt-1">{t('landing.footer.tagline')}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-6 text-sm text-on-surface-variant">
-            <button onClick={() => scrollTo('features')} className="hover:text-on-surface transition-colors">
+          <nav className="grid grid-cols-3 sm:flex sm:flex-wrap items-center justify-center gap-x-6 gap-y-1 text-sm text-on-surface-variant text-center">
+            <button onClick={() => scrollTo('features')} className="hover:text-on-surface transition-colors py-2 min-h-[44px] flex items-center justify-center">
               {t('common.features')}
             </button>
-            <button onClick={() => scrollTo('pricing')} className="hover:text-on-surface transition-colors">
+            <button onClick={() => scrollTo('pricing')} className="hover:text-on-surface transition-colors py-2 min-h-[44px] flex items-center justify-center">
               {t('common.pricing')}
             </button>
-            <button onClick={() => scrollTo('faq')} className="hover:text-on-surface transition-colors">
+            <button onClick={() => scrollTo('faq')} className="hover:text-on-surface transition-colors py-2 min-h-[44px] flex items-center justify-center">
               {t('common.faq')}
             </button>
-            <Link to="/terms" className="hover:text-on-surface transition-colors">{t('common.terms')}</Link>
-            <Link to="/privacy" className="hover:text-on-surface transition-colors">{t('common.privacy')}</Link>
-            <Link to="/imprint" className="hover:text-on-surface transition-colors">{t('common.imprint')}</Link>
-          </div>
+            <Link to="/terms" className="hover:text-on-surface transition-colors py-2 min-h-[44px] flex items-center justify-center">{t('common.terms')}</Link>
+            <Link to="/privacy" className="hover:text-on-surface transition-colors py-2 min-h-[44px] flex items-center justify-center">{t('common.privacy')}</Link>
+            <Link to="/imprint" className="hover:text-on-surface transition-colors py-2 min-h-[44px] flex items-center justify-center">{t('common.imprint')}</Link>
+          </nav>
           <p className="text-on-surface-variant text-xs">{t('common.copyright')}</p>
         </div>
       </footer>
@@ -651,13 +673,15 @@ export function LandingPage() {
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false)
+  const panelId = `faq-${question.replace(/\s+/g, '-').toLowerCase().slice(0, 30)}`
 
   return (
     <div className="bg-surface-container-low border border-outline-variant rounded-md overflow-hidden">
       <button
         onClick={() => setOpen(!open)}
         aria-expanded={open}
-        className="w-full flex items-center justify-between p-6 text-left"
+        aria-controls={panelId}
+        className="w-full flex items-center justify-between p-6 text-left min-h-[44px]"
       >
         <span className="font-semibold text-sm pr-4">{question}</span>
         <ChevronDown
@@ -667,7 +691,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
         />
       </button>
       {open && (
-        <div className="px-6 pb-6">
+        <div id={panelId} className="px-6 pb-6">
           <p className="text-on-surface-variant text-sm leading-relaxed">{answer}</p>
         </div>
       )}

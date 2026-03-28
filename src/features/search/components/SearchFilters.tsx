@@ -52,13 +52,13 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
           options={footOptions}
           onChange={(v) => onUpdate({ foot: v })}
         />
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+        <div className="flex flex-col gap-1.5 col-span-1 sm:col-span-2 md:col-span-1">
+          <label className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant hidden md:block">
             &nbsp;
           </label>
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className={`flex items-center justify-center gap-2 bg-transparent border rounded-md text-xs font-bold uppercase tracking-widest transition-colors h-[42px] ${
+            className={`flex items-center justify-center gap-2 bg-transparent border rounded-md text-xs font-bold uppercase tracking-widest transition-colors min-h-[44px] w-full ${
               showAdvanced || hasAdvancedFilters
                 ? 'border-primary text-primary hover:bg-primary/5'
                 : 'border-outline-variant text-on-surface-variant hover:bg-surface-variant hover:text-on-surface'
@@ -81,7 +81,7 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
             <button
               onClick={() => setShowAdvanced(false)}
               aria-label={t('filters.closeAdvancedFilters', 'Close advanced filters')}
-              className="text-on-surface-variant hover:text-on-surface transition-colors"
+              className="text-on-surface-variant hover:text-on-surface transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
               <X size={14} strokeWidth={1.5} />
             </button>
@@ -186,7 +186,7 @@ function FilterSelect({ label, value, options, onChange }: {
         id={selectId}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="bg-surface-container border border-outline-variant rounded-md text-sm py-2.5 px-3 text-on-surface focus:outline-none focus:border-primary transition-colors appearance-none"
+        className="w-full bg-surface-container border border-outline-variant rounded-md text-base md:text-sm py-2.5 px-3 text-on-surface focus:outline-none focus:border-primary transition-colors appearance-none min-h-[44px]"
       >
         {options.map((opt) => (
           <option key={opt} value={opt}>{opt.startsWith('filterOptions.') ? t(opt) : opt}</option>

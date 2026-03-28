@@ -18,14 +18,15 @@ export function OrgSettings({ org, onUpdate, onSave, saveStatus = 'idle' }: OrgS
       </div>
       <div className="p-6">
         <div>
-          <label className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">
+          <label htmlFor="org-name" className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">
             {t('settings.org.clubOrg')}
           </label>
           <input
+            id="org-name"
             type="text"
             value={org.name}
             onChange={(e) => onUpdate({ name: e.target.value })}
-            className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-sm font-data text-on-surface focus:outline-none focus:border-primary transition-colors"
+            className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-base md:text-sm font-data text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
           />
         </div>
       </div>
@@ -34,7 +35,7 @@ export function OrgSettings({ org, onUpdate, onSave, saveStatus = 'idle' }: OrgS
           <button
             onClick={onSave}
             disabled={saveStatus === 'saving'}
-            className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary-light transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-light transition-colors disabled:opacity-50"
           >
             {saveStatus === 'saving' ? (
               <span className="flex items-center gap-2"><Loader2 size={14} className="animate-spin" /> {t('common.saving')}</span>

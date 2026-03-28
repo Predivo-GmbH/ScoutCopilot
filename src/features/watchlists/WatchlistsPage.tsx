@@ -48,7 +48,7 @@ export function WatchlistsPage() {
 
   if (selectedWatchlist) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <WatchlistDetail
           watchlist={selectedWatchlist}
           onBack={clearSelection}
@@ -59,7 +59,7 @@ export function WatchlistsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       <Helmet><meta name="robots" content="noindex" /></Helmet>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -75,7 +75,7 @@ export function WatchlistsPage() {
         <div className="bg-surface-container border border-outline-variant rounded-md p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-on-surface">{t('watchlists.createNew')}</h3>
-            <button onClick={() => setShowNewForm(false)} aria-label="Close" className="text-on-surface-variant hover:text-on-surface transition-colors">
+            <button onClick={() => setShowNewForm(false)} aria-label={t('common.close')} className="text-on-surface-variant hover:text-on-surface transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
               <X size={16} strokeWidth={1.5} />
             </button>
           </div>
@@ -87,7 +87,7 @@ export function WatchlistsPage() {
               onChange={(e) => setNewName(e.target.value)}
               placeholder={t('watchlists.watchlistName')}
               aria-label={t('watchlists.watchlistName')}
-              className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-sm text-on-surface focus:outline-none focus:border-primary transition-colors"
+              className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
               onKeyDown={(e) => { if (e.key === 'Enter') handleCreate() }}
             />
             <input
@@ -96,7 +96,7 @@ export function WatchlistsPage() {
               onChange={(e) => setNewDesc(e.target.value)}
               placeholder={t('watchlists.descriptionOptional')}
               aria-label={t('watchlists.descriptionOptional')}
-              className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-sm text-on-surface focus:outline-none focus:border-primary transition-colors"
+              className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
               onKeyDown={(e) => { if (e.key === 'Enter') handleCreate() }}
             />
             <div className="flex justify-end gap-2">
@@ -108,28 +108,31 @@ export function WatchlistsPage() {
       )}
 
       {/* Filter Tabs */}
-      <div className="flex gap-2 overflow-x-auto">
-        {filterTabs.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setFilter(tab.key)}
-            className={`px-4 py-2.5 text-xs font-semibold rounded-sm transition-colors whitespace-nowrap min-h-[44px] ${
-              filter === tab.key
-                ? 'bg-surface-container-highest text-on-surface border border-primary/30'
-                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="-mx-4 sm:-mx-6 px-4 sm:px-6">
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {filterTabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setFilter(tab.key)}
+              className={`px-4 py-2.5 text-xs font-semibold rounded-sm transition-colors whitespace-nowrap min-h-[44px] ${
+                filter === tab.key
+                  ? 'bg-surface-container-highest text-on-surface border border-primary/30'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Watchlist Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4" role="status" aria-live="polite">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="h-32 bg-surface-container-low rounded-md animate-pulse" />
           ))}
+          <span className="sr-only">{t('common.loading', 'Loading...')}</span>
         </div>
       ) : lists.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">

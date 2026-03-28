@@ -38,7 +38,8 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
-            className="text-on-surface-variant hover:text-on-surface transition-colors"
+            className="text-on-surface-variant hover:text-on-surface transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label={t('common.back', 'Back')}
           >
             <ArrowLeft size={20} strokeWidth={1.5} />
           </button>
@@ -53,7 +54,76 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
 
       {/* Player Table */}
       {watchlist.players.length > 0 ? (
-        <div className="bg-surface-container rounded-md overflow-hidden border border-outline-variant">
+        <>
+        {/* Mobile card layout */}
+        <div className="block sm:hidden space-y-3">
+          {watchlist.players.map((player) => {
+            const alert = alertStatusStyles[player.alertStatus]
+            return (
+              <div
+                key={player.id}
+                className="bg-surface-container rounded-md border border-outline-variant p-4 space-y-3"
+              >
+                <div className="flex items-center gap-3">
+                  <PlayerAvatar name={player.name} size={40} imageUrl={player.image} />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-on-surface truncate">{player.name}</p>
+                    <p className="text-[0.625rem] text-on-surface-variant font-data">
+                      {player.nationality} | {t('watchlists.score')} {player.scoutScore}
+                    </p>
+                  </div>
+                  <span className="px-2 py-1 bg-surface-container-low rounded-sm text-[0.625rem] font-semibold text-on-surface-variant uppercase shrink-0">
+                    {player.club}
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div>
+                    <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('common.position')}</p>
+                    <p className="font-data text-sm text-on-surface-variant">{player.position}</p>
+                  </div>
+                  <div>
+                    <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('common.age')}</p>
+                    <p className="font-data text-sm">{player.age}</p>
+                  </div>
+                  <div>
+                    <p className="text-[0.5625rem] text-on-surface-variant uppercase">{player.keyMetric.label}</p>
+                    <p className="text-primary font-data font-semibold text-sm">{player.keyMetric.value}</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-md ${alert.dot}`} />
+                    <span className={`text-[0.6875rem] font-semibold ${alert.text} uppercase tracking-tight`}>
+                      {alert.label}
+                    </span>
+                  </div>
+                  <span className="font-data text-on-surface-variant text-[0.6875rem]">{player.addedDate}</span>
+                </div>
+                <div className="flex items-center gap-2 pt-1 border-t border-outline-variant">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    leftIcon={FileText}
+                    onClick={() => navigate(`/players/${player.id}`)}
+                  >
+                    {t('common.report')}
+                  </Button>
+                  <button
+                    onClick={() => setDeleteTarget({ id: player.id, name: player.name })}
+                    className="p-1 text-error hover:bg-error/10 rounded-sm transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    aria-label={t('watchlists.removeFromWatchlist')}
+                  >
+                    <Trash2 size={14} strokeWidth={1.5} />
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Desktop table layout */}
+        <div className="hidden sm:block bg-surface-container rounded-md overflow-hidden border border-outline-variant">
+          <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="bg-surface-container-low text-[0.625rem] font-medium text-on-surface-variant uppercase tracking-widest border-b border-outline-variant">
@@ -109,7 +179,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
                     </td>
                     <td className="px-4 py-4 font-data text-on-surface-variant text-[0.6875rem]">{player.addedDate}</td>
                     <td className="px-4 py-4 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex justify-end gap-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -126,7 +196,8 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
                             e.stopPropagation()
                             setDeleteTarget({ id: player.id, name: player.name })
                           }}
-                          className="p-1 text-error hover:bg-error/10 rounded-sm transition-colors"
+                          className="p-1 text-error hover:bg-error/10 rounded-sm transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                          aria-label={t('watchlists.removeFromWatchlist')}
                         >
                           <Trash2 size={14} strokeWidth={1.5} />
                         </button>
@@ -137,7 +208,9 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
               })}
             </tbody>
           </table>
+          </div>
         </div>
+        </>
       ) : (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <p className="text-sm text-on-surface-variant">{t('watchlists.noPlayersYet')}</p>

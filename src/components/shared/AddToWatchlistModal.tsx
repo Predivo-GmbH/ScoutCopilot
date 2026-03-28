@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { Plus, Check, Minus, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/Button'
@@ -24,8 +24,48 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
   const [newName, setNewName] = useState('')
   const [newDesc, setNewDesc] = useState('')
   const overlayRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
   const nameInputRef = useCallback((node: HTMLInputElement | null) => {
     node?.focus()
+  }, [])
+
+  // Focus trap and auto-focus
+  useEffect(() => {
+    const previouslyFocused = document.activeElement as HTMLElement | null
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Tab' && contentRef.current) {
+        const focusable = contentRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    // Auto-focus first focusable element
+    const timer = setTimeout(() => {
+      const el = contentRef.current?.querySelector<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+      el?.focus()
+    }, 50)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      clearTimeout(timer)
+      previouslyFocused?.focus()
+    }
   }, [])
 
   function isPlayerInWatchlist(watchlistId: string): boolean {
@@ -53,19 +93,22 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-surface/80 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === overlayRef.current) onClose()
       }}
       onKeyDown={(e) => {
         if (e.key === 'Escape') onClose()
       }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="add-to-watchlist-title"
     >
-      <div className="bg-surface-container rounded-md border border-outline-variant shadow-lg w-full max-w-md mx-4">
+      <div ref={contentRef} className="bg-surface-container rounded-md border border-outline-variant shadow-lg w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
-          <h3 className="text-base font-semibold text-on-surface">{t('addToWatchlist.heading')}</h3>
-          <button onClick={onClose} className="text-on-surface-variant hover:text-on-surface transition-colors">
+          <h3 id="add-to-watchlist-title" className="text-base font-semibold text-on-surface">{t('addToWatchlist.heading')}</h3>
+          <button onClick={onClose} aria-label={t('common.close')} className="text-on-surface-variant hover:text-on-surface transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
             <X size={18} strokeWidth={1.5} />
           </button>
         </div>
@@ -84,7 +127,7 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
               <button
                 key={w.id}
                 onClick={() => handleToggle(w.id)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-left transition-colors group/item ${
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-left transition-colors group/item min-h-[44px] ${
                   isIn
                     ? 'bg-secondary/5 text-on-surface hover:bg-error/5'
                     : 'hover:bg-surface-container-high text-on-surface cursor-pointer'
@@ -115,7 +158,8 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder={t('watchlists.watchlistName')}
-                className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-sm text-on-surface focus:outline-none focus:border-primary transition-colors"
+                aria-label={t('watchlists.watchlistName')}
+                className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleCreateAndAdd()
                 }}
@@ -125,7 +169,8 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
                 value={newDesc}
                 onChange={(e) => setNewDesc(e.target.value)}
                 placeholder={t('watchlists.descriptionOptional')}
-                className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-sm text-on-surface focus:outline-none focus:border-primary transition-colors"
+                aria-label={t('watchlists.descriptionOptional')}
+                className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleCreateAndAdd()
                 }}
@@ -138,7 +183,7 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
           ) : (
             <button
               onClick={() => setCreatingNew(true)}
-              className="flex items-center gap-2 text-sm text-primary hover:text-primary-light transition-colors font-medium"
+              className="flex items-center gap-2 text-sm text-primary hover:text-primary-light transition-colors font-medium min-h-[44px]"
             >
               <Plus size={16} strokeWidth={1.5} />
               {t('addToWatchlist.createNew')}

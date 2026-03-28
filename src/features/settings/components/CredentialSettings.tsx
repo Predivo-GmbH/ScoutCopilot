@@ -46,10 +46,10 @@ export function CredentialSettings({ credentials }: CredentialSettingsProps) {
               <div className="bg-surface-container-lowest px-3 py-2 rounded-sm flex items-center justify-between border border-outline-variant">
                 <span className="font-data text-xs text-on-surface-variant">{cred.maskedKey}</span>
                 <div className="flex gap-3">
-                  <button className="text-on-surface-variant hover:text-primary transition-colors">
+                  <button className="text-on-surface-variant hover:text-primary transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label={t('settings.credentials.revealKey', 'Reveal key')}>
                     <Eye size={14} strokeWidth={1.5} />
                   </button>
-                  <button className="text-on-surface-variant hover:text-primary transition-colors">
+                  <button className="text-on-surface-variant hover:text-primary transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label={t('settings.credentials.refreshKey', 'Refresh key')}>
                     <RefreshCw size={14} strokeWidth={1.5} />
                   </button>
                 </div>

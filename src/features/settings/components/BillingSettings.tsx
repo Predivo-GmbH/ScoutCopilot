@@ -45,11 +45,12 @@ export function BillingSettings() {
         <div className="px-6 py-4 bg-surface-container-high border-b border-outline-variant">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">{t('settings.billing.heading')}</h2>
         </div>
-        <div className="p-6">
+        <div className="p-6" role="status" aria-live="polite">
           <div className="animate-pulse space-y-4">
             <div className="h-20 bg-surface-container-low rounded-md" />
             <div className="h-16 bg-surface-container-low rounded-md" />
           </div>
+          <span className="sr-only">{t('common.loading', 'Loading...')}</span>
         </div>
       </section>
     )
@@ -62,7 +63,7 @@ export function BillingSettings() {
       </div>
       <div className="p-6 space-y-6">
         {/* Current Plan */}
-        <div className="flex items-center justify-between p-4 bg-surface-container-low rounded-md border border-outline-variant">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-surface-container-low rounded-md border border-outline-variant">
           <div>
             <div className="flex items-center gap-3">
               <h3 className="text-base font-semibold text-on-surface">{tierLabel} {t('settings.billing.plan')}</h3>
@@ -103,12 +104,12 @@ export function BillingSettings() {
         {tier !== 'club' && (
           <div className="p-4 bg-primary/5 rounded-md border border-primary/20">
             <h4 className="text-sm font-semibold text-on-surface mb-1">
-              {tier === 'scout' ? t('settings.billing.unlockUnlimited') : 'Need more seats or custom AI models?'}
+              {tier === 'scout' ? t('settings.billing.unlockUnlimited') : t('settings.billing.needMoreSeats')}
             </h4>
             <p className="text-xs text-on-surface-variant mb-3">
               {tier === 'scout'
-                ? 'Upgrade to Pro for unlimited reports, all leagues, and 3 user seats.'
-                : 'Upgrade to Club for 10 seats, custom models, and API access.'}
+                ? t('settings.billing.upgradeToProSub')
+                : t('settings.billing.upgradeToClubSub')}
             </p>
             <Button variant="primary" size="sm" onClick={() => navigate('/pricing')}>
               {tier === 'scout' ? t('settings.billing.upgradeTo', { tier: 'Pro' }) : t('settings.billing.upgradeTo', { tier: 'Club' })}
@@ -162,7 +163,7 @@ function UsageStat({ label, used, limit, warn }: { label: string; used: number; 
   const { t } = useTranslation()
 
   return (
-    <div className={`p-3 bg-surface-container-low rounded-md border ${warn ? 'border-amber/30' : 'border-outline-variant'}`}>
+    <div className={`p-3 bg-surface-container-low rounded-md border ${warn ? 'border-warning/30' : 'border-outline-variant'}`}>
       <p className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium mb-1">{label}</p>
       <p className="text-lg font-mono font-semibold text-on-surface">{used.toLocaleString()}</p>
       <p className="text-[0.625rem] text-on-surface-variant">{t('settings.billing.ofLimit', { limit })}</p>

@@ -16,7 +16,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-primary text-white hover:bg-primary-dark active:bg-primary-dark disabled:opacity-50',
+    'bg-primary text-on-primary hover:bg-primary-dark active:bg-primary-dark disabled:opacity-50',
   secondary:
     'bg-transparent border border-outline-variant text-on-surface hover:bg-surface-container-high active:bg-surface-container-highest disabled:opacity-50',
   ghost:
@@ -26,9 +26,9 @@ const variantStyles: Record<ButtonVariant, string> = {
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'h-8 px-3 text-[0.8125rem] gap-1.5',
-  md: 'h-10 px-4 text-[0.875rem] gap-2',
-  lg: 'h-12 px-6 text-[0.9375rem] gap-2',
+  sm: 'h-9 min-h-[44px] px-3 text-[0.8125rem] gap-1.5',
+  md: 'h-10 min-h-[44px] px-4 text-[0.875rem] gap-2',
+  lg: 'h-12 min-h-[44px] px-6 text-[0.9375rem] gap-2',
 }
 
 const iconSizes: Record<ButtonSize, number> = {

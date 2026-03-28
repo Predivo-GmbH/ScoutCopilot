@@ -99,9 +99,9 @@ export function OnboardingPage() {
       <Helmet><meta name="robots" content="noindex" /></Helmet>
       {/* Top stepper */}
       <header className="w-full border-b border-outline-variant/20 bg-background">
-        <div className="flex justify-between items-center max-w-3xl mx-auto px-6 py-4">
+        <div className="flex justify-between items-center max-w-3xl mx-auto px-4 sm:px-6 py-4">
           <Logo size="md" />
-          <nav className="flex items-center gap-6">
+          <nav className="flex items-center gap-3 sm:gap-6 overflow-x-auto">
             {STEPS.map((step, i) => {
               const Icon = STEP_ICONS[step]
               const isActive = i === stepIndex
@@ -109,7 +109,7 @@ export function OnboardingPage() {
               return (
                 <div
                   key={step}
-                  className={`flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider transition-colors ${
+                  className={`flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider transition-colors shrink-0 ${
                     isDone
                       ? 'text-secondary'
                       : isActive
@@ -123,12 +123,12 @@ export function OnboardingPage() {
               )
             })}
           </nav>
-          <div className="w-24" />
+          <div className="w-12 sm:w-24 shrink-0" />
         </div>
       </header>
 
       {/* Content */}
-      <main className="flex-1 flex items-center justify-center p-6">
+      <main className="flex-1 flex items-center justify-center p-4 sm:p-6">
         <div className="w-full max-w-[640px]">
           {/* Step 1: Welcome */}
           {currentStep === 'welcome' && (
@@ -160,12 +160,12 @@ export function OnboardingPage() {
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold text-on-surface">{t('auth.onboarding.wyscout')}</h3>
-                      <p className="text-[10px] uppercase tracking-wider text-on-surface-variant">
+                      <p className="text-[0.625rem] uppercase tracking-wider text-on-surface-variant">
                         {t('auth.onboarding.wyscoutSub')}
                       </p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Input
                       label={t('auth.onboarding.username')}
                       placeholder={t('auth.onboarding.apiUsername')}
@@ -190,12 +190,12 @@ export function OnboardingPage() {
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold text-on-surface">{t('auth.onboarding.statsbomb')}</h3>
-                      <p className="text-[10px] uppercase tracking-wider text-on-surface-variant">
+                      <p className="text-[0.625rem] uppercase tracking-wider text-on-surface-variant">
                         {t('auth.onboarding.statsbombSub')}
                       </p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Input
                       label={t('auth.onboarding.username')}
                       placeholder={t('auth.onboarding.apiUsername')}
@@ -234,7 +234,7 @@ export function OnboardingPage() {
                         key={key}
                         type="button"
                         onClick={() => toggleItem(selectedLeagues, key, setSelectedLeagues)}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors ${
+                        className={`px-3 py-2 text-xs font-medium rounded-md border transition-colors min-h-[44px] ${
                           selectedLeagues.includes(key)
                             ? 'bg-primary/20 border-primary text-on-surface'
                             : 'bg-transparent border-outline-variant/40 text-on-surface-variant hover:text-on-surface'
@@ -256,7 +256,7 @@ export function OnboardingPage() {
                         key={key}
                         type="button"
                         onClick={() => toggleItem(selectedPositions, key, setSelectedPositions)}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors ${
+                        className={`px-3 py-2 text-xs font-medium rounded-md border transition-colors min-h-[44px] ${
                           selectedPositions.includes(key)
                             ? 'bg-primary/20 border-primary text-on-surface'
                             : 'bg-transparent border-outline-variant/40 text-on-surface-variant hover:text-on-surface'
@@ -305,22 +305,22 @@ export function OnboardingPage() {
 
       {/* Bottom navigation */}
       <footer className="w-full border-t border-outline-variant/20 bg-background">
-        <div className="flex justify-between items-center max-w-3xl mx-auto px-6 py-4">
-          <div className="flex items-center gap-4">
+        <div className="flex justify-between items-center max-w-3xl mx-auto px-4 sm:px-6 py-4 gap-2">
+          <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
             {stepIndex > 0 && (
-              <Button variant="ghost" leftIcon={ArrowLeft} onClick={back}>
+              <Button variant="ghost" leftIcon={ArrowLeft} onClick={back} className="min-h-[44px]">
                 {t('common.back')}
               </Button>
             )}
             {currentStep === 'connectData' && (
-              <Button variant="ghost" leftIcon={SkipForward} onClick={next}>
+              <Button variant="ghost" leftIcon={SkipForward} onClick={next} className="min-h-[44px]">
                 {t('auth.onboarding.skipForNow')}
               </Button>
             )}
           </div>
           <div>
             {currentStep !== 'ready' && (
-              <Button rightIcon={ArrowRight} onClick={next}>
+              <Button rightIcon={ArrowRight} onClick={next} className="min-h-[44px]">
                 {t('common.continue')}
               </Button>
             )}

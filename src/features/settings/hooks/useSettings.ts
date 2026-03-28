@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import { supabase } from '../../../lib/supabase'
+import type { UserRole } from '../../../types/database'
 
 export type SettingsTab = 'profile' | 'organization' | 'credentials' | 'billing' | 'preferences'
 
 interface ProfileData {
   fullName: string
   email: string
-  role: string
+  role: UserRole | ''
 }
 
 interface OrgData {
@@ -83,7 +84,7 @@ export function useSettings() {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ full_name: profile.fullName, role: profile.role })
+        .update({ full_name: profile.fullName, ...(profile.role ? { role: profile.role } : {}) })
         .eq('id', user.id)
       if (error) throw error
       await refreshProfile()

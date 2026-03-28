@@ -1,4 +1,3 @@
-import { corsHeaders, handleCors } from "../_shared/cors.ts";
 import { getServiceClient } from "../_shared/auth.ts";
 
 const STRIPE_WEBHOOK_SECRET = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
@@ -47,11 +46,18 @@ async function verifyStripeSignature(
     encoder.encode(signedPayload)
   );
 
-  const computedSig = Array.from(new Uint8Array(signatureBytes))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  const computedSigBytes = new Uint8Array(signatureBytes);
 
-  if (computedSig !== expectedSig) {
+  // Convert hex expectedSig to bytes for timing-safe comparison
+  const expectedSigBytes = new Uint8Array(expectedSig.length / 2);
+  for (let i = 0; i < expectedSig.length; i += 2) {
+    expectedSigBytes[i / 2] = parseInt(expectedSig.substring(i, i + 2), 16);
+  }
+
+  if (
+    computedSigBytes.length !== expectedSigBytes.length ||
+    !crypto.subtle.timingSafeEqual(computedSigBytes, expectedSigBytes)
+  ) {
     throw new Error("Signature verification failed");
   }
 
@@ -65,13 +71,10 @@ async function verifyStripeSignature(
 }
 
 Deno.serve(async (req) => {
-  const corsResponse = handleCors(req);
-  if (corsResponse) return corsResponse;
-
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
     });
   }
 
@@ -82,7 +85,7 @@ Deno.serve(async (req) => {
     if (!signature) {
       return new Response(JSON.stringify({ error: "Missing stripe-signature" }), {
         status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -164,7 +167,7 @@ Deno.serve(async (req) => {
 
     return new Response(JSON.stringify({ received: true }), {
       status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
     console.error("Webhook error:", err);
@@ -172,7 +175,7 @@ Deno.serve(async (req) => {
       JSON.stringify({ error: err instanceof Error ? err.message : "Unknown error" }),
       {
         status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" },
       }
     );
   }

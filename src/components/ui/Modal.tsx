@@ -74,7 +74,7 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
 
     return (
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-surface/80 backdrop-blur-sm"
         onClick={(e) => {
           if (e.target === e.currentTarget) onClose()
         }}
@@ -89,7 +89,7 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
             else if (ref) ref.current = node
           }}
           className={cn(
-            'w-full max-h-full sm:max-w-lg mx-0 sm:mx-4 bg-surface-container border border-outline-variant rounded-none sm:rounded-lg h-full sm:h-auto',
+            'w-full max-h-[90vh] sm:max-w-lg mx-0 sm:mx-4 bg-surface-container border border-outline-variant rounded-none sm:rounded-lg h-full sm:h-auto overflow-y-auto',
             'animate-[fadeIn_200ms_ease-out]',
             className
           )}
@@ -103,7 +103,7 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
               </h3>
               <button
                 onClick={onClose}
-                className="p-1 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-[150ms]"
+                className="p-2 rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-[150ms] min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label={t('common.close')}
               >
                 <X size={20} strokeWidth={1.5} />

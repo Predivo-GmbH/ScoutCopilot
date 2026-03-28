@@ -59,7 +59,7 @@ function TabList({ className, children }: TabListProps) {
     <div
       role="tablist"
       className={cn(
-        'flex border-b border-outline-variant gap-1',
+        'flex border-b border-outline-variant gap-1 overflow-x-auto',
         className
       )}
     >
@@ -80,15 +80,45 @@ function TabTrigger({ id, className, children }: TabTriggerProps) {
   const { activeTab, setActiveTab } = useTabsContext()
   const isActive = activeTab === id
 
+  function handleKeyDown(e: React.KeyboardEvent) {
+    const tablist = e.currentTarget.parentElement
+    if (!tablist) return
+    const tabs = Array.from(tablist.querySelectorAll<HTMLElement>('[role="tab"]'))
+    const index = tabs.indexOf(e.currentTarget as HTMLElement)
+    let next: HTMLElement | undefined
+
+    if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      next = tabs[(index + 1) % tabs.length]
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      next = tabs[(index - 1 + tabs.length) % tabs.length]
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      next = tabs[0]
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      next = tabs[tabs.length - 1]
+    }
+
+    if (next) {
+      next.focus()
+      const nextId = next.id?.replace('tab-', '')
+      if (nextId) setActiveTab(nextId)
+    }
+  }
+
   return (
     <button
       role="tab"
       aria-selected={isActive}
       aria-controls={`panel-${id}`}
       id={`tab-${id}`}
+      tabIndex={isActive ? 0 : -1}
       onClick={() => setActiveTab(id)}
+      onKeyDown={handleKeyDown}
       className={cn(
-        'px-4 py-2.5 text-[0.875rem] font-medium -mb-px border-b-2 transition-colors duration-[150ms] ease-out cursor-pointer',
+        'px-4 py-2.5 text-[0.875rem] font-medium -mb-px border-b-2 transition-colors duration-[150ms] ease-out cursor-pointer whitespace-nowrap',
         isActive
           ? 'text-primary border-primary'
           : 'text-on-surface-variant border-transparent hover:text-on-surface hover:border-outline-variant',

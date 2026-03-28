@@ -23,7 +23,7 @@ export type Database = {
         Insert: {
           id?: string;
           name: string;
-          slug: string;
+          slug?: string;
           subscription_tier?: SubscriptionTier;
           max_seats?: number;
           stripe_customer_id?: string | null;
@@ -41,6 +41,7 @@ export type Database = {
           stripe_subscription_id?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       profiles: {
         Row: {
@@ -68,6 +69,7 @@ export type Database = {
           avatar_url?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       api_credentials: {
         Row: {
@@ -94,6 +96,7 @@ export type Database = {
           is_active?: boolean;
           updated_at?: string;
         };
+        Relationships: [];
       };
       search_queries: {
         Row: {
@@ -122,6 +125,7 @@ export type Database = {
           result_count?: number;
           updated_at?: string;
         };
+        Relationships: [];
       };
       search_results: {
         Row: {
@@ -152,6 +156,7 @@ export type Database = {
           fit_score?: number | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       player_reports: {
         Row: {
@@ -182,6 +187,7 @@ export type Database = {
           source_provider?: DataProvider;
           updated_at?: string;
         };
+        Relationships: [];
       };
       player_comparisons: {
         Row: {
@@ -210,6 +216,7 @@ export type Database = {
           comparison_data?: Record<string, unknown>;
           updated_at?: string;
         };
+        Relationships: [];
       };
       watchlists: {
         Row: {
@@ -238,6 +245,7 @@ export type Database = {
           is_shared?: boolean;
           updated_at?: string;
         };
+        Relationships: [];
       };
       watchlist_players: {
         Row: {
@@ -266,6 +274,7 @@ export type Database = {
           notes?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       usage_tracking: {
         Row: {
@@ -294,8 +303,10 @@ export type Database = {
           searches_count?: number;
           updated_at?: string;
         };
+        Relationships: [];
       };
     };
+    Views: Record<string, never>;
     Functions: {
       get_user_organization_id: {
         Args: Record<string, never>;

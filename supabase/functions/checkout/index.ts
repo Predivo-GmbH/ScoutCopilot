@@ -1,4 +1,4 @@
-import { corsHeaders, handleCors } from "../_shared/cors.ts";
+import { handleCors } from "../_shared/cors.ts";
 import { getAuthContext, AuthError, getServiceClient } from "../_shared/auth.ts";
 
 const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY")!;
@@ -42,8 +42,8 @@ async function stripeRequest(
 }
 
 Deno.serve(async (req) => {
-  const corsResponse = handleCors(req);
-  if (corsResponse) return corsResponse;
+  const { corsHeaders, preflightResponse } = handleCors(req);
+  if (preflightResponse) return preflightResponse;
 
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {

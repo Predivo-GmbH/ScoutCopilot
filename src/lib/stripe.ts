@@ -1,19 +1,20 @@
 import type { SubscriptionTier } from '../types/database'
 import { supabase } from './supabase'
 
-// Stripe price ID mapping — replace with real Stripe price IDs after creating products
+// Stripe price ID mapping — loaded from env vars (VITE_STRIPE_PRICE_{TIER}_{INTERVAL})
+// Falls back to empty string so checkout will fail visibly instead of silently using wrong IDs
 export const PRICE_IDS: Record<SubscriptionTier, { month: string; year: string }> = {
   scout: {
-    month: 'price_scout_monthly_placeholder',
-    year: 'price_scout_annual_placeholder',
+    month: import.meta.env.VITE_STRIPE_PRICE_SCOUT_MONTH ?? '',
+    year: import.meta.env.VITE_STRIPE_PRICE_SCOUT_YEAR ?? '',
   },
   pro: {
-    month: 'price_pro_monthly_placeholder',
-    year: 'price_pro_annual_placeholder',
+    month: import.meta.env.VITE_STRIPE_PRICE_PRO_MONTH ?? '',
+    year: import.meta.env.VITE_STRIPE_PRICE_PRO_YEAR ?? '',
   },
   club: {
-    month: 'price_club_monthly_placeholder',
-    year: 'price_club_annual_placeholder',
+    month: import.meta.env.VITE_STRIPE_PRICE_CLUB_MONTH ?? '',
+    year: import.meta.env.VITE_STRIPE_PRICE_CLUB_YEAR ?? '',
   },
 }
 

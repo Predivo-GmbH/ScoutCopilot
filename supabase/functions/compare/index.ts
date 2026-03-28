@@ -2,14 +2,14 @@
 // POST /compare { player_ids: string[], context?: string }
 
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
-import { corsHeaders, handleCors } from "../_shared/cors.ts";
+import { handleCors } from "../_shared/cors.ts";
 import { AuthError, getAuthContext, getServiceClient } from "../_shared/auth.ts";
 import { comparePlayers as claudeCompare } from "../_shared/claude.ts";
 import { getMockPlayer } from "../_shared/mock-data.ts";
 
 serve(async (req: Request) => {
-  const corsResponse = handleCors(req);
-  if (corsResponse) return corsResponse;
+  const { corsHeaders, preflightResponse } = handleCors(req);
+  if (preflightResponse) return preflightResponse;
 
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {

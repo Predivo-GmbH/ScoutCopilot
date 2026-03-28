@@ -25,7 +25,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={cn(
-            'h-10 w-full px-3 bg-surface-container border rounded-md text-[0.875rem] text-on-surface placeholder:text-on-surface-variant/50',
+            'h-11 min-h-[44px] w-full px-3 bg-surface-container border rounded-md text-base md:text-[0.875rem] text-on-surface placeholder:text-on-surface-variant/70',
             'transition-colors duration-[150ms] ease-out',
             'focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20',
             'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -39,7 +39,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           {...props}
         />
         {error && (
-          <p id={`${inputId}-error`} className="text-[0.75rem] text-error">
+          <p id={`${inputId}-error`} role="alert" className="text-[0.75rem] text-error">
             {error}
           </p>
         )}

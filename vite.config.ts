@@ -19,8 +19,17 @@ export default defineConfig({
           if (id.includes('node_modules/lucide-react')) {
             return 'ui-vendor'
           }
-          if (id.includes('node_modules/recharts')) {
-            return 'chart-vendor'
+          if (id.includes('node_modules/@supabase')) {
+            return 'supabase-vendor'
+          }
+          if (id.includes('node_modules/i18next') || id.includes('node_modules/react-i18next')) {
+            return 'i18n-vendor'
+          }
+          if (id.includes('node_modules/jspdf')) {
+            return 'jspdf-vendor'
+          }
+          if (id.includes('node_modules/html2canvas')) {
+            return 'html2canvas-vendor'
           }
         },
       },

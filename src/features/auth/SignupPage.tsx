@@ -92,8 +92,8 @@ export function SignupPage() {
   return (
     <AuthLayout>
       <Helmet>
-        <title>Start Free Trial — ScoutCopilot</title>
-        <meta name="description" content="Create your ScoutCopilot account. 14-day free trial, no credit card required." />
+        <title>{t('auth.signup.heading')} — ScoutCopilot</title>
+        <meta name="robots" content="noindex" />
       </Helmet>
       {/* Step 1: Email */}
       {step === 'email' && (

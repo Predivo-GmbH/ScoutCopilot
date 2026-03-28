@@ -35,7 +35,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
             ref={ref}
             id={selectId}
             className={cn(
-              'h-10 w-full appearance-none px-3 pr-9 bg-surface-container border rounded-md text-[0.875rem] text-on-surface',
+              'h-11 min-h-[44px] w-full appearance-none px-3 pr-9 bg-surface-container border rounded-md text-base md:text-[0.875rem] text-on-surface',
               'transition-colors duration-[150ms] ease-out',
               'focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20',
               'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -64,7 +64,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
           />
         </div>
         {error && (
-          <p id={`${selectId}-error`} className="text-[0.75rem] text-error">{error}</p>
+          <p id={`${selectId}-error`} role="alert" className="text-[0.75rem] text-error">{error}</p>
         )}
         {!error && helperText && (
           <p className="text-[0.75rem] text-on-surface-variant">{helperText}</p>

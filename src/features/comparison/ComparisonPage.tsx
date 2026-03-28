@@ -33,10 +33,10 @@ export function ComparisonPage() {
   } = useComparison()
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       <Helmet><meta name="robots" content="noindex" /></Helmet>
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <div className="flex flex-wrap justify-between items-start gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-on-surface">{t('comparison.heading')}</h1>
           <p className="text-on-surface-variant mt-1 text-sm">{t('comparison.subheading')}</p>
@@ -63,7 +63,7 @@ export function ComparisonPage() {
           value={tacticalContext}
           onChange={(e) => setTacticalContext(e.target.value)}
           placeholder={t('comparison.tacticalPlaceholder')}
-          className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2.5 px-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-colors"
+          className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2.5 px-4 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
         />
       </div>
 
@@ -97,7 +97,7 @@ export function ComparisonPage() {
                     <span className="text-[0.625rem] font-medium uppercase tracking-widest text-on-surface-variant block">{t('comparison.performanceMatrix')}</span>
                     <span className="text-sm font-semibold text-on-surface">{t('comparison.tacticalRadar')}</span>
                   </div>
-                  <div className="flex gap-4">
+                  <div className="flex flex-wrap gap-3 sm:gap-4">
                     {players.map((p, i) => (
                       <div key={p.id} className="flex items-center gap-2">
                         <span className={`w-2 h-2 rounded-md ${dotColors[i]}`} />

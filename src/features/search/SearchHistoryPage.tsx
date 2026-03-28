@@ -47,13 +47,13 @@ export function SearchHistoryPage() {
   const formatDate = useFormatDate()
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       <Helmet><meta name="robots" content="noindex" /></Helmet>
       {/* Header */}
       <div>
         <button
           onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-on-surface-variant hover:text-on-surface transition-colors mb-4"
+          className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-on-surface-variant hover:text-on-surface transition-colors mb-4 min-h-[44px]"
         >
           <ArrowLeft size={14} strokeWidth={1.5} />
           {t('searchHistory.backToDashboard')}
@@ -67,10 +67,11 @@ export function SearchHistoryPage() {
 
       {/* Search List */}
       {isLoading ? (
-        <div className="space-y-3">
+        <div className="space-y-3" role="status" aria-live="polite">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="h-16 bg-surface-container-low rounded-md animate-pulse" />
           ))}
+          <span className="sr-only">{t('common.loading', 'Loading...')}</span>
         </div>
       ) : (
         <div className="space-y-2">
@@ -81,17 +82,17 @@ export function SearchHistoryPage() {
               tabIndex={0}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { if (s.status === 'complete') navigate(`/search?q=${encodeURIComponent(s.query)}&saved=1`) } }}
               onClick={() => { if (s.status === 'complete') navigate(`/search?q=${encodeURIComponent(s.query)}&saved=1`) }}
-              className={`bg-surface-container border border-outline-variant rounded-md p-4 transition-colors ${
+              className={`bg-surface-container border border-outline-variant rounded-md p-4 transition-colors min-h-[44px] ${
                 s.status === 'complete' ? 'cursor-pointer hover:bg-surface-container-high' : 'opacity-60'
               }`}
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
                 <div className="w-10 h-10 rounded-md bg-surface-container-highest flex items-center justify-center shrink-0">
                   <Search size={16} strokeWidth={1.5} className="text-on-surface-variant" />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 order-last sm:order-none w-full sm:w-auto">
                   <p className="text-sm font-medium text-on-surface truncate">{s.query}</p>
-                  <div className="flex items-center gap-3 mt-1">
+                  <div className="flex items-center gap-3 mt-1 flex-wrap">
                     <span className="text-[0.625rem] font-data text-on-surface-variant">{formatDate(s.timestamp)}</span>
                     <span className="w-1 h-1 rounded-full bg-outline-variant" />
                     <StatusBadge status={s.status} />

@@ -107,9 +107,9 @@ export function PricingPage() {
               <span className="text-on-surface border-b-2 border-primary pb-1">{t('common.pricing')}</span>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <LanguageSelector />
-            <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>{t('pricing.signIn')}</Button>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <LanguageSelector className="hidden sm:block" />
+            <Button variant="ghost" size="sm" onClick={() => navigate('/login')} className="hidden sm:inline-flex">{t('pricing.signIn')}</Button>
             <Button size="sm" onClick={() => navigate('/signup')}>{t('common.startFreeTrial')}</Button>
           </div>
         </div>
@@ -128,9 +128,9 @@ export function PricingPage() {
             <div className="inline-flex rounded-full bg-surface-container-low border border-outline-variant p-1">
               <button
                 onClick={() => setInterval('month')}
-                className={`relative z-10 rounded-full px-5 py-1.5 text-sm font-medium transition-colors ${
+                className={`relative z-10 rounded-full px-5 py-1.5 text-sm font-medium transition-colors min-h-[44px] ${
                   interval === 'month'
-                    ? 'bg-primary text-white'
+                    ? 'bg-primary text-on-primary'
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
@@ -138,9 +138,9 @@ export function PricingPage() {
               </button>
               <button
                 onClick={() => setInterval('year')}
-                className={`relative z-10 rounded-full px-5 py-1.5 text-sm font-medium transition-colors ${
+                className={`relative z-10 rounded-full px-5 py-1.5 text-sm font-medium transition-colors min-h-[44px] ${
                   interval === 'year'
-                    ? 'bg-primary text-white'
+                    ? 'bg-primary text-on-primary'
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
@@ -174,7 +174,7 @@ export function PricingPage() {
                 }`}
               >
                 {meta.highlighted && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[0.625rem] font-bold px-3 py-1 rounded-sm uppercase tracking-widest">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-on-primary text-[0.625rem] font-bold px-3 py-1 rounded-sm uppercase tracking-widest">
                     {t('landing.pricing.mostPopular')}
                   </div>
                 )}
@@ -225,16 +225,16 @@ export function PricingPage() {
             <table className="w-full text-left border-collapse bg-surface-container-low rounded-md overflow-hidden border border-outline-variant">
               <thead>
                 <tr className="border-b border-outline-variant/30">
-                  <th className="py-4 px-6 text-[0.625rem] font-semibold text-on-surface-variant uppercase tracking-widest">{t('landing.pricing.feature')}</th>
-                  <th className="py-4 px-6 text-[0.625rem] font-semibold text-center w-40 uppercase tracking-widest">{t('landing.tiers.scout.name')}</th>
-                  <th className="py-4 px-6 text-[0.625rem] font-semibold text-center w-40 bg-surface-container/50 uppercase tracking-widest">{t('landing.tiers.pro.name')}</th>
-                  <th className="py-4 px-6 text-[0.625rem] font-semibold text-center w-40 uppercase tracking-widest">{t('landing.tiers.club.name')}</th>
+                  <th className="py-4 px-4 sm:px-6 text-[0.625rem] font-semibold text-on-surface-variant uppercase tracking-widest sticky left-0 bg-surface-container-low z-10 min-w-[140px]">{t('landing.pricing.feature')}</th>
+                  <th className="py-4 px-4 sm:px-6 text-[0.625rem] font-semibold text-center w-28 sm:w-40 uppercase tracking-widest">{t('landing.tiers.scout.name')}</th>
+                  <th className="py-4 px-4 sm:px-6 text-[0.625rem] font-semibold text-center w-28 sm:w-40 bg-surface-container/50 uppercase tracking-widest">{t('landing.tiers.pro.name')}</th>
+                  <th className="py-4 px-4 sm:px-6 text-[0.625rem] font-semibold text-center w-28 sm:w-40 uppercase tracking-widest">{t('landing.tiers.club.name')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/10">
                 {COMPARISON_ROWS.map((row) => (
                   <tr key={row.featureKey}>
-                    <td className="py-3 px-6 text-sm">{t(row.featureKey)}</td>
+                    <td className="py-3 px-4 sm:px-6 text-sm sticky left-0 bg-surface-container-low z-10">{t(row.featureKey)}</td>
                     <ComparisonCell value={row.scout} />
                     <ComparisonCell value={row.pro} highlighted />
                     <ComparisonCell value={row.club} />
@@ -259,10 +259,10 @@ export function PricingPage() {
         </section>
 
         {/* Final CTA */}
-        <div className="bg-surface-container border border-outline-variant p-10 rounded-md text-center">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="text-left">
-              <div className="flex items-center gap-2 mb-2">
+        <div className="bg-surface-container border border-outline-variant p-6 sm:p-10 rounded-md text-center">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8">
+            <div className="text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
                 <Badge variant="tertiary">{t('pricing.guaranteed')}</Badge>
                 <span className="text-sm font-semibold">{t('pricing.guarantee')}</span>
               </div>
@@ -270,9 +270,9 @@ export function PricingPage() {
                 {t('pricing.contactSub')}
               </p>
             </div>
-            <div className="flex gap-4">
-              <Button variant="secondary" onClick={() => window.location.href = 'mailto:hello@predivo.ch'}>{t('pricing.contactSupport')}</Button>
-              <Button onClick={() => navigate('/signup')} rightIcon={ArrowRight}>{t('common.startFreeTrial')}</Button>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
+              <Button variant="secondary" className="w-full sm:w-auto min-h-[44px]" onClick={() => window.location.href = 'mailto:hello@predivo.ch'}>{t('pricing.contactSupport')}</Button>
+              <Button className="w-full sm:w-auto min-h-[44px]" onClick={() => navigate('/signup')} rightIcon={ArrowRight}>{t('common.startFreeTrial')}</Button>
             </div>
           </div>
         </div>
@@ -300,7 +300,7 @@ function ComparisonCell({ value, highlighted }: { value: string | boolean; highl
 
   if (typeof value === 'boolean') {
     return (
-      <td className={`py-3 px-6 text-center ${bgClass}`}>
+      <td className={`py-3 px-4 sm:px-6 text-center ${bgClass}`}>
         {value ? (
           <Check size={16} strokeWidth={1.5} className="text-tertiary inline-block" />
         ) : (
@@ -313,6 +313,6 @@ function ComparisonCell({ value, highlighted }: { value: string | boolean; highl
   // Values starting with 'pricingValues.' are translation keys; plain numbers stay as-is
   const display = value.startsWith('pricingValues.') ? t(value) : value
   return (
-    <td className={`py-3 px-6 text-center font-mono text-xs ${bgClass}`}>{display}</td>
+    <td className={`py-3 px-4 sm:px-6 text-center font-mono text-xs ${bgClass}`}>{display}</td>
   )
 }

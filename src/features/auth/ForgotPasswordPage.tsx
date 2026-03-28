@@ -36,8 +36,8 @@ export function ForgotPasswordPage() {
   return (
     <AuthLayout>
       <Helmet>
-        <title>Reset Password — ScoutCopilot</title>
-        <meta name="description" content="Reset your ScoutCopilot account password." />
+        <title>{t('auth.forgot.heading')} — ScoutCopilot</title>
+        <meta name="robots" content="noindex" />
       </Helmet>
       {step === 'form' && (
         <div>

@@ -1,14 +1,19 @@
 User-agent: *
 Allow: /
+Disallow: /players
+Disallow: /search-history
+Disallow: /alerts
+Disallow: /squad
+Disallow: /forgot-password
+Disallow: /reset-password
 Disallow: /dashboard
-Disallow: /login
-Disallow: /signup
+Disallow: /settings
 Disallow: /onboarding
 Disallow: /auth
-Disallow: /settings
+Disallow: /login
+Disallow: /signup
 Disallow: /search
 Disallow: /compare
-Disallow: /report
 Disallow: /watchlists
 
 Sitemap: https://scoutcopilot.com/sitemap.xml

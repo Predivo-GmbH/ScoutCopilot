@@ -63,7 +63,7 @@ export function AppShell() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-primary focus:text-white focus:px-4 focus:py-2 focus:rounded-md">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-primary focus:text-on-primary focus:px-4 focus:py-2 focus:rounded-md">
         {t('common.skipToContent')}
       </a>
 
@@ -77,9 +77,9 @@ export function AppShell() {
 
       {/* Mobile sidebar overlay */}
       {mobileSidebarOpen && (
-        <div ref={mobileSidebarRef} className="md:hidden fixed inset-0 z-40" role="dialog" aria-modal="true" aria-label="Navigation menu">
+        <div ref={mobileSidebarRef} className="md:hidden fixed inset-0 z-40" role="dialog" aria-modal="true" aria-label={t('nav.navigationMenu')}>
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-surface/80 backdrop-blur-sm"
             onClick={() => setMobileSidebarOpen(false)}
           />
           <div className="relative z-50 h-full w-[var(--sidebar-expanded)]">
@@ -108,7 +108,7 @@ export function AppShell() {
         `}</style>
         <div className="app-shell-content flex-1 flex flex-col h-screen" style={{ transition: 'margin-left var(--duration-slow) ease-in-out' }}>
           <TopBar onMenuToggle={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
-          <main id="main-content" aria-label="Main content" className="flex-1 overflow-y-auto">
+          <main id="main-content" aria-label={t('nav.mainContent')} className="flex-1 overflow-y-auto">
             <div className="mx-auto max-w-[1280px]">
               <Outlet />
             </div>

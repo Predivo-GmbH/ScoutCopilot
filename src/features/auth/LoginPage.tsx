@@ -78,8 +78,9 @@ export function LoginPage() {
   return (
     <AuthLayout>
       <Helmet>
-        <title>Sign In — ScoutCopilot</title>
-        <meta name="description" content="Sign in to your ScoutCopilot account to access AI-powered football scouting tools." />
+        <title>{t('auth.signInTo')} — ScoutCopilot</title>
+        <meta name="robots" content="noindex" />
+        <meta name="robots" content="noindex" />
       </Helmet>
       <h1 className="text-center text-2xl font-bold text-on-surface">
         {t('auth.signInTo')}

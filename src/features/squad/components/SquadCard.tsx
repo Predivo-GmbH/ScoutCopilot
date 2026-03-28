@@ -13,8 +13,11 @@ export function SquadCard({ squad, isSelected, onClick }: SquadCardProps) {
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
-      className={`bg-surface-container p-6 rounded-md border transition-all cursor-pointer group ${
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } }}
+      className={`bg-surface-container p-6 rounded-md border transition-all cursor-pointer group focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1 ${
         isSelected ? 'border-primary' : 'border-outline-variant hover:border-outline-variant/60'
       }`}
     >

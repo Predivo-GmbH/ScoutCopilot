@@ -28,43 +28,46 @@ export function FormationPitch({ formation, players }: FormationPitchProps) {
     <div className="bg-surface-container rounded-md border border-outline-variant overflow-hidden">
       <div className="relative w-full" style={{ paddingBottom: '55%' }}>
         {/* Pitch background */}
-        <div className="absolute inset-0 bg-emerald-900/20 dark:bg-emerald-900/30 overflow-hidden">
+        <div className="absolute inset-0 bg-pitch/20 overflow-hidden">
           {/* Pitch markings */}
-          <div className="absolute inset-[4%] border border-emerald-600/30 rounded-sm" />
-          <div className="absolute left-1/2 top-[4%] bottom-[4%] w-px bg-emerald-600/30" />
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 border border-emerald-600/30 rounded-full" />
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-emerald-600/30 rounded-full" />
+          <div className="absolute inset-[4%] border border-pitch-line/30 rounded-sm" />
+          <div className="absolute left-1/2 top-[4%] bottom-[4%] w-px bg-pitch-line/30" />
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 border border-pitch-line/30 rounded-full" />
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-pitch-line/30 rounded-full" />
           {/* Goal areas */}
-          <div className="absolute left-[30%] right-[30%] bottom-[4%] h-[12%] border-t border-l border-r border-emerald-600/30" />
-          <div className="absolute left-[30%] right-[30%] top-[4%] h-[12%] border-b border-l border-r border-emerald-600/30" />
+          <div className="absolute left-[30%] right-[30%] bottom-[4%] h-[12%] border-t border-l border-r border-pitch-line/30" />
+          <div className="absolute left-[30%] right-[30%] top-[4%] h-[12%] border-b border-l border-r border-pitch-line/30" />
         </div>
 
-        {/* Player dots */}
+        {/* Player dots — remap raw 0-100% coords into a safe 8%-92% band so edge players aren't clipped */}
         {slotPlayers.map(({ slot, player }, i) => {
           const isEmpty = !player
           const isInjured = player?.status === 'injured'
           const isHovered = player && hoveredId === player.id
+          // Map slot.x from 0-100 into 8-92 range to keep dots + labels inside the container
+          const safeX = 8 + (slot.x / 100) * 84
+          const safeY = 4 + (slot.y / 100) * 92
 
           return (
             <div
               key={`${slot.position}-${i}`}
-              className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 z-10"
-              style={{ left: `${slot.x}%`, bottom: `${slot.y}%` }}
+              className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 sm:gap-1 z-10"
+              style={{ left: `${safeX}%`, bottom: `${safeY}%` }}
               onMouseEnter={() => player && setHoveredId(player.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
               <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-transform ${
+                className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-[0.625rem] sm:text-xs font-bold border-2 transition-transform ${
                   isEmpty
                     ? 'bg-error/20 border-error/40 text-error'
                     : isInjured
-                    ? 'bg-amber-500/20 border-amber-500/40 text-amber-500'
+                    ? 'bg-warning/20 border-warning/40 text-warning'
                     : 'bg-secondary/20 border-secondary/40 text-secondary'
                 } ${isHovered ? 'scale-125' : ''}`}
               >
                 {player ? player.shirtNumber : '?'}
               </div>
-              <span className={`text-[0.5625rem] font-data font-semibold tracking-tight text-center leading-tight max-w-[5rem] truncate ${
+              <span className={`text-[0.5rem] sm:text-[0.5625rem] font-data font-semibold tracking-tight text-center leading-tight max-w-[3.5rem] sm:max-w-[5rem] truncate ${
                 isEmpty ? 'text-error' : 'text-on-surface'
               }`}>
                 {player ? player.name.split(' ').pop() : slot.label}
@@ -91,7 +94,7 @@ export function FormationSelector({ value, onChange }: { value: FormationType; o
       value={value}
       onChange={(e) => onChange(e.target.value as FormationType)}
       aria-label={t('squad.formation')}
-      className="bg-surface-container-lowest border border-outline-variant rounded-md px-3 py-1.5 text-xs font-data text-on-surface focus:outline-none focus:border-primary transition-colors appearance-none"
+      className="bg-surface-container-lowest border border-outline-variant rounded-md px-3 py-1.5 text-base md:text-xs font-data text-on-surface focus:outline-none focus:border-primary transition-colors appearance-none min-h-[44px]"
     >
       {options.map((f) => <option key={f} value={f}>{f}</option>)}
     </select>

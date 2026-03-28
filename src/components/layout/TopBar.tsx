@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Search, Bell, Settings, LogOut, Menu } from 'lucide-react'
@@ -17,6 +17,25 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
   const [searchValue, setSearchValue] = useState('')
   const [profileOpen, setProfileOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
+  const profileButtonRef = useRef<HTMLButtonElement>(null)
+
+  // Compute fixed position for profile dropdown so it never overflows the viewport
+  const profileDropdownStyle = useMemo(() => {
+    if (!profileOpen || !profileButtonRef.current) return {}
+    const rect = profileButtonRef.current.getBoundingClientRect()
+    const dropdownWidth = 192 // w-48 = 12rem = 192px
+    let left = rect.right - dropdownWidth
+    if (left < 8) left = 8
+    if (left + dropdownWidth > window.innerWidth - 8) {
+      left = window.innerWidth - 8 - dropdownWidth
+    }
+    return {
+      position: 'fixed' as const,
+      top: rect.bottom + 4,
+      left,
+      width: dropdownWidth,
+    }
+  }, [profileOpen])
 
   // Close profile dropdown on outside click
   useEffect(() => {
@@ -51,7 +70,7 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
         <button
           onClick={onMenuToggle}
           className="md:hidden p-2 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-          aria-label="Toggle menu"
+          aria-label={t('common.toggleMenu')}
         >
           <Menu size={20} strokeWidth={1.5} />
         </button>
@@ -66,7 +85,7 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
           onChange={(e) => setSearchValue(e.target.value)}
           placeholder={t('topbar.searchPlaceholder')}
           aria-label={t('topbar.searchPlaceholder')}
-          className="w-full bg-surface-container-low border border-outline-variant rounded-md py-2 pl-10 pr-4 text-xs font-data text-on-surface placeholder:text-on-surface-variant/70 outline-none focus:border-primary transition-colors"
+          className="w-full bg-surface-container-low border border-outline-variant rounded-md py-2 pl-10 pr-4 text-base md:text-xs font-data text-on-surface placeholder:text-on-surface-variant/70 outline-none focus:border-primary transition-colors min-h-[44px]"
         />
       </form>
 
@@ -93,10 +112,11 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
         {/* Profile */}
         <div ref={profileRef} className="relative">
           <button
+            ref={profileButtonRef}
             onClick={() => setProfileOpen(!profileOpen)}
             aria-expanded={profileOpen}
             aria-haspopup="menu"
-            className="flex items-center gap-2.5 p-1 pr-2 rounded-md hover:bg-surface-container transition-colors"
+            className="flex items-center gap-2.5 p-1 pr-2 rounded-md hover:bg-surface-container transition-colors min-h-[44px]"
           >
             {profile?.avatar_url ? (
               <img
@@ -116,23 +136,45 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
           </button>
 
           {profileOpen && (
-            <div role="menu" className="absolute right-0 top-full mt-1 w-48 bg-surface-container-low border border-outline-variant rounded-md shadow-lg overflow-hidden z-50">
+            <div
+              role="menu"
+              style={profileDropdownStyle}
+              className="bg-surface-container-low border border-outline-variant rounded-md shadow-lg overflow-hidden z-50"
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  e.preventDefault()
+                  setProfileOpen(false)
+                  return
+                }
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                  e.preventDefault()
+                  const items = e.currentTarget.querySelectorAll<HTMLElement>('[role="menuitem"]')
+                  const currentIndex = Array.from(items).findIndex((el) => el === document.activeElement)
+                  const nextIndex = e.key === 'ArrowDown'
+                    ? (currentIndex + 1) % items.length
+                    : (currentIndex - 1 + items.length) % items.length
+                  items[nextIndex]?.focus()
+                }
+              }}
+            >
               <div className="px-3 py-2.5 border-b border-outline-variant/30">
                 <p className="text-xs font-semibold text-on-surface truncate">{profile?.full_name || t('common.user')}</p>
                 {profile?.role && <p className="text-[0.625rem] text-on-surface-variant truncate">{profile.role}</p>}
               </div>
               <button
                 role="menuitem"
+                tabIndex={0}
                 onClick={() => { setProfileOpen(false); navigate('/settings') }}
-                className="flex items-center gap-2.5 w-full px-3 py-2 text-xs text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+                className="flex items-center gap-2.5 w-full px-3 py-2 text-xs text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors min-h-[44px]"
               >
                 <Settings size={14} strokeWidth={1.5} />
                 {t('topbar.accountSettings')}
               </button>
               <button
                 role="menuitem"
+                tabIndex={0}
                 onClick={() => { setProfileOpen(false); signOut() }}
-                className="flex items-center gap-2.5 w-full px-3 py-2 text-xs text-on-surface-variant hover:bg-surface-container hover:text-error transition-colors"
+                className="flex items-center gap-2.5 w-full px-3 py-2 text-xs text-on-surface-variant hover:bg-surface-container hover:text-error transition-colors min-h-[44px]"
               >
                 <LogOut size={14} strokeWidth={1.5} />
                 {t('topbar.signOut')}

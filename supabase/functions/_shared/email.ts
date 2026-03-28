@@ -68,6 +68,18 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
   }
 }
 
+// ─── HTML Escaping ──────────────────────────────────────────────────────────
+
+/** Escape user-provided strings to prevent HTML injection in email templates. */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 // ─── Layout ──────────────────────────────────────────────────────────────────
 
 const APP_URL = Deno.env.get('APP_URL') ?? 'https://scoutcopilot.com'
@@ -136,7 +148,7 @@ function button(text: string, href: string): string {
 
 /** Welcome email — sent after profile completion */
 export function welcomeEmail(userName: string): { subject: string; html: string } {
-  const firstName = userName.split(' ')[0]
+  const firstName = escapeHtml(userName.split(' ')[0])
   return {
     subject: `Welcome to ScoutCopilot, ${firstName}!`,
     html: layout(`
@@ -165,7 +177,7 @@ export function trialEndingEmail(
   userName: string,
   daysLeft: number,
 ): { subject: string; html: string } {
-  const firstName = userName.split(' ')[0]
+  const firstName = escapeHtml(userName.split(' ')[0])
   return {
     subject: `Your ScoutCopilot trial ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}`,
     html: layout(`
@@ -184,7 +196,7 @@ export function trialEndingEmail(
 
 /** Payment failed */
 export function paymentFailedEmail(userName: string): { subject: string; html: string } {
-  const firstName = userName.split(' ')[0]
+  const firstName = escapeHtml(userName.split(' ')[0])
   return {
     subject: 'Action required: Payment failed for ScoutCopilot',
     html: layout(`
@@ -206,8 +218,8 @@ export function planChangedEmail(
   newPlan: string,
   isUpgrade: boolean,
 ): { subject: string; html: string } {
-  const firstName = userName.split(' ')[0]
-  const planDisplay = newPlan.charAt(0).toUpperCase() + newPlan.slice(1)
+  const firstName = escapeHtml(userName.split(' ')[0])
+  const planDisplay = escapeHtml(newPlan.charAt(0).toUpperCase() + newPlan.slice(1))
   const verb = isUpgrade ? 'upgraded' : 'changed'
   return {
     subject: `Your ScoutCopilot plan has been ${verb} to ${planDisplay}`,
@@ -224,7 +236,7 @@ export function planChangedEmail(
 
 /** Account deleted confirmation */
 export function accountDeletedEmail(userName: string): { subject: string; html: string } {
-  const firstName = userName.split(' ')[0]
+  const firstName = escapeHtml(userName.split(' ')[0])
   return {
     subject: 'Your ScoutCopilot account has been deleted',
     html: layout(`

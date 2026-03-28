@@ -35,6 +35,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
   return (
     <aside
+      aria-label={t('nav.navigationSidebar')}
       className="fixed left-0 top-0 h-screen flex flex-col border-r border-outline-variant bg-surface-container-low"
       style={{
         width: collapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-expanded)',
@@ -56,9 +57,11 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               <li key={item.path}>
                 <button
                   onClick={() => navigate(item.path)}
+                  aria-current={isActive ? 'page' : undefined}
                   className={`
-                    relative flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm
+                    relative flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm min-h-[44px]
                     transition-colors duration-[var(--duration-normal)]
+                    focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1
                     ${isActive
                       ? 'bg-surface-container-high text-primary-light border-l-4 border-primary'
                       : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface border-l-4 border-transparent'
@@ -79,7 +82,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <button
           onClick={onToggle}
           aria-label={collapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
-          className="flex w-full items-center justify-center rounded-md p-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors duration-[var(--duration-normal)]"
+          className="flex w-full items-center justify-center rounded-md p-2 min-h-[44px] min-w-[44px] text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors duration-[var(--duration-normal)]"
         >
           {collapsed ? <ChevronsRight size={20} strokeWidth={1.5} /> : <ChevronsLeft size={20} strokeWidth={1.5} />}
         </button>

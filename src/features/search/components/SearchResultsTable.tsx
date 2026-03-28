@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, FileText, Loader2, Eye } from 'lucide-react'
@@ -71,7 +71,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
   return (
     <div className="bg-surface-container rounded-md border border-outline-variant overflow-hidden">
       {/* Header */}
-      <div className="px-6 py-4 flex justify-between items-center border-b border-outline-variant/10">
+      <div className="px-4 sm:px-6 py-4 flex flex-wrap justify-between items-center gap-3 border-b border-outline-variant/10">
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <span className="font-data text-primary text-lg">{results.length}</span>
           <span className="uppercase tracking-widest text-xs text-on-surface-variant">{t('search.playersFound')}</span>
@@ -79,7 +79,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
         <div className="flex items-center gap-1">
           <button
             onClick={() => exportResultsCsv(results, t)}
-            className="p-2 rounded-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+            className="p-2 rounded-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
             title={t('search.downloadResults')}
             aria-label={t('search.downloadResults')}
           >
@@ -88,7 +88,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
           <div className="flex items-center bg-surface-container-high rounded-sm border border-outline-variant/30">
             <button
               onClick={() => setViewMode('table')}
-              className={`p-2 rounded-sm transition-colors ${viewMode === 'table' ? 'text-primary bg-primary/10' : 'text-on-surface-variant hover:text-on-surface'}`}
+              className={`p-2 rounded-sm transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${viewMode === 'table' ? 'text-primary bg-primary/10' : 'text-on-surface-variant hover:text-on-surface'}`}
               title={t('search.tableView')}
               aria-label={t('search.tableView')}
             >
@@ -96,7 +96,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
             </button>
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-sm transition-colors ${viewMode === 'grid' ? 'text-primary bg-primary/10' : 'text-on-surface-variant hover:text-on-surface'}`}
+              className={`p-2 rounded-sm transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${viewMode === 'grid' ? 'text-primary bg-primary/10' : 'text-on-surface-variant hover:text-on-surface'}`}
               title={t('search.gridView')}
               aria-label={t('search.gridView')}
             >
@@ -181,14 +181,17 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
           </table>
         </div>
       ) : (
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {paged.map((player, i) => {
             const globalIndex = (page - 1) * PAGE_SIZE + i
             return (
               <div
                 key={player.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => navigate(`/players/${player.id}`)}
-                className="bg-surface-container-low border border-outline-variant rounded-md p-4 hover:border-primary/30 hover:bg-surface-container-high transition-colors cursor-pointer"
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/players/${player.id}`) } }}
+                className="bg-surface-container-low border border-outline-variant rounded-md p-4 hover:border-primary/30 hover:bg-surface-container-high transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1"
               >
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-[0.625rem] font-data text-on-surface-variant">{globalIndex + 1}</span>
@@ -226,7 +229,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="px-6 py-4 bg-surface-container-lowest flex justify-between items-center border-t border-outline-variant/10">
+        <div className="px-4 sm:px-6 py-4 bg-surface-container-lowest flex flex-wrap justify-between items-center gap-3 border-t border-outline-variant/10">
           <span className="text-[0.625rem] font-data font-bold uppercase tracking-widest text-on-surface-variant">
             {t('search.showingResults', { from: showFrom, to: showTo, total: results.length })}
           </span>
@@ -234,18 +237,19 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
             <button
               onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page === 1}
-              className="w-9 h-9 flex items-center justify-center border border-outline-variant rounded-sm text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="w-11 h-11 flex items-center justify-center border border-outline-variant rounded-sm text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              aria-label={t('search.previousPage', 'Previous page')}
             >
               <ChevronLeft size={14} strokeWidth={1.5} />
             </button>
             {getPageNumbers(page, totalPages).map((p, i) => (
               p === '...' ? (
-                <span key={`ellipsis-${i}`} className="w-9 h-9 flex items-center justify-center text-on-surface-variant font-data text-xs">...</span>
+                <span key={`ellipsis-${i}`} className="w-11 h-11 flex items-center justify-center text-on-surface-variant font-data text-xs">...</span>
               ) : (
                 <button
                   key={p}
                   onClick={() => setPage(p as number)}
-                  className={`w-9 h-9 flex items-center justify-center rounded-sm font-data text-xs font-bold transition-colors ${
+                  className={`w-11 h-11 flex items-center justify-center rounded-sm font-data text-xs font-bold transition-colors ${
                     page === p
                       ? 'border border-primary-container bg-primary-container/10 text-primary-container'
                       : 'border border-outline-variant text-on-surface-variant hover:bg-surface-container-high'
@@ -258,7 +262,8 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
             <button
               onClick={() => setPage(Math.min(totalPages, page + 1))}
               disabled={page === totalPages}
-              className="w-9 h-9 flex items-center justify-center border border-outline-variant rounded-sm text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="w-11 h-11 flex items-center justify-center border border-outline-variant rounded-sm text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              aria-label={t('search.nextPage', 'Next page')}
             >
               <ChevronRight size={14} strokeWidth={1.5} />
             </button>
@@ -363,12 +368,12 @@ function countryToFlag(country: string): string | null {
 
 function AIThinkingAnimation() {
   const { t } = useTranslation()
-  const AI_STEPS = [
+  const AI_STEPS = useMemo(() => [
     t('search.aiSteps.querying'),
     t('search.aiSteps.analyzing'),
     t('search.aiSteps.ranking'),
     t('search.aiSteps.compiling'),
-  ]
+  ], [t])
 
   const [step, setStep] = useState(0)
 
@@ -376,11 +381,11 @@ function AIThinkingAnimation() {
     const timers = AI_STEPS.map((_, i) =>
       i > 0 ? setTimeout(() => setStep(i), i * 700) : null,
     )
-    return () => timers.forEach((t) => t && clearTimeout(t))
+    return () => timers.forEach((timer) => timer && clearTimeout(timer))
   }, [AI_STEPS])
 
   return (
-    <div className="bg-surface-container rounded-md border border-outline-variant overflow-hidden">
+    <div role="status" aria-live="polite" className="bg-surface-container rounded-md border border-outline-variant overflow-hidden">
       <div className="flex flex-col items-center justify-center py-16 px-6">
         <Loader2 size={32} strokeWidth={1.5} className="animate-spin text-primary mb-6" />
         <div className="space-y-3 w-full max-w-xs">

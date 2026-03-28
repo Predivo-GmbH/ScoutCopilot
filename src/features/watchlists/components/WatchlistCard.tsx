@@ -14,46 +14,48 @@ export function WatchlistCard({ watchlist, isSelected, onClick, onDelete }: Watc
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
-      className={`bg-surface-container p-6 rounded-md border transition-all cursor-pointer group ${
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } }}
+      className={`bg-surface-container p-4 sm:p-6 rounded-md border transition-all cursor-pointer group focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1 ${
         isSelected ? 'border-primary' : 'border-outline-variant hover:border-outline-variant/60'
       }`}
     >
-      <div className="flex justify-between items-start mb-3">
-        <div>
-          <h3 className="text-base font-semibold group-hover:text-primary transition-colors text-on-surface">
+      <div className="flex justify-between items-start gap-2 mb-3">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base font-semibold group-hover:text-primary transition-colors text-on-surface truncate">
             {watchlist.name}
           </h3>
           <p className="text-xs text-on-surface-variant font-data mt-1 uppercase">
             {t('watchlists.updated')} {watchlist.lastUpdated}
           </p>
-        </div>
-        <div className="flex flex-col items-end gap-2">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                onDelete()
-              }}
-              className="p-1 text-error/0 group-hover:text-error hover:bg-error/10 rounded-sm transition-all"
-              title={t('watchlists.deleteWatchlist')}
-            >
-              <Trash2 size={14} strokeWidth={1.5} />
-            </button>
-            <span className="px-2 py-0.5 bg-surface-container-highest text-[0.625rem] font-semibold text-on-surface-variant rounded-sm uppercase tracking-tight">
+          <div className="flex items-center gap-1.5 mt-2">
+            <span className="px-2 py-0.5 bg-surface-container-highest text-[0.625rem] font-semibold text-on-surface-variant rounded-sm uppercase tracking-tight whitespace-nowrap">
               {watchlist.playerCount} {t('common.players')}
             </span>
+            {watchlist.alertCount > 0 ? (
+              <span className="px-2 py-0.5 bg-tertiary/10 text-tertiary text-[0.625rem] font-semibold rounded-sm border border-tertiary/20 whitespace-nowrap">
+                {watchlist.alertCount} {t('watchlists.alerts')}
+              </span>
+            ) : (
+              <span className="px-2 py-0.5 bg-surface-container-highest text-on-surface-variant text-[0.625rem] font-semibold rounded-sm uppercase whitespace-nowrap">
+                {t('watchlists.noAlerts')}
+              </span>
+            )}
           </div>
-          {watchlist.alertCount > 0 ? (
-            <span className="px-2 py-0.5 bg-tertiary/10 text-tertiary text-[0.625rem] font-semibold rounded-sm border border-tertiary/20">
-              {watchlist.alertCount} {t('watchlists.alerts')}
-            </span>
-          ) : (
-            <span className="px-2 py-0.5 bg-surface-container-highest text-on-surface-variant text-[0.625rem] font-semibold rounded-sm uppercase">
-              {t('watchlists.noAlerts')}
-            </span>
-          )}
         </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onDelete()
+          }}
+          className="p-1 text-error md:text-error/0 md:group-hover:text-error hover:bg-error/10 rounded-sm transition-all min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0"
+          aria-label={t('watchlists.deleteWatchlist')}
+          title={t('watchlists.deleteWatchlist')}
+        >
+          <Trash2 size={14} strokeWidth={1.5} />
+        </button>
       </div>
       {watchlist.description && (
         <p className="text-xs text-on-surface-variant leading-relaxed">{watchlist.description}</p>

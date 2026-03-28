@@ -35,6 +35,8 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000,
+      gcTime: 30 * 60 * 1000,
+      refetchOnWindowFocus: false,
       retry: 1,
     },
   },
@@ -48,7 +50,7 @@ export default function App() {
       <WatchlistProvider>
       <AuthProvider>
         <BrowserRouter>
-          <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-md animate-spin" /></div>}>
+          <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center" role="status"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /><span className="sr-only">Loading...</span></div>}>
           <Routes>
             {/* Public routes (no shell, no auth) */}
             <Route path="/" element={<LandingPage />} />

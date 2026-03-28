@@ -21,24 +21,24 @@ export function DashboardPage() {
   const { data: alerts, isLoading: alertsLoading } = useWatchlistAlerts()
 
   return (
-    <div className="p-6 md:p-8 space-y-8">
+    <div className="p-4 sm:p-6 md:p-8 space-y-8">
       <Helmet><meta name="robots" content="noindex" /></Helmet>
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <div className="flex flex-wrap justify-between items-start gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-on-surface">
             {t('dashboard.heading')}
           </h1>
           <p className="text-on-surface-variant mt-1 text-sm">{t('dashboard.subheading')}</p>
         </div>
-        <div className="flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-md border border-outline-variant">
+        <div className="flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-md border border-outline-variant shrink-0">
           <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
           <span className="text-[0.625rem] font-data font-medium uppercase tracking-widest text-on-surface-variant">{t('dashboard.systemLive')}</span>
         </div>
       </div>
 
       {/* Metric Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
         {stats?.items.map((item) => {
           const locale = t('common.locale', 'en-GB')
           const displayValue = typeof item.value === 'string'
@@ -47,11 +47,11 @@ export function DashboardPage() {
           return (
             <div
               key={item.label}
-              className="bg-surface-container border border-outline-variant p-5 rounded-md flex flex-col justify-between min-h-[110px]"
+              className="bg-surface-container border border-outline-variant p-3 sm:p-5 rounded-md flex flex-col justify-between min-h-[90px] sm:min-h-[110px]"
             >
               <p className="text-[0.625rem] font-data uppercase tracking-widest text-on-surface-variant">{t(item.label)}</p>
               <div className="flex items-end justify-between mt-auto">
-                <span className="text-3xl font-data font-bold text-on-surface">
+                <span className="text-2xl sm:text-3xl font-data font-bold text-on-surface">
                   {displayValue}
                 </span>
                 <div className="flex items-center gap-2">
@@ -62,7 +62,7 @@ export function DashboardPage() {
                     </span>
                   )}
                   {item.badge && (
-                    <span className="text-[0.6rem] font-data font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-sm">
+                    <span className="text-[0.625rem] font-data font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-sm">
                       {t(item.badge)}
                     </span>
                   )}
@@ -71,12 +71,12 @@ export function DashboardPage() {
             </div>
           )
         })}
-        {statsLoading && Array.from({ length: 4 }).map((_, i) => (
+        {statsLoading && <div role="status" aria-live="polite">{Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="bg-surface-container border border-outline-variant p-5 rounded-md">
             <div className="h-3 w-24 bg-surface-container-high rounded-sm animate-pulse mb-8" />
             <div className="h-8 w-20 bg-surface-container-high rounded-sm animate-pulse" />
           </div>
-        ))}
+        ))}<span className="sr-only">{t('common.loading', 'Loading...')}</span></div>}
       </div>
 
       {/* Two-Column: Recent Searches + Watchlist Alerts */}
@@ -84,7 +84,7 @@ export function DashboardPage() {
         {/* Recent Searches */}
         <div className="flex-1 min-w-0">
           <div className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
-            <div className="px-6 py-4 border-b border-outline-variant flex justify-between items-center">
+            <div className="px-4 sm:px-6 py-4 border-b border-outline-variant flex justify-between items-center">
               <h3 className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
                 <Clock size={14} strokeWidth={1.5} className="text-primary" />
                 {t('dashboard.recentSearches')}
@@ -97,20 +97,21 @@ export function DashboardPage() {
               </button>
             </div>
             {searchesLoading ? (
-              <div className="p-6 space-y-3">
+              <div className="p-6 space-y-3" role="status" aria-live="polite">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <div key={i} className="h-10 bg-surface-container-high rounded-sm animate-pulse" />
                 ))}
+                <span className="sr-only">{t('common.loading', 'Loading...')}</span>
               </div>
             ) : (
               <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-outline-variant/30">
-                    <th className="px-6 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider">{t('dashboard.query')}</th>
-                    <th className="px-4 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider text-right">{t('dashboard.results')}</th>
-                    <th className="px-4 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider">{t('dashboard.date')}</th>
-                    <th className="px-4 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider">{t('dashboard.status')}</th>
+                    <th className="px-3 sm:px-6 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider">{t('dashboard.query')}</th>
+                    <th className="px-3 sm:px-4 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider text-right">{t('dashboard.results')}</th>
+                    <th className="hidden sm:table-cell px-3 sm:px-4 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider">{t('dashboard.date')}</th>
+                    <th className="px-3 sm:px-4 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider">{t('dashboard.status')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/30">
@@ -123,16 +124,16 @@ export function DashboardPage() {
                       onClick={() => navigate(`/search?q=${encodeURIComponent(search.query)}&saved=1`)}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/search?q=${encodeURIComponent(search.query)}&saved=1`) } }}
                     >
-                      <td className="px-6 py-3 text-xs font-medium text-on-surface max-w-[320px] truncate">
+                      <td className="px-3 sm:px-6 py-3 text-xs font-medium text-on-surface max-w-[200px] sm:max-w-[320px] truncate">
                         {search.query}
                       </td>
-                      <td className="px-4 py-3 text-xs font-data text-on-surface-variant text-right">
+                      <td className="px-3 sm:px-4 py-3 text-xs font-data text-on-surface-variant text-right">
                         {search.resultCount}
                       </td>
-                      <td className="px-4 py-3 text-[0.625rem] font-data text-on-surface-variant">
+                      <td className="hidden sm:table-cell px-3 sm:px-4 py-3 text-[0.625rem] font-data text-on-surface-variant">
                         {formatDate(search.timestamp)}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-3 sm:px-4 py-3">
                         <StatusBadge status={search.status} />
                       </td>
                     </tr>
@@ -149,7 +150,7 @@ export function DashboardPage() {
           <div className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
             <button
               onClick={() => navigate('/alerts')}
-              className="w-full px-4 py-4 border-b border-outline-variant flex justify-between items-center cursor-pointer hover:bg-surface-container-high transition-colors"
+              className="w-full px-3 sm:px-4 py-4 border-b border-outline-variant flex justify-between items-center cursor-pointer hover:bg-surface-container-high transition-colors"
             >
               <h3 className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
                 <Zap size={14} strokeWidth={1.5} className="text-tertiary" />
@@ -160,10 +161,11 @@ export function DashboardPage() {
               </span>
             </button>
             {alertsLoading ? (
-              <div className="p-3 space-y-3">
+              <div className="p-3 space-y-3" role="status" aria-live="polite">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div key={i} className="h-20 bg-surface-container-high rounded-sm animate-pulse" />
                 ))}
+                <span className="sr-only">{t('common.loading', 'Loading...')}</span>
               </div>
             ) : (
               <div className="p-2 space-y-2">
@@ -184,7 +186,7 @@ export function DashboardPage() {
                           <h4 className="text-sm font-bold text-on-surface leading-tight">{alert.playerName}</h4>
                           <p className="text-[0.625rem] font-data text-on-surface-variant">{alert.club}</p>
                         </div>
-                        <span className="text-[0.6rem] font-data text-on-surface-variant/70 shrink-0">{alert.timeAgo}</span>
+                        <span className="text-[0.625rem] font-data text-on-surface-variant/70 shrink-0">{alert.timeAgo}</span>
                       </div>
                       <div className={`bg-surface-container-lowest p-2 rounded-sm border-l-2 ${borderColor}`}>
                         <p className={`text-xs leading-relaxed ${
@@ -222,7 +224,7 @@ export function DashboardPage() {
             tabIndex={0}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate('/search') }}
             onClick={() => navigate('/search')}
-            className="relative bg-surface-container border border-outline-variant p-6 rounded-md text-left cursor-pointer hover:bg-surface-container-high transition-colors overflow-hidden"
+            className="relative bg-surface-container border border-outline-variant p-4 sm:p-6 rounded-md text-left cursor-pointer hover:bg-surface-container-high transition-colors overflow-hidden"
           >
             <div className="absolute top-0 left-0 right-0 h-1 bg-secondary" />
             <Search size={24} strokeWidth={1.5} className="text-primary mb-3" />
@@ -234,7 +236,7 @@ export function DashboardPage() {
             tabIndex={0}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate('/players') }}
             onClick={() => navigate('/players')}
-            className="relative bg-surface-container border border-outline-variant p-6 rounded-md text-left cursor-pointer hover:bg-surface-container-high transition-colors overflow-hidden"
+            className="relative bg-surface-container border border-outline-variant p-4 sm:p-6 rounded-md text-left cursor-pointer hover:bg-surface-container-high transition-colors overflow-hidden"
           >
             <div className="absolute top-0 left-0 right-0 h-1 bg-secondary" />
             <FileText size={24} strokeWidth={1.5} className="text-primary mb-3" />
@@ -246,7 +248,7 @@ export function DashboardPage() {
             tabIndex={0}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate('/compare') }}
             onClick={() => navigate('/compare')}
-            className="relative bg-surface-container border border-outline-variant p-6 rounded-md text-left cursor-pointer hover:bg-surface-container-high transition-colors overflow-hidden"
+            className="relative bg-surface-container border border-outline-variant p-4 sm:p-6 rounded-md text-left cursor-pointer hover:bg-surface-container-high transition-colors overflow-hidden"
           >
             <div className="absolute top-0 left-0 right-0 h-1 bg-secondary" />
             <GitCompareArrows size={24} strokeWidth={1.5} className="text-primary mb-3" />

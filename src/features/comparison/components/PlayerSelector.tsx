@@ -41,7 +41,7 @@ export function PlayerSelector({ selectedPlayers, availablePlayers, maxPlayers, 
   }, [])
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
       {selectedPlayers.map((player, i) => (
         <div
           key={player.id}
@@ -57,7 +57,8 @@ export function PlayerSelector({ selectedPlayers, availablePlayers, maxPlayers, 
           </div>
           <button
             onClick={() => onRemove(player.id)}
-            className="text-on-surface-variant hover:text-error transition-colors shrink-0"
+            aria-label={`Remove ${player.name}`}
+            className="text-on-surface-variant hover:text-error transition-colors shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
             <X size={16} strokeWidth={1.5} />
           </button>
@@ -78,14 +79,15 @@ export function PlayerSelector({ selectedPlayers, availablePlayers, maxPlayers, 
             <div className="absolute top-full left-0 right-0 mt-2 bg-surface-container border border-outline-variant rounded-md shadow-lg z-50 overflow-hidden">
               <div className="p-2 border-b border-outline-variant">
                 <div className="relative">
-                  <Search size={14} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50" />
+                  <Search size={14} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/70" />
                   <input
                     ref={inputRef}
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder={t('comparison.searchPlayers')}
-                    className="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-md py-2 pl-9 pr-3 text-xs text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:border-primary transition-colors"
+                    aria-label={t('comparison.searchPlayers')}
+                    className="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-md py-2 pl-9 pr-3 text-base md:text-xs text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus:border-primary transition-colors min-h-[44px]"
                   />
                 </div>
               </div>
@@ -106,9 +108,9 @@ export function PlayerSelector({ selectedPlayers, availablePlayers, maxPlayers, 
                       <PlayerAvatar name={player.name} size={32} imageUrl={player.image} />
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-on-surface truncate">{player.name}</p>
-                        <p className="text-[0.6rem] font-data text-on-surface-variant truncate">{player.club} &middot; {player.position}</p>
+                        <p className="text-[0.625rem] font-data text-on-surface-variant truncate">{player.club} &middot; {player.position}</p>
                       </div>
-                      <span className="text-[0.6rem] font-data text-on-surface-variant/60">{player.age}y</span>
+                      <span className="text-[0.625rem] font-data text-on-surface-variant/60">{player.age}y</span>
                     </button>
                   ))
                 )}

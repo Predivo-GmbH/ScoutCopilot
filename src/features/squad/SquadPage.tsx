@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Users, Heart, AlertTriangle } from 'lucide-react'
 import type { FormationType, MockSquad } from '../../lib/mock-data'
@@ -18,7 +19,8 @@ export function SquadPage() {
   }
 
   return (
-    <div className="p-6 space-y-6 max-h-[calc(100vh-3.5rem)] overflow-y-auto">
+    <div className="p-4 sm:p-6 space-y-6">
+      <Helmet><meta name="robots" content="noindex" /></Helmet>
       {/* Header */}
       <div>
         <h1 className="text-xl font-bold text-on-surface">{t('squad.heading')}</h1>
@@ -27,10 +29,11 @@ export function SquadPage() {
 
       {/* Squad Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4" role="status" aria-live="polite">
           {[1, 2].map((i) => (
             <div key={i} className="h-36 bg-surface-container-high rounded-md animate-pulse" />
           ))}
+          <span className="sr-only">{t('common.loading', 'Loading...')}</span>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -59,13 +62,13 @@ function SquadDetail({ squad, onBack }: { squad: MockSquad; onBack: () => void }
   const onLoanCount = squad.players.filter((p) => p.status === 'on_loan').length
 
   return (
-    <div className="p-6 space-y-8 max-h-[calc(100vh-3.5rem)] overflow-y-auto">
+    <div className="p-4 sm:p-6 space-y-8">
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <button
             onClick={onBack}
-            className="flex items-center gap-1.5 text-xs font-medium text-on-surface-variant hover:text-on-surface transition-colors mb-3"
+            className="flex items-center gap-1.5 text-xs font-medium text-on-surface-variant hover:text-on-surface transition-colors mb-3 min-h-[44px]"
           >
             <ArrowLeft size={14} strokeWidth={1.5} />
             {t('squad.allSquads')}
@@ -107,7 +110,7 @@ function StatCard({ icon: Icon, label, value, variant = 'default' }: {
   value: string
   variant?: 'default' | 'warning' | 'info'
 }) {
-  const iconColor = variant === 'warning' ? 'text-amber-500' : variant === 'info' ? 'text-tertiary' : 'text-primary'
+  const iconColor = variant === 'warning' ? 'text-warning' : variant === 'info' ? 'text-tertiary' : 'text-primary'
   return (
     <div className="bg-surface-container border border-outline-variant rounded-md px-4 py-3 flex items-center gap-3">
       <Icon size={18} strokeWidth={1.5} className={iconColor} />

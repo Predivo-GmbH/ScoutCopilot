@@ -1,3 +1,6 @@
+// CQ-004: Renamed to avoid collision with database.ts PlayerReport (DB row type).
+// These are the API/domain-layer types used when wiring to real endpoints.
+
 export interface Player {
   id: string
   name: string
@@ -21,7 +24,8 @@ export interface PlayerStats {
   attributes: Record<string, number>
 }
 
-export interface PlayerReport {
+/** Domain-layer player report (distinct from DB row type PlayerReport in database.ts) */
+export interface PlayerReportResponse {
   id: string
   player_id: string
   created_at: string

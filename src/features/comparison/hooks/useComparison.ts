@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+// TODO [CQ-003]: Replace mock-data imports with real API calls via src/lib/api.ts
 import { playerReports, getSquadPlayerReport, type MockComparisonPlayer } from '../../../lib/mock-data'
 import { useGeneratedReports } from '../../../lib/useGeneratedReportsHook'
 

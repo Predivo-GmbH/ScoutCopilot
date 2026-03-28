@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Search as SearchIcon, FileText, Trash2 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
@@ -28,7 +29,8 @@ export function ReportsListPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
+      <Helmet><meta name="robots" content="noindex" /></Helmet>
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-on-surface">{t('reportsList.heading')}</h1>
         <p className="text-sm text-on-surface-variant mt-1">
@@ -47,13 +49,80 @@ export function ReportsListPage() {
           </p>
           <button
             onClick={() => navigate('/search')}
-            className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary-light transition-colors"
+            className="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-dark transition-colors"
           >
             {t('reportsList.startSearch')}
           </button>
         </div>
       ) : (
-        <div className="bg-surface-container rounded-md overflow-hidden border border-outline-variant">
+        <>
+        {/* Mobile card layout */}
+        <div className="block sm:hidden space-y-3">
+          {reports.map((report) => {
+            const rec = recommendation[report.recommendation]
+            return (
+              <div
+                key={report.playerId}
+                onClick={() => navigate(`/players/${report.playerId}`)}
+                className="bg-surface-container rounded-md border border-outline-variant p-4 space-y-3 cursor-pointer active:bg-surface-container-high transition-colors min-h-[44px]"
+              >
+                <div className="flex items-center gap-3">
+                  <PlayerAvatar name={report.playerName} size={40} imageUrl={report.image} />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-on-surface truncate">{report.playerName}</p>
+                    <p className="text-[0.625rem] text-on-surface-variant font-data">
+                      {report.nationality} | {report.club}
+                    </p>
+                  </div>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-sm text-[0.625rem] font-data font-medium uppercase border shrink-0 ${rec.className}`}>
+                    {rec.label}
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div>
+                    <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('common.position')}</p>
+                    <p className="font-data text-sm text-on-surface-variant">{report.position}</p>
+                  </div>
+                  <div>
+                    <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('common.age')}</p>
+                    <p className="font-data text-sm">{report.age}</p>
+                  </div>
+                  <div>
+                    <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('reportsList.fitScore')}</p>
+                    <p className="text-primary font-data font-semibold text-sm">{report.fitScore}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 pt-1 border-t border-outline-variant">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    leftIcon={FileText}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      navigate(`/players/${report.playerId}`)
+                    }}
+                  >
+                    {t('common.report')}
+                  </Button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setDeleteTarget({ id: report.playerId, name: report.playerName })
+                    }}
+                    className="p-1 text-error hover:bg-error/10 rounded-sm transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    aria-label={t('reportsList.removePlayer')}
+                  >
+                    <Trash2 size={14} strokeWidth={1.5} />
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Desktop table layout */}
+        <div className="hidden sm:block bg-surface-container rounded-md overflow-hidden border border-outline-variant">
+          <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="bg-surface-container-low text-[0.625rem] font-medium text-on-surface-variant uppercase tracking-widest border-b border-outline-variant">
@@ -72,7 +141,11 @@ export function ReportsListPage() {
                 return (
                   <tr
                     key={report.playerId}
-                    className={`${i % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'} hover:bg-surface-container-high transition-colors group`}
+                    tabIndex={0}
+                    role="link"
+                    onClick={() => navigate(`/players/${report.playerId}`)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/players/${report.playerId}`) } }}
+                    className={`${i % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'} hover:bg-surface-container-high transition-colors group cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1`}
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -101,7 +174,7 @@ export function ReportsListPage() {
                       </span>
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex justify-end gap-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -118,7 +191,8 @@ export function ReportsListPage() {
                             e.stopPropagation()
                             setDeleteTarget({ id: report.playerId, name: report.playerName })
                           }}
-                          className="p-1 text-error hover:bg-error/10 rounded-sm transition-colors"
+                          className="p-1 text-error hover:bg-error/10 rounded-sm transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                          aria-label={t('reportsList.removePlayer')}
                         >
                           <Trash2 size={14} strokeWidth={1.5} />
                         </button>
@@ -129,7 +203,9 @@ export function ReportsListPage() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
+        </>
       )}
 
       <ConfirmDialog

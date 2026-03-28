@@ -47,6 +47,12 @@
   --color-tertiary-fixed: #FFDDB8;
   --color-tertiary-fixed-dim: #FFB95F;
 
+  /* Warning */
+  --color-warning: #F59E0B;
+  --color-on-warning: #FFFFFF;
+  --color-warning-container: #78350F;
+  --color-on-warning-container: #FDE68A;
+
   /* Error */
   --color-error: #FFB4AB;
   --color-error-container: #93000A;
@@ -86,6 +92,10 @@
   --radius-sm: 2px;
   --radius-md: 6px;
   --radius-lg: 8px;
+
+  /* Pitch (formation visualization) */
+  --color-pitch: #064e3b;
+  --color-pitch-line: #059669;
 
   /* Layout */
   --sidebar-expanded: 256px;
@@ -131,6 +141,10 @@
   --color-tertiary-fixed: #FFDDB8;
   --color-tertiary-fixed-dim: #FFB95F;
 
+  --color-warning: #D97706;
+  --color-warning-container: #FEF3C7;
+  --color-on-warning-container: #92400E;
+
   --color-error: #DC2626;
   --color-error-container: #FEE2E2;
   --color-on-error: #FFFFFF;
@@ -156,7 +170,13 @@
 
   --color-background: #F8FAFC;
   --color-on-background: #0F172A;
+
+  --color-pitch: #064e3b;
+  --color-pitch-line: #059669;
 }
+
+/* Animations */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* Base styles */
 *,
@@ -186,6 +206,17 @@ h1, h2, h3, h4, h5, h6 {
 /* Utility: mono font for numbers/stats */
 .font-data {
   font-family: var(--font-mono);
+}
+
+/* Visible focus indicators for keyboard navigation */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-primary) 40%, transparent);
+  outline-offset: 1px;
 }
 
 /* Respect reduced motion */

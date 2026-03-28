@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+// TODO [CQ-003]: Replace mock-data imports with real API calls via src/lib/api.ts
 import { mockSquads, type MockSquad } from '../../../lib/mock-data'
 
 export function useSquad() {

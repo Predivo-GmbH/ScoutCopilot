@@ -5,13 +5,13 @@
  * Body: {} (uses authenticated user's info)
  */
 
-import { corsHeaders, handleCors } from '../_shared/cors.ts'
+import { handleCors } from '../_shared/cors.ts'
 import { sendEmail, welcomeEmail } from '../_shared/email.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
 Deno.serve(async (req) => {
-  const corsResponse = handleCors(req)
-  if (corsResponse) return corsResponse
+  const { corsHeaders, preflightResponse } = handleCors(req)
+  if (preflightResponse) return preflightResponse
 
   try {
     // Verify the user's JWT
