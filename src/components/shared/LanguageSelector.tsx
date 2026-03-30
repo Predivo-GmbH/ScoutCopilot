@@ -89,7 +89,7 @@ export function LanguageSelector({ className = '', variant = 'dropdown' }: Langu
                 : 'text-on-surface-variant hover:bg-surface-container'
             }`}
           >
-            {lang.code.toUpperCase()} {lang.label}
+            {lang.label}
           </button>
         ))}
       </div>
@@ -125,7 +125,6 @@ export function LanguageSelector({ className = '', variant = 'dropdown' }: Langu
               }`}
             >
               <span className="font-semibold">{lang.code.toUpperCase()}</span>
-              <span>{lang.label}</span>
             </button>
           ))}
         </div>

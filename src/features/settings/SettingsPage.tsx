@@ -54,7 +54,7 @@ export function SettingsPage() {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center justify-between w-full px-3 py-2 text-xs rounded-md transition-colors min-h-[44px] ${
+            className={`flex items-center justify-between w-full px-3 py-2 text-xs text-left rounded-md transition-colors min-h-[44px] ${
               activeTab === tab.key
                 ? 'font-semibold bg-surface-container text-primary'
                 : 'text-on-surface-variant hover:bg-surface-container/50'

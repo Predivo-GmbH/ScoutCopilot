@@ -215,13 +215,13 @@ export function LandingPage() {
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-            <button onClick={() => scrollTo('features')} className="text-on-surface-variant hover:text-on-surface transition-colors">
+            <button onClick={() => scrollTo('features')} className="text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-px after:bg-current after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left pb-0.5">
               {t('common.features')}
             </button>
-            <button onClick={() => scrollTo('pricing')} className="text-on-surface-variant hover:text-on-surface transition-colors">
+            <button onClick={() => scrollTo('pricing')} className="text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-px after:bg-current after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left pb-0.5">
               {t('common.pricing')}
             </button>
-            <button onClick={() => scrollTo('faq')} className="text-on-surface-variant hover:text-on-surface transition-colors">
+            <button onClick={() => scrollTo('faq')} className="text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-px after:bg-current after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left pb-0.5">
               {t('common.faq')}
             </button>
           </div>
@@ -686,7 +686,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-controls={panelId}
-        className="w-full flex items-center justify-between p-6 text-left min-h-[44px]"
+        className="w-full flex items-center justify-between p-6 text-left min-h-[44px] cursor-pointer hover:bg-surface-container/30 transition-colors"
       >
         <span className="font-semibold text-sm pr-4">{question}</span>
         <ChevronDown

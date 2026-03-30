@@ -151,24 +151,18 @@ export function welcomeEmail(userName: string): { subject: string; html: string 
   const firstName = escapeHtml(userName.split(' ')[0])
   return {
     subject: `Welcome to ScoutCopilot, ${firstName}!`,
-    html: layout(`
-      <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0B1326;">Welcome aboard, ${firstName}!</h1>
-      <p style="margin:0 0 12px;font-size:15px;color:#3f3f46;line-height:1.6;">
-        Your 14-day free trial is now active. Here's how to get started:
-      </p>
-      <ol style="margin:0 0 12px;padding-left:20px;font-size:15px;color:#3f3f46;line-height:1.8;">
-        <li>Connect your Wyscout or StatsBomb API credentials</li>
-        <li>Search for players using natural language</li>
-        <li>Generate AI-powered scouting reports</li>
-      </ol>
-      <p style="margin:0 0 4px;font-size:15px;color:#3f3f46;line-height:1.6;">
-        No credit card required during your trial.
-      </p>
-      ${button('Go to Dashboard', `${APP_URL}/dashboard`)}
-      <p style="margin:0;font-size:13px;color:#71717a;">
-        Need help? Just reply to this email — we read every message.
-      </p>
-    `),
+    html: layout(
+`<h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0B1326;">Welcome aboard, ${firstName}!</h1>
+<p style="margin:0 0 12px;font-size:15px;color:#3f3f46;line-height:1.6;">Your 14-day free trial is now active. Here's how to get started:</p>
+<ol style="margin:0 0 12px;padding-left:20px;font-size:15px;color:#3f3f46;line-height:1.8;">
+<li>Connect your Wyscout or StatsBomb API credentials</li>
+<li>Search for players using natural language</li>
+<li>Generate AI-powered scouting reports</li>
+</ol>
+<p style="margin:0 0 4px;font-size:15px;color:#3f3f46;line-height:1.6;">No credit card required during your trial.</p>
+${button('Go to Dashboard', `${APP_URL}/dashboard`)}
+<p style="margin:0;font-size:13px;color:#71717a;">Need help? Just reply to this email &mdash; we read every message.</p>`
+    ),
   }
 }
 
@@ -180,17 +174,12 @@ export function trialEndingEmail(
   const firstName = escapeHtml(userName.split(' ')[0])
   return {
     subject: `Your ScoutCopilot trial ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}`,
-    html: layout(`
-      <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0B1326;">Your trial is ending soon, ${firstName}</h1>
-      <p style="margin:0 0 12px;font-size:15px;color:#3f3f46;line-height:1.6;">
-        Your free trial expires in <strong>${daysLeft} day${daysLeft === 1 ? '' : 's'}</strong>.
-        Upgrade now to keep scouting with AI-powered intelligence.
-      </p>
-      ${button('Choose a Plan', `${APP_URL}/settings?tab=billing`)}
-      <p style="margin:0;font-size:13px;color:#71717a;">
-        Not ready? No worries — your data stays safe and you can upgrade anytime.
-      </p>
-    `),
+    html: layout(
+`<h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0B1326;">Your trial is ending soon, ${firstName}</h1>
+<p style="margin:0 0 12px;font-size:15px;color:#3f3f46;line-height:1.6;">Your free trial expires in <strong>${daysLeft} day${daysLeft === 1 ? '' : 's'}</strong>. Upgrade now to keep scouting with AI-powered intelligence.</p>
+${button('Choose a Plan', `${APP_URL}/settings?tab=billing`)}
+<p style="margin:0;font-size:13px;color:#71717a;">Not ready? No worries &mdash; your data stays safe and you can upgrade anytime.</p>`
+    ),
   }
 }
 
@@ -199,16 +188,12 @@ export function paymentFailedEmail(userName: string): { subject: string; html: s
   const firstName = escapeHtml(userName.split(' ')[0])
   return {
     subject: 'Action required: Payment failed for ScoutCopilot',
-    html: layout(`
-      <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0B1326;">Payment issue, ${firstName}</h1>
-      <p style="margin:0 0 12px;font-size:15px;color:#3f3f46;line-height:1.6;">
-        We couldn't process your latest payment for ScoutCopilot. This is usually caused by an expired card or insufficient funds.
-      </p>
-      ${button('Update Payment Method', `${APP_URL}/settings?tab=billing`)}
-      <p style="margin:0;font-size:13px;color:#71717a;">
-        If you believe this is an error, please reply to this email and we'll help.
-      </p>
-    `),
+    html: layout(
+`<h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0B1326;">Payment issue, ${firstName}</h1>
+<p style="margin:0 0 12px;font-size:15px;color:#3f3f46;line-height:1.6;">We couldn't process your latest payment for ScoutCopilot. This is usually caused by an expired card or insufficient funds.</p>
+${button('Update Payment Method', `${APP_URL}/settings?tab=billing`)}
+<p style="margin:0;font-size:13px;color:#71717a;">If you believe this is an error, please reply to this email and we'll help.</p>`
+    ),
   }
 }
 
@@ -223,14 +208,11 @@ export function planChangedEmail(
   const verb = isUpgrade ? 'upgraded' : 'changed'
   return {
     subject: `Your ScoutCopilot plan has been ${verb} to ${planDisplay}`,
-    html: layout(`
-      <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0B1326;">Plan ${verb}, ${firstName}</h1>
-      <p style="margin:0 0 12px;font-size:15px;color:#3f3f46;line-height:1.6;">
-        Your ScoutCopilot subscription has been ${verb} to the <strong>${planDisplay}</strong> plan.
-        ${isUpgrade ? 'Your new limits are now active.' : 'The change takes effect at the end of your current billing period.'}
-      </p>
-      ${button('View Account', `${APP_URL}/settings?tab=billing`)}
-    `),
+    html: layout(
+`<h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0B1326;">Plan ${verb}, ${firstName}</h1>
+<p style="margin:0 0 12px;font-size:15px;color:#3f3f46;line-height:1.6;">Your ScoutCopilot subscription has been ${verb} to the <strong>${planDisplay}</strong> plan. ${isUpgrade ? 'Your new limits are now active.' : 'The change takes effect at the end of your current billing period.'}</p>
+${button('View Account', `${APP_URL}/settings?tab=billing`)}`
+    ),
   }
 }
 
@@ -239,17 +221,11 @@ export function accountDeletedEmail(userName: string): { subject: string; html: 
   const firstName = escapeHtml(userName.split(' ')[0])
   return {
     subject: 'Your ScoutCopilot account has been deleted',
-    html: layout(`
-      <h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0B1326;">Account deleted, ${firstName}</h1>
-      <p style="margin:0 0 12px;font-size:15px;color:#3f3f46;line-height:1.6;">
-        Your ScoutCopilot account and all associated data have been permanently deleted as requested.
-      </p>
-      <p style="margin:0 0 12px;font-size:15px;color:#3f3f46;line-height:1.6;">
-        If this was a mistake or you'd like to come back, you're welcome to sign up again anytime.
-      </p>
-      <p style="margin:0;font-size:13px;color:#71717a;">
-        We're sorry to see you go. If you have feedback, reply to this email — we'd love to hear how we can improve.
-      </p>
-    `),
+    html: layout(
+`<h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0B1326;">Account deleted, ${firstName}</h1>
+<p style="margin:0 0 12px;font-size:15px;color:#3f3f46;line-height:1.6;">Your ScoutCopilot account and all associated data have been permanently deleted as requested.</p>
+<p style="margin:0 0 12px;font-size:15px;color:#3f3f46;line-height:1.6;">If this was a mistake or you'd like to come back, you're welcome to sign up again anytime.</p>
+<p style="margin:0;font-size:13px;color:#71717a;">We're sorry to see you go. If you have feedback, reply to this email &mdash; we'd love to hear how we can improve.</p>`
+    ),
   }
 }

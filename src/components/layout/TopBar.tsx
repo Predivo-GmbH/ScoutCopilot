@@ -115,7 +115,7 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
             onClick={toggleProfileDropdown}
             aria-expanded={profileOpen}
             aria-haspopup="menu"
-            className="flex items-center gap-2.5 p-1 pr-2 rounded-md hover:bg-surface-container transition-colors min-h-[44px]"
+            className="flex items-center gap-2.5 p-1 pr-2 rounded-md hover:bg-surface-container transition-colors min-h-[44px] cursor-pointer"
           >
             {profile?.avatar_url ? (
               <img
