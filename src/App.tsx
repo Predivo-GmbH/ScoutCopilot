@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { PasswordGate } from './components/shared/PasswordGate'
 import { AuthProvider } from './features/auth/AuthContext'
@@ -31,6 +31,11 @@ const PricingPage = lazy(() => import('./features/pricing/PricingPage').then(m =
 const PrivacyPage = lazy(() => import('./features/legal/PrivacyPage').then(m => ({ default: m.PrivacyPage })))
 const TermsPage = lazy(() => import('./features/legal/TermsPage').then(m => ({ default: m.TermsPage })))
 const ImprintPage = lazy(() => import('./features/legal/ImprintPage').then(m => ({ default: m.ImprintPage })))
+
+function CatchAllRedirect() {
+  const { lang } = useParams()
+  return <Navigate to={`/${lang || 'en'}/dashboard`} replace />
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -95,7 +100,7 @@ export default function App() {
               </Route>
 
               {/* Fallback within lang */}
-              <Route path="*" element={<Navigate to="dashboard" replace />} />
+              <Route path="*" element={<CatchAllRedirect />} />
             </Route>
           </Routes>
           </Suspense>

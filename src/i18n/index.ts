@@ -26,7 +26,7 @@ loadLanguage('en').then(() => {
 
 i18n.on('languageChanged', (lng) => {
   document.documentElement.lang = lng
-  loadLanguage(lng)
 })
 
+export { loadLanguage }
 export default i18n

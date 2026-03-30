@@ -10,12 +10,12 @@ test('screenshot all authenticated pages', async ({ page }) => {
   })
 
   const pages = [
-    { name: 'dashboard', path: '/dashboard?_screenshot' },
-    { name: 'search', path: '/search?_screenshot' },
-    { name: 'search-results', path: '/search?_screenshot&q=left-backs+under+23' },
-    { name: 'report', path: '/report/p1?_screenshot' },
-    { name: 'compare', path: '/compare?_screenshot' },
-    { name: 'watchlists', path: '/watchlists?_screenshot' },
+    { name: 'dashboard', path: '/en/dashboard?_screenshot' },
+    { name: 'search', path: '/en/search?_screenshot' },
+    { name: 'search-results', path: '/en/search?_screenshot&q=left-backs+under+23' },
+    { name: 'report', path: '/en/report/p1?_screenshot' },
+    { name: 'compare', path: '/en/compare?_screenshot' },
+    { name: 'watchlists', path: '/en/watchlists?_screenshot' },
   ]
 
   for (const p of pages) {
