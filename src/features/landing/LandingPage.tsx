@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation, Trans } from 'react-i18next'
-import { Link, useLocalizedNavigate } from '../../components/shared/LocalizedLink'
+import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import {
   Search,
   FileText,
@@ -10,15 +10,12 @@ import {
   Check,
   X,
   ArrowRight,
-  ChevronDown,
   Shield,
-  Menu,
-  XIcon,
 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
-import { Logo } from '../../components/shared/Logo'
-import { ThemeToggle } from '../../components/shared/ThemeToggle'
-import { LanguageSelector } from '../../components/shared/LanguageSelector'
+import { PublicNav } from '../../components/layout/PublicNav'
+import { PublicFooter } from '../../components/layout/PublicFooter'
+import { FaqItem } from '../../components/shared/FaqItem'
 import {
   TIER_PRICES,
   TIER_ANNUAL_TOTAL,
@@ -129,17 +126,8 @@ export function LandingPage() {
   const navigate = useLocalizedNavigate()
   const lang = i18n.language || 'en'
   const [interval, setInterval] = useState<BillingInterval>('year')
-  const [scrolled, setScrolled] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
 
   function scrollTo(id: string) {
-    setMobileMenuOpen(false)
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   }
 
@@ -201,73 +189,7 @@ export function LandingPage() {
           })}
         </script>
       </Helmet>
-      {/* ── Navigation ──────────────────────────────────────────── */}
-      <header>
-      <nav
-        className={`fixed top-0 w-full z-30 transition-colors duration-[150ms] ${
-          scrolled
-            ? 'bg-surface-container-low border-b border-outline-variant/40'
-            : 'bg-transparent'
-        }`}
-      >
-        <div className="flex justify-between items-center px-6 md:px-8 py-4 max-w-7xl mx-auto">
-          <Logo size="md" />
-
-          {/* Desktop links */}
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-            <button onClick={() => scrollTo('features')} className="text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-px after:bg-current after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left pb-0.5">
-              {t('common.features')}
-            </button>
-            <button onClick={() => scrollTo('pricing')} className="text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-px after:bg-current after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left pb-0.5">
-              {t('common.pricing')}
-            </button>
-            <button onClick={() => scrollTo('faq')} className="text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-px after:bg-current after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left pb-0.5">
-              {t('common.faq')}
-            </button>
-          </div>
-
-          <div className="hidden md:flex items-center gap-3">
-            <LanguageSelector />
-            <ThemeToggle className="p-2" />
-            <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
-              {t('common.logIn')}
-            </Button>
-            <Button size="sm" onClick={() => navigate('/signup')}>
-              {t('common.getStarted')}
-            </Button>
-          </div>
-
-          {/* Mobile hamburger */}
-          <button
-            className="md:hidden text-on-surface-variant min-w-[44px] min-h-[44px] flex items-center justify-center"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={t('common.toggleMenu')}
-            aria-expanded={mobileMenuOpen}
-          >
-            {mobileMenuOpen ? <XIcon size={24} strokeWidth={1.5} /> : <Menu size={24} strokeWidth={1.5} />}
-          </button>
-        </div>
-
-        {/* Mobile menu overlay */}
-        {mobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 top-[64px] z-20 bg-surface/80 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}>
-            <div className="bg-surface-container-low border-b border-outline-variant/40 px-6 pb-4 flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
-              <button onClick={() => scrollTo('features')} className="text-sm text-on-surface-variant text-left py-3 min-h-[44px]">{t('common.features')}</button>
-              <button onClick={() => scrollTo('pricing')} className="text-sm text-on-surface-variant text-left py-3 min-h-[44px]">{t('common.pricing')}</button>
-              <button onClick={() => scrollTo('faq')} className="text-sm text-on-surface-variant text-left py-3 min-h-[44px]">{t('common.faq')}</button>
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <LanguageSelector />
-                <ThemeToggle className="p-2" />
-              </div>
-              <div className="flex flex-wrap gap-3 pt-2">
-                <Button variant="secondary" size="sm" onClick={() => navigate('/login')}>{t('common.logIn')}</Button>
-                <Button size="sm" onClick={() => navigate('/signup')}>{t('common.getStarted')}</Button>
-              </div>
-            </div>
-          </div>
-        )}
-      </nav>
-      </header>
+      <PublicNav onLandingPage />
 
       <main id="main-content">
       {/* ── Hero ────────────────────────────────────────────────── */}
@@ -646,63 +568,12 @@ export function LandingPage() {
 
       </main>
 
-      {/* ── Footer ──────────────────────────────────────────────── */}
-      <footer className="border-t border-outline-variant/20 py-12 px-6 md:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div>
-            <Logo size="sm" linkTo="/" />
-            <p className="text-on-surface-variant text-xs mt-1">{t('landing.footer.tagline')}</p>
-          </div>
-          <nav className="grid grid-cols-3 sm:flex sm:flex-wrap items-center justify-center gap-x-6 gap-y-1 text-sm text-on-surface-variant text-center">
-            <button onClick={() => scrollTo('features')} className="hover:text-on-surface transition-colors py-2 min-h-[44px] flex items-center justify-center">
-              {t('common.features')}
-            </button>
-            <button onClick={() => scrollTo('pricing')} className="hover:text-on-surface transition-colors py-2 min-h-[44px] flex items-center justify-center">
-              {t('common.pricing')}
-            </button>
-            <button onClick={() => scrollTo('faq')} className="hover:text-on-surface transition-colors py-2 min-h-[44px] flex items-center justify-center">
-              {t('common.faq')}
-            </button>
-            <Link to="/terms" className="hover:text-on-surface transition-colors py-2 min-h-[44px] flex items-center justify-center">{t('common.terms')}</Link>
-            <Link to="/privacy" className="hover:text-on-surface transition-colors py-2 min-h-[44px] flex items-center justify-center">{t('common.privacy')}</Link>
-            <Link to="/imprint" className="hover:text-on-surface transition-colors py-2 min-h-[44px] flex items-center justify-center">{t('common.imprint')}</Link>
-          </nav>
-          <p className="text-on-surface-variant text-xs">{t('common.copyright')}</p>
-        </div>
-      </footer>
+      <PublicFooter onLandingPage />
     </div>
   )
 }
 
 /* ─── Sub-components ────────────────────────────────────────────── */
-
-function FaqItem({ question, answer }: { question: string; answer: string }) {
-  const [open, setOpen] = useState(false)
-  const panelId = `faq-${question.replace(/\s+/g, '-').toLowerCase().slice(0, 30)}`
-
-  return (
-    <div className="bg-surface-container-low border border-outline-variant rounded-md overflow-hidden">
-      <button
-        onClick={() => setOpen(!open)}
-        aria-expanded={open}
-        aria-controls={panelId}
-        className="w-full flex items-center justify-between p-6 text-left min-h-[44px] cursor-pointer hover:bg-surface-container/30 transition-colors"
-      >
-        <span className="font-semibold text-sm pr-4">{question}</span>
-        <ChevronDown
-          size={16}
-          strokeWidth={1.5}
-          className={`shrink-0 text-on-surface-variant transition-transform duration-[150ms] ${open ? 'rotate-180' : ''}`}
-        />
-      </button>
-      {open && (
-        <div id={panelId} className="px-6 pb-6">
-          <p className="text-on-surface-variant text-sm leading-relaxed">{answer}</p>
-        </div>
-      )}
-    </div>
-  )
-}
 
 function ComparisonCell({ value, highlighted }: { value: string | boolean; highlighted?: boolean }) {
   const bgClass = highlighted ? 'bg-surface-container/50' : ''

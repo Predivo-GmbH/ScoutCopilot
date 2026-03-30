@@ -675,6 +675,22 @@
     "language": {
       "heading": "Language",
       "description": "Choose the display language for ScoutCopilot."
+    },
+    "deleteAccount": {
+      "heading": "Danger Zone",
+      "description": "Permanently delete your account and all associated data. This action cannot be undone.",
+      "button": "Delete Account",
+      "modalTitle": "Delete your account?",
+      "modalDescription": "This will permanently delete your account and all data, including:",
+      "bulletProfile": "Your profile, organization, and preferences",
+      "bulletReports": "All scouting reports and AI-generated analysis",
+      "bulletWatchlists": "Watchlists, search history, and comparisons",
+      "bulletSubscription": "Any remaining subscription credits (non-refundable)",
+      "confirmLabel": "Type <strong>DELETE</strong> to confirm",
+      "confirmPlaceholder": "DELETE",
+      "deleting": "Deleting...",
+      "deleteConfirm": "Delete my account",
+      "error": "Failed to delete account. Please try again."
     }
   },
   "pricing": {

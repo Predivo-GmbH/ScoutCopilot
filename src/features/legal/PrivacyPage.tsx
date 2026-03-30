@@ -1,8 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { Link } from '../../components/shared/LocalizedLink'
-import { Logo } from '../../components/shared/Logo'
-import { LanguageSelector } from '../../components/shared/LanguageSelector'
+import { PublicNav } from '../../components/layout/PublicNav'
+import { PublicFooter } from '../../components/layout/PublicFooter'
 
 export function PrivacyPage() {
   const { t, i18n } = useTranslation()
@@ -22,19 +21,11 @@ export function PrivacyPage() {
         <meta property="og:url" content={`https://scoutcopilot.com/${lang}/privacy`} />
         <meta property="og:locale" content={lang === 'de' ? 'de_DE' : 'en_US'} />
       </Helmet>
-      <nav className="w-full sticky top-0 z-30 bg-surface border-b border-outline-variant/20">
-        <div className="flex justify-between items-center px-6 md:px-8 py-4 max-w-7xl mx-auto">
-          <Logo size="md" linkTo="/" />
-          <div className="flex items-center gap-4">
-            <LanguageSelector />
-            <Link to="/login" className="text-sm text-on-surface-variant hover:text-on-surface transition-colors min-h-[44px] flex items-center">{t('common.signIn')}</Link>
-            <Link to="/signup" className="text-sm bg-primary text-on-primary px-4 py-2 rounded-md font-medium hover:bg-primary-dark transition-colors min-h-[44px] flex items-center">{t('common.getStarted')}</Link>
-          </div>
-        </div>
-      </nav>
 
-      <main className="max-w-3xl mx-auto px-6 md:px-8 py-16">
-        <h1 className="text-3xl font-bold mb-2">{t('legal.privacy.title')}</h1>
+      <PublicNav />
+
+      <main className="max-w-3xl mx-auto px-6 md:px-8 pt-32 pb-16">
+        <h1 className="text-[2.25rem] md:text-[3rem] font-bold leading-[1.1] tracking-[-0.02em] mb-2">{t('legal.privacy.title')}</h1>
         <p className="text-on-surface-variant text-sm mb-12">{t('legal.privacy.lastUpdated')}</p>
 
         <div className="prose-sm space-y-8 text-sm leading-relaxed">
@@ -123,16 +114,7 @@ export function PrivacyPage() {
         </div>
       </main>
 
-      <footer className="border-t border-outline-variant/20 py-8 px-6 md:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-on-surface-variant">
-          <p>{t('common.copyright')}</p>
-          <div className="flex gap-6">
-            <Link to="/terms" className="hover:text-on-surface transition-colors min-h-[44px] flex items-center">{t('common.terms')}</Link>
-            <Link to="/privacy" className="hover:text-on-surface transition-colors min-h-[44px] flex items-center">{t('common.privacy')}</Link>
-            <Link to="/imprint" className="hover:text-on-surface transition-colors min-h-[44px] flex items-center">{t('common.imprint')}</Link>
-          </div>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   )
 }

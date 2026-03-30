@@ -10,6 +10,7 @@ import { CredentialSettings } from './components/CredentialSettings'
 import { BillingSettings } from './components/BillingSettings'
 import { PasswordSettings } from './components/PasswordSettings'
 import { LanguageSelector } from '../../components/shared/LanguageSelector'
+import { DeleteAccountSettings } from './components/DeleteAccountSettings'
 
 const settingsTabs: { key: SettingsTab; labelKey: string }[] = [
   { key: 'profile', labelKey: 'settings.tabs.account' },
@@ -83,6 +84,7 @@ export function SettingsPage() {
                   <LanguageSelector variant="inline" />
                 </div>
               </section>
+              <DeleteAccountSettings />
             </>
           )}
 
