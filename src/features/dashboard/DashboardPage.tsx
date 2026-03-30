@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import {
@@ -15,7 +15,7 @@ import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 
 export function DashboardPage() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
   const { data: stats, isLoading: statsLoading } = useDashboardStats()
   const { data: searches, isLoading: searchesLoading } = useRecentSearches()
   const { data: alerts, isLoading: alertsLoading } = useWatchlistAlerts()

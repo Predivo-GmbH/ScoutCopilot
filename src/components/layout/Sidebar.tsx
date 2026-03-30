@@ -1,5 +1,6 @@
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useLocalizedNavigate } from '../shared/LocalizedLink'
 import {
   LayoutDashboard,
   Search,
@@ -30,8 +31,9 @@ const navItems = [
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const location = useLocation()
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
   const { t } = useTranslation()
+  const barePath = location.pathname.replace(/^\/(en|de)/, '') || '/'
 
   return (
     <aside
@@ -51,7 +53,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       <nav className="flex-1 py-3">
         <ul className="flex flex-col gap-1 px-2">
           {navItems.map((item) => {
-            const isActive = location.pathname.startsWith(item.path)
+            const isActive = barePath.startsWith(item.path)
             const Icon = item.icon
             return (
               <li key={item.path}>

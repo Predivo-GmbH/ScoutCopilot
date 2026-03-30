@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useLocalizedNavigate } from '../shared/LocalizedLink'
 import { Search, Bell, Settings, LogOut, Menu } from 'lucide-react'
 import { useAuth } from '../../features/auth/useAuth'
 import { ThemeToggle } from '../shared/ThemeToggle'
@@ -11,7 +11,7 @@ interface TopBarProps {
 }
 
 export function TopBar({ onMenuToggle }: TopBarProps) {
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
   const { t } = useTranslation()
   const { profile, signOut } = useAuth()
   const [searchValue, setSearchValue] = useState('')

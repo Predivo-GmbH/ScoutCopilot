@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Clock, Search, CheckCircle2, Loader2, XCircle } from 'lucide-react'
@@ -42,7 +42,7 @@ function StatusBadge({ status }: { status: 'complete' | 'processing' | 'failed' 
 
 export function SearchHistoryPage() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
   const { data: searches, isLoading } = useRecentSearches()
   const formatDate = useFormatDate()
 

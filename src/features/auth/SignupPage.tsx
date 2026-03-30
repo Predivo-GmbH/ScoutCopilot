@@ -1,7 +1,8 @@
 import { useState, useEffect, type FormEvent } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
+import { Link, useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { useAuth } from './useAuth'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
@@ -24,7 +25,7 @@ export function SignupPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const { sendOtp, verifyOtp, completeProfile, hasCompletedProfile } = useAuth()
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
 
   useEffect(() => {
     if (searchParams.get('verified') === 'true') {

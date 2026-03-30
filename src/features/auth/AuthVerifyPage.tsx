@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from './useAuth'
@@ -12,7 +13,7 @@ import { useAuth } from './useAuth'
 export function AuthVerifyPage() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
   const { verifyOtp, hasCompletedProfile } = useAuth()
   const [error, setError] = useState<string | null>(null)
 

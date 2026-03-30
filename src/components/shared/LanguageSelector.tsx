@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Globe } from 'lucide-react'
 
@@ -15,6 +16,8 @@ interface LanguageSelectorProps {
 
 export function LanguageSelector({ className = '', variant = 'dropdown' }: LanguageSelectorProps) {
   const { i18n, t } = useTranslation()
+  const navigate = useNavigate()
+  const location = useLocation()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -52,7 +55,8 @@ export function LanguageSelector({ className = '', variant = 'dropdown' }: Langu
   const current = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0]
 
   function changeLanguage(code: string) {
-    i18n.changeLanguage(code)
+    const rest = location.pathname.replace(/^\/(en|de)/, '') || '/'
+    navigate(`/${code}${rest === '/' ? '' : rest}${location.search}`)
     setOpen(false)
   }
 

@@ -1,8 +1,8 @@
 import { useState, useEffect, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { CheckCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { Link, useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { useAuth } from './useAuth'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
@@ -19,7 +19,7 @@ export function ResetPasswordPage() {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const { user, isLoading: authLoading, updatePassword } = useAuth()
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
 
   useEffect(() => {
     if (authLoading) return

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Search as SearchIcon, FileText, Trash2 } from 'lucide-react'
@@ -11,7 +11,7 @@ import { useGeneratedReports } from '../../lib/useGeneratedReportsHook'
 
 export function ReportsListPage() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
 
   const recommendation = {
     sign: { label: t('reportsList.badgeSign'), className: 'text-secondary bg-secondary/10 border-secondary/20' },

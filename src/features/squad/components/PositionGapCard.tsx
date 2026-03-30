@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
 import { Search, Users } from 'lucide-react'
 import type { PositionGap } from '../../../lib/mock-data'
@@ -12,7 +12,7 @@ const priorityStyles: Record<string, { bg: string; text: string; border: string 
 
 export function PositionGapCard({ gap }: { gap: PositionGap }) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
   const style = priorityStyles[gap.priority]
 
   return (

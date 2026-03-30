@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Zap } from 'lucide-react'
@@ -7,7 +7,7 @@ import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 
 export function AlertsPage() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
   const { data: alerts, isLoading } = useWatchlistAlerts()
 
   return (

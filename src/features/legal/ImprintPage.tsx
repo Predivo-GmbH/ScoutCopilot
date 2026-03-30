@@ -1,21 +1,26 @@
-import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
+import { Link } from '../../components/shared/LocalizedLink'
 import { Logo } from '../../components/shared/Logo'
 import { LanguageSelector } from '../../components/shared/LanguageSelector'
 
 export function ImprintPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language || 'en'
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">
       <Helmet>
         <title>{t('legal.imprint.title')} — ScoutCopilot</title>
         <meta name="description" content={t('legal.imprint.metaDescription')} />
-        <link rel="canonical" href="https://scoutcopilot.com/imprint" />
+        <link rel="canonical" href={`https://scoutcopilot.com/${lang}/imprint`} />
+        <link rel="alternate" hrefLang="en" href="https://scoutcopilot.com/en/imprint" />
+        <link rel="alternate" hrefLang="de" href="https://scoutcopilot.com/de/imprint" />
+        <link rel="alternate" hrefLang="x-default" href="https://scoutcopilot.com/en/imprint" />
         <meta property="og:title" content={`${t('legal.imprint.title')} — ScoutCopilot`} />
         <meta property="og:description" content={t('legal.imprint.metaDescription')} />
-        <meta property="og:url" content="https://scoutcopilot.com/imprint" />
+        <meta property="og:url" content={`https://scoutcopilot.com/${lang}/imprint`} />
+        <meta property="og:locale" content={lang === 'de' ? 'de_DE' : 'en_US'} />
       </Helmet>
       <nav className="w-full sticky top-0 z-30 bg-surface border-b border-outline-variant/20">
         <div className="flex justify-between items-center px-6 md:px-8 py-4 max-w-7xl mx-auto">

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Link, useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Check, X, ArrowRight } from 'lucide-react'
 import { Logo } from '../../components/shared/Logo'
 import { Button } from '../../components/ui/Button'
@@ -44,10 +44,11 @@ const COMPARISON_ROWS: Array<{
 ]
 
 export function PricingPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language || 'en'
   const [interval, setInterval] = useState<BillingInterval>('year')
   const [loadingTier, setLoadingTier] = useState<SubscriptionTier | null>(null)
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
 
   const faqItems = t('landing.faqItems', { returnObjects: true }) as Array<{ question: string; answer: string }>
 
@@ -78,10 +79,14 @@ export function PricingPage() {
       <Helmet>
         <title>{t('pricing.meta.title')}</title>
         <meta name="description" content={t('pricing.meta.description')} />
-        <link rel="canonical" href="https://scoutcopilot.com/pricing" />
+        <link rel="canonical" href={`https://scoutcopilot.com/${lang}/pricing`} />
+        <link rel="alternate" hrefLang="en" href="https://scoutcopilot.com/en/pricing" />
+        <link rel="alternate" hrefLang="de" href="https://scoutcopilot.com/de/pricing" />
+        <link rel="alternate" hrefLang="x-default" href="https://scoutcopilot.com/en/pricing" />
         <meta property="og:title" content={t('pricing.meta.title')} />
         <meta property="og:description" content={t('pricing.meta.description')} />
-        <meta property="og:url" content="https://scoutcopilot.com/pricing" />
+        <meta property="og:url" content={`https://scoutcopilot.com/${lang}/pricing`} />
+        <meta property="og:locale" content={lang === 'de' ? 'de_DE' : 'en_US'} />
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',

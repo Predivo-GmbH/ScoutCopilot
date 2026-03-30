@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from 'react-router-dom'
+import { Navigate, Outlet, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from './useAuth'
 
@@ -16,21 +16,23 @@ function LoadingSkeleton() {
 
 /** Wraps routes that require authentication */
 export function AuthGuard() {
+  const { lang } = useParams()
   const { user, organization, isLoading } = useAuth()
 
   if (isLoading) return <LoadingSkeleton />
-  if (!user) return <Navigate to="/login" replace />
-  if (!organization) return <Navigate to="/onboarding" replace />
+  if (!user) return <Navigate to={`/${lang}/login`} replace />
+  if (!organization) return <Navigate to={`/${lang}/onboarding`} replace />
 
   return <Outlet />
 }
 
 /** Wraps onboarding — needs auth but no org check */
 export function AuthOnlyGuard() {
+  const { lang } = useParams()
   const { user, isLoading } = useAuth()
 
   if (isLoading) return <LoadingSkeleton />
-  if (!user) return <Navigate to="/login" replace />
+  if (!user) return <Navigate to={`/${lang}/login`} replace />
 
   return <Outlet />
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import {
@@ -60,7 +60,7 @@ const POSITION_KEYS = [
 ]
 
 export function OnboardingPage() {
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
   const { profile, refreshProfile } = useAuth()
   const { t } = useTranslation()
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, FileText, Trash2 } from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
@@ -15,7 +15,7 @@ interface WatchlistDetailProps {
 
 export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: WatchlistDetailProps) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
 
   const alertStatusStyles: Record<string, { dot: string; text: string; label: string }> = {

@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useParams, useNavigate, useLocation, Navigate } from 'react-router-dom'
+import { useParams, useLocation, Navigate } from 'react-router-dom'
+import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import {
@@ -22,7 +23,7 @@ import type { MockWatchlistPlayer, WatchlistAlert } from '../../lib/mock-data'
 export function ReportPage() {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
   const location = useLocation()
   const { data: report, isLoading } = usePlayerReport(id)
   const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)

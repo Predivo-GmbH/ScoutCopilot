@@ -1,21 +1,26 @@
-import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
+import { Link } from '../../components/shared/LocalizedLink'
 import { Logo } from '../../components/shared/Logo'
 import { LanguageSelector } from '../../components/shared/LanguageSelector'
 
 export function PrivacyPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language || 'en'
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">
       <Helmet>
         <title>{t('legal.privacy.title')} — ScoutCopilot</title>
         <meta name="description" content={t('legal.privacy.metaDescription')} />
-        <link rel="canonical" href="https://scoutcopilot.com/privacy" />
+        <link rel="canonical" href={`https://scoutcopilot.com/${lang}/privacy`} />
+        <link rel="alternate" hrefLang="en" href="https://scoutcopilot.com/en/privacy" />
+        <link rel="alternate" hrefLang="de" href="https://scoutcopilot.com/de/privacy" />
+        <link rel="alternate" hrefLang="x-default" href="https://scoutcopilot.com/en/privacy" />
         <meta property="og:title" content={`${t('legal.privacy.title')} — ScoutCopilot`} />
         <meta property="og:description" content={t('legal.privacy.metaDescription')} />
-        <meta property="og:url" content="https://scoutcopilot.com/privacy" />
+        <meta property="og:url" content={`https://scoutcopilot.com/${lang}/privacy`} />
+        <meta property="og:locale" content={lang === 'de' ? 'de_DE' : 'en_US'} />
       </Helmet>
       <nav className="w-full sticky top-0 z-30 bg-surface border-b border-outline-variant/20">
         <div className="flex justify-between items-center px-6 md:px-8 py-4 max-w-7xl mx-auto">

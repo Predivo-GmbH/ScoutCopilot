@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from './LocalizedLink'
 
 const SIZES = {
   sm: { icon: 24, text: 'text-sm' },

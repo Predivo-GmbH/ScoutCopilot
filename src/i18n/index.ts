@@ -1,20 +1,13 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import LanguageDetector from 'i18next-browser-languagedetector'
 
 i18n
-  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     fallbackLng: 'en',
     supportedLngs: ['en', 'de'],
     interpolation: {
       escapeValue: false,
-    },
-    detection: {
-      order: ['localStorage', 'navigator'],
-      lookupLocalStorage: 'sc-lang',
-      caches: ['localStorage'],
     },
     partialBundledLanguages: true,
     resources: {},
@@ -26,9 +19,9 @@ async function loadLanguage(lng: string) {
   i18n.addResourceBundle(lng, 'translation', mod.default, true, true)
 }
 
-// Load the detected/current language immediately
-loadLanguage(i18n.language || 'en').then(() => {
-  i18n.changeLanguage(i18n.language || 'en')
+// Load English by default; LanguageRootLayout syncs the correct language from URL
+loadLanguage('en').then(() => {
+  i18n.changeLanguage('en')
 })
 
 i18n.on('languageChanged', (lng) => {

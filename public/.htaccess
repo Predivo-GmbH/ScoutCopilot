@@ -9,14 +9,31 @@
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  RewriteBase /
 
+  # Force HTTPS
   RewriteCond %{HTTPS} off
   RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-  RewriteBase /
+  # Redirect bare root "/" to default language "/en/"
+  RewriteRule ^$ /en/ [R=302,L]
+
+  # 301 redirect old non-prefixed URLs to /en/ (preserves SEO equity)
+  RewriteCond %{REQUEST_URI} !^/(en|de)/
+  RewriteCond %{REQUEST_URI} !^/assets/
+  RewriteCond %{REQUEST_URI} !^/fonts/
+  RewriteCond %{REQUEST_URI} !^/auth/
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_URI} !^/$
+  RewriteRule ^(.+)$ /en/$1 [R=301,L]
+
+  # If the request is for an existing file or directory, serve it directly
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
+
+  # Otherwise, serve index.html (SPA client-side routing)
   RewriteRule . /index.html [L]
 </IfModule>
 

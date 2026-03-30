@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation, Trans } from 'react-i18next'
+import { Link, useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import {
   Search,
   FileText,
@@ -125,8 +125,9 @@ function radarPoints(cx: number, cy: number, values: number[], maxR: number) {
 /* ─── Component ─────────────────────────────────────────────────── */
 
 export function LandingPage() {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
+  const { t, i18n } = useTranslation()
+  const navigate = useLocalizedNavigate()
+  const lang = i18n.language || 'en'
   const [interval, setInterval] = useState<BillingInterval>('year')
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -177,10 +178,14 @@ export function LandingPage() {
       <Helmet>
         <title>{t('landing.meta.title')}</title>
         <meta name="description" content={t('landing.meta.description')} />
-        <link rel="canonical" href="https://scoutcopilot.com" />
+        <link rel="canonical" href={`https://scoutcopilot.com/${lang}`} />
+        <link rel="alternate" hrefLang="en" href="https://scoutcopilot.com/en" />
+        <link rel="alternate" hrefLang="de" href="https://scoutcopilot.com/de" />
+        <link rel="alternate" hrefLang="x-default" href="https://scoutcopilot.com/en" />
         <meta property="og:title" content={t('landing.meta.title')} />
         <meta property="og:description" content={t('landing.meta.description')} />
-        <meta property="og:url" content="https://scoutcopilot.com" />
+        <meta property="og:url" content={`https://scoutcopilot.com/${lang}`} />
+        <meta property="og:locale" content={lang === 'de' ? 'de_DE' : 'en_US'} />
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',

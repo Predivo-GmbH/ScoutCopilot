@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
@@ -10,7 +10,7 @@ import { supabase } from '../../lib/supabase'
  */
 export function AuthCallbackPage() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
   const [status] = useState(t('auth.processing'))
 
   useEffect(() => {

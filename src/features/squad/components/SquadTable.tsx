@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import type { SquadPlayer } from '../../../lib/mock-data'
@@ -30,7 +30,7 @@ const statusTextStyles: Record<string, string> = {
 
 export function SquadTable({ players }: SquadTableProps) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
   const sorted = [...players].sort((a, b) => a.shirtNumber - b.shirtNumber)
 
   return (

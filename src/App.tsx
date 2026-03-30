@@ -5,6 +5,7 @@ import { PasswordGate } from './components/shared/PasswordGate'
 import { AuthProvider } from './features/auth/AuthContext'
 import { AuthGuard, AuthOnlyGuard } from './features/auth/AuthGuard'
 import { AppShell } from './components/layout/AppShell'
+import { LanguageRootLayout } from './components/layout/LanguageRootLayout'
 import { GeneratedReportsProvider } from './lib/useGeneratedReports'
 import { WatchlistProvider } from './lib/WatchlistContext'
 
@@ -52,42 +53,50 @@ export default function App() {
         <BrowserRouter>
           <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center" role="status"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /><span className="sr-only">Loading...</span></div>}>
           <Routes>
-            {/* Public routes (no shell, no auth) */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            {/* Bare root → default language */}
+            <Route path="/" element={<Navigate to="/en" replace />} />
+
+            {/* Auth callbacks — must stay at root (Supabase redirect URLs) */}
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
             <Route path="/auth/verify" element={<AuthVerifyPage />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/privacy" element={<PrivacyPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/imprint" element={<ImprintPage />} />
 
-            {/* Onboarding: needs auth but no org check */}
-            <Route element={<AuthOnlyGuard />}>
-              <Route path="/onboarding" element={<OnboardingPage />} />
-            </Route>
+            {/* All routes under /:lang */}
+            <Route path="/:lang" element={<LanguageRootLayout />}>
+              {/* Public routes (no shell, no auth) */}
+              <Route index element={<LandingPage />} />
+              <Route path="login" element={<LoginPage />} />
+              <Route path="signup" element={<SignupPage />} />
+              <Route path="forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="reset-password" element={<ResetPasswordPage />} />
+              <Route path="pricing" element={<PricingPage />} />
+              <Route path="privacy" element={<PrivacyPage />} />
+              <Route path="terms" element={<TermsPage />} />
+              <Route path="imprint" element={<ImprintPage />} />
 
-            {/* Protected app routes (auth + org required) */}
-            <Route element={<AuthGuard />}>
-              <Route element={<AppShell />}>
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/alerts" element={<AlertsPage />} />
-                <Route path="/search" element={<SearchPage />} />
-                <Route path="/search-history" element={<SearchHistoryPage />} />
-                <Route path="/players" element={<PlayersListPage />} />
-                <Route path="/players/:id" element={<PlayerDetailPage />} />
-                <Route path="/compare" element={<ComparisonPage />} />
-                <Route path="/watchlists" element={<WatchlistsPage />} />
-                <Route path="/squad" element={<SquadPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
+              {/* Onboarding: needs auth but no org check */}
+              <Route element={<AuthOnlyGuard />}>
+                <Route path="onboarding" element={<OnboardingPage />} />
               </Route>
-            </Route>
 
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              {/* Protected app routes (auth + org required) */}
+              <Route element={<AuthGuard />}>
+                <Route element={<AppShell />}>
+                  <Route path="dashboard" element={<DashboardPage />} />
+                  <Route path="alerts" element={<AlertsPage />} />
+                  <Route path="search" element={<SearchPage />} />
+                  <Route path="search-history" element={<SearchHistoryPage />} />
+                  <Route path="players" element={<PlayersListPage />} />
+                  <Route path="players/:id" element={<PlayerDetailPage />} />
+                  <Route path="compare" element={<ComparisonPage />} />
+                  <Route path="watchlists" element={<WatchlistsPage />} />
+                  <Route path="squad" element={<SquadPage />} />
+                  <Route path="settings" element={<SettingsPage />} />
+                </Route>
+              </Route>
+
+              {/* Fallback within lang */}
+              <Route path="*" element={<Navigate to="dashboard" replace />} />
+            </Route>
           </Routes>
           </Suspense>
         </BrowserRouter>

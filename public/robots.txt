@@ -1,19 +1,36 @@
 User-agent: *
 Allow: /
-Disallow: /players
-Disallow: /search-history
-Disallow: /alerts
-Disallow: /squad
-Disallow: /forgot-password
-Disallow: /reset-password
-Disallow: /dashboard
-Disallow: /settings
-Disallow: /onboarding
+
+Disallow: /en/players
+Disallow: /en/search-history
+Disallow: /en/alerts
+Disallow: /en/squad
+Disallow: /en/forgot-password
+Disallow: /en/reset-password
+Disallow: /en/dashboard
+Disallow: /en/settings
+Disallow: /en/onboarding
+Disallow: /en/login
+Disallow: /en/signup
+Disallow: /en/search
+Disallow: /en/compare
+Disallow: /en/watchlists
+
+Disallow: /de/players
+Disallow: /de/search-history
+Disallow: /de/alerts
+Disallow: /de/squad
+Disallow: /de/forgot-password
+Disallow: /de/reset-password
+Disallow: /de/dashboard
+Disallow: /de/settings
+Disallow: /de/onboarding
+Disallow: /de/login
+Disallow: /de/signup
+Disallow: /de/search
+Disallow: /de/compare
+Disallow: /de/watchlists
+
 Disallow: /auth
-Disallow: /login
-Disallow: /signup
-Disallow: /search
-Disallow: /compare
-Disallow: /watchlists
 
 Sitemap: https://scoutcopilot.com/sitemap.xml

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
 import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, FileText, Loader2, Eye } from 'lucide-react'
 import type { MockPlayer } from '../../../lib/mock-data'
@@ -40,7 +40,7 @@ function exportResultsCsv(results: MockPlayer[], t: (key: string) => string) {
 
 export function SearchResultsTable({ results, isLoading }: SearchResultsTableProps) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
   const [page, setPage] = useState(1)
   const [prevResultsLen, setPrevResultsLen] = useState(results.length)
   const [viewMode, setViewMode] = useState<'table' | 'grid'>(() =>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
 import { CreditCard, ExternalLink, AlertTriangle } from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
@@ -10,7 +10,7 @@ import { TIER_PRICES, TIER_LABELS, openBillingPortal } from '../../../lib/stripe
 export function BillingSettings() {
   const { t } = useTranslation()
   const { tier, limits, usage, isLoading } = useSubscription()
-  const navigate = useNavigate()
+  const navigate = useLocalizedNavigate()
   const [portalLoading, setPortalLoading] = useState(false)
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
 
