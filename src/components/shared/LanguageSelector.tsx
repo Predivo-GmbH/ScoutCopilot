@@ -125,6 +125,7 @@ export function LanguageSelector({ className = '', variant = 'dropdown' }: Langu
               }`}
             >
               <span className="font-semibold">{lang.code.toUpperCase()}</span>
+              <span>{lang.label}</span>
             </button>
           ))}
         </div>
