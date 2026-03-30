@@ -216,6 +216,25 @@ ${button('View Account', `${APP_URL}/settings?tab=billing`)}`
   }
 }
 
+/** Admin notification — new user registered */
+export function newUserNotificationEmail(userName: string, userEmail: string): { subject: string; html: string } {
+  const safeName = escapeHtml(userName)
+  const safeEmail = escapeHtml(userEmail)
+  return {
+    subject: `New ScoutCopilot signup: ${safeName}`,
+    html: layout(
+`<h1 style="margin:0 0 16px;font-size:22px;font-weight:700;color:#0B1326;">New user registered</h1>
+<p style="margin:0 0 12px;font-size:15px;color:#3f3f46;line-height:1.6;">A new user just completed registration on ScoutCopilot:</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 16px;">
+<tr><td style="padding:4px 12px 4px 0;font-size:14px;color:#71717a;">Name</td><td style="padding:4px 0;font-size:14px;font-weight:600;color:#0B1326;">${safeName}</td></tr>
+<tr><td style="padding:4px 12px 4px 0;font-size:14px;color:#71717a;">Email</td><td style="padding:4px 0;font-size:14px;font-weight:600;color:#0B1326;">${safeEmail}</td></tr>
+<tr><td style="padding:4px 12px 4px 0;font-size:14px;color:#71717a;">Time</td><td style="padding:4px 0;font-size:14px;font-weight:600;color:#0B1326;">${new Date().toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Europe/Zurich' })}</td></tr>
+</table>
+${button('View Users', `https://supabase.com/dashboard/project/rlcsuqwqzoqjykdiqjye/auth/users`)}`
+    ),
+  }
+}
+
 /** Account deleted confirmation */
 export function accountDeletedEmail(userName: string): { subject: string; html: string } {
   const firstName = escapeHtml(userName.split(' ')[0])

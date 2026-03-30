@@ -6,7 +6,7 @@
  */
 
 import { handleCors } from '../_shared/cors.ts'
-import { sendEmail, welcomeEmail } from '../_shared/email.ts'
+import { sendEmail, welcomeEmail, newUserNotificationEmail } from '../_shared/email.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
 Deno.serve(async (req) => {
@@ -45,6 +45,14 @@ Deno.serve(async (req) => {
       subject: template.subject,
       html: template.html,
     })
+
+    // Notify admin of new registration (best-effort, don't fail the response)
+    const notification = newUserNotificationEmail(userName, user.email)
+    sendEmail({
+      to: 'roger@mueller.ro',
+      subject: notification.subject,
+      html: notification.html,
+    }).catch((err) => console.error('Admin notification failed:', err))
 
     return new Response(
       JSON.stringify({ sent: true }),
