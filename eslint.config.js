@@ -23,4 +23,10 @@ export default defineConfig([
       'no-console': 'warn',
     },
   },
+  {
+    files: ['supabase/functions/**/*.ts', 'scripts/**/*.ts', 'e2e/**/*.ts'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
 ])
