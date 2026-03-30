@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef, useEffect, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocalizedNavigate } from '../shared/LocalizedLink'
 import { Search, Bell, Settings, LogOut, Menu } from 'lucide-react'
@@ -19,23 +19,22 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
   const profileRef = useRef<HTMLDivElement>(null)
   const profileButtonRef = useRef<HTMLButtonElement>(null)
 
-  // Compute fixed position for profile dropdown so it never overflows the viewport
-  const profileDropdownStyle = useMemo(() => {
-    if (!profileOpen || !profileButtonRef.current) return {}
-    const rect = profileButtonRef.current.getBoundingClientRect()
-    const dropdownWidth = 192 // w-48 = 12rem = 192px
-    let left = rect.right - dropdownWidth
-    if (left < 8) left = 8
-    if (left + dropdownWidth > window.innerWidth - 8) {
-      left = window.innerWidth - 8 - dropdownWidth
+  const [profileDropdownStyle, setProfileDropdownStyle] = useState<CSSProperties>({})
+
+  function toggleProfileDropdown() {
+    const nextOpen = !profileOpen
+    setProfileOpen(nextOpen)
+    if (nextOpen && profileButtonRef.current) {
+      const rect = profileButtonRef.current.getBoundingClientRect()
+      const dropdownWidth = 192
+      let left = rect.right - dropdownWidth
+      if (left < 8) left = 8
+      if (left + dropdownWidth > window.innerWidth - 8) {
+        left = window.innerWidth - 8 - dropdownWidth
+      }
+      setProfileDropdownStyle({ position: 'fixed', top: rect.bottom + 4, left, width: dropdownWidth })
     }
-    return {
-      position: 'fixed' as const,
-      top: rect.bottom + 4,
-      left,
-      width: dropdownWidth,
-    }
-  }, [profileOpen])
+  }
 
   // Close profile dropdown on outside click
   useEffect(() => {
@@ -113,7 +112,7 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
         <div ref={profileRef} className="relative">
           <button
             ref={profileButtonRef}
-            onClick={() => setProfileOpen(!profileOpen)}
+            onClick={toggleProfileDropdown}
             aria-expanded={profileOpen}
             aria-haspopup="menu"
             className="flex items-center gap-2.5 p-1 pr-2 rounded-md hover:bg-surface-container transition-colors min-h-[44px]"

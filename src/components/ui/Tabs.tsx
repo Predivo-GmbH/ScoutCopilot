@@ -60,26 +60,25 @@ function TabList({ className, children }: TabListProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [showFade, setShowFade] = useState(false)
 
-  const checkOverflow = useCallback(() => {
-    const el = scrollRef.current
-    if (!el) return
-    setShowFade(
-      el.scrollWidth > el.clientWidth &&
-        el.scrollLeft + el.clientWidth < el.scrollWidth - 2
-    )
-  }, [])
-
   useEffect(() => {
-    checkOverflow()
     const el = scrollRef.current
     if (!el) return
+
+    function checkOverflow() {
+      setShowFade(
+        el!.scrollWidth > el!.clientWidth &&
+          el!.scrollLeft + el!.clientWidth < el!.scrollWidth - 2
+      )
+    }
+
+    checkOverflow()
     el.addEventListener('scroll', checkOverflow, { passive: true })
     window.addEventListener('resize', checkOverflow)
     return () => {
       el.removeEventListener('scroll', checkOverflow)
       window.removeEventListener('resize', checkOverflow)
     }
-  }, [checkOverflow])
+  }, [])
 
   return (
     <div className={cn('relative border-b border-outline-variant', className)}>

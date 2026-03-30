@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import { useState, useRef, useEffect, useCallback, type CSSProperties } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Globe } from 'lucide-react'
@@ -22,25 +22,22 @@ export function LanguageSelector({ className = '', variant = 'dropdown' }: Langu
   const ref = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
 
-  // Compute fixed position for the dropdown so it never overflows the viewport
-  const dropdownStyle = useMemo(() => {
-    if (!open || !buttonRef.current) return {}
-    const rect = buttonRef.current.getBoundingClientRect()
-    const dropdownWidth = 144 // w-36 = 9rem = 144px
-    let left = rect.right - dropdownWidth
-    // Keep at least 8px from the left edge
-    if (left < 8) left = 8
-    // Keep at least 8px from the right edge
-    if (left + dropdownWidth > window.innerWidth - 8) {
-      left = window.innerWidth - 8 - dropdownWidth
+  const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({})
+
+  function toggleDropdown() {
+    const nextOpen = !open
+    setOpen(nextOpen)
+    if (nextOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect()
+      const dropdownWidth = 144
+      let left = rect.right - dropdownWidth
+      if (left < 8) left = 8
+      if (left + dropdownWidth > window.innerWidth - 8) {
+        left = window.innerWidth - 8 - dropdownWidth
+      }
+      setDropdownStyle({ position: 'fixed', top: rect.bottom + 4, left, width: dropdownWidth })
     }
-    return {
-      position: 'fixed' as const,
-      top: rect.bottom + 4,
-      left,
-      width: dropdownWidth,
-    }
-  }, [open])
+  }
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -103,7 +100,7 @@ export function LanguageSelector({ className = '', variant = 'dropdown' }: Langu
     <div ref={ref} className={`relative ${className}`} onKeyDown={handleKeyDown}>
       <button
         ref={buttonRef}
-        onClick={() => setOpen(!open)}
+        onClick={toggleDropdown}
         className="flex items-center justify-center gap-1.5 p-2 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors min-w-[44px] min-h-[44px]"
         aria-label={current.label}
         aria-expanded={open}
