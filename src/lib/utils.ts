@@ -39,6 +39,8 @@ export function friendlyAuthError(err: unknown, fallback: string): string {
     return 'errors.codeExpired'
   if (msg.includes('invalid') && msg.includes('otp'))
     return 'errors.invalidCode'
+  if (msg.includes('signups not allowed'))
+    return 'errors.noAccount'
   if (msg.includes('network') || msg.includes('fetch'))
     return 'errors.connectionError'
   return err instanceof Error ? err.message : fallback

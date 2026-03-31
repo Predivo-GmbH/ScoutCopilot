@@ -690,7 +690,10 @@
       "confirmPlaceholder": "DELETE",
       "deleting": "Wird gelöscht...",
       "deleteConfirm": "Konto endgültig löschen",
-      "error": "Konto konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
+      "error": "Konto konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
+      "successTitle": "Konto gelöscht",
+      "successDescription": "Ihr Konto und alle zugehörigen Daten wurden dauerhaft gelöscht. Es tut uns leid, Sie gehen zu sehen.",
+      "redirecting": "Weiterleitung zur Startseite..."
     }
   },
   "pricing": {

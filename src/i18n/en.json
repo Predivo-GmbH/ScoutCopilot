@@ -690,7 +690,10 @@
       "confirmPlaceholder": "DELETE",
       "deleting": "Deleting...",
       "deleteConfirm": "Delete my account",
-      "error": "Failed to delete account. Please try again."
+      "error": "Failed to delete account. Please try again.",
+      "successTitle": "Account deleted",
+      "successDescription": "Your account and all associated data have been permanently deleted. We're sorry to see you go.",
+      "redirecting": "Redirecting to homepage..."
     }
   },
   "pricing": {
