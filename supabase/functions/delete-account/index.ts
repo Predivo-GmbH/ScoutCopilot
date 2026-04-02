@@ -2,12 +2,13 @@
  * delete-account — Cascade delete all user data + auth user.
  *
  * POST /delete-account
- * Body: {} (uses authenticated user's JWT)
+ * Body: { lang?: "en" | "de" } (uses authenticated user's JWT)
  */
 
 import { handleCors } from '../_shared/cors.ts'
-import { sendEmail, accountDeletedEmail } from '../_shared/email.ts'
+import { sendEmail, accountDeletedEmail, normalizeEmailLang } from '../_shared/email.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { checkRateLimit } from '../_shared/rate-limiter.ts'
 
 Deno.serve(async (req) => {
   const { corsHeaders, preflightResponse } = handleCors(req)
@@ -36,6 +37,32 @@ Deno.serve(async (req) => {
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
+
+    // Rate limit: 3 requests/minute per user
+    const { allowed, retryAfterMs } = checkRateLimit(user.id, 3 / 60, 3)
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+            'Retry-After': String(Math.ceil(retryAfterMs / 1000)),
+          },
+        }
+      )
+    }
+
+    // Determine language: prefer explicit body param, then user_metadata, then default 'en'
+    let bodyLang: string | undefined
+    try {
+      const body = await req.json()
+      bodyLang = body?.lang
+    } catch {
+      // No body or invalid JSON — that's fine
+    }
+    const lang = normalizeEmailLang(bodyLang ?? user.user_metadata?.language)
 
     // Use service role to delete the user (admin action)
     const supabaseAdmin = createClient(
@@ -157,7 +184,7 @@ Deno.serve(async (req) => {
     // Send account deleted confirmation email (best-effort)
     if (userEmail) {
       try {
-        const template = accountDeletedEmail(userName)
+        const template = accountDeletedEmail(userName, lang)
         await sendEmail({ to: userEmail, ...template })
       } catch (emailErr) {
         console.error('Failed to send account deletion email:', emailErr)

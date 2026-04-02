@@ -72,6 +72,11 @@
     "locale": "en-GB"
   },
   "errors": {
+    "boundary": {
+      "title": "Something went wrong",
+      "description": "An unexpected error occurred. Please try reloading the page.",
+      "reload": "Reload"
+    },
     "tooManyEmails": "Too many emails sent. Please wait a few minutes before trying again.",
     "tooManyAttempts": "Too many attempts. Please wait a moment and try again.",
     "incorrectCredentials": "Incorrect email or password. Please check your credentials and try again.",

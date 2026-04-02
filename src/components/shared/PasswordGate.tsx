@@ -18,8 +18,9 @@ async function sha256(message: string): Promise<string> {
 
 export function PasswordGate({ children }: { children: ReactNode }) {
   const { t } = useTranslation()
+  const isScreenshotMode = import.meta.env.VITE_SCREENSHOT_MODE === 'true'
   const [unlocked, setUnlocked] = useState(
-    () => sessionStorage.getItem(STORAGE_KEY) === 'true'
+    () => isScreenshotMode || sessionStorage.getItem(STORAGE_KEY) === 'true'
   )
   const [password, setPassword] = useState('')
   const [error, setError] = useState(false)

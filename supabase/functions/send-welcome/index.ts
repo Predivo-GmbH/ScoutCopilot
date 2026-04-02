@@ -2,12 +2,13 @@
  * send-welcome — Sends a branded welcome email after profile completion.
  *
  * POST /send-welcome
- * Body: {} (uses authenticated user's info)
+ * Body: { lang?: "en" | "de" } (uses authenticated user's info)
  */
 
 import { handleCors } from '../_shared/cors.ts'
-import { sendEmail, welcomeEmail, newUserNotificationEmail } from '../_shared/email.ts'
+import { sendEmail, welcomeEmail, newUserNotificationEmail, normalizeEmailLang } from '../_shared/email.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { checkRateLimit } from '../_shared/rate-limiter.ts'
 
 Deno.serve(async (req) => {
   const { corsHeaders, preflightResponse } = handleCors(req)
@@ -37,8 +38,34 @@ Deno.serve(async (req) => {
       )
     }
 
+    // Rate limit: 5 requests/minute per user
+    const { allowed, retryAfterMs } = checkRateLimit(user.id, 5 / 60, 5)
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+            'Retry-After': String(Math.ceil(retryAfterMs / 1000)),
+          },
+        }
+      )
+    }
+
+    // Determine language: prefer explicit body param, then user_metadata, then default 'en'
+    let bodyLang: string | undefined
+    try {
+      const body = await req.json()
+      bodyLang = body?.lang
+    } catch {
+      // No body or invalid JSON — that's fine
+    }
+    const lang = normalizeEmailLang(bodyLang ?? user.user_metadata?.language)
+
     const userName = user.user_metadata?.full_name ?? 'there'
-    const template = welcomeEmail(userName)
+    const template = welcomeEmail(userName, lang)
 
     await sendEmail({
       to: user.email,

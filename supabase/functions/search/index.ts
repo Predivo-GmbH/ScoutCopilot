@@ -8,6 +8,7 @@ import { parseSearchQuery, rankPlayers, type ParsedSearchParams } from "../_shar
 import { searchMockPlayers, type MockPlayer } from "../_shared/mock-data.ts";
 import { searchPlayers as wyscoutSearch } from "../_shared/providers/wyscout.ts";
 import { searchPlayers as statsbombSearch } from "../_shared/providers/statsbomb.ts";
+import { checkRateLimit } from "../_shared/rate-limiter.ts";
 
 serve(async (req: Request) => {
   // CORS preflight
@@ -24,6 +25,22 @@ serve(async (req: Request) => {
   try {
     // Auth
     const auth = await getAuthContext(req);
+
+    // Rate limit: 30 requests/minute per organization
+    const { allowed, retryAfterMs } = checkRateLimit(auth.organizationId, 30 / 60, 30);
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": String(Math.ceil(retryAfterMs / 1000)),
+          },
+        }
+      );
+    }
 
     // Parse body
     const { query } = await req.json();
@@ -159,23 +176,31 @@ async function fetchFromProviders(
   params: ParsedSearchParams
 ): Promise<Record<string, unknown>[]> {
   const supabase = getServiceClient();
+  const results: Record<string, unknown>[] = [];
 
-  // Get org's active credentials
+  // Always include StatsBomb Open Data (free, no credentials needed)
+  try {
+    const sbOpenResults = await searchStatsBombOpenData(supabase, params);
+    results.push(...sbOpenResults);
+  } catch (err) {
+    console.error("Error fetching StatsBomb open data:", (err as Error).message);
+  }
+
+  // Also check org's paid API credentials
   const { data: credentials } = await supabase
     .from("api_credentials")
     .select("provider, encrypted_credentials")
     .eq("organization_id", organizationId)
     .eq("is_active", true);
 
-  if (!credentials?.length) {
+  // If no paid credentials and no open data results, give a helpful message
+  if (!credentials?.length && results.length === 0) {
     throw new Error(
-      "No active API credentials found. Please add your Wyscout or StatsBomb credentials in Settings."
+      "No players found. Add your Wyscout or StatsBomb credentials in Settings for broader search coverage."
     );
   }
 
-  const results: Record<string, unknown>[] = [];
-
-  for (const cred of credentials) {
+  for (const cred of credentials ?? []) {
     try {
       if (cred.provider === "wyscout") {
         const wyCreds = cred.encrypted_credentials as { username: string; password: string };
@@ -237,6 +262,97 @@ async function fetchFromProviders(
   }
 
   return results;
+}
+
+// Search StatsBomb open data stored in Supabase (free, always available)
+async function searchStatsBombOpenData(
+  // deno-lint-ignore no-explicit-any
+  supabase: any,
+  params: ParsedSearchParams
+): Promise<Record<string, unknown>[]> {
+  // Build query against sb_player_season_stats joined with sb_players
+  let query = supabase
+    .from("sb_player_season_stats")
+    .select(`
+      *,
+      sb_players!inner (
+        player_id, player_name, player_nickname,
+        nationality, primary_position, positions
+      )
+    `)
+    .limit(params.limit ?? 50);
+
+  // Filter by position
+  const targetPositions =
+    params.positions ?? (params.position ? [params.position] : null);
+  if (targetPositions) {
+    query = query.in(
+      "sb_players.primary_position",
+      targetPositions.map((p: string) => p.toUpperCase())
+    );
+  }
+
+  // Filter by nationality
+  if (params.nationality) {
+    query = query.ilike("sb_players.nationality", `%${params.nationality}%`);
+  }
+
+  const { data, error } = await query;
+  if (error) {
+    console.error("StatsBomb open data query error:", error.message);
+    return [];
+  }
+
+  // deno-lint-ignore no-explicit-any
+  return (data ?? []).map((row: any) => ({
+    player_external_id: `sb-open-${row.sb_players.player_id}`,
+    player_name:
+      row.sb_players.player_nickname ?? row.sb_players.player_name,
+    age: 0, // not available in open data
+    nationality: row.sb_players.nationality ?? "Unknown",
+    position: row.sb_players.primary_position ?? "Unknown",
+    positions: row.sb_players.positions ?? [],
+    foot: "unknown",
+    height: 0,
+    weight: 0,
+    team: row.team_name,
+    league: `${row.competition_name} (${row.season_name})`,
+    market_value: 0,
+    contract_expiry: "",
+    stats: {
+      matches_played: row.matches_played,
+      minutes_played: row.minutes_played,
+      goals: row.goals,
+      assists: row.assists,
+      xG: Number(row.xg),
+      xA: Number(row.xa),
+      npxG: Number(row.npxg),
+      key_passes: row.key_passes,
+      passes_completed: row.passes_completed,
+      pass_completion: Number(row.pass_completion),
+      progressive_passes: row.progressive_passes,
+      progressive_carries: row.progressive_carries,
+      through_balls: row.through_balls,
+      long_balls: row.long_balls,
+      crosses: row.crosses,
+      tackles: row.tackles,
+      interceptions: row.interceptions,
+      clearances: row.clearances,
+      blocks: row.blocks,
+      aerial_duels: row.aerial_duels,
+      aerial_duel_win_rate: Number(row.aerial_duel_win_rate),
+      ground_duels: row.ground_duels,
+      ground_duel_win_rate: Number(row.ground_duel_win_rate),
+      dribbles: row.dribbles,
+      dribble_success_rate: Number(row.dribble_success_rate),
+      pressures: row.pressures,
+      shot_creating_actions: row.shot_creating_actions,
+      goal_creating_actions: row.goal_creating_actions,
+      yellow_cards: row.yellow_cards,
+      red_cards: row.red_cards,
+    },
+    provider: "statsbomb-open",
+  }));
 }
 
 function calculateAge(birthDate: string): number {

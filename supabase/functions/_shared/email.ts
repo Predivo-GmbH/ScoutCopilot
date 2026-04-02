@@ -7,6 +7,10 @@
 
 import { SMTPClient } from 'https://deno.land/x/denomailer@1.6.0/mod.ts'
 
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+export type EmailLang = 'en' | 'de'
+
 // ─── Config ──────────────────────────────────────────────────────────────────
 
 interface SmtpConfig {
@@ -80,6 +84,14 @@ function escapeHtml(str: string): string {
     .replace(/'/g, '&#39;')
 }
 
+// ─── Language Helper ────────────────────────────────────────────────────────
+
+/** Normalize a language string to a supported EmailLang. */
+export function normalizeEmailLang(lang?: string | null): EmailLang {
+  if (lang && lang.toLowerCase().startsWith('de')) return 'de'
+  return 'en'
+}
+
 // ─── Layout ──────────────────────────────────────────────────────────────────
 
 const APP_URL = Deno.env.get('APP_URL') ?? 'https://scoutcopilot.com'
@@ -142,24 +154,56 @@ function button(text: string, href: string): string {
 </table>`
 }
 
+// ─── Shared inline styles (avoids duplication) ──────────────────────────────
+
+const S = {
+  h1: 'margin:0 0 8px;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:22px;font-weight:700;color:#18181b;text-align:center;',
+  p: 'margin:0 0 24px;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:15px;color:#71717a;line-height:1.6;text-align:center;',
+  pNoMargin: 'margin:0 0 0;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:15px;color:#71717a;line-height:1.6;text-align:center;',
+  pSpaced: 'margin:0 0 16px;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:15px;color:#71717a;line-height:1.6;text-align:center;',
+  hint: 'margin:16px 0 0;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:13px;color:#a1a1aa;text-align:center;',
+  hintNoMargin: 'margin:0;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:13px;color:#a1a1aa;text-align:center;',
+  ol: 'margin:0 0 16px;padding-left:20px;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:15px;color:#71717a;line-height:1.8;',
+  strong: 'color:#18181b;',
+} as const
+
 // ─── Templates ───────────────────────────────────────────────────────────────
 
 /** Welcome email — sent after profile completion */
-export function welcomeEmail(userName: string): { subject: string; html: string } {
+export function welcomeEmail(userName: string, lang: EmailLang = 'en'): { subject: string; html: string } {
   const safeName = escapeHtml(userName)
+
+  if (lang === 'de') {
+    return {
+      subject: `Willkommen bei ScoutCopilot, ${safeName}!`,
+      html: layout(
+`<h1 style="${S.h1}">Willkommen an Bord, ${safeName}!</h1>
+<p style="${S.p}">Ihre 14-t&auml;gige kostenlose Testphase ist jetzt aktiv. So starten Sie:</p>
+<ol style="${S.ol}">
+<li>Verbinden Sie Ihre Wyscout- oder StatsBomb-API-Zugangsdaten</li>
+<li>Suchen Sie Spieler mit nat&uuml;rlicher Sprache</li>
+<li>Erstellen Sie KI-gest&uuml;tzte Scouting-Berichte</li>
+</ol>
+<p style="${S.pNoMargin}">Keine Kreditkarte w&auml;hrend der Testphase erforderlich.</p>
+${button('Zum Dashboard', `${APP_URL}/dashboard`)}
+<p style="${S.hint}">Brauchen Sie Hilfe? Antworten Sie einfach auf diese E-Mail &mdash; wir lesen jede Nachricht.</p>`
+      ),
+    }
+  }
+
   return {
     subject: `Welcome to ScoutCopilot, ${safeName}!`,
     html: layout(
-`<h1 style="margin:0 0 8px;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:22px;font-weight:700;color:#18181b;text-align:center;">Welcome aboard, ${safeName}!</h1>
-<p style="margin:0 0 24px;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#71717a;line-height:1.6;text-align:center;">Your 14-day free trial is now active. Here's how to get started:</p>
-<ol style="margin:0 0 16px;padding-left:20px;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#71717a;line-height:1.8;">
+`<h1 style="${S.h1}">Welcome aboard, ${safeName}!</h1>
+<p style="${S.p}">Your 14-day free trial is now active. Here's how to get started:</p>
+<ol style="${S.ol}">
 <li>Connect your Wyscout or StatsBomb API credentials</li>
 <li>Search for players using natural language</li>
 <li>Generate AI-powered scouting reports</li>
 </ol>
-<p style="margin:0 0 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#71717a;line-height:1.6;text-align:center;">No credit card required during your trial.</p>
+<p style="${S.pNoMargin}">No credit card required during your trial.</p>
 ${button('Go to Dashboard', `${APP_URL}/dashboard`)}
-<p style="margin:16px 0 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#a1a1aa;text-align:center;">Need help? Just reply to this email &mdash; we read every message.</p>`
+<p style="${S.hint}">Need help? Just reply to this email &mdash; we read every message.</p>`
     ),
   }
 }
@@ -168,29 +212,57 @@ ${button('Go to Dashboard', `${APP_URL}/dashboard`)}
 export function trialEndingEmail(
   userName: string,
   daysLeft: number,
+  lang: EmailLang = 'en',
 ): { subject: string; html: string } {
   const safeName = escapeHtml(userName)
+
+  if (lang === 'de') {
+    const dayWord = daysLeft === 1 ? 'Tag' : 'Tagen'
+    return {
+      subject: `Ihre ScoutCopilot-Testphase endet in ${daysLeft} ${dayWord}`,
+      html: layout(
+`<h1 style="${S.h1}">Ihre Testphase endet bald</h1>
+<p style="${S.p}">Hallo ${safeName}, Ihre kostenlose Testphase l&auml;uft in <strong style="${S.strong}">${daysLeft} ${dayWord}</strong> ab. Upgraden Sie jetzt, um weiterhin mit KI-gest&uuml;tzter Intelligenz zu scouten.</p>
+${button('Tarif w\u00e4hlen', `${APP_URL}/settings?tab=billing`)}
+<p style="${S.hint}">Noch nicht bereit? Kein Problem &mdash; Ihre Daten bleiben sicher und Sie k&ouml;nnen jederzeit upgraden.</p>`
+      ),
+    }
+  }
+
   return {
     subject: `Your ScoutCopilot trial ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}`,
     html: layout(
-`<h1 style="margin:0 0 8px;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:22px;font-weight:700;color:#18181b;text-align:center;">Your trial is ending soon</h1>
-<p style="margin:0 0 24px;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#71717a;line-height:1.6;text-align:center;">Hi ${safeName}, your free trial expires in <strong style="color:#18181b;">${daysLeft} day${daysLeft === 1 ? '' : 's'}</strong>. Upgrade now to keep scouting with AI-powered intelligence.</p>
+`<h1 style="${S.h1}">Your trial is ending soon</h1>
+<p style="${S.p}">Hi ${safeName}, your free trial expires in <strong style="${S.strong}">${daysLeft} day${daysLeft === 1 ? '' : 's'}</strong>. Upgrade now to keep scouting with AI-powered intelligence.</p>
 ${button('Choose a Plan', `${APP_URL}/settings?tab=billing`)}
-<p style="margin:16px 0 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#a1a1aa;text-align:center;">Not ready? No worries &mdash; your data stays safe and you can upgrade anytime.</p>`
+<p style="${S.hint}">Not ready? No worries &mdash; your data stays safe and you can upgrade anytime.</p>`
     ),
   }
 }
 
 /** Payment failed */
-export function paymentFailedEmail(userName: string): { subject: string; html: string } {
+export function paymentFailedEmail(userName: string, lang: EmailLang = 'en'): { subject: string; html: string } {
   const safeName = escapeHtml(userName)
+
+  if (lang === 'de') {
+    return {
+      subject: 'Handlungsbedarf: Zahlung f\u00fcr ScoutCopilot fehlgeschlagen',
+      html: layout(
+`<h1 style="${S.h1}">Zahlungsproblem</h1>
+<p style="${S.p}">Hallo ${safeName}, wir konnten Ihre letzte Zahlung f&uuml;r ScoutCopilot nicht verarbeiten. Dies liegt meist an einer abgelaufenen Karte oder unzureichender Deckung.</p>
+${button('Zahlungsmethode aktualisieren', `${APP_URL}/settings?tab=billing`)}
+<p style="${S.hint}">Falls Sie glauben, dass es sich um einen Fehler handelt, antworten Sie bitte auf diese E-Mail und wir helfen Ihnen.</p>`
+      ),
+    }
+  }
+
   return {
     subject: 'Action required: Payment failed for ScoutCopilot',
     html: layout(
-`<h1 style="margin:0 0 8px;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:22px;font-weight:700;color:#18181b;text-align:center;">Payment issue</h1>
-<p style="margin:0 0 24px;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#71717a;line-height:1.6;text-align:center;">Hi ${safeName}, we couldn't process your latest payment for ScoutCopilot. This is usually caused by an expired card or insufficient funds.</p>
+`<h1 style="${S.h1}">Payment issue</h1>
+<p style="${S.p}">Hi ${safeName}, we couldn't process your latest payment for ScoutCopilot. This is usually caused by an expired card or insufficient funds.</p>
 ${button('Update Payment Method', `${APP_URL}/settings?tab=billing`)}
-<p style="margin:16px 0 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#a1a1aa;text-align:center;">If you believe this is an error, please reply to this email and we'll help.</p>`
+<p style="${S.hint}">If you believe this is an error, please reply to this email and we'll help.</p>`
     ),
   }
 }
@@ -200,33 +272,50 @@ export function planChangedEmail(
   userName: string,
   newPlan: string,
   isUpgrade: boolean,
+  lang: EmailLang = 'en',
 ): { subject: string; html: string } {
   const safeName = escapeHtml(userName)
   const planDisplay = escapeHtml(newPlan.charAt(0).toUpperCase() + newPlan.slice(1))
+
+  if (lang === 'de') {
+    const verb = isUpgrade ? 'upgegradet' : 'ge&auml;ndert'
+    const verbPlain = isUpgrade ? 'upgegradet' : 'ge\u00e4ndert'
+    return {
+      subject: `Ihr ScoutCopilot-Tarif wurde auf ${planDisplay} ${verbPlain}`,
+      html: layout(
+`<h1 style="${S.h1}">Tarif ${verb}</h1>
+<p style="${S.p}">Hallo ${safeName}, Ihr ScoutCopilot-Abonnement wurde auf den <strong style="${S.strong}">${planDisplay}</strong>-Tarif ${verb}. ${isUpgrade ? 'Ihre neuen Limits sind ab sofort aktiv.' : 'Die &Auml;nderung tritt am Ende Ihres aktuellen Abrechnungszeitraums in Kraft.'}</p>
+${button('Konto anzeigen', `${APP_URL}/settings?tab=billing`)}`
+      ),
+    }
+  }
+
   const verb = isUpgrade ? 'upgraded' : 'changed'
   return {
     subject: `Your ScoutCopilot plan has been ${verb} to ${planDisplay}`,
     html: layout(
-`<h1 style="margin:0 0 8px;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:22px;font-weight:700;color:#18181b;text-align:center;">Plan ${verb}</h1>
-<p style="margin:0 0 24px;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#71717a;line-height:1.6;text-align:center;">Hi ${safeName}, your ScoutCopilot subscription has been ${verb} to the <strong style="color:#18181b;">${planDisplay}</strong> plan. ${isUpgrade ? 'Your new limits are now active.' : 'The change takes effect at the end of your current billing period.'}</p>
+`<h1 style="${S.h1}">Plan ${verb}</h1>
+<p style="${S.p}">Hi ${safeName}, your ScoutCopilot subscription has been ${verb} to the <strong style="${S.strong}">${planDisplay}</strong> plan. ${isUpgrade ? 'Your new limits are now active.' : 'The change takes effect at the end of your current billing period.'}</p>
 ${button('View Account', `${APP_URL}/settings?tab=billing`)}`
     ),
   }
 }
 
-/** Admin notification — new user registered */
+/** Admin notification — new user registered (always English — admin-facing) */
 export function newUserNotificationEmail(userName: string, userEmail: string): { subject: string; html: string } {
   const safeName = escapeHtml(userName)
   const safeEmail = escapeHtml(userEmail)
+  const tdLabel = 'padding:4px 12px 4px 0;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:14px;color:#a1a1aa;'
+  const tdValue = 'padding:4px 0;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:14px;font-weight:600;color:#18181b;'
   return {
     subject: `New ScoutCopilot signup: ${safeName}`,
     html: layout(
-`<h1 style="margin:0 0 8px;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:22px;font-weight:700;color:#18181b;text-align:center;">New user registered</h1>
-<p style="margin:0 0 24px;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#71717a;line-height:1.6;text-align:center;">A new user just completed registration on ScoutCopilot:</p>
+`<h1 style="${S.h1}">New user registered</h1>
+<p style="${S.p}">A new user just completed registration on ScoutCopilot:</p>
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 16px;">
-<tr><td style="padding:4px 12px 4px 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#a1a1aa;">Name</td><td style="padding:4px 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:14px;font-weight:600;color:#18181b;">${safeName}</td></tr>
-<tr><td style="padding:4px 12px 4px 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#a1a1aa;">Email</td><td style="padding:4px 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:14px;font-weight:600;color:#18181b;">${safeEmail}</td></tr>
-<tr><td style="padding:4px 12px 4px 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:14px;color:#a1a1aa;">Time</td><td style="padding:4px 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:14px;font-weight:600;color:#18181b;">${new Date().toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Europe/Zurich' })}</td></tr>
+<tr><td style="${tdLabel}">Name</td><td style="${tdValue}">${safeName}</td></tr>
+<tr><td style="${tdLabel}">Email</td><td style="${tdValue}">${safeEmail}</td></tr>
+<tr><td style="${tdLabel}">Time</td><td style="${tdValue}">${new Date().toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Europe/Zurich' })}</td></tr>
 </table>
 ${button('View Users', `https://supabase.com/dashboard/project/rlcsuqwqzoqjykdiqjye/auth/users`)}`
     ),
@@ -234,15 +323,28 @@ ${button('View Users', `https://supabase.com/dashboard/project/rlcsuqwqzoqjykdiq
 }
 
 /** Account deleted confirmation */
-export function accountDeletedEmail(userName: string): { subject: string; html: string } {
+export function accountDeletedEmail(userName: string, lang: EmailLang = 'en'): { subject: string; html: string } {
   const safeName = escapeHtml(userName)
+
+  if (lang === 'de') {
+    return {
+      subject: 'Ihr ScoutCopilot-Konto wurde gel\u00f6scht',
+      html: layout(
+`<h1 style="${S.h1}">Konto gel&ouml;scht</h1>
+<p style="${S.pSpaced}">Hallo ${safeName}, Ihr ScoutCopilot-Konto und alle zugeh&ouml;rigen Daten wurden wie gew&uuml;nscht dauerhaft gel&ouml;scht.</p>
+<p style="${S.pSpaced}">Falls dies ein Versehen war oder Sie zur&uuml;ckkommen m&ouml;chten, k&ouml;nnen Sie sich jederzeit erneut registrieren.</p>
+<p style="${S.hintNoMargin}">Es tut uns leid, Sie gehen zu sehen. Wenn Sie Feedback haben, antworten Sie auf diese E-Mail &mdash; wir w&uuml;rden gerne erfahren, wie wir uns verbessern k&ouml;nnen.</p>`
+      ),
+    }
+  }
+
   return {
     subject: 'Your ScoutCopilot account has been deleted',
     html: layout(
-`<h1 style="margin:0 0 8px;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:22px;font-weight:700;color:#18181b;text-align:center;">Account deleted</h1>
-<p style="margin:0 0 16px;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#71717a;line-height:1.6;text-align:center;">Hi ${safeName}, your ScoutCopilot account and all associated data have been permanently deleted as requested.</p>
-<p style="margin:0 0 16px;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#71717a;line-height:1.6;text-align:center;">If this was a mistake or you'd like to come back, you're welcome to sign up again anytime.</p>
-<p style="margin:0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:13px;color:#a1a1aa;text-align:center;">We're sorry to see you go. If you have feedback, reply to this email &mdash; we'd love to hear how we can improve.</p>`
+`<h1 style="${S.h1}">Account deleted</h1>
+<p style="${S.pSpaced}">Hi ${safeName}, your ScoutCopilot account and all associated data have been permanently deleted as requested.</p>
+<p style="${S.pSpaced}">If this was a mistake or you'd like to come back, you're welcome to sign up again anytime.</p>
+<p style="${S.hintNoMargin}">We're sorry to see you go. If you have feedback, reply to this email &mdash; we'd love to hear how we can improve.</p>`
     ),
   }
 }

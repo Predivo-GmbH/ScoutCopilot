@@ -6,6 +6,7 @@ import { handleCors } from "../_shared/cors.ts";
 import { AuthError, getAuthContext, getServiceClient } from "../_shared/auth.ts";
 import { comparePlayers as claudeCompare } from "../_shared/claude.ts";
 import { getMockPlayer } from "../_shared/mock-data.ts";
+import { checkRateLimit } from "../_shared/rate-limiter.ts";
 
 serve(async (req: Request) => {
   const { corsHeaders, preflightResponse } = handleCors(req);
@@ -20,6 +21,22 @@ serve(async (req: Request) => {
 
   try {
     const auth = await getAuthContext(req);
+
+    // Rate limit: 20 requests/minute per organization
+    const { allowed, retryAfterMs } = checkRateLimit(auth.organizationId, 20 / 60, 20);
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": String(Math.ceil(retryAfterMs / 1000)),
+          },
+        }
+      );
+    }
 
     const { player_ids, context } = await req.json();
     if (!Array.isArray(player_ids) || player_ids.length < 2) {

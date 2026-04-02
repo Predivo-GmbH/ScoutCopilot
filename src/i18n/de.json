@@ -72,6 +72,11 @@
     "locale": "de-DE"
   },
   "errors": {
+    "boundary": {
+      "title": "Etwas ist schiefgelaufen",
+      "description": "Ein unerwarteter Fehler ist aufgetreten. Bitte laden Sie die Seite neu.",
+      "reload": "Neu laden"
+    },
     "tooManyEmails": "Zu viele E-Mails gesendet. Bitte warten Sie einige Minuten.",
     "tooManyAttempts": "Zu viele Versuche. Bitte warten Sie einen Moment.",
     "incorrectCredentials": "Falsche E-Mail oder falsches Passwort. Bitte überprüfen Sie Ihre Zugangsdaten.",

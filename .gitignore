@@ -28,3 +28,11 @@ npm-debug.log*
 
 # Credentials
 docs/Credentials.txt
+
+# Supabase
+supabase/.temp/
+
+# Test artifacts (Playwright)
+test-results/
+test-screenshots/
+e2e/screenshots/

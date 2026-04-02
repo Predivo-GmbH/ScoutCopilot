@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from 'react'
 import type { User, Session } from '@supabase/supabase-js'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import type { Profile, Organization } from '../../types/database'
 import { AuthContext } from './auth-context-value'
@@ -64,6 +65,7 @@ async function fetchOrganization(orgId: string): Promise<Organization | null> {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const { i18n } = useTranslation()
   const isScreenshotMode = import.meta.env.VITE_SCREENSHOT_MODE === 'true'
 
   const [state, setState] = useState<AuthState>(isScreenshotMode ? {
@@ -168,8 +170,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error
 
     // Send welcome email (best-effort — silent fail in production)
-    supabase.functions.invoke('send-welcome', { method: 'POST' }).catch(() => { /* best-effort, no client-side logging */ })
-  }, [])
+    supabase.functions.invoke('send-welcome', {
+      method: 'POST',
+      body: { lang: i18n.language },
+    }).catch(() => { /* best-effort, no client-side logging */ })
+  }, [i18n.language])
 
   const hasCompletedProfile = useCallback(() => {
     if (!state.user) return false
@@ -190,12 +195,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const deleteAccount = useCallback(async () => {
     const { error: fnError } = await supabase.functions.invoke('delete-account', {
       method: 'POST',
+      body: { lang: i18n.language },
     })
     if (fnError) {
       throw new Error(fnError.message || 'Failed to delete account')
     }
     await supabase.auth.signOut()
-  }, [])
+  }, [i18n.language])
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut()

@@ -20,6 +20,7 @@
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { handleCors } from "../_shared/cors.ts";
 import { AuthError, getAuthContext, getServiceClient } from "../_shared/auth.ts";
+import { checkRateLimit } from "../_shared/rate-limiter.ts";
 
 serve(async (req: Request) => {
   const { corsHeaders, preflightResponse } = handleCors(req);
@@ -27,6 +28,22 @@ serve(async (req: Request) => {
 
   try {
     const auth = await getAuthContext(req);
+
+    // Rate limit: 10 requests/minute per organization
+    const { allowed, retryAfterMs } = checkRateLimit(auth.organizationId, 10 / 60, 10);
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": String(Math.ceil(retryAfterMs / 1000)),
+          },
+        }
+      );
+    }
 
     // Only owners and admins can manage credentials
     if (auth.role === "scout") {

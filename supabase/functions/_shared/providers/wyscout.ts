@@ -2,7 +2,7 @@
 
 import { waitForRateLimit } from "../rate-limiter.ts";
 
-const WYSCOUT_BASE_URL = "https://apirest.wyscout.com/v3";
+const WYSCOUT_BASE_URL = "https://apirest.wyscout.com/v4";
 
 export interface WyscoutCredentials {
   username: string;
@@ -27,6 +27,7 @@ export interface WyscoutPlayer {
   };
   marketValue?: number;
   contractExpiration?: string;
+  imageDataURL?: string;
 }
 
 export interface WyscoutPlayerStats {
@@ -42,6 +43,22 @@ export interface WyscoutPlayerStats {
   total: Record<string, number>;
   average: Record<string, number>;
   percent: Record<string, number>;
+}
+
+export interface WyscoutContractInfo {
+  player_id: number;
+  contract_expiration: string | null;
+  agencies: string[];
+}
+
+export interface WyscoutTransfer {
+  transferId: number;
+  playerName: string;
+  fromTeam: { teamId: number; name: string };
+  toTeam: { teamId: number; name: string };
+  transferDate: string;
+  fee: number | null;
+  feeTag: string | null;
 }
 
 export interface WyscoutSearchParams {
@@ -133,4 +150,43 @@ export async function getPlayerDetails(
     organizationId
   )) as WyscoutPlayer;
   return data;
+}
+
+export async function getPlayerWithPhoto(
+  credentials: WyscoutCredentials,
+  playerId: number | string,
+  organizationId: string
+): Promise<WyscoutPlayer> {
+  const data = (await wyscoutFetch(
+    `/players/${playerId}?imageDataURL=true`,
+    credentials,
+    organizationId
+  )) as WyscoutPlayer;
+  return data;
+}
+
+export async function getContractInfo(
+  credentials: WyscoutCredentials,
+  playerId: number | string,
+  organizationId: string
+): Promise<WyscoutContractInfo> {
+  const data = (await wyscoutFetch(
+    `/players/${playerId}/contractinfo`,
+    credentials,
+    organizationId
+  )) as WyscoutContractInfo;
+  return data;
+}
+
+export async function getTransfers(
+  credentials: WyscoutCredentials,
+  playerId: number | string,
+  organizationId: string
+): Promise<WyscoutTransfer[]> {
+  const data = (await wyscoutFetch(
+    `/players/${playerId}/transfers`,
+    credentials,
+    organizationId
+  )) as { transfers: WyscoutTransfer[] };
+  return data.transfers ?? [];
 }

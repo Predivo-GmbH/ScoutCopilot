@@ -1,5 +1,6 @@
 import { handleCors } from "../_shared/cors.ts";
 import { getAuthContext, AuthError, getServiceClient } from "../_shared/auth.ts";
+import { checkRateLimit } from "../_shared/rate-limiter.ts";
 
 const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY")!;
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://scoutcopilot.com";
@@ -54,6 +55,23 @@ Deno.serve(async (req) => {
 
   try {
     const auth = await getAuthContext(req);
+
+    // Rate limit: 5 requests/minute per organization
+    const { allowed, retryAfterMs } = checkRateLimit(auth.organizationId, 5 / 60, 5);
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": String(Math.ceil(retryAfterMs / 1000)),
+          },
+        }
+      );
+    }
+
     const { tier, interval } = await req.json();
 
     // Validate inputs

@@ -18,4 +18,12 @@ export default defineConfig({
       use: { browserName: 'chromium' },
     },
   ],
+  webServer: {
+    command: 'npx vite --port 5199',
+    port: 5199,
+    reuseExistingServer: !process.env.CI,
+    env: {
+      VITE_SCREENSHOT_MODE: 'true',
+    },
+  },
 })
