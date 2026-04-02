@@ -295,9 +295,6 @@ function processEvents(
   matchId: number,
   accumulators: Map<number, PlayerAccumulator>
 ): void {
-  // Build a map of pass -> subsequent shot for xA computation
-  const shotAssistMap = new Map<number, number>(); // passerId -> shot xG
-
   for (const evt of events) {
     const playerId = evt.player?.id;
     if (!playerId) continue;

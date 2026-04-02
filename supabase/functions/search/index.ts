@@ -266,7 +266,7 @@ async function fetchFromProviders(
 
 // Search StatsBomb open data stored in Supabase (free, always available)
 async function searchStatsBombOpenData(
-  // deno-lint-ignore no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: any,
   params: ParsedSearchParams
 ): Promise<Record<string, unknown>[]> {
@@ -303,7 +303,7 @@ async function searchStatsBombOpenData(
     return [];
   }
 
-  // deno-lint-ignore no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (data ?? []).map((row: any) => ({
     player_external_id: `sb-open-${row.sb_players.player_id}`,
     player_name:
