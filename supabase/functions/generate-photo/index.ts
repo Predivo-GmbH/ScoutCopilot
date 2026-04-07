@@ -1,4 +1,4 @@
-// Fetch real player photos from TheSportsDB
+// Fetch real player photos from TheSportsDB, fall back to Stitch AI generation
 // Called internally by the search function for players without photos
 // POST /generate-photo { player_ids: number[] }
 // Also supports being called directly with service_role key
@@ -8,11 +8,14 @@ import { handleCors } from "../_shared/cors.ts";
 import { getServiceClient } from "../_shared/auth.ts";
 
 const SPORTSDB_BASE = "https://www.thesportsdb.com/api/v1/json/3";
+const STITCH_MCP_URL = "https://stitch.googleapis.com/mcp";
 
 /** Strip diacritics so search queries stay ASCII-safe. */
 function stripAccents(s: string): string {
   return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
+
+// ── TheSportsDB (primary) ──────────────────────────────────────────
 
 interface SportsDbPlayer {
   strPlayer?: string;
@@ -20,14 +23,14 @@ interface SportsDbPlayer {
   strCutout?: string;
 }
 
-async function fetchPlayerPhoto(playerName: string): Promise<string | null> {
+async function fetchFromSportsDb(playerName: string): Promise<string | null> {
   const safeName = stripAccents(playerName);
   const url = `${SPORTSDB_BASE}/searchplayers.php?p=${encodeURIComponent(safeName)}`;
-  console.log(`Searching TheSportsDB for "${safeName}"…`);
+  console.log(`[SportsDB] Searching for "${safeName}"…`);
 
   const res = await fetch(url);
   if (!res.ok) {
-    console.error(`TheSportsDB error: ${res.status}`);
+    console.error(`[SportsDB] HTTP ${res.status}`);
     return null;
   }
 
@@ -35,19 +38,99 @@ async function fetchPlayerPhoto(playerName: string): Promise<string | null> {
   const players: SportsDbPlayer[] = data?.player ?? [];
 
   if (players.length === 0) {
-    console.error(`No results for "${safeName}" on TheSportsDB`);
+    console.log(`[SportsDB] No results for "${safeName}"`);
     return null;
   }
 
-  // Prefer cutout (transparent PNG), fall back to thumb
   const photo = players[0].strCutout || players[0].strThumb || null;
   if (photo) {
-    console.log(`Found photo for ${playerName}: ${photo.slice(0, 80)}…`);
+    console.log(`[SportsDB] Found photo for ${playerName}: ${photo.slice(0, 80)}…`);
   } else {
-    console.error(`TheSportsDB returned player "${players[0].strPlayer}" but no photo`);
+    console.log(`[SportsDB] Player "${players[0].strPlayer}" found but no photo`);
   }
   return photo;
 }
+
+// ── Stitch AI (fallback) ───────────────────────────────────────────
+
+interface StitchScreen {
+  screenshot?: { downloadUrl?: string };
+}
+
+interface StitchOutputComponent {
+  design?: { screens?: StitchScreen[] };
+  text?: string;
+}
+
+interface StitchResult {
+  outputComponents?: StitchOutputComponent[];
+}
+
+async function generateWithStitch(
+  playerName: string,
+  nationality: string,
+  projectId: string,
+  apiKey: string,
+): Promise<string | null> {
+  const safeName = stripAccents(playerName);
+  const safeNat = stripAccents(nationality);
+  const prompt = `A high-quality, professional studio headshot of ${safeName}, ${safeNat} football player, wearing a plain neutral-colored football jersey with no logos, no emblems, no brands, no text. Looking directly at the camera with a confident expression, neutral grey background, professional studio lighting, high resolution, photorealistic.`;
+  console.log(`[Stitch] Generating portrait for ${safeName} (${safeNat})…`);
+
+  const res = await fetch(STITCH_MCP_URL, {
+    method: "POST",
+    headers: {
+      "X-Goog-Api-Key": apiKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "tools/call",
+      params: {
+        name: "generate_screen_from_text",
+        arguments: { projectId, prompt },
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    console.error(`[Stitch] HTTP ${res.status} — ${body}`);
+    return null;
+  }
+
+  const json = await res.json();
+
+  // Try structuredContent first, then fall back to content text
+  let parsed: StitchResult | null = null;
+  const structured = json?.result?.structuredContent;
+  if (structured?.outputComponents) {
+    parsed = structured as StitchResult;
+  } else {
+    const contentText = json?.result?.content?.[0]?.text;
+    if (!contentText) {
+      console.error("[Stitch] No content in response:", JSON.stringify(json).slice(0, 500));
+      return null;
+    }
+    try {
+      parsed = JSON.parse(contentText) as StitchResult;
+    } catch (e) {
+      console.error("[Stitch] JSON parse error:", (e as Error).message);
+      return null;
+    }
+  }
+
+  const screen = parsed?.outputComponents?.find((c) => c.design)?.design?.screens?.[0];
+  if (screen?.screenshot?.downloadUrl) {
+    console.log(`[Stitch] Generated photo for ${playerName}: ${screen.screenshot.downloadUrl.slice(0, 80)}…`);
+    return screen.screenshot.downloadUrl;
+  }
+  console.error("[Stitch] No downloadUrl in response");
+  return null;
+}
+
+// ── Main handler ───────────────────────────────────────────────────
 
 serve(async (req: Request) => {
   const { corsHeaders, preflightResponse } = handleCors(req);
@@ -60,6 +143,9 @@ serve(async (req: Request) => {
     });
   }
 
+  const stitchApiKey = Deno.env.get("STITCH_API_KEY");
+  const stitchProjectId = Deno.env.get("STITCH_PROJECT_ID");
+
   try {
     const body = await req.json().catch(() => ({}));
     const playerIds: number[] = body.player_ids ?? [];
@@ -71,7 +157,7 @@ serve(async (req: Request) => {
       );
     }
 
-    // TheSportsDB is fast — can process multiple players per request
+    // TheSportsDB is fast; Stitch fallback is slow (30-60s each), so limit batch
     const batch = playerIds.slice(0, 10);
 
     const supabase = getServiceClient();
@@ -88,7 +174,7 @@ serve(async (req: Request) => {
       });
     }
 
-    const results: Array<{ player_id: number; status: string; photo_url?: string }> = [];
+    const results: Array<{ player_id: number; status: string; source?: string; photo_url?: string }> = [];
 
     for (const p of players ?? []) {
       if (p.photo_url) {
@@ -97,7 +183,16 @@ serve(async (req: Request) => {
       }
 
       const displayName = p.player_nickname ?? p.player_name;
-      const photoUrl = await fetchPlayerPhoto(displayName);
+      const nationality = p.nationality ?? "Unknown";
+
+      // 1. Try TheSportsDB (real photo, instant)
+      let photoUrl = await fetchFromSportsDb(displayName);
+
+      // 2. Fallback: Stitch AI generation (slower, names get genericized)
+      if (!photoUrl && stitchApiKey && stitchProjectId) {
+        console.log(`[Fallback] No SportsDB photo for "${displayName}", trying Stitch…`);
+        photoUrl = await generateWithStitch(displayName, nationality, stitchProjectId, stitchApiKey);
+      }
 
       if (photoUrl) {
         await supabase
@@ -105,7 +200,8 @@ serve(async (req: Request) => {
           .update({ photo_url: photoUrl })
           .eq("player_id", p.player_id);
 
-        results.push({ player_id: p.player_id, status: "found", photo_url: photoUrl });
+        const source = photoUrl.includes("thesportsdb.com") ? "sportsdb" : "stitch";
+        results.push({ player_id: p.player_id, status: "found", source, photo_url: photoUrl });
       } else {
         results.push({ player_id: p.player_id, status: "not_found" });
       }
