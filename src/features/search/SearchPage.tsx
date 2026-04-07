@@ -2,11 +2,12 @@ import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { Search as SearchIcon, ArrowRight, Sparkles } from 'lucide-react'
+import { Search as SearchIcon, ArrowRight, Sparkles, Clock } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { SearchFilters } from './components/SearchFilters'
 import { SearchResultsTable } from './components/SearchResultsTable'
 import { usePlayerSearch } from './hooks/usePlayerSearch'
+import { useRecentSearches } from '../dashboard/hooks/useDashboardData'
 
 const SUGGESTED_QUERIES = [
   'Left-backs under 23, >75% crossing accuracy',
@@ -118,14 +119,19 @@ export function SearchPage() {
           )}
         </>
       ) : (
-        <EmptyState onSuggestionClick={handleSuggestion} />
+        <EmptyState onSuggestionClick={handleSuggestion} onLoadSaved={loadSaved} />
       )}
     </div>
   )
 }
 
-function EmptyState({ onSuggestionClick }: { onSuggestionClick: (query: string) => void }) {
+function EmptyState({ onSuggestionClick, onLoadSaved }: {
+  onSuggestionClick: (query: string) => void
+  onLoadSaved: (searchId: string, query: string) => void
+}) {
   const { t } = useTranslation()
+  const { data: recentSearches } = useRecentSearches()
+
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center mb-4">
@@ -135,6 +141,29 @@ function EmptyState({ onSuggestionClick }: { onSuggestionClick: (query: string) 
       <p className="text-sm text-on-surface-variant max-w-md mb-8">
         {t('search.startSearchSub')}
       </p>
+
+      {/* Recent Searches */}
+      {recentSearches && recentSearches.length > 0 && (
+        <div className="w-full max-w-2xl mb-8">
+          <div className="flex items-center gap-2 mb-3 justify-center">
+            <Clock size={14} strokeWidth={1.5} className="text-primary" />
+            <span className="text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant">{t('searchHistory.heading')}</span>
+          </div>
+          <div className="space-y-1.5">
+            {recentSearches.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => onLoadSaved(s.id, s.query)}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left bg-surface-container border border-outline-variant rounded-md hover:bg-surface-container-high hover:border-primary/30 transition-colors min-h-[44px] group"
+              >
+                <SearchIcon size={14} strokeWidth={1.5} className="text-on-surface-variant/50 shrink-0" />
+                <span className="text-sm text-on-surface truncate flex-1">{s.query}</span>
+                <span className="text-[0.625rem] font-data text-on-surface-variant/70 shrink-0">{s.resultCount} {t('searchHistory.results')}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Suggested Queries */}
       <div className="w-full max-w-2xl">
