@@ -126,8 +126,8 @@ export function DashboardPage() {
                       tabIndex={0}
                       role="link"
                       className="min-h-[44px] hover:bg-surface-container-high transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1"
-                      onClick={() => navigate(`/search?q=${encodeURIComponent(search.query)}&saved=1`)}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/search?q=${encodeURIComponent(search.query)}&saved=1`) } }}
+                      onClick={() => navigate(`/search?q=${encodeURIComponent(search.query)}&saved=1&sid=${search.id}`)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/search?q=${encodeURIComponent(search.query)}&saved=1&sid=${search.id}`) } }}
                     >
                       <td className="px-3 sm:px-6 py-3 text-xs font-medium text-on-surface max-w-[200px] sm:max-w-[320px] truncate">
                         {search.query}

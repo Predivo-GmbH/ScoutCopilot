@@ -80,8 +80,8 @@ export function SearchHistoryPage() {
               key={s.id}
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { if (s.status === 'complete') navigate(`/search?q=${encodeURIComponent(s.query)}&saved=1`) } }}
-              onClick={() => { if (s.status === 'complete') navigate(`/search?q=${encodeURIComponent(s.query)}&saved=1`) }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { if (s.status === 'complete') navigate(`/search?q=${encodeURIComponent(s.query)}&saved=1&sid=${s.id}`) } }}
+              onClick={() => { if (s.status === 'complete') navigate(`/search?q=${encodeURIComponent(s.query)}&saved=1&sid=${s.id}`) }}
               className={`bg-surface-container border border-outline-variant rounded-md p-4 transition-colors min-h-[44px] ${
                 s.status === 'complete' ? 'cursor-pointer hover:bg-surface-container-high' : 'opacity-60'
               }`}

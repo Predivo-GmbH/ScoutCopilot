@@ -19,18 +19,23 @@ const SUGGESTED_QUERIES = [
 
 export function SearchPage() {
   const { t } = useTranslation()
-  const { params, results, isLoading, hasSearched, search, updateFilters } = usePlayerSearch()
+  const { params, results, isLoading, hasSearched, search, loadSaved, updateFilters } = usePlayerSearch()
   const [searchParams, setSearchParams] = useSearchParams()
   const initialQuery = searchParams.get('q') ?? ''
   const isSavedSearch = searchParams.get('saved') === '1'
+  const savedSearchId = searchParams.get('sid') ?? ''
   const [queryInput, setQueryInput] = useState(initialQuery)
   const autoSearched = useRef(false)
 
-  // Auto-execute saved searches from dashboard (but not "Find Players" or suggested queries)
+  // Load saved search results from DB (no AI credits) or re-run if no ID
   useEffect(() => {
     if (isSavedSearch && initialQuery && !autoSearched.current) {
       autoSearched.current = true
-      search({ query: initialQuery })
+      if (savedSearchId) {
+        loadSaved(savedSearchId, initialQuery)
+      } else {
+        search({ query: initialQuery })
+      }
       setSearchParams({}, { replace: true })
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps

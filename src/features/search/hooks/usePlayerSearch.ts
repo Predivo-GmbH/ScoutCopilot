@@ -115,10 +115,34 @@ export function usePlayerSearch() {
   })
   const [hasSearched, setHasSearched] = useState(false)
   const [searchTrigger, setSearchTrigger] = useState(0)
+  // When set, load results from DB instead of calling the edge function
+  const [savedSearchId, setSavedSearchId] = useState<string | null>(null)
 
   const { data, isLoading } = useQuery<MockPlayer[]>({
     queryKey: ['player-search', searchTrigger],
     queryFn: async () => {
+      // Load cached results from DB (no AI credits)
+      if (savedSearchId) {
+        const { data: rows, error } = await supabase
+          .from('search_results')
+          .select('player_external_id, player_name, player_data, rank, fit_score')
+          .eq('search_query_id', savedSearchId)
+          .order('rank', { ascending: true })
+
+        if (error) throw new Error(error.message)
+        if (!rows || rows.length === 0) return []
+
+        return rows.map((row) => mapToMockPlayer({
+          player_external_id: row.player_external_id,
+          player_name: row.player_name,
+          rank: row.rank,
+          fit_score: row.fit_score,
+          fit_reasoning: (row.player_data as Record<string, unknown>)?.fit_reasoning as string ?? '',
+          player_data: row.player_data as Record<string, unknown>,
+        }))
+      }
+
+      // Fresh search via edge function (uses AI credits)
       const { data: responseData, error: fnError } = await supabase.functions.invoke('search', {
         body: { query: params.query },
       })
@@ -151,9 +175,17 @@ export function usePlayerSearch() {
   })
 
   function search(newParams?: Partial<SearchParams>) {
+    setSavedSearchId(null)
     if (newParams) {
       setParams((prev) => ({ ...prev, ...newParams }))
     }
+    setHasSearched(true)
+    setSearchTrigger((t) => t + 1)
+  }
+
+  function loadSaved(searchId: string, query: string) {
+    setSavedSearchId(searchId)
+    setParams((prev) => ({ ...prev, query }))
     setHasSearched(true)
     setSearchTrigger((t) => t + 1)
   }
@@ -168,6 +200,7 @@ export function usePlayerSearch() {
     isLoading,
     hasSearched,
     search,
+    loadSaved,
     updateFilters,
   }
 }
