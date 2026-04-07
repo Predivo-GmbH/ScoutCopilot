@@ -88,7 +88,25 @@ export function usePlayerReport(playerId?: string) {
         .limit(1)
         .single()
       if (error) throw error
-      return mapDbToReport(data)
+
+      const report = mapDbToReport(data)
+
+      // Fetch photo_url from sb_players if this is a StatsBomb player
+      if (playerId?.startsWith('sb-open-')) {
+        const rawId = parseInt(playerId.replace('sb-open-', ''), 10)
+        if (!isNaN(rawId)) {
+          const { data: player } = await supabase
+            .from('sb_players')
+            .select('photo_url')
+            .eq('player_id', rawId)
+            .single()
+          if (player?.photo_url) {
+            report.image = player.photo_url
+          }
+        }
+      }
+
+      return report
     },
     enabled: !!playerId,
   })

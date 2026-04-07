@@ -187,10 +187,10 @@ serve(async (req: Request) => {
       );
     }
 
-    // Build a lookup of photo URLs from raw players before ranking
-    const photoLookup = new Map<string, string>();
+    // Build a lookup of all raw player data before ranking (Claude strips it)
+    const playerDataLookup = new Map<string, Record<string, unknown>>();
     for (const p of rawPlayers) {
-      if (p.photo_url) photoLookup.set(p.player_external_id as string, p.photo_url as string);
+      playerDataLookup.set(p.player_external_id as string, p);
     }
 
     // Step 3: Rank players via Claude (with fallback to basic scoring)
@@ -209,11 +209,16 @@ serve(async (req: Request) => {
       }));
     }
 
-    // Merge photo URLs into ranked results (Claude doesn't return them)
+    // Merge original player data back into ranked results
+    // Claude ranking only returns id/name/score — all other fields get lost
     for (const r of ranked) {
-      const photoUrl = photoLookup.get(r.player_external_id);
-      if (photoUrl && r.player_data) {
-        (r.player_data as Record<string, unknown>).photo_url = photoUrl;
+      const original = playerDataLookup.get(r.player_external_id);
+      if (original) {
+        r.player_data = {
+          ...original,
+          ...(r.player_data ?? {}),
+          fit_reasoning: r.fit_reasoning,
+        };
       }
     }
 
