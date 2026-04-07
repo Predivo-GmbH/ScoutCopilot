@@ -29,13 +29,21 @@ interface StitchResult {
   outputComponents?: StitchOutputComponent[];
 }
 
+/** Strip diacritics so prompts stay ASCII-safe for the Stitch API. */
+function stripAccents(s: string): string {
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 async function generatePortrait(
   playerName: string,
   nationality: string,
   projectId: string,
   stitchApiKey: string
 ): Promise<string | null> {
-  const prompt = `A high-quality, professional studio headshot of ${playerName}, looking directly at the camera with a confident expression, neutral grey background, high resolution, detailed skin texture, professional studio lighting.`;
+  const safeName = stripAccents(playerName);
+  const safeNat = stripAccents(nationality);
+  const prompt = `A high-quality, professional studio headshot of ${safeName}, ${safeNat} football player, wearing a plain neutral-colored football jersey with no logos, no emblems, no brands, no text. Looking directly at the camera with a confident expression, neutral grey background, professional studio lighting, high resolution, photorealistic.`;
+  console.log(`Generating portrait for ${safeName} (${safeNat})…`);
 
   const res = await fetch(STITCH_MCP_URL, {
     method: "POST",
@@ -55,30 +63,42 @@ async function generatePortrait(
   });
 
   if (!res.ok) {
-    console.error(`Stitch API error: ${res.status}`);
+    const body = await res.text().catch(() => "");
+    console.error(`Stitch API error: ${res.status} — ${body}`);
     return null;
   }
 
   const json = await res.json();
-  const contentText = json?.result?.content?.[0]?.text;
-  if (!contentText) {
-    console.error("Stitch returned no content");
-    return null;
+  console.log("Stitch raw keys:", Object.keys(json?.result ?? {}));
+
+  // Try structuredContent first (already parsed), then fall back to text
+  let parsed: StitchResult | null = null;
+
+  const structured = json?.result?.structuredContent;
+  if (structured?.outputComponents) {
+    parsed = structured as StitchResult;
+  } else {
+    const contentText = json?.result?.content?.[0]?.text;
+    if (!contentText) {
+      console.error("Stitch returned no content — full response:", JSON.stringify(json).slice(0, 500));
+      return null;
+    }
+    try {
+      parsed = JSON.parse(contentText) as StitchResult;
+    } catch (e) {
+      console.error("Failed to parse Stitch response:", (e as Error).message);
+      return null;
+    }
   }
 
-  try {
-    const parsed: StitchResult = JSON.parse(contentText);
-    const screen = parsed.outputComponents?.find((c) => c.design)?.design
-      ?.screens?.[0];
-    if (screen?.screenshot?.downloadUrl) {
-      return screen.screenshot.downloadUrl;
-    }
-    console.error("No downloadUrl in Stitch response");
-    return null;
-  } catch (e) {
-    console.error("Failed to parse Stitch response:", (e as Error).message);
-    return null;
+  const screen = parsed?.outputComponents?.find((c) => c.design)?.design
+    ?.screens?.[0];
+  if (screen?.screenshot?.downloadUrl) {
+    console.log(`Generated photo for ${playerName}: ${screen.screenshot.downloadUrl.slice(0, 80)}...`);
+    return screen.screenshot.downloadUrl;
   }
+  console.error("No downloadUrl in parsed Stitch response");
+  return null;
 }
 
 serve(async (req: Request) => {
@@ -113,8 +133,8 @@ serve(async (req: Request) => {
       );
     }
 
-    // Cap at 10 per request to avoid timeouts
-    const batch = playerIds.slice(0, 10);
+    // Process one player per request — each Stitch call takes 30-60s
+    const batch = playerIds.slice(0, 1);
 
     const supabase = getServiceClient();
 

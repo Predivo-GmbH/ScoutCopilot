@@ -272,19 +272,21 @@ serve(async (req: Request) => {
       .filter((id) => !isNaN(id));
 
     if (playersNeedingPhotos.length > 0) {
-      // Fire-and-forget: call generate-photo in background
+      // Fire-and-forget: call generate-photo once per player (each takes 30-60s)
       const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
       const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-      fetch(`${supabaseUrl}/functions/v1/generate-photo`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${serviceKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ player_ids: playersNeedingPhotos }),
-      }).catch((err) => {
-        console.error("Failed to trigger photo generation:", err.message);
-      });
+      for (const pid of playersNeedingPhotos) {
+        fetch(`${supabaseUrl}/functions/v1/generate-photo`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${serviceKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ player_ids: [pid] }),
+        }).catch((err) => {
+          console.error(`Failed to trigger photo generation for ${pid}:`, err.message);
+        });
+      }
     }
 
     // Step 6: Return results
