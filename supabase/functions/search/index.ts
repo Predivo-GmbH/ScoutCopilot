@@ -272,19 +272,34 @@ serve(async (req: Request) => {
       .filter((id) => !isNaN(id));
 
     if (playersNeedingPhotos.length > 0) {
-      // Fire-and-forget: fetch photos from TheSportsDB (instant, batch OK)
+      // Fetch photos from TheSportsDB (instant) and update results before returning
       const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
       const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-      fetch(`${supabaseUrl}/functions/v1/generate-photo`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${serviceKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ player_ids: playersNeedingPhotos }),
-      }).catch((err) => {
-        console.error(`Failed to trigger photo fetch:`, err.message);
-      });
+      try {
+        const photoResp = await fetch(`${supabaseUrl}/functions/v1/generate-photo`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${serviceKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ player_ids: playersNeedingPhotos }),
+        });
+        if (photoResp.ok) {
+          const photoData = await photoResp.json();
+          // Merge fetched photos back into ranked results
+          for (const pr of photoData.results ?? []) {
+            if (pr.photo_url) {
+              const extId = `sb-open-${pr.player_id}`;
+              const match = ranked.find((r) => r.player_external_id === extId);
+              if (match) {
+                (match.player_data as Record<string, unknown>).photo_url = pr.photo_url;
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Photo fetch failed (non-blocking):", (err as Error).message);
+      }
     }
 
     // Step 6: Return results
