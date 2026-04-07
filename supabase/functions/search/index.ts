@@ -8,6 +8,10 @@ import { parseSearchQuery, rankPlayers, type ParsedSearchParams } from "../_shar
 import { searchMockPlayers, type MockPlayer } from "../_shared/mock-data.ts";
 import { searchPlayers as wyscoutSearch } from "../_shared/providers/wyscout.ts";
 import { searchPlayers as statsbombSearch } from "../_shared/providers/statsbomb.ts";
+import {
+  searchPlayersByName as apiFootballSearch,
+  mapToGenericPlayer,
+} from "../_shared/providers/api-football.ts";
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
 
 serve(async (req: Request) => {
@@ -62,7 +66,7 @@ serve(async (req: Request) => {
       const mockResults = searchMockPlayers(parsedParams);
       rawPlayers = mockResults.map(mockToGeneric);
     } else {
-      rawPlayers = await fetchFromProviders(auth.organizationId, parsedParams);
+      rawPlayers = await fetchFromProviders(auth.organizationId, parsedParams, query.trim());
     }
 
     if (rawPlayers.length === 0) {
@@ -173,7 +177,8 @@ function mockToGeneric(player: MockPlayer): Record<string, unknown> {
 
 async function fetchFromProviders(
   organizationId: string,
-  params: ParsedSearchParams
+  params: ParsedSearchParams,
+  rawQuery: string
 ): Promise<Record<string, unknown>[]> {
   const supabase = getServiceClient();
   const results: Record<string, unknown>[] = [];
@@ -186,6 +191,23 @@ async function fetchFromProviders(
     console.error("Error fetching StatsBomb open data:", (err as Error).message);
   }
 
+  // Always include API-Football if API key is configured (global key, not per-org)
+  if (Deno.env.get("API_FOOTBALL_KEY")) {
+    try {
+      // Use raw query as name search — works best for player name queries
+      // For filter-based queries, StatsBomb open data handles it via DB
+      const apiFootballResults = await apiFootballSearch(
+        rawQuery,
+        organizationId,
+        undefined, // leagueId
+        undefined  // season
+      );
+      results.push(...apiFootballResults.map(mapToGenericPlayer));
+    } catch (err) {
+      console.error("Error fetching API-Football data:", (err as Error).message);
+    }
+  }
+
   // Also check org's paid API credentials
   const { data: credentials } = await supabase
     .from("api_credentials")
@@ -193,7 +215,7 @@ async function fetchFromProviders(
     .eq("organization_id", organizationId)
     .eq("is_active", true);
 
-  // If no paid credentials and no open data results, give a helpful message
+  // If no paid credentials and no open/free data results, give a helpful message
   if (!credentials?.length && results.length === 0) {
     throw new Error(
       "No players found. Add your Wyscout or StatsBomb credentials in Settings for broader search coverage."
