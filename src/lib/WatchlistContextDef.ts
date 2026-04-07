@@ -3,9 +3,10 @@ import type { MockWatchlist, MockWatchlistPlayer } from './mock-data'
 
 export interface WatchlistContextValue {
   watchlists: MockWatchlist[]
+  isLoading: boolean
   addPlayerToWatchlist: (watchlistId: string, player: MockWatchlistPlayer) => void
   removePlayerFromWatchlist: (watchlistId: string, playerId: string) => void
-  createWatchlist: (name: string, description: string) => string
+  createWatchlist: (name: string, description: string) => Promise<string>
   deleteWatchlist: (watchlistId: string) => void
 }
 

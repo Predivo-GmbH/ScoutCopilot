@@ -34,9 +34,9 @@ export function WatchlistsPage() {
     }
   }, [showNewForm])
 
-  function handleCreate() {
+  async function handleCreate() {
     if (!newName.trim()) return
-    createWatchlist(newName.trim(), newDesc.trim())
+    await createWatchlist(newName.trim(), newDesc.trim())
     setNewName('')
     setNewDesc('')
     setShowNewForm(false)

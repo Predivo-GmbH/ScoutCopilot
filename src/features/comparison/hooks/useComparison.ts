@@ -1,47 +1,63 @@
 import { useState, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-// TODO [CQ-003]: Replace mock-data imports with real API calls via src/lib/api.ts
-import { playerReports, getSquadPlayerReport, type MockComparisonPlayer } from '../../../lib/mock-data'
-import { useGeneratedReports } from '../../../lib/useGeneratedReportsHook'
+import { supabase } from '../../../lib/supabase'
+import type { MockComparisonPlayer } from '../../../lib/mock-data'
 
-/** Convert a player report into the comparison format */
-function reportToComparison(id: string): MockComparisonPlayer | null {
-  const r = playerReports[id] ?? getSquadPlayerReport(id)
-  if (!r) return null
+/** Map a player_reports row into the comparison format */
+function reportToComparison(row: {
+  id: string
+  player_external_id: string
+  player_name: string
+  report_data: Record<string, unknown>
+}): MockComparisonPlayer {
+  const d = row.report_data
+
+  const seasonStats = (d.seasonStats ?? {}) as Record<string, number | string>
+  const minutes = typeof seasonStats['Minutes'] === 'number' ? seasonStats['Minutes'] : 0
+  const per90 = minutes > 0 ? minutes / 90 : 1
+
+  const goals = typeof seasonStats['Goals'] === 'number' ? seasonStats['Goals'] : 0
+  const assists = typeof seasonStats['Assists'] === 'number' ? seasonStats['Assists'] : 0
+  const passAcc = typeof seasonStats['Pass Accuracy'] === 'string'
+    ? parseFloat(seasonStats['Pass Accuracy'])
+    : typeof seasonStats['Pass Accuracy'] === 'number' ? seasonStats['Pass Accuracy'] : 0
+  const tacklesWon = typeof seasonStats['Tackles Won'] === 'number' ? seasonStats['Tackles Won'] : 0
+  const aerialDuels = typeof seasonStats['Aerial Duels Won'] === 'string'
+    ? parseFloat(seasonStats['Aerial Duels Won'])
+    : typeof seasonStats['Aerial Duels Won'] === 'number' ? seasonStats['Aerial Duels Won'] : 0
+  const keyPasses90 = typeof seasonStats['Key Passes/90'] === 'number' ? seasonStats['Key Passes/90'] : 0
+  const progCarries90 = typeof seasonStats['Prog. Carries/90'] === 'number' ? seasonStats['Prog. Carries/90'] : 0
+
+  const radarRaw = Array.isArray(d.radarData)
+    ? (d.radarData as { label: string; value: number }[]).map((r) => ({
+        label: r.label,
+        value: r.value,
+      }))
+    : []
+
   return {
-    id: r.playerId,
-    name: r.playerName,
-    club: r.club,
-    position: r.position,
-    age: r.age,
-    nationality: r.nationality,
-    image: r.image ?? '',
+    id: row.player_external_id,
+    name: row.player_name,
+    club: (d.club as string) ?? '',
+    position: (d.position as string) ?? '',
+    age: typeof d.age === 'number' ? d.age : 0,
+    nationality: (d.nationality as string) ?? '',
+    image: (d.image as string) ?? '',
     metrics: {
-      'Goals/90': r.seasonStats['Goals'] != null && r.seasonStats['Minutes'] != null
-        ? Number(((r.seasonStats['Goals'] as number) / ((r.seasonStats['Minutes'] as number) / 90)).toFixed(2))
-        : 0,
-      'Assists/90': r.seasonStats['Assists'] != null && r.seasonStats['Minutes'] != null
-        ? Number(((r.seasonStats['Assists'] as number) / ((r.seasonStats['Minutes'] as number) / 90)).toFixed(2))
-        : 0,
-      'Pass %': typeof r.seasonStats['Pass Accuracy'] === 'string'
-        ? parseFloat(r.seasonStats['Pass Accuracy'] as string)
-        : 0,
-      'Tackles/90': r.seasonStats['Tackles Won'] != null && r.seasonStats['Minutes'] != null
-        ? Number(((r.seasonStats['Tackles Won'] as number) / ((r.seasonStats['Minutes'] as number) / 90)).toFixed(1))
-        : 0,
-      'Key Passes/90': (r.seasonStats['Key Passes/90'] as number) ?? 0,
-      'Aerial Won %': typeof r.seasonStats['Aerial Duels Won'] === 'string'
-        ? parseFloat(r.seasonStats['Aerial Duels Won'] as string)
-        : 0,
-      'Prog. Carries/90': (r.seasonStats['Prog. Carries/90'] as number) ?? 0,
+      'Goals/90': Number((goals / per90).toFixed(2)),
+      'Assists/90': Number((assists / per90).toFixed(2)),
+      'Pass %': passAcc,
+      'Tackles/90': Number((tacklesWon / per90).toFixed(1)),
+      'Key Passes/90': keyPasses90,
+      'Aerial Won %': aerialDuels,
+      'Prog. Carries/90': progCarries90,
     },
-    radarData: r.radarData.map((d) => ({ label: d.label, value: d.value })),
+    radarData: radarRaw,
   }
 }
 
 export function useComparison() {
-  const { generatedReportIds } = useGeneratedReports()
   const [searchParams, setSearchParams] = useSearchParams()
 
   // Read initial player from URL param (e.g. /compare?add=p1)
@@ -57,15 +73,28 @@ export function useComparison() {
     setSearchParams({}, { replace: true })
   }
 
-  // All scouted players available for comparison — include selected players even if not yet generated
-  const allPlayers = useMemo(() => {
-    const ids = new Set([...generatedReportIds, ...selectedIds])
-    return Array.from(ids)
-      .map((id) => reportToComparison(id))
-      .filter((p): p is MockComparisonPlayer => p !== null)
-  }, [generatedReportIds, selectedIds])
+  // Fetch all scouted player reports from Supabase (RLS-scoped to the logged-in user)
+  const { data: scoutedPlayers = [], isLoading: isLoadingPlayers } = useQuery<MockComparisonPlayer[]>({
+    queryKey: ['comparison', 'scouted-players'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('player_reports')
+        .select('id, player_external_id, player_name, report_data')
+        .order('created_at', { ascending: false })
 
-  const { data: players, isLoading, refetch } = useQuery<MockComparisonPlayer[]>({
+      if (error) throw new Error(error.message)
+      return (data ?? []).map(reportToComparison)
+    },
+    staleTime: 60_000,
+  })
+
+  // All scouted players available for comparison — include selected players even if added via URL
+  const allPlayers = useMemo(() => {
+    // Ensure any URL-added player that exists in scouted list is included
+    return scoutedPlayers
+  }, [scoutedPlayers])
+
+  const { data: players, isLoading: isLoadingComparison, refetch } = useQuery<MockComparisonPlayer[]>({
     queryKey: ['comparison', selectedIds],
     queryFn: async () => {
       await new Promise((r) => setTimeout(r, 2000))
@@ -103,7 +132,8 @@ export function useComparison() {
     availablePlayers,
     tacticalContext,
     setTacticalContext,
-    isLoading,
+    isLoading: isLoadingComparison,
+    isLoadingPlayers,
     generated,
     addPlayer,
     removePlayer,

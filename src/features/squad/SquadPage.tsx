@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Users, Heart, AlertTriangle } from 'lucide-react'
+import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import type { FormationType, MockSquad } from '../../lib/mock-data'
 import { useSquad } from './hooks/useSquad'
 import { useGapAnalysis } from './hooks/useGapAnalysis'
@@ -12,6 +13,7 @@ import { SquadCard } from './components/SquadCard'
 
 export function SquadPage() {
   const { t } = useTranslation()
+  const navigate = useLocalizedNavigate()
   const { squads, isLoading, selectedSquad, selectSquad, clearSelection } = useSquad()
 
   if (selectedSquad) {
@@ -34,6 +36,22 @@ export function SquadPage() {
             <div key={i} className="h-36 bg-surface-container-high rounded-md animate-pulse" />
           ))}
           <span className="sr-only">{t('common.loading', 'Loading...')}</span>
+        </div>
+      ) : squads.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center mb-4">
+            <Users size={32} strokeWidth={1.5} className="text-on-surface-variant" />
+          </div>
+          <h3 className="text-lg font-semibold text-on-surface mb-2">{t('squad.noSquadsYet')}</h3>
+          <p className="text-sm text-on-surface-variant max-w-md mb-6">
+            {t('squad.noSquadsSub')}
+          </p>
+          <button
+            onClick={() => navigate('/search')}
+            className="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-dark transition-colors min-h-[44px]"
+          >
+            {t('squad.startSearch')}
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

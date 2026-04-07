@@ -587,6 +587,9 @@
     "formation": "Formation",
     "status": "Status",
     "updated": "Updated",
+    "noSquadsYet": "No squads yet",
+    "noSquadsSub": "Search for players and build your first squad to track roster gaps and formation needs.",
+    "startSearch": "Search Players",
     "priority": {
       "critical": "Critical",
       "high": "High",

@@ -587,6 +587,9 @@
     "formation": "Formation",
     "status": "Status",
     "updated": "Aktualisiert",
+    "noSquadsYet": "Noch keine Kader",
+    "noSquadsSub": "Suchen Sie nach Spielern und erstellen Sie Ihren ersten Kader, um Positionslücken und Formationsbedürfnisse zu verfolgen.",
+    "startSearch": "Spieler suchen",
     "priority": {
       "critical": "Kritisch",
       "high": "Hoch",

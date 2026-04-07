@@ -1,18 +1,13 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-// TODO [CQ-003]: Replace mock-data imports with real API calls via src/lib/api.ts
-import { mockSquads, type MockSquad } from '../../../lib/mock-data'
+import type { MockSquad } from '../../../lib/mock-data'
 
+// TODO [CQ-003]: Fetch squads from Supabase once `squads` table exists
 export function useSquad() {
   const [selectedSquadId, setSelectedSquadId] = useState<string | null>(null)
 
-  const { data: squads, isLoading } = useQuery<MockSquad[]>({
-    queryKey: ['squads'],
-    queryFn: async () => {
-      await new Promise((r) => setTimeout(r, 300))
-      return mockSquads
-    },
-  })
+  // No DB table yet — return empty array so new users see the empty state
+  const squads: MockSquad[] = []
+  const isLoading = false
 
   const selectedSquad = squads?.find((s) => s.id === selectedSquadId) ?? null
 

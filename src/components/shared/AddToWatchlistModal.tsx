@@ -81,9 +81,9 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
     }
   }
 
-  function handleCreateAndAdd() {
+  async function handleCreateAndAdd() {
     if (!newName.trim()) return
-    const id = createWatchlist(newName.trim(), newDesc.trim())
+    const id = await createWatchlist(newName.trim(), newDesc.trim())
     addPlayerToWatchlist(id, player)
     setCreatingNew(false)
     setNewName('')

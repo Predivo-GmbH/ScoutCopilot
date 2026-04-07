@@ -3,7 +3,7 @@ import { useWatchlistActions } from '../../../lib/useWatchlistActions'
 import type { MockWatchlist } from '../../../lib/mock-data'
 
 export function useWatchlists() {
-  const { watchlists, removePlayerFromWatchlist, deleteWatchlist } = useWatchlistActions()
+  const { watchlists, isLoading, removePlayerFromWatchlist, deleteWatchlist } = useWatchlistActions()
   const [selectedWatchlistId, setSelectedWatchlistId] = useState<string | null>(null)
   const [filter, setFilter] = useState<'all' | 'transfer' | 'youth' | 'position'>('all')
 
@@ -16,7 +16,7 @@ export function useWatchlists() {
 
   return {
     lists: filteredLists,
-    isLoading: false,
+    isLoading,
     filter,
     setFilter,
     selectedWatchlist,

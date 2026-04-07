@@ -2,29 +2,91 @@ import { useState } from 'react'
 import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Search as SearchIcon, FileText, Trash2 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
-import { playerReports } from '../../lib/mock-data'
-import { useGeneratedReports } from '../../lib/useGeneratedReportsHook'
+import { supabase } from '../../lib/supabase'
+
+interface ReportListItem {
+  playerId: string
+  playerName: string
+  age: number | null
+  nationality: string
+  position: string
+  club: string
+  league: string
+  image?: string
+  fitScore: number
+  recommendation: 'sign' | 'monitor' | 'pass'
+}
+
+function mapRecommendation(raw: unknown): 'sign' | 'monitor' | 'pass' {
+  if (typeof raw === 'string') {
+    const lower = raw.toLowerCase()
+    if (lower.includes('sign')) return 'sign'
+    if (lower.includes('pass') || lower.includes('avoid')) return 'pass'
+  }
+  return 'monitor'
+}
+
+function mapDbRowToListItem(row: {
+  player_external_id: string
+  player_name: string
+  report_data: Record<string, unknown>
+}): ReportListItem {
+  const rd = row.report_data ?? {}
+
+  // Extract player metadata from report_data (stored by the edge function from playerStats)
+  const playerData = rd as Record<string, unknown>
+
+  return {
+    playerId: row.player_external_id,
+    playerName: row.player_name,
+    age: typeof playerData.age === 'number' ? playerData.age : null,
+    nationality: (playerData.nationality as string) ?? '',
+    position: (playerData.position as string) ?? '',
+    club: (playerData.team as string) ?? (playerData.club as string) ?? '',
+    league: (playerData.league as string) ?? '',
+    image: playerData.image as string | undefined,
+    fitScore: typeof playerData.fit_score === 'number' ? playerData.fit_score : 0,
+    recommendation: mapRecommendation(rd.recommendation),
+  }
+}
 
 export function ReportsListPage() {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
+  const queryClient = useQueryClient()
 
   const recommendation = {
     sign: { label: t('reportsList.badgeSign'), className: 'text-secondary bg-secondary/10 border-secondary/20' },
     monitor: { label: t('reportsList.badgeMonitor'), className: 'text-tertiary bg-tertiary/10 border-tertiary/20' },
     pass: { label: t('reportsList.badgePass'), className: 'text-error bg-error/10 border-error/20' },
   }
-  const { generatedReportIds, removeReport } = useGeneratedReports()
-  const reports = Object.values(playerReports).filter((r) => generatedReportIds.includes(r.playerId))
+
+  const { data: reports = [] } = useQuery({
+    queryKey: ['player-reports'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('player_reports')
+        .select('player_external_id, player_name, report_data')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      return (data ?? []).map(mapDbRowToListItem)
+    },
+  })
+
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!deleteTarget) return
-    removeReport(deleteTarget.id)
+    await supabase
+      .from('player_reports')
+      .delete()
+      .eq('player_external_id', deleteTarget.id)
+    queryClient.invalidateQueries({ queryKey: ['player-reports'] })
     setDeleteTarget(null)
   }
 
