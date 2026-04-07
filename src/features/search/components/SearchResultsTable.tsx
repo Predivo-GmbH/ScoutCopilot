@@ -109,26 +109,29 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
       {/* Content */}
       {viewMode === 'table' ? (
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="text-left border-collapse">
             <thead>
               <tr className="bg-surface-container-high border-b border-outline-variant">
-                <th className="px-6 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant w-8">#</th>
-                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant min-w-[200px]">{t('common.player')}</th>
-                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">{t('common.position')}</th>
-                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">{t('common.age')}</th>
-                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant">{t('common.league')}</th>
+                {/* Sticky left columns */}
+                <th className="sticky left-0 z-20 bg-surface-container-high px-3 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant w-8">#</th>
+                <th className="sticky left-8 z-20 bg-surface-container-high px-3 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant min-w-[180px] after:content-[''] after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-outline-variant/30">{t('common.player')}</th>
+                {/* Scrollable columns */}
+                <th className="px-2 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap">{t('common.position')}</th>
+                <th className="px-2 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap">{t('common.age')}</th>
+                <th className="px-2 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap">{t('common.league')}</th>
                 {statKeys.map((key) => (
-                  <th key={key} className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant text-right">
+                  <th key={key} className="px-2 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant text-right whitespace-nowrap">
                     {key}
                   </th>
                 ))}
-                <th className="px-6 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant w-48">{t('search.matchScore')}</th>
-                <th className="px-4 py-4 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant text-center">{t('common.report')}</th>
+                <th className="px-3 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant w-36">{t('search.matchScore')}</th>
+                <th className="px-2 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant text-center whitespace-nowrap">{t('common.report')}</th>
               </tr>
             </thead>
             <tbody className="text-sm">
               {paged.map((player, i) => {
                 const globalIndex = (page - 1) * PAGE_SIZE + i
+                const rowBg = globalIndex % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'
                 return (
                   <tr
                     key={player.id}
@@ -136,42 +139,42 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
                     role="link"
                     onClick={() => navigate(`/players/${player.id}`)}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/players/${player.id}`) } }}
-                    className={`${globalIndex % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'} border-b border-outline-variant/30 hover:bg-surface-variant/50 transition-colors cursor-pointer group focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1`}
+                    className={`${rowBg} border-b border-outline-variant/30 hover:bg-surface-variant/50 transition-colors cursor-pointer group focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1`}
                   >
-                    <td className="px-6 py-4 font-data text-on-surface-variant text-xs">{globalIndex + 1}</td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-3">
+                    {/* Sticky left columns inherit row bg */}
+                    <td className={`sticky left-0 z-10 ${rowBg} group-hover:bg-surface-variant/50 px-3 py-3 font-data text-on-surface-variant text-xs transition-colors`}>{globalIndex + 1}</td>
+                    <td className={`sticky left-8 z-10 ${rowBg} group-hover:bg-surface-variant/50 px-3 py-3 transition-colors after:content-[''] after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-outline-variant/30`}>
+                      <div className="flex items-center gap-2">
                         <PlayerAvatarWithFlag name={player.name} nationality={player.nationality} imageUrl={player.image} />
-                        <div>
-                          <div className="font-bold text-on-surface">{player.name}</div>
-                          <div className="text-[0.625rem] text-on-surface-variant flex items-center gap-1.5">
-                            <span className="uppercase tracking-tight">{player.club}</span>
-                            <span className="w-0.5 h-0.5 rounded-full bg-outline-variant" />
-                            <span>{player.nationality}</span>
+                        <div className="min-w-0">
+                          <div className="font-bold text-on-surface text-[0.8125rem] truncate">{player.name}</div>
+                          <div className="text-[0.5625rem] text-on-surface-variant flex items-center gap-1">
+                            <span className="uppercase tracking-tight truncate">{player.club}</span>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4">
-                      <div className="flex gap-1">
+                    {/* Scrollable data columns — compact */}
+                    <td className="px-2 py-3">
+                      <div className="flex gap-0.5">
                         {player.position.split(', ').map((pos) => (
-                          <span key={pos} className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm">
+                          <span key={pos} className="text-[0.5625rem] font-data bg-surface-container-highest text-on-surface px-1 py-0.5 rounded-sm whitespace-nowrap">
                             {pos}
                           </span>
                         ))}
                       </div>
                     </td>
-                    <td className="px-4 py-4 font-data">{player.age > 0 ? player.age : '—'}</td>
-                    <td className="px-4 py-4 text-on-surface-variant text-xs">{player.league}</td>
+                    <td className="px-2 py-3 font-data text-xs">{player.age > 0 ? player.age : '—'}</td>
+                    <td className="px-2 py-3 text-on-surface-variant text-[0.6875rem] whitespace-nowrap max-w-[120px] truncate">{player.league}</td>
                     {statKeys.map((key) => (
-                      <td key={key} className="px-4 py-4 font-data text-right text-on-surface-variant">
-                        {player.stats[key]}
+                      <td key={key} className="px-2 py-3 font-data text-xs text-right text-on-surface-variant whitespace-nowrap">
+                        {player.stats[key] ?? '—'}
                       </td>
                     ))}
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-3">
                       <FitScoreBar score={player.fitScore} />
                     </td>
-                    <td className="px-4 py-4 text-center">
+                    <td className="px-2 py-3 text-center">
                       <ReportButton playerId={player.id} hasReport={hasReport} isGenerating={isGenerating} generateReport={generateReport} navigate={navigate} />
                     </td>
                   </tr>

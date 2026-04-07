@@ -29,40 +29,63 @@ interface EdgeSearchResponse {
   total: number
 }
 
+// Human-readable labels for raw stat keys
+const STAT_LABELS: Record<string, string> = {
+  matches_played: 'Apps',
+  minutes_played: 'Mins',
+  goals: 'Goals',
+  assists: 'Assists',
+  xg: 'xG',
+  xa: 'xA',
+  npxg: 'npxG',
+  key_passes: 'Key Pass',
+  passes_completed: 'Pass Cmp',
+  pass_completion: 'Pass %',
+  progressive_passes: 'Prog Pass',
+  progressive_carries: 'Prog Carry',
+  tackles: 'Tackles',
+  interceptions: 'Int.',
+  clearances: 'Clr',
+  blocks: 'Blocks',
+  aerial_duels: 'Aerial',
+  aerial_duel_win_rate: 'Aerial %',
+  ground_duels: 'Ground',
+  ground_duel_win_rate: 'Ground %',
+  dribbles: 'Dribbles',
+  dribble_success_rate: 'Drib %',
+  pressures: 'Press',
+  shot_creating_actions: 'SCA',
+  goal_creating_actions: 'GCA',
+  yellow_cards: 'YC',
+  red_cards: 'RC',
+}
+
+// Percentage-type stats that should be formatted with 1 decimal
+const PCT_STATS = new Set([
+  'pass_completion', 'aerial_duel_win_rate', 'ground_duel_win_rate', 'dribble_success_rate',
+])
+
+// xG-type stats formatted with 2 decimals
+const XG_STATS = new Set(['xg', 'xa', 'npxg'])
+
 function mapToMockPlayer(result: EdgeSearchResponse['results'][number]): MockPlayer {
   const d = result.player_data ?? {}
   const rawStats = (d.stats ?? {}) as Record<string, number>
 
-  // Build a clean stats display with up to 5 position-relevant metrics
+  // Include all stats with readable labels, skip zero-only noise
   const stats: Record<string, number> = {}
-  const pos = ((d.position as string) ?? '').toUpperCase()
-  const isDefender = ['CB', 'LB', 'RB', 'LWB', 'RWB'].includes(pos)
-  const isMidfielder = ['CM', 'CAM', 'CDM', 'LM', 'RM'].includes(pos)
-
-  if (isDefender) {
-    if (rawStats.matches_played !== undefined) stats['Apps'] = rawStats.matches_played
-    if (rawStats.tackles !== undefined) stats['Tackles'] = rawStats.tackles
-    if (rawStats.interceptions !== undefined) stats['Int.'] = rawStats.interceptions
-    if (rawStats.aerial_duel_win_rate !== undefined && rawStats.aerial_duel_win_rate > 0) stats['Aerial %'] = Number(rawStats.aerial_duel_win_rate.toFixed(1))
-    if (rawStats.pass_completion !== undefined && rawStats.pass_completion > 0) stats['Pass %'] = Number(rawStats.pass_completion.toFixed(1))
-  } else if (isMidfielder) {
-    if (rawStats.matches_played !== undefined) stats['Apps'] = rawStats.matches_played
-    if (rawStats.goals !== undefined) stats['Goals'] = rawStats.goals
-    if (rawStats.assists !== undefined) stats['Assists'] = rawStats.assists
-    if (rawStats.key_passes !== undefined && rawStats.key_passes > 0) stats['Key Passes'] = rawStats.key_passes
-    if (rawStats.pass_completion !== undefined && rawStats.pass_completion > 0) stats['Pass %'] = Number(rawStats.pass_completion.toFixed(1))
-  } else {
-    // Forwards / wingers / default
-    if (rawStats.matches_played !== undefined) stats['Apps'] = rawStats.matches_played
-    if (rawStats.goals !== undefined) stats['Goals'] = rawStats.goals
-    if (rawStats.assists !== undefined) stats['Assists'] = rawStats.assists
-    if (rawStats.xG !== undefined && rawStats.xG > 0) stats['xG'] = Number(rawStats.xG.toFixed(2))
-    if (rawStats.xA !== undefined && rawStats.xA > 0) stats['xA'] = Number(rawStats.xA.toFixed(2))
-  }
-
-  // If no stats were populated, show minutes at minimum
-  if (Object.keys(stats).length === 0 && rawStats.minutes_played) {
-    stats['Minutes'] = rawStats.minutes_played
+  for (const [key, value] of Object.entries(rawStats)) {
+    if (value === undefined || value === null) continue
+    // Skip stats that are always 0 and not meaningful
+    if (value === 0 && !['goals', 'assists', 'yellow_cards', 'red_cards'].includes(key)) continue
+    const label = STAT_LABELS[key] ?? key
+    if (PCT_STATS.has(key)) {
+      stats[label] = Number(value.toFixed(1))
+    } else if (XG_STATS.has(key)) {
+      stats[label] = Number(value.toFixed(2))
+    } else {
+      stats[label] = value
+    }
   }
 
   return {
