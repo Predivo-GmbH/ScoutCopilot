@@ -1,4 +1,4 @@
-// Generate player photos via Stitch (Google) API
+// Fetch real player photos from TheSportsDB
 // Called internally by the search function for players without photos
 // POST /generate-photo { player_ids: number[] }
 // Also supports being called directly with service_role key
@@ -7,98 +7,46 @@ import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { handleCors } from "../_shared/cors.ts";
 import { getServiceClient } from "../_shared/auth.ts";
 
-const STITCH_MCP_URL = "https://stitch.googleapis.com/mcp";
+const SPORTSDB_BASE = "https://www.thesportsdb.com/api/v1/json/3";
 
-interface StitchScreen {
-  screenshot?: { downloadUrl?: string };
-  id?: string;
-  screenType?: string;
-  screenMetadata?: { status?: string };
-}
-
-interface StitchDesign {
-  screens?: StitchScreen[];
-}
-
-interface StitchOutputComponent {
-  design?: StitchDesign;
-  text?: string;
-}
-
-interface StitchResult {
-  outputComponents?: StitchOutputComponent[];
-}
-
-/** Strip diacritics so prompts stay ASCII-safe for the Stitch API. */
+/** Strip diacritics so search queries stay ASCII-safe. */
 function stripAccents(s: string): string {
   return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-async function generatePortrait(
-  playerName: string,
-  nationality: string,
-  projectId: string,
-  stitchApiKey: string
-): Promise<string | null> {
+interface SportsDbPlayer {
+  strPlayer?: string;
+  strThumb?: string;
+  strCutout?: string;
+}
+
+async function fetchPlayerPhoto(playerName: string): Promise<string | null> {
   const safeName = stripAccents(playerName);
-  const safeNat = stripAccents(nationality);
-  const prompt = `A high-quality, professional studio headshot of ${safeName}, ${safeNat} football player, wearing a plain neutral-colored football jersey with no logos, no emblems, no brands, no text. Looking directly at the camera with a confident expression, neutral grey background, professional studio lighting, high resolution, photorealistic.`;
-  console.log(`Generating portrait for ${safeName} (${safeNat})…`);
+  const url = `${SPORTSDB_BASE}/searchplayers.php?p=${encodeURIComponent(safeName)}`;
+  console.log(`Searching TheSportsDB for "${safeName}"…`);
 
-  const res = await fetch(STITCH_MCP_URL, {
-    method: "POST",
-    headers: {
-      "X-Goog-Api-Key": stitchApiKey,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: 1,
-      method: "tools/call",
-      params: {
-        name: "generate_screen_from_text",
-        arguments: { projectId, prompt },
-      },
-    }),
-  });
-
+  const res = await fetch(url);
   if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    console.error(`Stitch API error: ${res.status} — ${body}`);
+    console.error(`TheSportsDB error: ${res.status}`);
     return null;
   }
 
-  const json = await res.json();
-  console.log("Stitch raw keys:", Object.keys(json?.result ?? {}));
+  const data = await res.json();
+  const players: SportsDbPlayer[] = data?.player ?? [];
 
-  // Try structuredContent first (already parsed), then fall back to text
-  let parsed: StitchResult | null = null;
+  if (players.length === 0) {
+    console.error(`No results for "${safeName}" on TheSportsDB`);
+    return null;
+  }
 
-  const structured = json?.result?.structuredContent;
-  if (structured?.outputComponents) {
-    parsed = structured as StitchResult;
+  // Prefer cutout (transparent PNG), fall back to thumb
+  const photo = players[0].strCutout || players[0].strThumb || null;
+  if (photo) {
+    console.log(`Found photo for ${playerName}: ${photo.slice(0, 80)}…`);
   } else {
-    const contentText = json?.result?.content?.[0]?.text;
-    if (!contentText) {
-      console.error("Stitch returned no content — full response:", JSON.stringify(json).slice(0, 500));
-      return null;
-    }
-    try {
-      parsed = JSON.parse(contentText) as StitchResult;
-    } catch (e) {
-      console.error("Failed to parse Stitch response:", (e as Error).message);
-      return null;
-    }
+    console.error(`TheSportsDB returned player "${players[0].strPlayer}" but no photo`);
   }
-
-  const screen = parsed?.outputComponents?.find((c) => c.design)?.design
-    ?.screens?.[0];
-  if (screen?.screenshot?.downloadUrl) {
-    console.log(`Generated photo for ${playerName}: ${screen.screenshot.downloadUrl.slice(0, 80)}...`);
-    return screen.screenshot.downloadUrl;
-  }
-  console.error("No downloadUrl in parsed Stitch response");
-  return null;
+  return photo;
 }
 
 serve(async (req: Request) => {
@@ -112,16 +60,6 @@ serve(async (req: Request) => {
     });
   }
 
-  const stitchApiKey = Deno.env.get("STITCH_API_KEY");
-  const stitchProjectId = Deno.env.get("STITCH_PROJECT_ID");
-
-  if (!stitchApiKey || !stitchProjectId) {
-    return new Response(
-      JSON.stringify({ error: "STITCH_API_KEY or STITCH_PROJECT_ID not configured" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  }
-
   try {
     const body = await req.json().catch(() => ({}));
     const playerIds: number[] = body.player_ids ?? [];
@@ -133,8 +71,8 @@ serve(async (req: Request) => {
       );
     }
 
-    // Process one player per request — each Stitch call takes 30-60s
-    const batch = playerIds.slice(0, 1);
+    // TheSportsDB is fast — can process multiple players per request
+    const batch = playerIds.slice(0, 10);
 
     const supabase = getServiceClient();
 
@@ -153,21 +91,13 @@ serve(async (req: Request) => {
     const results: Array<{ player_id: number; status: string; photo_url?: string }> = [];
 
     for (const p of players ?? []) {
-      // Skip if already has a photo
       if (p.photo_url) {
         results.push({ player_id: p.player_id, status: "already_has_photo", photo_url: p.photo_url });
         continue;
       }
 
       const displayName = p.player_nickname ?? p.player_name;
-      const nationality = p.nationality ?? "Unknown";
-
-      const photoUrl = await generatePortrait(
-        displayName,
-        nationality,
-        stitchProjectId,
-        stitchApiKey
-      );
+      const photoUrl = await fetchPlayerPhoto(displayName);
 
       if (photoUrl) {
         await supabase
@@ -175,16 +105,16 @@ serve(async (req: Request) => {
           .update({ photo_url: photoUrl })
           .eq("player_id", p.player_id);
 
-        results.push({ player_id: p.player_id, status: "generated", photo_url: photoUrl });
+        results.push({ player_id: p.player_id, status: "found", photo_url: photoUrl });
       } else {
-        results.push({ player_id: p.player_id, status: "failed" });
+        results.push({ player_id: p.player_id, status: "not_found" });
       }
     }
 
     return new Response(
       JSON.stringify({
-        generated: results.filter((r) => r.status === "generated").length,
-        failed: results.filter((r) => r.status === "failed").length,
+        found: results.filter((r) => r.status === "found").length,
+        not_found: results.filter((r) => r.status === "not_found").length,
         skipped: results.filter((r) => r.status === "already_has_photo").length,
         results,
       }),

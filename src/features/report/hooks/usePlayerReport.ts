@@ -102,6 +102,11 @@ export function usePlayerReport(playerId?: string) {
             .single()
           if (player?.photo_url) {
             report.image = player.photo_url
+          } else {
+            // No photo yet — trigger fetch in background
+            supabase.functions.invoke('generate-photo', {
+              body: { player_ids: [rawId] },
+            }).catch(() => {})
           }
         }
       }
