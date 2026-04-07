@@ -130,7 +130,7 @@ export function ReportPage() {
       {/* Player Header */}
       <div className="bg-surface-container rounded-md p-4 sm:p-6 border border-outline-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-4 sm:gap-6">
-          <PlayerAvatar name={report.playerName} size={80} imageUrl={report.image} />
+          <PlayerAvatar name={report.playerName} size={80} imageUrl={report.image} clickable />
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-on-surface uppercase">{report.playerName}</h1>
             <div className="flex items-center gap-3 mt-1 flex-wrap">

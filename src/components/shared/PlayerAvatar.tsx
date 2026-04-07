@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
+import { X } from 'lucide-react'
 
 const JERSEY_COLORS = [
   ['#1e3a5f', '#142a47'], // navy
@@ -32,6 +33,39 @@ interface PlayerAvatarProps {
   size?: number
   className?: string
   imageUrl?: string
+  /** Allow clicking the image to open a fullscreen lightbox */
+  clickable?: boolean
+}
+
+function PhotoLightbox({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
+  const handleKey = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') onClose()
+  }, [onClose])
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-surface/90 backdrop-blur-md cursor-pointer"
+      onClick={onClose}
+      onKeyDown={handleKey}
+      role="dialog"
+      aria-modal="true"
+      aria-label={alt}
+    >
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 p-2 rounded-full bg-surface-container border border-outline-variant text-on-surface-variant hover:text-on-surface transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center z-10"
+        aria-label="Close"
+      >
+        <X size={20} strokeWidth={1.5} />
+      </button>
+      <img
+        src={src}
+        alt={alt}
+        className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg animate-[fadeIn_200ms_ease-out]"
+        onClick={(e) => e.stopPropagation()}
+      />
+    </div>
+  )
 }
 
 function SilhouetteFallback({ name, size }: { name: string; size: number }) {
@@ -55,8 +89,9 @@ function SilhouetteFallback({ name, size }: { name: string; size: number }) {
   )
 }
 
-export function PlayerAvatar({ name, size = 36, className = '', imageUrl }: PlayerAvatarProps) {
+export function PlayerAvatar({ name, size = 36, className = '', imageUrl, clickable = false }: PlayerAvatarProps) {
   const [imgError, setImgError] = useState(false)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
 
   if (!imageUrl || imgError) {
     return (
@@ -67,14 +102,20 @@ export function PlayerAvatar({ name, size = 36, className = '', imageUrl }: Play
   }
 
   return (
-    <img
-      src={imageUrl}
-      alt={name}
-      width={size}
-      height={size}
-      loading="lazy"
-      className={`rounded-md shrink-0 object-cover ${className}`}
-      onError={() => setImgError(true)}
-    />
+    <>
+      <img
+        src={imageUrl}
+        alt={name}
+        width={size}
+        height={size}
+        loading="lazy"
+        className={`rounded-md shrink-0 object-cover ${clickable ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''} ${className}`}
+        onError={() => setImgError(true)}
+        onClick={clickable ? () => setLightboxOpen(true) : undefined}
+      />
+      {clickable && lightboxOpen && (
+        <PhotoLightbox src={imageUrl} alt={name} onClose={() => setLightboxOpen(false)} />
+      )}
+    </>
   )
 }
