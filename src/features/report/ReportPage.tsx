@@ -12,12 +12,16 @@ import {
   TrendingDown,
   Zap,
   X,
+  FileText,
+  Loader2,
+  ArrowLeft,
 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 import { AddToWatchlistModal } from '../../components/shared/AddToWatchlistModal'
 import { usePlayerReport } from './hooks/usePlayerReport'
+import { useGeneratedReports } from '../../lib/useGeneratedReportsHook'
 import type { MockWatchlistPlayer, WatchlistAlert } from '../../lib/mock-data'
 
 export function ReportPage() {
@@ -25,14 +29,15 @@ export function ReportPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useLocalizedNavigate()
   const location = useLocation()
-  const { data: report, isLoading } = usePlayerReport(id)
+  const { data: report, isLoading, error } = usePlayerReport(id)
+  const { generateReport, isGenerating, hasReport } = useGeneratedReports()
   const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
   const [showAlertBanner, setShowAlertBanner] = useState(true)
   const alertContext = (location.state as { alert?: WatchlistAlert } | null)?.alert
 
   if (!id) return <Navigate to="/players" replace />
 
-  if (isLoading || !report) {
+  if (isLoading) {
     return (
       <div className="p-4 sm:p-6 space-y-6">
         <div className="h-32 bg-surface-container-low rounded-md animate-pulse" />
@@ -44,6 +49,39 @@ export function ReportPage() {
           <div className="md:col-span-4 space-y-6">
             <div className="h-48 bg-surface-container-low rounded-md animate-pulse" />
             <div className="h-64 bg-surface-container-low rounded-md animate-pulse" />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !report) {
+    const generating = isGenerating(id)
+    return (
+      <div className="p-4 sm:p-6">
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center mb-4">
+            {generating ? (
+              <Loader2 size={32} strokeWidth={1.5} className="text-primary animate-spin" />
+            ) : (
+              <FileText size={32} strokeWidth={1.5} className="text-on-surface-variant" />
+            )}
+          </div>
+          <h3 className="text-lg font-semibold text-on-surface mb-2">
+            {generating ? t('report.generating') : t('report.noReportYet')}
+          </h3>
+          <p className="text-sm text-on-surface-variant max-w-md mb-6">
+            {generating ? t('report.generatingDesc') : t('report.noReportDesc')}
+          </p>
+          <div className="flex gap-3">
+            <Button variant="secondary" size="sm" leftIcon={ArrowLeft} onClick={() => navigate('/search')}>
+              {t('common.back')}
+            </Button>
+            {!generating && !hasReport(id) && (
+              <Button variant="primary" size="sm" leftIcon={FileText} onClick={() => generateReport(id)}>
+                {t('report.generateReport')}
+              </Button>
+            )}
           </div>
         </div>
       </div>

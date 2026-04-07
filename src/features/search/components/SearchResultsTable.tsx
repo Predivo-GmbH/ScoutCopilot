@@ -74,7 +74,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
       <div className="px-4 sm:px-6 py-4 flex flex-wrap justify-between items-center gap-3 border-b border-outline-variant/10">
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <span className="font-data text-primary text-lg">{results.length}</span>
-          <span className="uppercase tracking-widest text-xs text-on-surface-variant">{t('search.playersFound')}</span>
+          <span className="uppercase tracking-widest text-xs text-on-surface-variant">{results.length === 1 ? t('search.playerFound') : t('search.playersFound')}</span>
         </h3>
         <div className="flex items-center gap-1">
           <button
@@ -161,7 +161,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
                         ))}
                       </div>
                     </td>
-                    <td className="px-4 py-4 font-data">{player.age}</td>
+                    <td className="px-4 py-4 font-data">{player.age > 0 ? player.age : '—'}</td>
                     <td className="px-4 py-4 text-on-surface-variant text-xs">{player.league}</td>
                     {statKeys.map((key) => (
                       <td key={key} className="px-4 py-4 font-data text-right text-on-surface-variant">
@@ -210,7 +210,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 mb-3">
-                  <StatRow label={t('common.age')} value={String(player.age)} />
+                  <StatRow label={t('common.age')} value={player.age > 0 ? String(player.age) : '—'} />
                   <StatRow label={t('common.league')} value={player.league} />
                   {statKeys.map((key) => (
                     <StatRow key={key} label={key} value={String(player.stats[key])} />

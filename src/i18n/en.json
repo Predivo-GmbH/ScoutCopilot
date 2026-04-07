@@ -443,6 +443,7 @@
     "suggestedQueries": "Suggested Queries",
     "dbLastUpdated": "Database Last Updated: 2026-03-26 14:02 UTC",
     "liveConnection": "Live Connection Active",
+    "playerFound": "player found",
     "playersFound": "players found",
     "downloadResults": "Download results",
     "gridView": "Grid view",
@@ -488,7 +489,12 @@
     "weaknesses": "Weaknesses",
     "styleOfPlay": "Style of Play",
     "similarProfiles": "Similar Profiles",
-    "watchlistAlert": "Watchlist Alert"
+    "watchlistAlert": "Watchlist Alert",
+    "noReportYet": "No report yet",
+    "noReportDesc": "Generate an AI scouting report for this player to see their full profile, stats, and tactical analysis.",
+    "generateReport": "Generate Report",
+    "generating": "Generating report...",
+    "generatingDesc": "Our AI is analysing this player's stats and building a comprehensive scouting report. This may take a moment."
   },
   "reportsList": {
     "heading": "Players",

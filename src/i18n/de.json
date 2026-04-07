@@ -443,6 +443,7 @@
     "suggestedQueries": "Vorgeschlagene Abfragen",
     "dbLastUpdated": "Datenbank zuletzt aktualisiert: 26.03.2026, 14:02 UTC",
     "liveConnection": "Live-Verbindung aktiv",
+    "playerFound": "Spieler gefunden",
     "playersFound": "Spieler gefunden",
     "downloadResults": "Ergebnisse herunterladen",
     "gridView": "Rasteransicht",
@@ -488,7 +489,12 @@
     "weaknesses": "Schwächen",
     "styleOfPlay": "Spielstil",
     "similarProfiles": "Ähnliche Profile",
-    "watchlistAlert": "Watchlist-Alarm"
+    "watchlistAlert": "Watchlist-Alarm",
+    "noReportYet": "Noch kein Bericht",
+    "noReportDesc": "Erstellen Sie einen KI-Scouting-Bericht für diesen Spieler, um sein vollständiges Profil, Statistiken und taktische Analyse zu sehen.",
+    "generateReport": "Bericht erstellen",
+    "generating": "Bericht wird erstellt...",
+    "generatingDesc": "Unsere KI analysiert die Statistiken dieses Spielers und erstellt einen umfassenden Scouting-Bericht. Dies kann einen Moment dauern."
   },
   "reportsList": {
     "heading": "Spieler",

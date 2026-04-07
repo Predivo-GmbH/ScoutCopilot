@@ -72,7 +72,7 @@ serve(async (req: Request) => {
     // Fetch full player stats
     const useMock = Deno.env.get("MOCK_DATA") === "true";
     let playerStats: Record<string, unknown>;
-    let sourceProvider: "wyscout" | "statsbomb" = "wyscout";
+    let sourceProvider: "wyscout" | "statsbomb" = "statsbomb";
 
     if (useMock) {
       const mock = getMockPlayer(player_external_id);
@@ -96,6 +96,59 @@ serve(async (req: Request) => {
         market_value: mock.market_value,
         ...mock.stats,
       };
+    } else if (player_external_id.startsWith("sb-open-")) {
+      // StatsBomb open data — fetch from our own DB
+      const rawId = parseInt(player_external_id.replace("sb-open-", ""), 10);
+      const { data: playerRow } = await supabase
+        .from("sb_players")
+        .select("player_id, player_name, player_nickname, nationality, primary_position, positions")
+        .eq("player_id", rawId)
+        .single();
+
+      const { data: statsRows } = await supabase
+        .from("sb_player_season_stats")
+        .select("*")
+        .eq("player_id", rawId)
+        .order("season_name", { ascending: false })
+        .limit(1);
+
+      const stats = statsRows?.[0];
+      playerStats = {
+        player_name: playerRow?.player_nickname ?? playerRow?.player_name ?? player_name,
+        nationality: playerRow?.nationality ?? "Unknown",
+        position: playerRow?.primary_position ?? "Unknown",
+        positions: playerRow?.positions ?? [],
+        team: stats?.team_name ?? "Unknown",
+        league: stats ? `${stats.competition_name} (${stats.season_name})` : "Unknown",
+        matches_played: stats?.matches_played ?? 0,
+        minutes_played: stats?.minutes_played ?? 0,
+        goals: stats?.goals ?? 0,
+        assists: stats?.assists ?? 0,
+        xG: Number(stats?.xg ?? 0),
+        xA: Number(stats?.xa ?? 0),
+        npxG: Number(stats?.npxg ?? 0),
+        key_passes: stats?.key_passes ?? 0,
+        passes_completed: stats?.passes_completed ?? 0,
+        pass_completion: Number(stats?.pass_completion ?? 0),
+        progressive_passes: stats?.progressive_passes ?? 0,
+        progressive_carries: stats?.progressive_carries ?? 0,
+        tackles: stats?.tackles ?? 0,
+        interceptions: stats?.interceptions ?? 0,
+        clearances: stats?.clearances ?? 0,
+        blocks: stats?.blocks ?? 0,
+        aerial_duels: stats?.aerial_duels ?? 0,
+        aerial_duel_win_rate: Number(stats?.aerial_duel_win_rate ?? 0),
+        ground_duels: stats?.ground_duels ?? 0,
+        ground_duel_win_rate: Number(stats?.ground_duel_win_rate ?? 0),
+        dribbles: stats?.dribbles ?? 0,
+        dribble_success_rate: Number(stats?.dribble_success_rate ?? 0),
+        pressures: stats?.pressures ?? 0,
+        shot_creating_actions: stats?.shot_creating_actions ?? 0,
+        goal_creating_actions: stats?.goal_creating_actions ?? 0,
+        yellow_cards: stats?.yellow_cards ?? 0,
+        red_cards: stats?.red_cards ?? 0,
+      };
+      sourceProvider = "statsbomb";
     } else {
       const result = await fetchPlayerFullStats(
         auth.organizationId,
@@ -164,10 +217,23 @@ serve(async (req: Request) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    console.error("Report error:", err);
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error("Report error:", errMsg, err instanceof Error ? err.stack : "");
+    const isRateLimit = errMsg.includes("429") || errMsg.includes("rate_limit");
     return new Response(
-      JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({
+        error: isRateLimit
+          ? "AI service is temporarily busy. Please try again in a minute."
+          : "Internal server error",
+      }),
+      {
+        status: isRateLimit ? 429 : 500,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          ...(isRateLimit ? { "Retry-After": "60" } : {}),
+        },
+      }
     );
   }
 });

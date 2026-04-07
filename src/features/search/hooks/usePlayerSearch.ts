@@ -33,20 +33,32 @@ function mapToMockPlayer(result: EdgeSearchResponse['results'][number]): MockPla
   const d = result.player_data ?? {}
   const rawStats = (d.stats ?? {}) as Record<string, number>
 
-  // Build a clean stats display object with the most relevant metrics
+  // Build a clean stats display with up to 5 position-relevant metrics
   const stats: Record<string, number> = {}
-  if (rawStats.goals !== undefined) stats['Goals'] = rawStats.goals
-  if (rawStats.assists !== undefined) stats['Assists'] = rawStats.assists
-  if (rawStats.matches_played !== undefined) stats['Apps'] = rawStats.matches_played
-  if (rawStats.xG !== undefined && rawStats.xG > 0) stats['xG'] = Number(rawStats.xG.toFixed(2))
-  if (rawStats.xA !== undefined && rawStats.xA > 0) stats['xA'] = Number(rawStats.xA.toFixed(2))
-  if (rawStats.key_passes !== undefined && rawStats.key_passes > 0) stats['Key Passes'] = rawStats.key_passes
-  if (rawStats.pass_completion !== undefined && rawStats.pass_completion > 0) stats['Pass %'] = Number(rawStats.pass_completion.toFixed(1))
-  if (rawStats.progressive_passes !== undefined && rawStats.progressive_passes > 0) stats['Prog. Passes'] = rawStats.progressive_passes
-  if (rawStats.progressive_carries !== undefined && rawStats.progressive_carries > 0) stats['Prog. Carries'] = rawStats.progressive_carries
-  if (rawStats.tackles !== undefined && rawStats.tackles > 0) stats['Tackles'] = rawStats.tackles
-  if (rawStats.interceptions !== undefined && rawStats.interceptions > 0) stats['Interceptions'] = rawStats.interceptions
-  if (rawStats.dribble_success_rate !== undefined && rawStats.dribble_success_rate > 0) stats['Dribble %'] = Number(rawStats.dribble_success_rate.toFixed(1))
+  const pos = ((d.position as string) ?? '').toUpperCase()
+  const isDefender = ['CB', 'LB', 'RB', 'LWB', 'RWB'].includes(pos)
+  const isMidfielder = ['CM', 'CAM', 'CDM', 'LM', 'RM'].includes(pos)
+
+  if (isDefender) {
+    if (rawStats.matches_played !== undefined) stats['Apps'] = rawStats.matches_played
+    if (rawStats.tackles !== undefined) stats['Tackles'] = rawStats.tackles
+    if (rawStats.interceptions !== undefined) stats['Int.'] = rawStats.interceptions
+    if (rawStats.aerial_duel_win_rate !== undefined && rawStats.aerial_duel_win_rate > 0) stats['Aerial %'] = Number(rawStats.aerial_duel_win_rate.toFixed(1))
+    if (rawStats.pass_completion !== undefined && rawStats.pass_completion > 0) stats['Pass %'] = Number(rawStats.pass_completion.toFixed(1))
+  } else if (isMidfielder) {
+    if (rawStats.matches_played !== undefined) stats['Apps'] = rawStats.matches_played
+    if (rawStats.goals !== undefined) stats['Goals'] = rawStats.goals
+    if (rawStats.assists !== undefined) stats['Assists'] = rawStats.assists
+    if (rawStats.key_passes !== undefined && rawStats.key_passes > 0) stats['Key Passes'] = rawStats.key_passes
+    if (rawStats.pass_completion !== undefined && rawStats.pass_completion > 0) stats['Pass %'] = Number(rawStats.pass_completion.toFixed(1))
+  } else {
+    // Forwards / wingers / default
+    if (rawStats.matches_played !== undefined) stats['Apps'] = rawStats.matches_played
+    if (rawStats.goals !== undefined) stats['Goals'] = rawStats.goals
+    if (rawStats.assists !== undefined) stats['Assists'] = rawStats.assists
+    if (rawStats.xG !== undefined && rawStats.xG > 0) stats['xG'] = Number(rawStats.xG.toFixed(2))
+    if (rawStats.xA !== undefined && rawStats.xA > 0) stats['xA'] = Number(rawStats.xA.toFixed(2))
+  }
 
   // If no stats were populated, show minutes at minimum
   if (Object.keys(stats).length === 0 && rawStats.minutes_played) {
