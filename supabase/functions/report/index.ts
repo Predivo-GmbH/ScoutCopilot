@@ -218,7 +218,7 @@ serve(async (req: Request) => {
       });
     }
     const errMsg = err instanceof Error ? err.message : String(err);
-    console.error("Report error:", errMsg, err instanceof Error ? err.stack : "");
+    console.error("Report error:", errMsg);
     const isRateLimit = errMsg.includes("429") || errMsg.includes("rate_limit");
     return new Response(
       JSON.stringify({

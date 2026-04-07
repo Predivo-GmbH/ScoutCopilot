@@ -1,6 +1,6 @@
 // Claude API client for NL parsing and report generation
 
-const CLAUDE_MODEL = "claude-sonnet-4-20250514";
+const CLAUDE_MODEL = "claude-3-haiku-20240307";
 
 interface ClaudeMessage {
   role: "user" | "assistant";
@@ -39,6 +39,7 @@ async function callClaude(
 
   if (!response.ok) {
     const err = await response.text();
+    console.error(`Claude API ${response.status}:`, err);
     throw new Error(`Claude API error (${response.status}): ${err}`);
   }
 

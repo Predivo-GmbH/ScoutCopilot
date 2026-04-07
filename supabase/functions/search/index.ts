@@ -85,7 +85,7 @@ serve(async (req: Request) => {
       const supabase = getServiceClient();
       const { data: textResults } = await supabase
         .from("sb_players")
-        .select("player_id, player_name, player_nickname, nationality, primary_position")
+        .select("player_id, player_name, player_nickname, nationality, primary_position, photo_url")
         .or(`player_name.ilike.%${query.trim()}%,player_nickname.ilike.%${query.trim()}%`)
         .limit(20);
 
@@ -106,6 +106,7 @@ serve(async (req: Request) => {
             position: p.primary_position ?? "Unknown",
             team: stats?.team_name ?? "Unknown",
             league: stats ? `${stats.competition_name} (${stats.season_name})` : "Unknown",
+            photo_url: p.photo_url ?? undefined,
             stats: stats ? {
               matches_played: stats.matches_played, minutes_played: stats.minutes_played,
               goals: stats.goals, assists: stats.assists,
@@ -136,7 +137,7 @@ serve(async (req: Request) => {
       const supabase = getServiceClient();
       const { data: textResults } = await supabase
         .from("sb_players")
-        .select("player_id, player_name, player_nickname, nationality, primary_position")
+        .select("player_id, player_name, player_nickname, nationality, primary_position, photo_url")
         .or(`player_name.ilike.%${query.trim()}%,player_nickname.ilike.%${query.trim()}%`)
         .limit(20);
 
@@ -157,6 +158,7 @@ serve(async (req: Request) => {
             position: p.primary_position ?? "Unknown",
             team: stats?.team_name ?? "Unknown",
             league: stats ? `${stats.competition_name} (${stats.season_name})` : "Unknown",
+            photo_url: p.photo_url ?? undefined,
             stats: stats ? {
               matches_played: stats.matches_played, minutes_played: stats.minutes_played,
               goals: stats.goals, assists: stats.assists,
@@ -185,6 +187,12 @@ serve(async (req: Request) => {
       );
     }
 
+    // Build a lookup of photo URLs from raw players before ranking
+    const photoLookup = new Map<string, string>();
+    for (const p of rawPlayers) {
+      if (p.photo_url) photoLookup.set(p.player_external_id as string, p.photo_url as string);
+    }
+
     // Step 3: Rank players via Claude (with fallback to basic scoring)
     let ranked;
     try {
@@ -199,6 +207,14 @@ serve(async (req: Request) => {
         fit_reasoning: "Ranked by data match (AI ranking unavailable)",
         player_data: p,
       }));
+    }
+
+    // Merge photo URLs into ranked results (Claude doesn't return them)
+    for (const r of ranked) {
+      const photoUrl = photoLookup.get(r.player_external_id);
+      if (photoUrl && r.player_data) {
+        (r.player_data as Record<string, unknown>).photo_url = photoUrl;
+      }
     }
 
     // Step 4: Save search query + results to DB
@@ -241,7 +257,32 @@ serve(async (req: Request) => {
       }
     }
 
-    // Step 5: Return results
+    // Step 5: Trigger async photo generation for players without photos
+    const playersNeedingPhotos = ranked
+      .filter((r) => {
+        const data = r.player_data as Record<string, unknown> | undefined;
+        return !data?.photo_url && r.player_external_id.startsWith("sb-open-");
+      })
+      .map((r) => parseInt(r.player_external_id.replace("sb-open-", ""), 10))
+      .filter((id) => !isNaN(id));
+
+    if (playersNeedingPhotos.length > 0) {
+      // Fire-and-forget: call generate-photo in background
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      fetch(`${supabaseUrl}/functions/v1/generate-photo`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${serviceKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ player_ids: playersNeedingPhotos }),
+      }).catch((err) => {
+        console.error("Failed to trigger photo generation:", err.message);
+      });
+    }
+
+    // Step 6: Return results
     return new Response(
       JSON.stringify({
         search_id: searchQuery?.id ?? null,
@@ -412,7 +453,7 @@ async function searchStatsBombOpenData(
       *,
       sb_players!inner (
         player_id, player_name, player_nickname,
-        nationality, primary_position, positions
+        nationality, primary_position, positions, photo_url
       )
     `)
     .limit(params.limit ?? 50);
@@ -452,6 +493,7 @@ async function searchStatsBombOpenData(
     weight: 0,
     team: row.team_name,
     league: `${row.competition_name} (${row.season_name})`,
+    photo_url: row.sb_players.photo_url ?? undefined,
     market_value: 0,
     contract_expiry: "",
     stats: {
