@@ -937,5 +937,11 @@
     "leftWinger": "Linksaussen",
     "rightWinger": "Rechtsaussen",
     "striker": "Stürmer"
+  },
+  "player": {
+    "aiGenerated": "KI-generiert",
+    "aiGeneratedTooltip": "Dieses Bild wurde von KI generiert und stellt den Spieler möglicherweise nicht genau dar",
+    "photoLoading": "Datenbanken werden durchsucht und Spielerfoto wird generiert...",
+    "photoLoadingShort": "Foto wird geladen..."
   }
 }

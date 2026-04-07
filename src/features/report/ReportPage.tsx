@@ -130,7 +130,7 @@ export function ReportPage() {
       {/* Player Header */}
       <div className="bg-surface-container rounded-md p-4 sm:p-6 border border-outline-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-4 sm:gap-6">
-          <PlayerAvatar name={report.playerName} size={80} imageUrl={report.image} clickable />
+          <PlayerAvatar name={report.playerName} size={80} imageUrl={report.image} clickable aiGenerated={!!report.image && !report.image.includes('thesportsdb.com')} />
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-on-surface uppercase">{report.playerName}</h1>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
@@ -279,7 +279,7 @@ export function ReportPage() {
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/players/${p.playerId}`); } }}
                 >
                   <div className="flex items-center gap-3">
-                    <PlayerAvatar name={p.name} size={40} imageUrl={p.image} />
+                    <PlayerAvatar name={p.name} size={40} imageUrl={p.image} clickable aiGenerated={!!p.image && !p.image.includes('thesportsdb.com')} />
                     <div>
                       <div className="text-sm font-semibold text-on-surface">{p.name}</div>
                       <div className="text-[0.625rem] text-on-surface-variant">{p.club} &middot; {p.age}y</div>

@@ -107,6 +107,7 @@ serve(async (req: Request) => {
             team: stats?.team_name ?? "Unknown",
             league: stats ? `${stats.competition_name} (${stats.season_name})` : "Unknown",
             photo_url: p.photo_url ?? undefined,
+            photo_source: p.photo_url?.includes('thesportsdb.com') ? 'sportsdb' : (p.photo_url ? 'stitch' : undefined),
             stats: stats ? {
               matches_played: stats.matches_played, minutes_played: stats.minutes_played,
               goals: stats.goals, assists: stats.assists,
@@ -159,6 +160,7 @@ serve(async (req: Request) => {
             team: stats?.team_name ?? "Unknown",
             league: stats ? `${stats.competition_name} (${stats.season_name})` : "Unknown",
             photo_url: p.photo_url ?? undefined,
+            photo_source: p.photo_url?.includes('thesportsdb.com') ? 'sportsdb' : (p.photo_url ? 'stitch' : undefined),
             stats: stats ? {
               matches_played: stats.matches_played, minutes_played: stats.minutes_played,
               goals: stats.goals, assists: stats.assists,
@@ -293,6 +295,7 @@ serve(async (req: Request) => {
               const match = ranked.find((r) => r.player_external_id === extId);
               if (match) {
                 (match.player_data as Record<string, unknown>).photo_url = pr.photo_url;
+                (match.player_data as Record<string, unknown>).photo_source = pr.source ?? (pr.photo_url.includes('thesportsdb.com') ? 'sportsdb' : 'stitch');
               }
             }
           }
@@ -514,6 +517,7 @@ async function searchStatsBombOpenData(
     team: row.team_name,
     league: `${row.competition_name} (${row.season_name})`,
     photo_url: row.sb_players.photo_url ?? undefined,
+    photo_source: row.sb_players.photo_url?.includes('thesportsdb.com') ? 'sportsdb' : (row.sb_players.photo_url ? 'stitch' : undefined),
     market_value: 0,
     contract_expiry: "",
     stats: {

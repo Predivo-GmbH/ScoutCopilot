@@ -55,7 +55,7 @@ export function AlertsPage() {
                 className="bg-surface-container border border-outline-variant rounded-md p-4 cursor-pointer hover:bg-surface-container-high transition-colors min-h-[44px]"
               >
                 <div className="flex items-start sm:items-center gap-3 sm:gap-4">
-                  <PlayerAvatar name={alert.playerName} size={44} imageUrl={alert.imageUrl} />
+                  <PlayerAvatar name={alert.playerName} size={44} imageUrl={alert.imageUrl} clickable aiGenerated={!!alert.imageUrl && !alert.imageUrl.includes('thesportsdb.com')} />
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mb-1">
                       <h4 className="text-sm font-bold text-on-surface">{alert.playerName}</h4>

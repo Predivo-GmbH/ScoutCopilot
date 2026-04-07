@@ -65,7 +65,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
                 className="bg-surface-container rounded-md border border-outline-variant p-4 space-y-3"
               >
                 <div className="flex items-center gap-3">
-                  <PlayerAvatar name={player.name} size={40} imageUrl={player.image} />
+                  <PlayerAvatar name={player.name} size={40} imageUrl={player.image} clickable aiGenerated={!!player.image && !player.image.includes('thesportsdb.com')} />
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-on-surface truncate">{player.name}</p>
                     <p className="text-[0.625rem] text-on-surface-variant font-data">
@@ -147,7 +147,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <PlayerAvatar name={player.name} size={40} imageUrl={player.image} />
+                        <PlayerAvatar name={player.name} size={40} imageUrl={player.image} clickable aiGenerated={!!player.image && !player.image.includes('thesportsdb.com')} />
                         <div>
                           <p className="font-semibold text-on-surface">{player.name}</p>
                           <p className="text-[0.625rem] text-on-surface-variant font-data">

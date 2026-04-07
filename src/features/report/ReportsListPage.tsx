@@ -129,7 +129,7 @@ export function ReportsListPage() {
                 className="bg-surface-container rounded-md border border-outline-variant p-4 space-y-3 cursor-pointer active:bg-surface-container-high transition-colors min-h-[44px]"
               >
                 <div className="flex items-center gap-3">
-                  <PlayerAvatar name={report.playerName} size={40} imageUrl={report.image} />
+                  <PlayerAvatar name={report.playerName} size={40} imageUrl={report.image} clickable aiGenerated={!!report.image && !report.image.includes('thesportsdb.com')} />
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-on-surface truncate">{report.playerName}</p>
                     <p className="text-[0.625rem] text-on-surface-variant font-data">
@@ -211,7 +211,7 @@ export function ReportsListPage() {
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <PlayerAvatar name={report.playerName} size={40} imageUrl={report.image} />
+                        <PlayerAvatar name={report.playerName} size={40} imageUrl={report.image} clickable aiGenerated={!!report.image && !report.image.includes('thesportsdb.com')} />
                         <div>
                           <p className="font-semibold text-on-surface">{report.playerName}</p>
                           <p className="text-[0.625rem] text-on-surface-variant font-data">

@@ -48,7 +48,7 @@ export function PlayerSelector({ selectedPlayers, availablePlayers, maxPlayers, 
           className="bg-surface-container p-4 border border-outline-variant rounded-md flex items-center gap-3 relative overflow-hidden"
         >
           <div className={`absolute top-0 right-0 w-1 h-full ${dotColors[i]}`} />
-          <PlayerAvatar name={player.name} size={48} imageUrl={player.image} />
+          <PlayerAvatar name={player.name} size={48} imageUrl={player.image} clickable aiGenerated={!!player.image && !player.image.includes('thesportsdb.com')} />
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-semibold text-on-surface truncate">{player.name}</h3>
             <p className="text-[0.625rem] font-data text-on-surface-variant uppercase tracking-widest truncate">
@@ -105,7 +105,7 @@ export function PlayerSelector({ selectedPlayers, availablePlayers, maxPlayers, 
                       }}
                       className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-surface-container-high transition-colors text-left"
                     >
-                      <PlayerAvatar name={player.name} size={32} imageUrl={player.image} />
+                      <PlayerAvatar name={player.name} size={32} imageUrl={player.image} clickable aiGenerated={!!player.image && !player.image.includes('thesportsdb.com')} />
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-on-surface truncate">{player.name}</p>
                         <p className="text-[0.625rem] font-data text-on-surface-variant truncate">{player.club} &middot; {player.position}</p>

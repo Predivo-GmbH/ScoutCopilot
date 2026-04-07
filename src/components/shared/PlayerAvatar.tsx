@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 const JERSEY_COLORS = [
   ['#1e3a5f', '#142a47'], // navy
@@ -35,9 +36,14 @@ interface PlayerAvatarProps {
   imageUrl?: string
   /** Allow clicking the image to open a fullscreen lightbox */
   clickable?: boolean
+  /** Show a loading/generating animation instead of the silhouette */
+  loading?: boolean
+  /** Mark this image as AI-generated (shows badge) */
+  aiGenerated?: boolean
 }
 
-function PhotoLightbox({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
+function PhotoLightbox({ src, alt, aiGenerated, onClose }: { src: string; alt: string; aiGenerated?: boolean; onClose: () => void }) {
+  const { t } = useTranslation()
   const handleKey = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Escape') onClose()
   }, [onClose])
@@ -54,16 +60,57 @@ function PhotoLightbox({ src, alt, onClose }: { src: string; alt: string; onClos
       <button
         onClick={onClose}
         className="absolute top-4 right-4 p-2 rounded-full bg-surface-container border border-outline-variant text-on-surface-variant hover:text-on-surface transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center z-10"
-        aria-label="Close"
+        aria-label={t('common.close')}
       >
         <X size={20} strokeWidth={1.5} />
       </button>
-      <img
-        src={src}
-        alt={alt}
-        className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg animate-[fadeIn_200ms_ease-out]"
-        onClick={(e) => e.stopPropagation()}
-      />
+      <div className="relative">
+        <img
+          src={src}
+          alt={alt}
+          className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg animate-[fadeIn_200ms_ease-out]"
+          onClick={(e) => e.stopPropagation()}
+        />
+        {aiGenerated && (
+          <span className="absolute bottom-3 right-3 px-2 py-1 text-[0.625rem] font-bold uppercase tracking-wider bg-tertiary/90 text-on-tertiary rounded-sm backdrop-blur-sm">
+            {t('player.aiGenerated')}
+          </span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function LoadingAvatar({ name, size }: { name: string; size: number }) {
+  const { t } = useTranslation()
+  const colorIndex = hashName(name) % JERSEY_COLORS.length
+  const [bg] = JERSEY_COLORS[colorIndex]
+
+  return (
+    <div
+      className="relative rounded-md shrink-0 overflow-hidden group"
+      style={{ width: size, height: size }}
+      title={t('player.photoLoading')}
+    >
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 120 120"
+        className="rounded-md"
+        aria-label={name}
+      >
+        <rect width="120" height="120" rx="12" fill={bg} />
+      </svg>
+      {/* Pulsing ring animation */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-1/3 h-1/3 rounded-full border-2 border-on-surface/40 border-t-primary animate-spin" />
+      </div>
+      {/* Tooltip on hover */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-surface/80 rounded-md">
+        <span className="text-[0.5rem] leading-tight text-center text-on-surface px-1 font-medium">
+          {t('player.photoLoadingShort')}
+        </span>
+      </div>
     </div>
   )
 }
@@ -89,10 +136,45 @@ function SilhouetteFallback({ name, size }: { name: string; size: number }) {
   )
 }
 
-export function PlayerAvatar({ name, size = 36, className = '', imageUrl, clickable = false }: PlayerAvatarProps) {
+function AiBadge({ size }: { size: number }) {
+  const { t } = useTranslation()
+  // Scale badge relative to avatar size
+  const badgeSize = Math.max(10, Math.round(size * 0.3))
+  const fontSize = Math.max(5, Math.round(size * 0.14))
+
+  return (
+    <span
+      className="absolute bottom-0 right-0 flex items-center justify-center bg-tertiary text-on-tertiary font-bold uppercase tracking-wider rounded-tl-sm rounded-br-md leading-none"
+      style={{ width: badgeSize, height: badgeSize, fontSize }}
+      title={t('player.aiGeneratedTooltip')}
+    >
+      AI
+    </span>
+  )
+}
+
+export function PlayerAvatar({
+  name,
+  size = 36,
+  className = '',
+  imageUrl,
+  clickable = false,
+  loading = false,
+  aiGenerated = false,
+}: PlayerAvatarProps) {
   const [imgError, setImgError] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
+  // Loading state: show spinner animation
+  if (loading && (!imageUrl || imgError)) {
+    return (
+      <div className={className}>
+        <LoadingAvatar name={name} size={size} />
+      </div>
+    )
+  }
+
+  // No image: show silhouette fallback
   if (!imageUrl || imgError) {
     return (
       <div className={className}>
@@ -103,18 +185,21 @@ export function PlayerAvatar({ name, size = 36, className = '', imageUrl, clicka
 
   return (
     <>
-      <img
-        src={imageUrl}
-        alt={name}
-        width={size}
-        height={size}
-        loading="lazy"
-        className={`rounded-md shrink-0 object-cover ${clickable ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''} ${className}`}
-        onError={() => setImgError(true)}
-        onClick={clickable ? () => setLightboxOpen(true) : undefined}
-      />
+      <div className={`relative inline-block shrink-0 ${className}`}>
+        <img
+          src={imageUrl}
+          alt={name}
+          width={size}
+          height={size}
+          loading="lazy"
+          className={`rounded-md shrink-0 object-cover ${clickable ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+          onError={() => setImgError(true)}
+          onClick={clickable ? () => setLightboxOpen(true) : undefined}
+        />
+        {aiGenerated && <AiBadge size={size} />}
+      </div>
       {clickable && lightboxOpen && (
-        <PhotoLightbox src={imageUrl} alt={name} onClose={() => setLightboxOpen(false)} />
+        <PhotoLightbox src={imageUrl} alt={name} aiGenerated={aiGenerated} onClose={() => setLightboxOpen(false)} />
       )}
     </>
   )

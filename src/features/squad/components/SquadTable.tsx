@@ -49,7 +49,7 @@ export function SquadTable({ players }: SquadTableProps) {
             >
               <div className="flex items-center gap-3">
                 <span className="font-data text-on-surface-variant text-xs w-6 text-center shrink-0">{player.shirtNumber}</span>
-                <PlayerAvatar name={player.name} size={36} imageUrl={player.image} />
+                <PlayerAvatar name={player.name} size={36} imageUrl={player.image} clickable aiGenerated={!!player.image && !player.image.includes('thesportsdb.com')} />
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-on-surface truncate">{player.name}</p>
                   <p className="text-[0.625rem] text-on-surface-variant font-data">{player.nationality}</p>
@@ -121,7 +121,7 @@ export function SquadTable({ players }: SquadTableProps) {
                   <td className="px-6 py-4 font-data text-on-surface-variant text-xs">{player.shirtNumber}</td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
-                      <PlayerAvatar name={player.name} size={36} imageUrl={player.image} />
+                      <PlayerAvatar name={player.name} size={36} imageUrl={player.image} clickable aiGenerated={!!player.image && !player.image.includes('thesportsdb.com')} />
                       <div>
                         <p className="font-semibold text-on-surface">{player.name}</p>
                         <p className="text-[0.625rem] text-on-surface-variant font-data">{player.nationality}</p>

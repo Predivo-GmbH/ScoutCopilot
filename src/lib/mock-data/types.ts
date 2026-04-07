@@ -46,6 +46,8 @@ export interface MockPlayer {
   fitScore: number
   stats: Record<string, number>
   image?: string
+  /** Where the photo came from: 'sportsdb' (real), 'stitch' (AI-generated), or undefined */
+  photoSource?: 'sportsdb' | 'stitch'
 }
 
 export interface MockPlayerReport {

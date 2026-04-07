@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useState, useCallback } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../../lib/supabase'
 import type { MockPlayer } from '../../../lib/mock-data'
 
@@ -68,6 +68,11 @@ const PCT_STATS = new Set([
 // xG-type stats formatted with 2 decimals
 const XG_STATS = new Set(['xg', 'xa', 'npxg'])
 
+function derivePhotoSource(photoUrl: string | undefined): MockPlayer['photoSource'] {
+  if (!photoUrl) return undefined
+  return photoUrl.includes('thesportsdb.com') ? 'sportsdb' : 'stitch'
+}
+
 function mapToMockPlayer(result: EdgeSearchResponse['results'][number]): MockPlayer {
   const d = result.player_data ?? {}
   const rawStats = (d.stats ?? {}) as Record<string, number>
@@ -88,6 +93,9 @@ function mapToMockPlayer(result: EdgeSearchResponse['results'][number]): MockPla
     }
   }
 
+  const photoUrl = (d.photo_url as string) || undefined
+  const photoSource = (d.photo_source as MockPlayer['photoSource']) ?? derivePhotoSource(photoUrl)
+
   return {
     id: result.player_external_id,
     name: result.player_name,
@@ -98,11 +106,13 @@ function mapToMockPlayer(result: EdgeSearchResponse['results'][number]): MockPla
     league: (d.league as string) || 'Unknown',
     fitScore: Math.round(result.fit_score),
     stats,
-    image: (d.photo_url as string) || undefined,
+    image: photoUrl,
+    photoSource,
   }
 }
 
 export function usePlayerSearch() {
+  const queryClient = useQueryClient()
   const [params, setParams] = useState<SearchParams>({
     query: '',
     position: 'All Positions',
@@ -117,6 +127,59 @@ export function usePlayerSearch() {
   const [searchTrigger, setSearchTrigger] = useState(0)
   // When set, load results from DB instead of calling the edge function
   const [savedSearchId, setSavedSearchId] = useState<string | null>(null)
+  // Track which player IDs are currently having photos generated
+  const [photoLoadingIds, setPhotoLoadingIds] = useState<Set<string>>(new Set())
+
+  // Trigger background photo generation for players missing photos in saved searches
+  const fetchMissingPhotos = useCallback(async (players: MockPlayer[]) => {
+    const needsPhoto = players.filter(
+      (p) => !p.image && p.id.startsWith('sb-open-')
+    )
+    if (needsPhoto.length === 0) return
+
+    const playerIds = needsPhoto
+      .map((p) => parseInt(p.id.replace('sb-open-', ''), 10))
+      .filter((id) => !isNaN(id))
+
+    if (playerIds.length === 0) return
+
+    // Mark these players as loading
+    setPhotoLoadingIds(new Set(needsPhoto.map((p) => p.id)))
+
+    try {
+      const { data: photoData } = await supabase.functions.invoke('generate-photo', {
+        body: { player_ids: playerIds },
+      })
+
+      if (photoData?.results) {
+        // Update query cache with fetched photos
+        queryClient.setQueryData<MockPlayer[]>(
+          ['player-search', searchTrigger],
+          (old) => {
+            if (!old) return old
+            return old.map((player) => {
+              const rawId = parseInt(player.id.replace('sb-open-', ''), 10)
+              const photoResult = photoData.results.find(
+                (r: { player_id: number; photo_url?: string }) => r.player_id === rawId
+              )
+              if (photoResult?.photo_url) {
+                return {
+                  ...player,
+                  image: photoResult.photo_url,
+                  photoSource: derivePhotoSource(photoResult.photo_url),
+                }
+              }
+              return player
+            })
+          }
+        )
+      }
+    } catch {
+      // Non-blocking: photos will appear next time
+    } finally {
+      setPhotoLoadingIds(new Set())
+    }
+  }, [queryClient, searchTrigger])
 
   const { data, isLoading } = useQuery<MockPlayer[]>({
     queryKey: ['player-search', searchTrigger],
@@ -132,7 +195,7 @@ export function usePlayerSearch() {
         if (error) throw new Error(error.message)
         if (!rows || rows.length === 0) return []
 
-        return rows.map((row) => mapToMockPlayer({
+        const mapped = rows.map((row) => mapToMockPlayer({
           player_external_id: row.player_external_id,
           player_name: row.player_name,
           rank: row.rank,
@@ -140,6 +203,11 @@ export function usePlayerSearch() {
           fit_reasoning: (row.player_data as Record<string, unknown>)?.fit_reasoning as string ?? '',
           player_data: row.player_data as Record<string, unknown>,
         }))
+
+        // Trigger background photo fetch for players without images
+        fetchMissingPhotos(mapped)
+
+        return mapped
       }
 
       // Fresh search via edge function (uses AI credits)
@@ -176,6 +244,7 @@ export function usePlayerSearch() {
 
   function search(newParams?: Partial<SearchParams>) {
     setSavedSearchId(null)
+    setPhotoLoadingIds(new Set())
     if (newParams) {
       setParams((prev) => ({ ...prev, ...newParams }))
     }
@@ -199,6 +268,7 @@ export function usePlayerSearch() {
     results: data ?? [],
     isLoading,
     hasSearched,
+    photoLoadingIds,
     search,
     loadSaved,
     updateFilters,

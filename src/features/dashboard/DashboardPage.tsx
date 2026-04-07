@@ -186,7 +186,7 @@ export function DashboardPage() {
                       className="p-3 rounded-sm border border-outline-variant/50 cursor-pointer hover:bg-surface-container-high transition-colors"
                     >
                       <div className="flex items-center gap-3 mb-1.5">
-                        <PlayerAvatar name={alert.playerName} size={36} imageUrl={alert.imageUrl} />
+                        <PlayerAvatar name={alert.playerName} size={36} imageUrl={alert.imageUrl} clickable aiGenerated={!!alert.imageUrl && !alert.imageUrl.includes('thesportsdb.com')} />
                         <div className="flex-1 min-w-0">
                           <h4 className="text-sm font-bold text-on-surface leading-tight">{alert.playerName}</h4>
                           <p className="text-[0.625rem] font-data text-on-surface-variant">{alert.club}</p>

@@ -11,6 +11,7 @@ const PAGE_SIZE = 8
 interface SearchResultsTableProps {
   results: MockPlayer[]
   isLoading: boolean
+  photoLoadingIds?: Set<string>
 }
 
 function exportResultsCsv(results: MockPlayer[], t: (key: string) => string) {
@@ -38,7 +39,7 @@ function exportResultsCsv(results: MockPlayer[], t: (key: string) => string) {
   URL.revokeObjectURL(url)
 }
 
-export function SearchResultsTable({ results, isLoading }: SearchResultsTableProps) {
+export function SearchResultsTable({ results, isLoading, photoLoadingIds }: SearchResultsTableProps) {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
   const [page, setPage] = useState(1)
@@ -145,7 +146,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
                     <td className={`sticky left-0 z-10 ${rowBg} group-hover:bg-surface-variant/50 px-3 py-3 font-data text-on-surface-variant text-xs transition-colors`}>{globalIndex + 1}</td>
                     <td className={`sticky left-8 z-10 ${rowBg} group-hover:bg-surface-variant/50 px-3 py-3 transition-colors after:content-[''] after:absolute after:right-0 after:top-0 after:bottom-0 after:w-px after:bg-outline-variant/30`}>
                       <div className="flex items-center gap-2">
-                        <PlayerAvatarWithFlag name={player.name} nationality={player.nationality} imageUrl={player.image} />
+                        <PlayerAvatarWithFlag name={player.name} nationality={player.nationality} imageUrl={player.image} photoSource={player.photoSource} loading={photoLoadingIds?.has(player.id)} />
                         <div className="min-w-0">
                           <div className="font-bold text-on-surface text-[0.8125rem] truncate">{player.name}</div>
                           <div className="text-[0.5625rem] text-on-surface-variant flex items-center gap-1">
@@ -198,7 +199,7 @@ export function SearchResultsTable({ results, isLoading }: SearchResultsTablePro
               >
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-[0.625rem] font-data text-on-surface-variant">{globalIndex + 1}</span>
-                  <PlayerAvatarWithFlag name={player.name} nationality={player.nationality} imageUrl={player.image} />
+                  <PlayerAvatarWithFlag name={player.name} nationality={player.nationality} imageUrl={player.image} photoSource={player.photoSource} loading={photoLoadingIds?.has(player.id)} />
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-on-surface text-sm truncate">{player.name}</div>
                     <div className="text-[0.625rem] text-on-surface-variant truncate">{player.club} &middot; {player.nationality}</div>
@@ -331,13 +332,26 @@ function getPageNumbers(current: number, total: number): (number | '...')[] {
   return pages
 }
 
-function PlayerAvatarWithFlag({ name, nationality, imageUrl }: { name: string; nationality: string; imageUrl?: string }) {
+function PlayerAvatarWithFlag({ name, nationality, imageUrl, photoSource, loading }: {
+  name: string
+  nationality: string
+  imageUrl?: string
+  photoSource?: 'sportsdb' | 'stitch'
+  loading?: boolean
+}) {
   const flagEmoji = countryToFlag(nationality)
 
   return (
     <div className="relative">
-      <PlayerAvatar name={name} size={32} imageUrl={imageUrl} clickable />
-      {flagEmoji && (
+      <PlayerAvatar
+        name={name}
+        size={32}
+        imageUrl={imageUrl}
+        clickable
+        loading={loading}
+        aiGenerated={photoSource === 'stitch'}
+      />
+      {flagEmoji && !loading && (
         <span className="absolute -bottom-0.5 -right-0.5 text-[0.5rem] leading-none" title={nationality}>
           {flagEmoji}
         </span>

@@ -20,7 +20,7 @@ const SUGGESTED_QUERIES = [
 
 export function SearchPage() {
   const { t } = useTranslation()
-  const { params, results, isLoading, hasSearched, search, loadSaved, updateFilters } = usePlayerSearch()
+  const { params, results, isLoading, hasSearched, photoLoadingIds, search, loadSaved, updateFilters } = usePlayerSearch()
   const [searchParams, setSearchParams] = useSearchParams()
   const initialQuery = searchParams.get('q') ?? ''
   const isSavedSearch = searchParams.get('saved') === '1'
@@ -106,7 +106,7 @@ export function SearchPage() {
       {/* Results */}
       {hasSearched ? (
         <>
-          <SearchResultsTable results={results} isLoading={isLoading} />
+          <SearchResultsTable results={results} isLoading={isLoading} photoLoadingIds={photoLoadingIds} />
           {/* Footer status */}
           {results.length > 0 && (
             <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-[0.625rem] uppercase tracking-[0.2em] text-on-surface-variant/70 mt-4">
