@@ -55,18 +55,117 @@ serve(async (req: Request) => {
       );
     }
 
-    // Step 1: Parse NL query into structured parameters via Claude
-    const parsedParams = await parseSearchQuery(query.trim());
+    // Step 1: Parse NL query into structured parameters via Claude (with fallback)
+    let parsedParams: ParsedSearchParams;
+    try {
+      parsedParams = await parseSearchQuery(query.trim());
+    } catch (parseErr) {
+      console.error("Claude parse failed, using text fallback:", (parseErr as Error).message);
+      parsedParams = fallbackParseQuery(query.trim());
+    }
 
     // Step 2: Fetch players from data provider (or mock)
     const useMock = Deno.env.get("MOCK_DATA") === "true";
     let rawPlayers: Record<string, unknown>[];
 
+    // Detect if query looks like a player name (no structured filters extracted)
+    const isNameSearch = !parsedParams.position && !parsedParams.positions?.length
+      && !parsedParams.league && !parsedParams.leagues?.length
+      && !parsedParams.nationality && !parsedParams.foot
+      && !parsedParams.age_min && !parsedParams.age_max;
+
     if (useMock) {
       const mockResults = searchMockPlayers(parsedParams);
       rawPlayers = mockResults.map(mockToGeneric);
+    } else if (isNameSearch) {
+      // Name-based search: prioritize text matching over broad data queries
+      rawPlayers = [];
+
+      // Search StatsBomb open data by name
+      const supabase = getServiceClient();
+      const { data: textResults } = await supabase
+        .from("sb_players")
+        .select("player_id, player_name, player_nickname, nationality, primary_position")
+        .or(`player_name.ilike.%${query.trim()}%,player_nickname.ilike.%${query.trim()}%`)
+        .limit(20);
+
+      if (textResults && textResults.length > 0) {
+        const playerIds = textResults.map((p: { player_id: number }) => p.player_id);
+        const { data: statsRows } = await supabase
+          .from("sb_player_season_stats")
+          .select("*")
+          .in("player_id", playerIds);
+
+        for (const p of textResults) {
+          const stats = (statsRows ?? []).find((s: { player_id: number }) => s.player_id === p.player_id);
+          rawPlayers.push({
+            player_external_id: `sb-open-${p.player_id}`,
+            player_name: p.player_nickname ?? p.player_name,
+            age: 0,
+            nationality: p.nationality ?? "Unknown",
+            position: p.primary_position ?? "Unknown",
+            team: stats?.team_name ?? "Unknown",
+            league: stats ? `${stats.competition_name} (${stats.season_name})` : "Unknown",
+            stats: stats ? {
+              matches_played: stats.matches_played, minutes_played: stats.minutes_played,
+              goals: stats.goals, assists: stats.assists,
+              xG: Number(stats.xg), xA: Number(stats.xa),
+            } : {},
+            provider: "statsbomb-open",
+          });
+        }
+      }
+
+      // Also search API-Football by name
+      if (Deno.env.get("API_FOOTBALL_KEY")) {
+        try {
+          const apiFootballResults = await apiFootballSearch(
+            query.trim(), auth.organizationId
+          );
+          rawPlayers.push(...apiFootballResults.map(mapToGenericPlayer));
+        } catch (err) {
+          console.error("API-Football name search error:", (err as Error).message);
+        }
+      }
     } else {
       rawPlayers = await fetchFromProviders(auth.organizationId, parsedParams, query.trim());
+    }
+
+    if (rawPlayers.length === 0) {
+      // Last resort: text search on player names in StatsBomb data
+      const supabase = getServiceClient();
+      const { data: textResults } = await supabase
+        .from("sb_players")
+        .select("player_id, player_name, player_nickname, nationality, primary_position")
+        .or(`player_name.ilike.%${query.trim()}%,player_nickname.ilike.%${query.trim()}%`)
+        .limit(20);
+
+      if (textResults && textResults.length > 0) {
+        const playerIds = textResults.map((p: { player_id: number }) => p.player_id);
+        const { data: statsRows } = await supabase
+          .from("sb_player_season_stats")
+          .select("*")
+          .in("player_id", playerIds);
+
+        for (const p of textResults) {
+          const stats = (statsRows ?? []).find((s: { player_id: number }) => s.player_id === p.player_id);
+          rawPlayers.push({
+            player_external_id: `sb-open-${p.player_id}`,
+            player_name: p.player_nickname ?? p.player_name,
+            age: 0,
+            nationality: p.nationality ?? "Unknown",
+            position: p.primary_position ?? "Unknown",
+            team: stats?.team_name ?? "Unknown",
+            league: stats ? `${stats.competition_name} (${stats.season_name})` : "Unknown",
+            stats: stats ? {
+              matches_played: stats.matches_played, minutes_played: stats.minutes_played,
+              goals: stats.goals, assists: stats.assists,
+              xG: Number(stats.xg), xA: Number(stats.xa),
+            } : {},
+            provider: "statsbomb-open",
+          });
+        }
+      }
     }
 
     if (rawPlayers.length === 0) {
@@ -86,8 +185,21 @@ serve(async (req: Request) => {
       );
     }
 
-    // Step 3: Rank players via Claude
-    const ranked = await rankPlayers(query.trim(), parsedParams, rawPlayers);
+    // Step 3: Rank players via Claude (with fallback to basic scoring)
+    let ranked;
+    try {
+      ranked = await rankPlayers(query.trim(), parsedParams, rawPlayers);
+    } catch (rankErr) {
+      console.error("Claude ranking failed, using basic scoring:", (rankErr as Error).message);
+      ranked = rawPlayers.map((p, i) => ({
+        player_external_id: p.player_external_id as string,
+        player_name: p.player_name as string,
+        rank: i + 1,
+        fit_score: 70,
+        fit_reasoning: "Ranked by data match (AI ranking unavailable)",
+        player_data: p,
+      }));
+    }
 
     // Step 4: Save search query + results to DB
     const supabase = getServiceClient();
@@ -147,8 +259,9 @@ serve(async (req: Request) => {
       });
     }
     console.error("Search error:", err);
+    const errMsg = err instanceof Error ? err.message : String(err);
     return new Response(
-      JSON.stringify({ error: "Internal server error" }),
+      JSON.stringify({ error: errMsg }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
@@ -375,6 +488,113 @@ async function searchStatsBombOpenData(
     },
     provider: "statsbomb-open",
   }));
+}
+
+/** Fallback NL parser when Claude API is unavailable (e.g. 429 rate limit) */
+function fallbackParseQuery(query: string): ParsedSearchParams {
+  const q = query.toLowerCase();
+  const params: ParsedSearchParams = {};
+
+  // Position detection
+  const positionMap: Record<string, string[]> = {
+    "striker": ["ST", "CF"],
+    "forward": ["ST", "CF", "LW", "RW"],
+    "winger": ["LW", "RW"],
+    "left wing": ["LW"],
+    "right wing": ["RW"],
+    "midfielder": ["CM", "CAM", "CDM"],
+    "central midfielder": ["CM"],
+    "attacking midfielder": ["CAM"],
+    "defensive midfielder": ["CDM"],
+    "number 10": ["CAM"],
+    "center-back": ["CB"],
+    "centre-back": ["CB"],
+    "center back": ["CB"],
+    "centre back": ["CB"],
+    "defender": ["CB", "LB", "RB"],
+    "left-back": ["LB"],
+    "left back": ["LB"],
+    "right-back": ["RB"],
+    "right back": ["RB"],
+    "full-back": ["LB", "RB"],
+    "full back": ["LB", "RB"],
+    "goalkeeper": ["GK"],
+    "keeper": ["GK"],
+  };
+
+  for (const [keyword, positions] of Object.entries(positionMap)) {
+    if (q.includes(keyword)) {
+      params.positions = positions;
+      params.position = positions[0];
+      break;
+    }
+  }
+  // Also check abbreviations
+  const abbrevs = ["ST", "CF", "LW", "RW", "CAM", "CM", "CDM", "CB", "LB", "RB", "GK", "LWB", "RWB", "LM", "RM"];
+  for (const abbr of abbrevs) {
+    if (new RegExp(`\\b${abbr}\\b`, "i").test(query)) {
+      params.positions = [abbr.toUpperCase()];
+      params.position = abbr.toUpperCase();
+      break;
+    }
+  }
+
+  // League detection
+  const leagueMap: Record<string, string> = {
+    "la liga": "La Liga",
+    "premier league": "Premier League",
+    "bundesliga": "Bundesliga",
+    "serie a": "Serie A",
+    "ligue 1": "Ligue 1",
+    "eredivisie": "Eredivisie",
+    "liga mx": "Liga MX",
+    "mls": "MLS",
+    "world cup": "FIFA World Cup",
+  };
+  for (const [keyword, league] of Object.entries(leagueMap)) {
+    if (q.includes(keyword)) {
+      params.league = league;
+      params.leagues = [league];
+      break;
+    }
+  }
+
+  // Nationality detection
+  const nationalityMap: Record<string, string> = {
+    "spanish": "Spain", "spain": "Spain",
+    "german": "Germany", "germany": "Germany",
+    "french": "France", "france": "France",
+    "italian": "Italy", "italy": "Italy",
+    "brazilian": "Brazil", "brazil": "Brazil",
+    "argentinian": "Argentina", "argentine": "Argentina", "argentina": "Argentina",
+    "english": "England", "england": "England",
+    "portuguese": "Portugal", "portugal": "Portugal",
+    "dutch": "Netherlands", "netherlands": "Netherlands",
+    "mexican": "Mexico", "mexico": "Mexico",
+    "colombian": "Colombia", "colombia": "Colombia",
+    "uruguayan": "Uruguay", "uruguay": "Uruguay",
+  };
+  for (const [keyword, nat] of Object.entries(nationalityMap)) {
+    if (q.includes(keyword)) {
+      params.nationality = nat;
+      break;
+    }
+  }
+
+  // Age detection
+  const ageUnder = q.match(/under[- ]?(\d{2})/);
+  if (ageUnder) params.age_max = parseInt(ageUnder[1]);
+  const ageOver = q.match(/over[- ]?(\d{2})/);
+  if (ageOver) params.age_min = parseInt(ageOver[1]);
+  const youngMatch = q.match(/\byoung\b/);
+  if (youngMatch && !params.age_max) params.age_max = 23;
+
+  // Foot detection
+  if (q.includes("left-footed") || q.includes("left foot")) params.foot = "left";
+  if (q.includes("right-footed") || q.includes("right foot")) params.foot = "right";
+
+  params.limit = 50;
+  return params;
 }
 
 function calculateAge(birthDate: string): number {
