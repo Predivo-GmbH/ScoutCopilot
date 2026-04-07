@@ -336,7 +336,7 @@ function PlayerAvatarWithFlag({ name, nationality, imageUrl }: { name: string; n
 
   return (
     <div className="relative">
-      <PlayerAvatar name={name} size={32} imageUrl={imageUrl} />
+      <PlayerAvatar name={name} size={32} imageUrl={imageUrl} clickable />
       {flagEmoji && (
         <span className="absolute -bottom-0.5 -right-0.5 text-[0.5rem] leading-none" title={nationality}>
           {flagEmoji}

@@ -44,6 +44,7 @@ export function GeneratedReportsProvider({ children }: { children: ReactNode }) 
       queryClient.invalidateQueries({ queryKey: ['player-report', id] })
       queryClient.invalidateQueries({ queryKey: ['player-reports'] })
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('Report generation failed:', err)
     } finally {
       setGeneratingIds((prev) => {
