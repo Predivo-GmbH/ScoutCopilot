@@ -99,7 +99,7 @@ export function usePlayerReport(playerId?: string) {
             .from('sb_players')
             .select('photo_url')
             .eq('player_id', rawId)
-            .single()
+            .single() as { data: { photo_url: string | null } | null }
           if (player?.photo_url) {
             report.image = player.photo_url
           } else {

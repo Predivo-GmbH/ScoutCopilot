@@ -136,7 +136,7 @@ export function usePlayerSearch() {
           player_external_id: row.player_external_id,
           player_name: row.player_name,
           rank: row.rank,
-          fit_score: row.fit_score,
+          fit_score: row.fit_score ?? 0,
           fit_reasoning: (row.player_data as Record<string, unknown>)?.fit_reasoning as string ?? '',
           player_data: row.player_data as Record<string, unknown>,
         }))
