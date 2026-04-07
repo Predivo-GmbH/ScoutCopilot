@@ -142,7 +142,7 @@ export function ReportPage() {
                 </span>
               ))}
               <span className="w-1 h-1 rounded-full bg-outline-variant" />
-              <span className="text-sm text-on-surface-variant">{t('common.age')}: {report.age}</span>
+              <span className="text-sm text-on-surface-variant">{t('common.age')}: {report.age > 0 ? report.age : '—'}</span>
               <span className="w-1 h-1 rounded-full bg-outline-variant" />
               <span className="text-sm text-on-surface-variant">{report.nationality}</span>
             </div>
@@ -282,7 +282,7 @@ export function ReportPage() {
                     <PlayerAvatar name={p.name} size={40} imageUrl={p.image} clickable aiGenerated={!!p.image && !p.image.includes('thesportsdb.com')} />
                     <div>
                       <div className="text-sm font-semibold text-on-surface">{p.name}</div>
-                      <div className="text-[0.625rem] text-on-surface-variant">{p.club} &middot; {p.age}y</div>
+                      <div className="text-[0.625rem] text-on-surface-variant">{p.club} &middot; {p.age ? `${p.age}y` : '\u2014'}</div>
                     </div>
                   </div>
                   <div className="font-data text-sm text-primary font-semibold">{p.similarity}%</div>

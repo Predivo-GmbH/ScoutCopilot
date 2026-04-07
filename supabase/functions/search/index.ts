@@ -101,7 +101,7 @@ serve(async (req: Request) => {
           rawPlayers.push({
             player_external_id: `sb-open-${p.player_id}`,
             player_name: p.player_nickname ?? p.player_name,
-            age: 0,
+            age: null,
             nationality: p.nationality ?? "Unknown",
             position: p.primary_position ?? "Unknown",
             team: stats?.team_name ?? "Unknown",
@@ -154,7 +154,7 @@ serve(async (req: Request) => {
           rawPlayers.push({
             player_external_id: `sb-open-${p.player_id}`,
             player_name: p.player_nickname ?? p.player_name,
-            age: 0,
+            age: null,
             nationality: p.nationality ?? "Unknown",
             position: p.primary_position ?? "Unknown",
             team: stats?.team_name ?? "Unknown",
@@ -264,17 +264,18 @@ serve(async (req: Request) => {
       }
     }
 
-    // Step 5: Trigger async photo generation for players without photos
-    const playersNeedingPhotos = ranked
+    // Step 5: Trigger photo/metadata enrichment for StatsBomb players missing photos or age
+    const playersNeedingEnrichment = ranked
       .filter((r) => {
+        if (!r.player_external_id.startsWith("sb-open-")) return false;
         const data = r.player_data as Record<string, unknown> | undefined;
-        return !data?.photo_url && r.player_external_id.startsWith("sb-open-");
+        return !data?.photo_url || !data?.age || data.age === 0;
       })
       .map((r) => parseInt(r.player_external_id.replace("sb-open-", ""), 10))
       .filter((id) => !isNaN(id));
 
-    if (playersNeedingPhotos.length > 0) {
-      // Fetch photos from TheSportsDB (instant) and update results before returning
+    if (playersNeedingEnrichment.length > 0) {
+      // Fetch photos + metadata from TheSportsDB (instant) and update results before returning
       const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
       const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
       try {
@@ -284,19 +285,31 @@ serve(async (req: Request) => {
             Authorization: `Bearer ${serviceKey}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ player_ids: playersNeedingPhotos }),
+          body: JSON.stringify({ player_ids: playersNeedingEnrichment, include_metadata: true }),
         });
         if (photoResp.ok) {
           const photoData = await photoResp.json();
-          // Merge fetched photos back into ranked results
+          // Merge fetched photos and metadata back into ranked results
           for (const pr of photoData.results ?? []) {
+            const extId = `sb-open-${pr.player_id}`;
+            const match = ranked.find((r) => r.player_external_id === extId);
+            if (!match) continue;
+            const pd = match.player_data as Record<string, unknown>;
             if (pr.photo_url) {
-              const extId = `sb-open-${pr.player_id}`;
-              const match = ranked.find((r) => r.player_external_id === extId);
-              if (match) {
-                (match.player_data as Record<string, unknown>).photo_url = pr.photo_url;
-                (match.player_data as Record<string, unknown>).photo_source = pr.source ?? (pr.photo_url.includes('thesportsdb.com') ? 'sportsdb' : 'stitch');
-              }
+              pd.photo_url = pr.photo_url;
+              pd.photo_source = pr.source ?? (pr.photo_url.includes('thesportsdb.com') ? 'sportsdb' : 'stitch');
+            }
+            // Enrich age from TheSportsDB birth_date
+            if (pr.birth_date && (!pd.age || pd.age === 0)) {
+              pd.age = calculateAge(pr.birth_date);
+              pd.birth_date = pr.birth_date;
+            }
+            // Enrich height/weight if missing
+            if (pr.height && (!pd.height || pd.height === 0)) {
+              pd.height = pr.height;
+            }
+            if (pr.weight && (!pd.weight || pd.weight === 0)) {
+              pd.weight = pr.weight;
             }
           }
         }
@@ -507,7 +520,7 @@ async function searchStatsBombOpenData(
     player_external_id: `sb-open-${row.sb_players.player_id}`,
     player_name:
       row.sb_players.player_nickname ?? row.sb_players.player_name,
-    age: 0, // not available in open data
+    age: null, // enriched from TheSportsDB during photo fetch
     nationality: row.sb_players.nationality ?? "Unknown",
     position: row.sb_players.primary_position ?? "Unknown",
     positions: row.sb_players.positions ?? [],

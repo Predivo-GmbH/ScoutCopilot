@@ -21,9 +21,20 @@ interface SportsDbPlayer {
   strPlayer?: string;
   strThumb?: string;
   strCutout?: string;
+  dateBorn?: string;
+  strHeight?: string;
+  strWeight?: string;
 }
 
-async function fetchFromSportsDb(playerName: string): Promise<string | null> {
+interface SportsDbResult {
+  photoUrl: string | null;
+  dateBorn: string | null;
+  strHeight: string | null;
+  strWeight: string | null;
+}
+
+async function fetchFromSportsDb(playerName: string): Promise<SportsDbResult> {
+  const empty: SportsDbResult = { photoUrl: null, dateBorn: null, strHeight: null, strWeight: null };
   const safeName = stripAccents(playerName);
   const url = `${SPORTSDB_BASE}/searchplayers.php?p=${encodeURIComponent(safeName)}`;
   console.log(`[SportsDB] Searching for "${safeName}"…`);
@@ -31,7 +42,7 @@ async function fetchFromSportsDb(playerName: string): Promise<string | null> {
   const res = await fetch(url);
   if (!res.ok) {
     console.error(`[SportsDB] HTTP ${res.status}`);
-    return null;
+    return empty;
   }
 
   const data = await res.json();
@@ -39,16 +50,22 @@ async function fetchFromSportsDb(playerName: string): Promise<string | null> {
 
   if (players.length === 0) {
     console.log(`[SportsDB] No results for "${safeName}"`);
-    return null;
+    return empty;
   }
 
-  const photo = players[0].strCutout || players[0].strThumb || null;
+  const match = players[0];
+  const photo = match.strCutout || match.strThumb || null;
   if (photo) {
     console.log(`[SportsDB] Found photo for ${playerName}: ${photo.slice(0, 80)}…`);
   } else {
-    console.log(`[SportsDB] Player "${players[0].strPlayer}" found but no photo`);
+    console.log(`[SportsDB] Player "${match.strPlayer}" found but no photo`);
   }
-  return photo;
+  return {
+    photoUrl: photo,
+    dateBorn: match.dateBorn ?? null,
+    strHeight: match.strHeight ?? null,
+    strWeight: match.strWeight ?? null,
+  };
 }
 
 // ── Stitch AI (fallback) ───────────────────────────────────────────
@@ -174,19 +191,45 @@ serve(async (req: Request) => {
       });
     }
 
-    const results: Array<{ player_id: number; status: string; source?: string; photo_url?: string }> = [];
+    const results: Array<{
+      player_id: number;
+      status: string;
+      source?: string;
+      photo_url?: string;
+      birth_date?: string | null;
+      height?: string | null;
+      weight?: string | null;
+    }> = [];
+
+    // Check if caller wants metadata even for players with photos
+    const needsMetadata = body.include_metadata === true;
 
     for (const p of players ?? []) {
-      if (p.photo_url) {
+      if (p.photo_url && !needsMetadata) {
         results.push({ player_id: p.player_id, status: "already_has_photo", photo_url: p.photo_url });
+        continue;
+      }
+      if (p.photo_url && needsMetadata) {
+        // Already has photo but caller wants metadata — fetch from SportsDB for metadata only
+        const displayName = p.player_nickname ?? p.player_name;
+        const metaResult = await fetchFromSportsDb(displayName);
+        results.push({
+          player_id: p.player_id,
+          status: "already_has_photo",
+          photo_url: p.photo_url,
+          birth_date: metaResult.dateBorn,
+          height: metaResult.strHeight,
+          weight: metaResult.strWeight,
+        });
         continue;
       }
 
       const displayName = p.player_nickname ?? p.player_name;
       const nationality = p.nationality ?? "Unknown";
 
-      // 1. Try TheSportsDB (real photo, instant)
-      let photoUrl = await fetchFromSportsDb(displayName);
+      // 1. Try TheSportsDB (real photo + metadata, instant)
+      const sportsDbResult = await fetchFromSportsDb(displayName);
+      let photoUrl = sportsDbResult.photoUrl;
 
       // 2. Fallback: Stitch AI generation (slower, names get genericized)
       if (!photoUrl && stitchApiKey && stitchProjectId) {
@@ -201,9 +244,24 @@ serve(async (req: Request) => {
           .eq("player_id", p.player_id);
 
         const source = photoUrl.includes("thesportsdb.com") ? "sportsdb" : "stitch";
-        results.push({ player_id: p.player_id, status: "found", source, photo_url: photoUrl });
+        results.push({
+          player_id: p.player_id,
+          status: "found",
+          source,
+          photo_url: photoUrl,
+          birth_date: sportsDbResult.dateBorn,
+          height: sportsDbResult.strHeight,
+          weight: sportsDbResult.strWeight,
+        });
       } else {
-        results.push({ player_id: p.player_id, status: "not_found" });
+        // Even without a photo, we may have metadata from SportsDB
+        results.push({
+          player_id: p.player_id,
+          status: "not_found",
+          birth_date: sportsDbResult.dateBorn,
+          height: sportsDbResult.strHeight,
+          weight: sportsDbResult.strWeight,
+        });
       }
     }
 

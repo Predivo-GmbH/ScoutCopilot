@@ -455,7 +455,10 @@
       "ranking": "Ranking by fit score...",
       "compiling": "Compiling results..."
     },
-    "tableView": "Table view"
+    "tableView": "Table view",
+    "noResults": "No players found",
+    "noResultsSub": "Try adjusting your search query or filters",
+    "fitScoreTooltip": "AI Match Score — how well this player fits your search criteria (0-100)"
   },
   "filters": {
     "position": "Position",
@@ -610,7 +613,8 @@
       "apiKeys": "API Keys",
       "teamManagement": "Team Management",
       "notifications": "Notifications",
-      "billing": "Billing & Subscription"
+      "billing": "Billing & Subscription",
+      "aiInsights": "AI Insights"
     },
     "profile": {
       "heading": "User Profile",
@@ -708,6 +712,59 @@
       "successTitle": "Account deleted",
       "successDescription": "Your account and all associated data have been permanently deleted. We're sorry to see you go.",
       "redirecting": "Redirecting to homepage..."
+    },
+    "aiMethodology": {
+      "dataSources": {
+        "heading": "Data Sources",
+        "description": "ScoutCopilot aggregates player data from multiple sources to build comprehensive profiles.",
+        "statsbombOpen": "Free open dataset with 50+ statistical metrics per player across major competitions.",
+        "apiFootball": "Supplementary data including player photos, squad details, and league metadata.",
+        "wyscout": "Premium scouting platform. Requires your own Wyscout API credentials.",
+        "statsbombApi": "Premium advanced statistics. Requires your own StatsBomb API credentials.",
+        "free": "Free",
+        "premium": "Premium"
+      },
+      "search": {
+        "heading": "How Search Works",
+        "description": "Search uses AI to translate your natural language queries into structured player filters and rankings.",
+        "step1": "Your natural language query is parsed by Claude AI into structured filters (position, age range, league, play style, etc.).",
+        "step2": "Matching players are retrieved from the database based on these structured filters.",
+        "step3": "Claude AI ranks each matching player with a fit_score (0\u2013100) based on how well they match your specific requirements.",
+        "fitScoreLabel": "Fit Score (0\u2013100):",
+        "fitScoreDescription": "Purely AI-determined. The model evaluates each player's statistical profile against your query criteria to produce a relevance score.",
+        "fallbackLabel": "Fallback behavior:",
+        "fallbackDescription": "When the AI service is unavailable, all matching players receive a default fit_score of 70 so search results remain functional."
+      },
+      "reports": {
+        "heading": "How Reports Work",
+        "description": "Player statistics are fed to Claude AI, which generates a professional scouting analysis report.",
+        "strengths": "Strengths and weaknesses are identified and backed by specific statistical evidence.",
+        "style": "Style of play is inferred from statistical patterns (e.g., high progressive passes = creative playmaker).",
+        "ratings": "Category ratings (A/B/C/D) are assigned for attacking, defending, passing, and physical attributes.",
+        "recommendation": "The recommendation includes tactical system fit and suggested roles within formations."
+      },
+      "comparisons": {
+        "heading": "How Comparisons Work",
+        "description": "Multiple players' statistics are analyzed side-by-side by Claude AI for head-to-head evaluation.",
+        "perMetric": "Per-metric ranking highlights which player leads in each statistical category.",
+        "narrative": "A comparative narrative provides context with specific stat references and trade-off analysis."
+      },
+      "limitations": {
+        "heading": "Limitations & Transparency",
+        "errors": "AI may make errors in analysis. Always verify key findings with video analysis and your own scouting judgment.",
+        "relative": "Fit scores are relative to your search query, not absolute player quality ratings.",
+        "model": "Model: Claude 3 Haiku \u2014 optimized for speed and cost-effectiveness in high-volume scouting workflows.",
+        "noWeights": "There are currently no configurable scoring weights. All evaluations use the AI model's default reasoning."
+      },
+      "scoring": {
+        "heading": "Scoring Preferences",
+        "comingSoon": "Custom scoring weights \u2014 coming soon",
+        "comingSoonSub": "Configure how much importance the AI places on each attribute category when ranking and evaluating players.",
+        "attacking": "Attacking importance",
+        "defending": "Defending importance",
+        "passing": "Passing importance",
+        "physical": "Physical importance"
+      }
     }
   },
   "pricing": {

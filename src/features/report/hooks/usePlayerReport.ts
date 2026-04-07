@@ -70,9 +70,28 @@ function mapDbToReport(row: {
     fitScore: typeof rd.fit_score === 'number' ? rd.fit_score : 0,
     seasonStats,
     radarData,
-    similarPlayers: [],
-    transferHistory: [],
-    contractInfo: { value: '-', until: '-', wage: '-', agent: '-' },
+    similarPlayers: Array.isArray(rd.similar_players)
+      ? (rd.similar_players as Array<Record<string, unknown>>).map((sp) => ({
+          playerId: '',
+          name: (sp.name as string) ?? '',
+          club: (sp.club as string) ?? '',
+          age: typeof sp.age === 'number' ? sp.age : 0,
+          similarity: typeof sp.similarity_pct === 'number' ? sp.similarity_pct : 0,
+        }))
+      : [],
+    transferHistory: Array.isArray(rd.transfer_history)
+      ? (rd.transfer_history as Array<Record<string, unknown>>).map((t) => ({
+          club: (t.club as string) ?? '',
+          date: (t.date as string) ?? '',
+          fee: (t.fee as string) ?? 'Unknown',
+        }))
+      : [],
+    contractInfo: {
+      value: ((rd.contract_info as Record<string, unknown>)?.estimated_value as string) ?? '-',
+      until: ((rd.contract_info as Record<string, unknown>)?.contract_status as string) ?? '-',
+      wage: '-',
+      agent: ((rd.contract_info as Record<string, unknown>)?.agent as string) ?? '-',
+    },
   }
 }
 

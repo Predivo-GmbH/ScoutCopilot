@@ -11,6 +11,7 @@ import { BillingSettings } from './components/BillingSettings'
 import { PasswordSettings } from './components/PasswordSettings'
 import { LanguageSelector } from '../../components/shared/LanguageSelector'
 import { DeleteAccountSettings } from './components/DeleteAccountSettings'
+import { AiMethodologySettings } from './components/AiMethodologySettings'
 
 const settingsTabs: { key: SettingsTab; labelKey: string }[] = [
   { key: 'profile', labelKey: 'settings.tabs.account' },
@@ -18,6 +19,7 @@ const settingsTabs: { key: SettingsTab; labelKey: string }[] = [
   { key: 'organization', labelKey: 'settings.tabs.teamManagement' },
   { key: 'preferences', labelKey: 'settings.tabs.notifications' },
   { key: 'billing', labelKey: 'settings.tabs.billing' },
+  { key: 'aiMethodology', labelKey: 'settings.tabs.aiInsights' },
 ]
 
 export function SettingsPage() {
@@ -35,6 +37,9 @@ export function SettingsPage() {
     credentials,
     preferences,
     togglePreference,
+    orgMembers,
+    membersLoading,
+    maxSeats,
   } = useSettings()
   return (
     <div className="flex flex-col md:flex-row min-h-[calc(100vh-64px)]">
@@ -99,13 +104,30 @@ export function SettingsPage() {
               </div>
               <div className="p-6 space-y-4">
                 <div className="flex flex-wrap justify-between items-center gap-3">
-                  <p className="text-sm text-on-surface-variant">{t('settings.team.seatsUsed', { used: 2, total: 3 })}</p>
+                  <p className="text-sm text-on-surface-variant">{t('settings.team.seatsUsed', { used: orgMembers.length, total: maxSeats })}</p>
                   <Button variant="secondary" size="sm">{t('settings.team.inviteMember')}</Button>
                 </div>
-                <div className="space-y-2">
-                  <TeamMember name="Alex Mercer" email="alex.mercer@scoutcopilot.pro" role="Owner" />
-                  <TeamMember name="James Wilson" email="j.wilson@nordhavn-fc.dk" role="Scout" />
-                </div>
+                {membersLoading ? (
+                  <div className="space-y-2">
+                    {Array.from({ length: 2 }).map((_, i) => (
+                      <div key={i} className="h-14 bg-surface-container-high rounded-md animate-pulse" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {orgMembers.map((member) => (
+                      <TeamMember
+                        key={member.id}
+                        name={member.fullName || t('settings.team.unnamed')}
+                        email={member.email}
+                        role={member.role}
+                      />
+                    ))}
+                    {orgMembers.length === 0 && (
+                      <p className="text-sm text-on-surface-variant py-2">{t('settings.team.noMembers', 'No team members found.')}</p>
+                    )}
+                  </div>
+                )}
               </div>
             </section>
           )}
@@ -146,6 +168,10 @@ export function SettingsPage() {
 
           {activeTab === 'billing' && (
             <BillingSettings />
+          )}
+
+          {activeTab === 'aiMethodology' && (
+            <AiMethodologySettings />
           )}
 
         </div>

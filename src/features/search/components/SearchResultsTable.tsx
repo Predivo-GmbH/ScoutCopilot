@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
-import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, FileText, Loader2, Eye } from 'lucide-react'
+import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, FileText, Loader2, Eye, Search as SearchIcon } from 'lucide-react'
 import type { MockPlayer } from '../../../lib/mock-data'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import { useGeneratedReports } from '../../../lib/useGeneratedReportsHook'
@@ -60,7 +60,19 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
   }
 
   if (results.length === 0) {
-    return null
+    return (
+      <div className="bg-surface-container rounded-md border border-outline-variant overflow-hidden">
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center mb-4">
+            <SearchIcon size={32} strokeWidth={1.5} className="text-on-surface-variant" />
+          </div>
+          <h3 className="text-lg font-semibold text-on-surface mb-2">{t('search.noResults')}</h3>
+          <p className="text-sm text-on-surface-variant max-w-md">
+            {t('search.noResultsSub')}
+          </p>
+        </div>
+      </div>
+    )
   }
 
   const statKeys = Object.keys(results[0]?.stats ?? {})
@@ -432,11 +444,12 @@ function AIThinkingAnimation() {
 }
 
 function FitScoreBar({ score }: { score: number }) {
+  const { t } = useTranslation()
   const color = score >= 80 ? 'bg-secondary' : score >= 60 ? 'bg-warning' : 'bg-error'
   const textColor = score >= 80 ? 'text-secondary' : score >= 60 ? 'text-warning' : 'text-error'
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3" title={t('search.fitScoreTooltip')}>
       <div className="flex-1 h-1.5 bg-surface-variant rounded-full overflow-hidden">
         <div className={`h-full ${color} rounded-full transition-all`} style={{ width: `${score}%` }} />
       </div>

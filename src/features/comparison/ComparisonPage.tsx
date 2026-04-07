@@ -27,6 +27,7 @@ export function ComparisonPage() {
     setTacticalContext,
     isLoading,
     generated,
+    verdict,
     addPlayer,
     removePlayer,
     generate,
@@ -122,27 +123,48 @@ export function ComparisonPage() {
                 </div>
               }>
                 <div className="space-y-4">
-                  <p className="text-sm text-on-surface/80 leading-relaxed">
-                    {t('comparison.verdictEfficiency', { player: players[1]?.name })}
-                  </p>
-                  <p className="text-sm text-on-surface/80 leading-relaxed">
-                    {t('comparison.verdictDefensive', { player: players[0]?.name })}
-                  </p>
-                  {tacticalContext && (
-                    <div className="bg-surface-container-high p-4 rounded-md border-l-4 border-tertiary">
-                      <span className="text-[0.625rem] font-data text-tertiary font-semibold block mb-1">{t('comparison.strategicFit')}</span>
-                      <p className="text-xs text-on-surface-variant">
-                        {t('comparison.verdictFitContext', { player1: players[0]?.name.split(' ').pop(), player2: players[1]?.name.split(' ').pop(), score1: 88, score2: 72 })}
+                  {verdict ? (
+                    <>
+                      <p className="text-sm text-on-surface/80 leading-relaxed whitespace-pre-line">
+                        {verdict.analysis}
                       </p>
-                    </div>
-                  )}
-                  {!tacticalContext && (
-                    <div className="bg-surface-container-high p-4 rounded-md border-l-4 border-tertiary">
-                      <span className="text-[0.625rem] font-data text-tertiary font-semibold block mb-1">{t('comparison.strategicFit')}</span>
-                      <p className="text-xs text-on-surface-variant">
-                        {t('comparison.verdictFitDefault', { player1: players[0]?.name.split(' ').pop(), player2: players[1]?.name.split(' ').pop(), score1: 88, score2: 72 })}
+                      <div className="bg-surface-container-high p-4 rounded-md border-l-4 border-tertiary">
+                        <span className="text-[0.625rem] font-data text-tertiary font-semibold block mb-1">{t('comparison.strategicFit')}</span>
+                        <p className="text-xs text-on-surface-variant whitespace-pre-line">
+                          {verdict.recommendation}
+                        </p>
+                      </div>
+                      {verdict.players.length > 0 && (
+                        <div className="space-y-2">
+                          {verdict.players.map((vp) => (
+                            <div key={vp.player_external_id} className="flex items-start gap-2">
+                              <span className="text-xs font-data font-bold text-primary shrink-0">#{vp.overall_rank}</span>
+                              <div className="min-w-0">
+                                <span className="text-xs font-semibold text-on-surface">{vp.player_name}</span>
+                                {vp.highlights.map((h, i) => (
+                                  <p key={i} className="text-[0.625rem] text-on-surface-variant leading-relaxed">{h}</p>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm text-on-surface/80 leading-relaxed">
+                        {t('comparison.verdictEfficiency', { player: players[1]?.name })}
                       </p>
-                    </div>
+                      <p className="text-sm text-on-surface/80 leading-relaxed">
+                        {t('comparison.verdictDefensive', { player: players[0]?.name })}
+                      </p>
+                      <div className="bg-surface-container-high p-4 rounded-md border-l-4 border-tertiary">
+                        <span className="text-[0.625rem] font-data text-tertiary font-semibold block mb-1">{t('comparison.strategicFit')}</span>
+                        <p className="text-xs text-on-surface-variant">
+                          {t('comparison.verdictFitDefault', { player1: players[0]?.name.split(' ').pop(), player2: players[1]?.name.split(' ').pop() })}
+                        </p>
+                      </div>
+                    </>
                   )}
                 </div>
               </Card>

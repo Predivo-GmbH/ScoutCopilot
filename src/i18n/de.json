@@ -455,7 +455,10 @@
       "ranking": "Nach Passungswert sortieren...",
       "compiling": "Ergebnisse werden zusammengestellt..."
     },
-    "tableView": "Tabellenansicht"
+    "tableView": "Tabellenansicht",
+    "noResults": "Keine Spieler gefunden",
+    "noResultsSub": "Versuchen Sie, Ihre Suchanfrage oder Filter anzupassen",
+    "fitScoreTooltip": "KI-Übereinstimmung — wie gut dieser Spieler zu Ihren Suchkriterien passt (0-100)"
   },
   "filters": {
     "position": "Position",
@@ -610,7 +613,8 @@
       "apiKeys": "API-Schlüssel",
       "teamManagement": "Teamverwaltung",
       "notifications": "Benachrichtigungen",
-      "billing": "Abrechnung & Abonnement"
+      "billing": "Abrechnung & Abonnement",
+      "aiInsights": "KI-Einblicke"
     },
     "profile": {
       "heading": "Benutzerprofil",
@@ -708,6 +712,59 @@
       "successTitle": "Konto gelöscht",
       "successDescription": "Ihr Konto und alle zugehörigen Daten wurden dauerhaft gelöscht. Es tut uns leid, Sie gehen zu sehen.",
       "redirecting": "Weiterleitung zur Startseite..."
+    },
+    "aiMethodology": {
+      "dataSources": {
+        "heading": "Datenquellen",
+        "description": "ScoutCopilot aggregiert Spielerdaten aus mehreren Quellen, um umfassende Profile zu erstellen.",
+        "statsbombOpen": "Kostenloser offener Datensatz mit 50+ statistischen Metriken pro Spieler aus grossen Wettbewerben.",
+        "apiFootball": "Ergänzende Daten wie Spielerfotos, Kaderdetails und Liga-Metadaten.",
+        "wyscout": "Premium-Scouting-Plattform. Erfordert eigene Wyscout-API-Zugangsdaten.",
+        "statsbombApi": "Premium-Erweiterte Statistiken. Erfordert eigene StatsBomb-API-Zugangsdaten.",
+        "free": "Kostenlos",
+        "premium": "Premium"
+      },
+      "search": {
+        "heading": "Wie die Suche funktioniert",
+        "description": "Die Suche nutzt KI, um Ihre natürlichsprachlichen Anfragen in strukturierte Spielerfilter und Rankings umzuwandeln.",
+        "step1": "Ihre natürlichsprachliche Anfrage wird von Claude AI in strukturierte Filter zerlegt (Position, Altersbereich, Liga, Spielstil usw.).",
+        "step2": "Passende Spieler werden anhand dieser strukturierten Filter aus der Datenbank abgerufen.",
+        "step3": "Claude AI bewertet jeden passenden Spieler mit einem Fit-Score (0\u2013100) basierend darauf, wie gut er Ihren spezifischen Anforderungen entspricht.",
+        "fitScoreLabel": "Fit-Score (0\u2013100):",
+        "fitScoreDescription": "Rein KI-bestimmt. Das Modell bewertet das statistische Profil jedes Spielers anhand Ihrer Suchkriterien und erzeugt einen Relevanzwert.",
+        "fallbackLabel": "Fallback-Verhalten:",
+        "fallbackDescription": "Wenn der KI-Dienst nicht verfügbar ist, erhalten alle passenden Spieler einen Standard-Fit-Score von 70, damit die Suchergebnisse funktionsfähig bleiben."
+      },
+      "reports": {
+        "heading": "Wie Berichte funktionieren",
+        "description": "Spielerstatistiken werden an Claude AI übermittelt, das einen professionellen Scouting-Analysebericht erstellt.",
+        "strengths": "Stärken und Schwächen werden identifiziert und mit spezifischen statistischen Belegen untermauert.",
+        "style": "Der Spielstil wird aus statistischen Mustern abgeleitet (z.B. hohe progressive Pässe = kreativer Spielmacher).",
+        "ratings": "Kategoriebewertungen (A/B/C/D) werden für Angriff, Verteidigung, Passspiel und Physis vergeben.",
+        "recommendation": "Die Empfehlung umfasst die taktische Systemeignung und vorgeschlagene Rollen innerhalb von Formationen."
+      },
+      "comparisons": {
+        "heading": "Wie Vergleiche funktionieren",
+        "description": "Die Statistiken mehrerer Spieler werden von Claude AI nebeneinander für eine Direktvergleich-Bewertung analysiert.",
+        "perMetric": "Pro-Metrik-Ranking zeigt, welcher Spieler in jeder statistischen Kategorie führt.",
+        "narrative": "Eine vergleichende Analyse liefert Kontext mit spezifischen Statistik-Referenzen und Abwägungsanalyse."
+      },
+      "limitations": {
+        "heading": "Einschränkungen & Transparenz",
+        "errors": "KI kann Fehler in der Analyse machen. Überprüfen Sie wichtige Erkenntnisse immer mit Videoanalyse und Ihrem eigenen Scouting-Urteil.",
+        "relative": "Fit-Scores sind relativ zu Ihrer Suchanfrage, keine absoluten Spielerqualitätsbewertungen.",
+        "model": "Modell: Claude 3 Haiku \u2014 optimiert für Geschwindigkeit und Kosteneffizienz in hochvolumigen Scouting-Workflows.",
+        "noWeights": "Derzeit gibt es keine konfigurierbaren Bewertungsgewichtungen. Alle Bewertungen verwenden die Standardlogik des KI-Modells."
+      },
+      "scoring": {
+        "heading": "Bewertungspräferenzen",
+        "comingSoon": "Individuelle Bewertungsgewichtungen \u2014 demnächst verfügbar",
+        "comingSoonSub": "Konfigurieren Sie, wie viel Bedeutung die KI jeder Attributkategorie bei der Bewertung und Rangfolge von Spielern beimisst.",
+        "attacking": "Angriff-Gewichtung",
+        "defending": "Verteidigung-Gewichtung",
+        "passing": "Passspiel-Gewichtung",
+        "physical": "Physis-Gewichtung"
+      }
     }
   },
   "pricing": {

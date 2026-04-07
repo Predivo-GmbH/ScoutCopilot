@@ -4,6 +4,19 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../../../lib/supabase'
 import type { MockComparisonPlayer } from '../../../lib/mock-data'
 
+export interface ComparisonVerdict {
+  title: string
+  analysis: string
+  recommendation: string
+  players: Array<{
+    player_external_id: string
+    player_name: string
+    overall_rank: number
+    per_metric_ranks: Record<string, number>
+    highlights: string[]
+  }>
+}
+
 /** Map a player_reports row into the comparison format */
 function reportToComparison(row: {
   id: string
@@ -94,11 +107,28 @@ export function useComparison() {
     return scoutedPlayers
   }, [scoutedPlayers])
 
+  const [verdict, setVerdict] = useState<ComparisonVerdict | null>(null)
+
   const { data: players, isLoading: isLoadingComparison, refetch } = useQuery<MockComparisonPlayer[]>({
     queryKey: ['comparison', selectedIds],
     queryFn: async () => {
-      await new Promise((r) => setTimeout(r, 2000))
-      return allPlayers.filter((p) => selectedIds.includes(p.id))
+      const matched = allPlayers.filter((p) => selectedIds.includes(p.id))
+
+      // Call the compare edge function for AI verdict
+      try {
+        const { data, error } = await supabase.functions.invoke('compare', {
+          body: { player_ids: selectedIds, context: tacticalContext || undefined },
+        })
+        if (!error && data?.comparison) {
+          setVerdict(data.comparison as ComparisonVerdict)
+        } else {
+          setVerdict(null)
+        }
+      } catch {
+        setVerdict(null)
+      }
+
+      return matched
     },
     enabled: generated && selectedIds.length >= 2,
   })
@@ -135,6 +165,7 @@ export function useComparison() {
     isLoading: isLoadingComparison,
     isLoadingPlayers,
     generated,
+    verdict,
     addPlayer,
     removePlayer,
     generate,

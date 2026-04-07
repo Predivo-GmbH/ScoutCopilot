@@ -10,15 +10,35 @@ export function useDashboardStats() {
   return useQuery<DashboardStats>({
     queryKey: ['dashboard', 'stats'],
     queryFn: async () => {
-      const [searchCount, reportCount, watchlistCount] = await Promise.all([
+      const [searchCount, reportCount, watchlistCount, recentSearches] = await Promise.all([
         supabase.from('search_queries').select('id', { count: 'exact', head: true }),
         supabase.from('player_reports').select('id', { count: 'exact', head: true }),
         supabase.from('watchlists').select('id', { count: 'exact', head: true }),
+        supabase.from('search_queries').select('created_at').order('created_at', { ascending: false }).limit(50),
       ])
 
       const totalSearches = searchCount.count ?? 0
       const totalReports = reportCount.count ?? 0
       const totalWatchlists = watchlistCount.count ?? 0
+
+      // Calculate average time between searches as a proxy for query cadence
+      let avgQueryDisplay: string | number = '—'
+      const timestamps = (recentSearches.data ?? []).map((r) => new Date(r.created_at).getTime())
+      if (timestamps.length >= 2) {
+        const diffs: number[] = []
+        for (let i = 0; i < timestamps.length - 1; i++) {
+          diffs.push(timestamps[i] - timestamps[i + 1])
+        }
+        const avgMs = diffs.reduce((a, b) => a + b, 0) / diffs.length
+        const avgSec = avgMs / 1000
+        if (avgSec < 60) {
+          avgQueryDisplay = `${Math.round(avgSec)}s`
+        } else if (avgSec < 3600) {
+          avgQueryDisplay = `${Math.round(avgSec / 60)}m`
+        } else {
+          avgQueryDisplay = `${Math.round(avgSec / 3600)}h`
+        }
+      }
 
       return {
         totalSearches,
@@ -29,7 +49,7 @@ export function useDashboardStats() {
           { value: totalSearches, label: 'mockData.playersAnalyzed', change: 0, period: '' },
           { value: totalWatchlists, label: 'mockData.activeWatchlists', change: 0, period: '' },
           { value: totalReports, label: 'mockData.playersScouted', change: 0, period: '' },
-          { value: '—', label: 'mockData.avgQueryTime', change: 0, period: '' },
+          { value: avgQueryDisplay, label: 'mockData.avgQueryTime', change: 0, period: '' },
         ],
       }
     },

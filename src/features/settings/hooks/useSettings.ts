@@ -1,9 +1,17 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../../auth/useAuth'
 import { supabase } from '../../../lib/supabase'
 import type { UserRole } from '../../../types/database'
 
-export type SettingsTab = 'profile' | 'organization' | 'credentials' | 'billing' | 'preferences'
+export interface OrgMember {
+  id: string
+  fullName: string
+  email: string
+  role: UserRole
+}
+
+export type SettingsTab = 'profile' | 'organization' | 'credentials' | 'billing' | 'preferences' | 'aiMethodology'
 
 interface ProfileData {
   fullName: string
@@ -132,6 +140,34 @@ export function useSettings() {
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }))
   }
 
+  // Fetch real org members from profiles table
+  const { data: orgMembers = [], isLoading: membersLoading } = useQuery<OrgMember[]>({
+    queryKey: ['settings', 'org-members', authOrg?.id],
+    queryFn: async () => {
+      if (!authOrg?.id) return []
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, role')
+        .eq('organization_id', authOrg.id)
+        .order('created_at', { ascending: true })
+
+      if (error) throw new Error(error.message)
+
+      // We need emails from auth.users but can't query that client-side.
+      // Use the current user's email for their own row, leave others blank.
+      return (data ?? []).map((row) => ({
+        id: row.id,
+        fullName: row.full_name ?? '',
+        email: row.id === user?.id ? (user?.email ?? '') : '',
+        role: row.role ?? 'scout',
+      }))
+    },
+    enabled: !!authOrg?.id,
+    staleTime: 60_000,
+  })
+
+  const maxSeats = authOrg?.max_seats ?? 1
+
   return {
     activeTab,
     setActiveTab,
@@ -145,5 +181,8 @@ export function useSettings() {
     credentials,
     preferences,
     togglePreference,
+    orgMembers,
+    membersLoading,
+    maxSeats,
   }
 }

@@ -150,74 +150,78 @@ export function DashboardPage() {
           </div>
         </div>
 
-        {/* Watchlist Alerts */}
-        <div className="w-full xl:w-80 shrink-0">
-          <div className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
-            <button
-              onClick={() => navigate('/alerts')}
-              className="w-full px-3 sm:px-4 py-4 border-b border-outline-variant flex justify-between items-center cursor-pointer hover:bg-surface-container-high transition-colors"
-            >
-              <h3 className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
-                <Zap size={14} strokeWidth={1.5} className="text-tertiary" />
-                {t('dashboard.watchlistAlerts')}
-              </h3>
-              <span className="text-[0.625rem] font-data font-medium text-on-error-container bg-error-container px-2 py-0.5 rounded-sm">
-                {String(alerts?.length ?? 0).padStart(2, '0')} {t('dashboard.new')}
-              </span>
-            </button>
-            {alertsLoading ? (
-              <div className="p-3 space-y-3" role="status" aria-live="polite">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="h-20 bg-surface-container-high rounded-sm animate-pulse" />
-                ))}
-                <span className="sr-only">{t('common.loading', 'Loading...')}</span>
-              </div>
-            ) : (
-              <div className="p-2 space-y-2">
-                {alerts?.slice(0, 4).map((alert) => {
-                  const borderColor = alert.changeType === 'warning' ? 'border-l-warning' : 'border-l-tertiary'
-                  return (
-                    <div
-                      key={alert.id}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/players/${alert.playerId}`, { state: { alert } }) }}
-                      onClick={() => navigate(`/players/${alert.playerId}`, { state: { alert } })}
-                      className="p-3 rounded-sm border border-outline-variant/50 cursor-pointer hover:bg-surface-container-high transition-colors"
-                    >
-                      <div className="flex items-center gap-3 mb-1.5">
-                        <PlayerAvatar name={alert.playerName} size={36} imageUrl={alert.imageUrl} clickable aiGenerated={!!alert.imageUrl && !alert.imageUrl.includes('thesportsdb.com')} />
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-bold text-on-surface leading-tight">{alert.playerName}</h4>
-                          <p className="text-[0.625rem] font-data text-on-surface-variant">{alert.club}</p>
-                        </div>
-                        <span className="text-[0.625rem] font-data text-on-surface-variant/70 shrink-0">{alert.timeAgo}</span>
-                      </div>
-                      <div className={`bg-surface-container-lowest p-2 rounded-sm border-l-2 ${borderColor}`}>
-                        <p className={`text-xs leading-relaxed ${
-                          alert.changeType === 'positive' ? 'text-secondary font-data' :
-                          alert.changeType === 'warning' ? 'text-warning font-data' :
-                          'text-on-surface-variant'
-                        }`}>
-                          {alert.change}
-                        </p>
-                      </div>
-                    </div>
-                  )
-                })}
-                {(alerts?.length ?? 0) > 4 && (
-                  <button
-                    onClick={() => navigate('/alerts')}
-                    className="w-full py-2.5 text-[0.625rem] font-bold uppercase tracking-widest text-primary hover:text-primary-light transition-colors min-h-[44px] flex items-center justify-center gap-1.5"
-                  >
-                    {t('dashboard.viewAllAlerts', { count: alerts?.length })}
-                    <ArrowRight size={12} strokeWidth={1.5} />
-                  </button>
+        {/* Watchlist Alerts — hidden entirely when empty */}
+        {(alertsLoading || (alerts && alerts.length > 0)) && (
+          <div className="w-full xl:w-80 shrink-0">
+            <div className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
+              <button
+                onClick={() => navigate('/alerts')}
+                className="w-full px-3 sm:px-4 py-4 border-b border-outline-variant flex justify-between items-center cursor-pointer hover:bg-surface-container-high transition-colors"
+              >
+                <h3 className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
+                  <Zap size={14} strokeWidth={1.5} className="text-tertiary" />
+                  {t('dashboard.watchlistAlerts')}
+                </h3>
+                {(alerts?.length ?? 0) > 0 && (
+                  <span className="text-[0.625rem] font-data font-medium text-on-error-container bg-error-container px-2 py-0.5 rounded-sm">
+                    {String(alerts?.length ?? 0).padStart(2, '0')} {t('dashboard.new')}
+                  </span>
                 )}
-              </div>
-            )}
+              </button>
+              {alertsLoading ? (
+                <div className="p-3 space-y-3" role="status" aria-live="polite">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="h-20 bg-surface-container-high rounded-sm animate-pulse" />
+                  ))}
+                  <span className="sr-only">{t('common.loading', 'Loading...')}</span>
+                </div>
+              ) : (
+                <div className="p-2 space-y-2">
+                  {alerts?.slice(0, 4).map((alert) => {
+                    const borderColor = alert.changeType === 'warning' ? 'border-l-warning' : 'border-l-tertiary'
+                    return (
+                      <div
+                        key={alert.id}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/players/${alert.playerId}`, { state: { alert } }) }}
+                        onClick={() => navigate(`/players/${alert.playerId}`, { state: { alert } })}
+                        className="p-3 rounded-sm border border-outline-variant/50 cursor-pointer hover:bg-surface-container-high transition-colors"
+                      >
+                        <div className="flex items-center gap-3 mb-1.5">
+                          <PlayerAvatar name={alert.playerName} size={36} imageUrl={alert.imageUrl} clickable aiGenerated={!!alert.imageUrl && !alert.imageUrl.includes('thesportsdb.com')} />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-bold text-on-surface leading-tight">{alert.playerName}</h4>
+                            <p className="text-[0.625rem] font-data text-on-surface-variant">{alert.club}</p>
+                          </div>
+                          <span className="text-[0.625rem] font-data text-on-surface-variant/70 shrink-0">{alert.timeAgo}</span>
+                        </div>
+                        <div className={`bg-surface-container-lowest p-2 rounded-sm border-l-2 ${borderColor}`}>
+                          <p className={`text-xs leading-relaxed ${
+                            alert.changeType === 'positive' ? 'text-secondary font-data' :
+                            alert.changeType === 'warning' ? 'text-warning font-data' :
+                            'text-on-surface-variant'
+                          }`}>
+                            {alert.change}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                  {(alerts?.length ?? 0) > 4 && (
+                    <button
+                      onClick={() => navigate('/alerts')}
+                      className="w-full py-2.5 text-[0.625rem] font-bold uppercase tracking-widest text-primary hover:text-primary-light transition-colors min-h-[44px] flex items-center justify-center gap-1.5"
+                    >
+                      {t('dashboard.viewAllAlerts', { count: alerts?.length })}
+                      <ArrowRight size={12} strokeWidth={1.5} />
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Quick Actions — at the bottom, matching Stitch */}

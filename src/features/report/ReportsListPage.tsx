@@ -147,7 +147,7 @@ export function ReportsListPage() {
                   </div>
                   <div>
                     <p className="text-[0.625rem] text-on-surface-variant uppercase">{t('common.age')}</p>
-                    <p className="font-data text-sm">{report.age}</p>
+                    <p className="font-data text-sm">{report.age && report.age > 0 ? report.age : '—'}</p>
                   </div>
                   <div>
                     <p className="text-[0.625rem] text-on-surface-variant uppercase">{t('reportsList.fitScore')}</p>
@@ -226,7 +226,7 @@ export function ReportsListPage() {
                       </span>
                     </td>
                     <td className="px-4 py-4 text-center font-data text-on-surface-variant">{report.position}</td>
-                    <td className="px-4 py-4 text-center font-data">{report.age}</td>
+                    <td className="px-4 py-4 text-center font-data">{report.age && report.age > 0 ? report.age : '—'}</td>
                     <td className="px-4 py-4 text-center">
                       <span className="text-primary font-data font-semibold">{report.fitScore}</span>
                     </td>
