@@ -36,17 +36,8 @@ function getInitials(name: string): string {
     .slice(0, 2)
 }
 
-function PlayerCard({
-  name,
-  position,
-  age: _age,
-  birth_date,
-  league,
-  stats,
-  fitScore,
-  className,
-  onClick,
-}: PlayerCardProps) {
+function PlayerCard(props: PlayerCardProps) {
+  const { name, position, birth_date, league, stats, fitScore, className, onClick } = props
   const { t } = useTranslation()
   return (
     <div
