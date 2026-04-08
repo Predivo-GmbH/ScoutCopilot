@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../../lib/supabase'
+import { calculateAge } from '../../../lib/ageUtils'
 import type { MockPlayerReport } from '../../../lib/mock-data'
 
 function mapRecommendation(raw: unknown): 'sign' | 'monitor' | 'pass' {
@@ -57,7 +58,7 @@ function mapDbToReport(row: {
   return {
     playerId: row.player_external_id,
     playerName: row.player_name,
-    age: typeof rd.age === 'number' ? rd.age : 0,
+    age: calculateAge(rd.birth_date as string) ?? (typeof rd.age === 'number' ? rd.age : 0),
     birth_date: (rd.birth_date as string) ?? undefined,
     nationality: (rd.nationality as string) ?? '',
     position: (rd.position as string) ?? '',
@@ -83,7 +84,7 @@ function mapDbToReport(row: {
             playerId,
             name: (sp.name as string) ?? '',
             club: (sp.club as string) ?? '',
-            age: typeof sp.age === 'number' ? sp.age : 0,
+            age: calculateAge(sp.birth_date as string) ?? (typeof sp.age === 'number' ? sp.age : 0),
             birth_date: (sp.birth_date as string) ?? undefined,
             similarity: typeof sp.similarity_pct === 'number' ? sp.similarity_pct : 0,
             image: (sp.photo_url as string) ?? (sp.image as string) ?? undefined,

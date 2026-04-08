@@ -5,6 +5,7 @@ import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, ChevronDow
 import type { MockPlayer } from '../../../lib/mock-data'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import { useGeneratedReports } from '../../../lib/useGeneratedReportsHook'
+import { formatAge } from '../../../lib/ageUtils'
 
 const PAGE_SIZE = 8
 
@@ -21,7 +22,7 @@ function exportResultsCsv(results: MockPlayer[], t: (key: string) => string) {
   const rows = results.map((p, i) => [
     i + 1,
     p.name,
-    p.age,
+    formatAge(p.birth_date),
     p.nationality,
     p.position,
     p.club,
@@ -123,29 +124,37 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
       {/* Content */}
       {viewMode === 'table' ? (
         <div className="overflow-hidden">
-          <table className="w-full table-fixed">
+          <table className="w-full">
             <thead>
               <tr className="sticky top-0 z-10 bg-surface-container-highest border-b border-outline-variant/30">
-                <th className="w-[2.5rem] px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">#</th>
-                <th className="px-3 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+                <th className="w-8 px-1 py-3 text-right text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">#</th>
+                <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
                   {t('csv.name')}
                 </th>
-                <th className="w-[7rem] px-3 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant" title={t('search.statTooltips.position')}>
+                <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant" title={t('search.statTooltips.position')}>
                   {t('csv.position')}
                 </th>
-                <th className="w-[3.5rem] px-3 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant" title={t('search.statTooltips.age')}>
+                <th className="w-10 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant" title={t('search.statTooltips.age')}>
                   {t('common.age')}
                 </th>
-                <th className="w-[9rem] px-3 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant" title={t('search.statTooltips.league')}>
+                <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+                  {t('common.club')}
+                </th>
+                <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant" title={t('search.statTooltips.league')}>
                   {t('common.league')}
                 </th>
-                <th className="w-[8rem] px-3 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+                {allStatKeys.map((key) => (
+                  <th key={key} className="w-16 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap cursor-help" title={t(`search.statTooltips.${key}`, key)}>
+                    {key}
+                  </th>
+                ))}
+                <th className="w-24 px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
                   {t('search.matchScore')}
                 </th>
-                <th className="w-[5rem] px-3 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
-                  {t('common.actions', 'Actions')}
+                <th className="w-16 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+                  {t('common.report')}
                 </th>
-                <th className="w-[2.5rem] px-2 py-3" />
+                <th className="w-8 px-1 py-3" />
               </tr>
             </thead>
             <tbody>
@@ -153,6 +162,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                 const globalIndex = (page - 1) * PAGE_SIZE + i
                 const rowBg = globalIndex % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'
                 const isExpanded = expandedRows.has(player.id)
+                const totalCols = 10 + allStatKeys.length
                 return (
                   <Fragment key={player.id}>
                     <tr
@@ -162,19 +172,16 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/players/${player.id}`) } }}
                       className={`${rowBg} hover:bg-surface-variant/50 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1`}
                     >
-                      <td className="px-2 py-3 text-[0.625rem] font-data text-on-surface-variant text-right align-middle">
+                      <td className="px-1 py-2.5 text-[0.625rem] font-data text-on-surface-variant text-right align-middle">
                         {globalIndex + 1}
                       </td>
-                      <td className="px-3 py-3 align-middle">
-                        <div className="flex items-center gap-2.5 min-w-0">
+                      <td className="px-2 py-2.5 align-middle">
+                        <div className="flex items-center gap-2 min-w-0">
                           <PlayerAvatarWithFlag name={player.name} nationality={player.nationality} imageUrl={player.image} photoSource={player.photoSource} loading={photoLoadingIds?.has(player.id)} />
-                          <div className="min-w-0">
-                            <div className="font-bold text-on-surface text-[0.8125rem] truncate">{player.name}</div>
-                            <div className="text-[0.5625rem] text-on-surface-variant uppercase tracking-tight truncate">{player.club}</div>
-                          </div>
+                          <span className="font-bold text-on-surface text-[0.8125rem] truncate">{player.name}</span>
                         </div>
                       </td>
-                      <td className="px-3 py-3 align-middle">
+                      <td className="px-2 py-2.5 align-middle">
                         <div className="flex flex-wrap gap-0.5">
                           {player.position.split(', ').map((pos) => (
                             <span key={pos} className="text-[0.5625rem] font-data bg-surface-container-highest text-on-surface px-1 py-0.5 rounded-sm whitespace-nowrap">
@@ -183,19 +190,27 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                           ))}
                         </div>
                       </td>
-                      <td className="px-3 py-3 text-center align-middle font-data text-xs text-on-surface">
-                        {player.age > 0 ? player.age : '\u2014'}
+                      <td className="px-1 py-2.5 text-center align-middle font-data text-xs text-on-surface">
+                        {formatAge(player.birth_date)}
                       </td>
-                      <td className="px-3 py-3 align-middle text-xs text-on-surface truncate">
-                        {player.league}
+                      <td className="px-2 py-2.5 align-middle text-xs text-on-surface">
+                        <span className="truncate block max-w-[7rem]">{player.club}</span>
                       </td>
-                      <td className="px-3 py-3 align-middle">
+                      <td className="px-2 py-2.5 align-middle text-xs text-on-surface">
+                        <span className="truncate block max-w-[7rem]">{player.league}</span>
+                      </td>
+                      {allStatKeys.map((key) => (
+                        <td key={key} className="px-1 py-2.5 text-center align-middle font-data text-xs text-on-surface" title={t(`search.statTooltips.${key}`, key)}>
+                          {player.stats[key] ?? '\u2014'}
+                        </td>
+                      ))}
+                      <td className="px-2 py-2.5 align-middle">
                         <FitScoreBar score={player.fitScore} />
                       </td>
-                      <td className="px-3 py-3 text-center align-middle">
+                      <td className="px-1 py-2.5 text-center align-middle">
                         <ReportButton playerId={player.id} hasReport={hasReport} isGenerating={isGenerating} generateReport={generateReport} navigate={navigate} />
                       </td>
-                      <td className="px-2 py-3 align-middle">
+                      <td className="px-1 py-2.5 align-middle">
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
@@ -207,7 +222,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                             })
                           }}
                           className="p-1 rounded-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
-                          aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
+                          aria-label={isExpanded ? t('search.collapseDetails') : t('search.expandDetails')}
                         >
                           {isExpanded ? <ChevronUp size={14} strokeWidth={1.5} /> : <ChevronDown size={14} strokeWidth={1.5} />}
                         </button>
@@ -215,14 +230,17 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                     </tr>
                     {isExpanded && (
                       <tr className={rowBg}>
-                        <td colSpan={8} className="px-6 pb-4 pt-1">
-                          <div className="flex flex-wrap gap-x-5 gap-y-2">
-                            {allStatKeys.map((key) => (
-                              <div key={key} className="flex items-center gap-1.5" title={t(`search.statTooltips.${key}`)}>
-                                <span className="text-[0.5625rem] uppercase tracking-widest text-on-surface-variant font-bold cursor-help">{key}</span>
-                                <span className="font-data text-xs text-on-surface">{player.stats[key] ?? '\u2014'}</span>
-                              </div>
-                            ))}
+                        <td colSpan={totalCols} className="px-6 pb-4 pt-2">
+                          <div className="border-t border-outline-variant/20 pt-3">
+                            <h4 className="text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant mb-2">{t('search.allStats')}</h4>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-2">
+                              {allStatKeys.map((key) => (
+                                <div key={key} className="flex items-baseline justify-between gap-2" title={t(`search.statTooltips.${key}`, key)}>
+                                  <span className="text-[0.5625rem] uppercase tracking-widest text-on-surface-variant font-bold cursor-help whitespace-nowrap">{key}</span>
+                                  <span className="font-data text-xs text-on-surface font-medium">{player.stats[key] ?? '\u2014'}</span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </td>
                       </tr>
@@ -263,7 +281,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 mb-3">
-                  <StatRow label={t('common.age')} value={player.age > 0 ? String(player.age) : '—'} />
+                  <StatRow label={t('common.age')} value={formatAge(player.birth_date)} />
                   <StatRow label={t('common.league')} value={player.league} />
                   {allStatKeys.map((key) => (
                     <StatRow key={key} label={key} value={String(player.stats[key])} />

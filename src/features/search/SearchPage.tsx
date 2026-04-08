@@ -2,12 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { Search as SearchIcon, ArrowRight, Sparkles, Clock, X } from 'lucide-react'
+import { Search as SearchIcon, ArrowRight, Sparkles, Clock, X, Trash2 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { SearchFilters } from './components/SearchFilters'
 import { SearchResultsTable } from './components/SearchResultsTable'
 import { usePlayerSearch } from './hooks/usePlayerSearch'
-import { useRecentSearches, useDeleteSearch } from '../dashboard/hooks/useDashboardData'
+import { useRecentSearches, useDeleteSearch, useDeleteAllSearches } from '../dashboard/hooks/useDashboardData'
+import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 
 const SUGGESTED_QUERIES = [
   'Left-backs under 23, >75% crossing accuracy',
@@ -26,12 +27,14 @@ export function SearchPage() {
   const isSavedSearch = searchParams.get('saved') === '1'
   const savedSearchId = searchParams.get('sid') ?? ''
   const [queryInput, setQueryInput] = useState(initialQuery)
-  const autoSearched = useRef(false)
+  const lastAutoQuery = useRef<string | null>(null)
 
-  // Auto-search: load saved results from DB, or run a fresh search when ?q= is present
+  // Auto-search: load saved results from DB, or run a fresh search when ?q= is present.
+  // Tracks the last auto-searched query so re-navigation with a different ?q= value works.
   useEffect(() => {
-    if (initialQuery && !autoSearched.current) {
-      autoSearched.current = true
+    if (initialQuery && lastAutoQuery.current !== initialQuery) {
+      lastAutoQuery.current = initialQuery
+      setQueryInput(initialQuery)
       clearResults()
       if (isSavedSearch && savedSearchId) {
         loadSaved(savedSearchId, initialQuery)
@@ -40,7 +43,7 @@ export function SearchPage() {
       }
       setSearchParams({}, { replace: true })
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [initialQuery]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSearch() {
     search({ query: queryInput })
@@ -132,8 +135,14 @@ function EmptyState({ onSuggestionClick, onLoadSaved }: {
   onLoadSaved: (searchId: string, query: string) => void
 }) {
   const { t } = useTranslation()
+  const navigate = useLocalizedNavigate()
   const { data: recentSearches } = useRecentSearches()
   const deleteSearch = useDeleteSearch()
+  const deleteAllSearches = useDeleteAllSearches()
+
+  const VISIBLE_LIMIT = 5
+  const visibleSearches = recentSearches?.slice(0, VISIBLE_LIMIT) ?? []
+  const hasMore = (recentSearches?.length ?? 0) > VISIBLE_LIMIT
 
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -151,9 +160,17 @@ function EmptyState({ onSuggestionClick, onLoadSaved }: {
           <div className="flex items-center gap-2 mb-3 justify-center">
             <Clock size={14} strokeWidth={1.5} className="text-primary" aria-hidden="true" />
             <span className="text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant">{t('searchHistory.heading')}</span>
+            <span className="mx-1" />
+            <button
+              onClick={() => deleteAllSearches.mutate()}
+              className="text-[0.625rem] font-data uppercase tracking-widest text-on-surface-variant hover:text-error transition-colors min-h-[44px] flex items-center gap-1"
+            >
+              <Trash2 size={10} strokeWidth={1.5} />
+              {t('search.clearHistory')}
+            </button>
           </div>
           <div className="space-y-1.5">
-            {recentSearches.map((s) => (
+            {visibleSearches.map((s) => (
               <button
                 key={s.id}
                 onClick={() => onLoadSaved(s.id, s.query)}
@@ -175,6 +192,14 @@ function EmptyState({ onSuggestionClick, onLoadSaved }: {
               </button>
             ))}
           </div>
+          {hasMore && (
+            <button
+              onClick={() => navigate('/search-history')}
+              className="mt-3 w-full text-[0.625rem] font-bold uppercase tracking-widest text-primary hover:text-primary-light transition-colors min-h-[44px] flex items-center justify-center gap-1.5"
+            >
+              {t('search.showAllHistory')} ({recentSearches.length}) <ArrowRight size={12} strokeWidth={1.5} />
+            </button>
+          )}
         </div>
       )}
 

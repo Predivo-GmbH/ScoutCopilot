@@ -64,7 +64,7 @@ export function useRecentSearches() {
         .from('search_queries')
         .select('id, query_text, result_count, created_at')
         .order('created_at', { ascending: false })
-        .limit(20)
+        .limit(100)
 
       if (error) throw new Error(error.message)
 

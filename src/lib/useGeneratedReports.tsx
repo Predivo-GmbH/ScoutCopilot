@@ -21,16 +21,18 @@ export function GeneratedReportsProvider({ children }: { children: ReactNode }) 
     loadReports()
   }, [])
 
-  const generateReport = useCallback(async (id: string) => {
+  const generateReport = useCallback(async (id: string, explicitName?: string) => {
     if (reportIds.includes(id) || generatingIds.has(id)) return
     setGeneratingIds((prev) => new Set(prev).add(id))
     try {
-      // Find the player name from search results in the query cache
-      const cachedSearches = queryClient.getQueriesData<Array<{ id: string; name: string }>>({ queryKey: ['player-search'] })
-      let playerName = 'Unknown'
-      for (const [, results] of cachedSearches) {
-        const found = results?.find((p) => p.id === id)
-        if (found) { playerName = found.name; break }
+      // Use explicit name if provided (e.g. from similar players), otherwise look up from cache
+      let playerName = explicitName ?? 'Unknown'
+      if (playerName === 'Unknown') {
+        const cachedSearches = queryClient.getQueriesData<Array<{ id: string; name: string }>>({ queryKey: ['player-search'] })
+        for (const [, results] of cachedSearches) {
+          const found = results?.find((p) => p.id === id)
+          if (found) { playerName = found.name; break }
+        }
       }
 
       const { error } = await supabase.functions.invoke('report', {

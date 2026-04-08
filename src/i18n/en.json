@@ -464,6 +464,9 @@
     "noResultsSub": "Try adjusting your search query or filters",
     "fitScoreTooltip": "AI Match Score — how well this player fits your search criteria (0-100)",
     "moreStats": "Show more stats",
+    "expandDetails": "Expand details",
+    "collapseDetails": "Collapse details",
+    "allStats": "All Statistics",
     "statTooltips": {
       "position": "Player's primary position(s) on the pitch",
       "age": "Player's current age",
@@ -529,6 +532,7 @@
     "weaknesses": "Weaknesses",
     "styleOfPlay": "Style of Play",
     "similarProfiles": "Similar Profiles",
+    "hasReport": "Report available",
     "watchlistAlert": "Watchlist Alert",
     "noReportYet": "No report yet",
     "noReportDesc": "Generate an AI scouting report for this player to see their full profile, stats, and tactical analysis.",
@@ -551,7 +555,9 @@
     "removeBtn": "Remove",
     "badgeSign": "Sign",
     "badgeMonitor": "Monitor",
-    "badgePass": "Pass"
+    "badgePass": "Pass",
+    "nationalTeam": "National Team",
+    "nationalTeamShort": "NT"
   },
   "comparison": {
     "heading": "Compare Players",
@@ -903,7 +909,8 @@
     "complete": "Complete",
     "processing": "Processing",
     "failed": "Failed",
-    "results": "results"
+    "results": "results",
+    "showMore": "Show {{remaining}} more"
   },
   "comparisonSteps": {
     "fetching": "Fetching player data...",

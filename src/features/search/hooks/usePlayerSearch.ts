@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../../lib/supabase'
+import { derivePhotoSource } from '../../../lib/usePlayerPhotoFetch'
+import { calculateAge } from '../../../lib/ageUtils'
 import type { MockPlayer } from '../../../lib/mock-data'
 
 export interface SearchParams {
@@ -68,11 +70,6 @@ const PCT_STATS = new Set([
 // xG-type stats formatted with 2 decimals
 const XG_STATS = new Set(['xg', 'xa', 'npxg'])
 
-function derivePhotoSource(photoUrl: string | undefined): MockPlayer['photoSource'] {
-  if (!photoUrl) return undefined
-  return photoUrl.includes('thesportsdb.com') ? 'sportsdb' : 'stitch'
-}
-
 function mapToMockPlayer(result: EdgeSearchResponse['results'][number]): MockPlayer {
   const d = result.player_data ?? {}
   const rawStats = (d.stats ?? {}) as Record<string, number>
@@ -99,7 +96,7 @@ function mapToMockPlayer(result: EdgeSearchResponse['results'][number]): MockPla
   return {
     id: result.player_external_id,
     name: result.player_name,
-    age: (d.age as number) || 0,
+    age: calculateAge(d.birth_date as string) ?? (d.age as number) ?? 0,
     birth_date: (d.birth_date as string) || undefined,
     nationality: (d.nationality as string) || 'Unknown',
     position: (d.position as string) || 'Unknown',

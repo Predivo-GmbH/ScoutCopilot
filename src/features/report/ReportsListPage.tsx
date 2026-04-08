@@ -1,14 +1,15 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Search as SearchIcon, FileText, Trash2 } from 'lucide-react'
+import { Search as SearchIcon, FileText, Trash2, Flag } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { supabase } from '../../lib/supabase'
 import { formatAge } from '../../lib/ageUtils'
+import { usePlayerPhotoFetch, derivePhotoSource } from '../../lib/usePlayerPhotoFetch'
 
 interface ReportListItem {
   playerId: string
@@ -18,6 +19,7 @@ interface ReportListItem {
   nationality: string
   position: string
   club: string
+  isNationalTeam: boolean
   league: string
   image?: string
   fitScore: number
@@ -51,11 +53,32 @@ function mapDbRowToListItem(row: {
     nationality: (playerData.nationality as string) ?? '',
     position: (playerData.position as string) ?? '',
     club: (playerData.team as string) ?? (playerData.club as string) ?? '',
+    isNationalTeam: playerData.is_national_team === true,
     league: (playerData.league as string) ?? '',
     image: playerData.image as string | undefined,
     fitScore: typeof playerData.fit_score === 'number' ? playerData.fit_score : 0,
     recommendation: mapRecommendation(rd.recommendation),
   }
+}
+
+function ClubDisplay({ club, isNationalTeam }: { club: string; isNationalTeam: boolean }) {
+  const { t } = useTranslation()
+  if (!club || club === 'Unknown') return <span className="text-on-surface-variant/50">—</span>
+
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span className="truncate max-w-[160px]">{club}</span>
+      {isNationalTeam && (
+        <span
+          className="inline-flex items-center gap-0.5 shrink-0 px-1.5 py-0.5 rounded-sm text-[0.5rem] font-data font-bold uppercase tracking-wider bg-tertiary/10 text-tertiary border border-tertiary/20"
+          title={t('reportsList.nationalTeam')}
+        >
+          <Flag size={8} strokeWidth={2} />
+          {t('reportsList.nationalTeamShort')}
+        </span>
+      )}
+    </span>
+  )
 }
 
 export function ReportsListPage() {
@@ -80,6 +103,13 @@ export function ReportsListPage() {
       return (data ?? []).map(mapDbRowToListItem)
     },
   })
+
+  // On-demand photo fetching for report players without images
+  const photoFetchPlayers = useMemo(
+    () => reports.map((r) => ({ id: r.playerId, image: r.image })),
+    [reports],
+  )
+  const { getPhoto, loadingIds } = usePlayerPhotoFetch(photoFetchPlayers)
 
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
 
@@ -125,6 +155,7 @@ export function ReportsListPage() {
         <div className="block sm:hidden space-y-3">
           {reports.map((report) => {
             const rec = recommendation[report.recommendation]
+            const resolvedPhoto = getPhoto({ id: report.playerId, image: report.image })
             return (
               <div
                 key={report.playerId}
@@ -132,11 +163,13 @@ export function ReportsListPage() {
                 className="bg-surface-container rounded-md border border-outline-variant p-4 space-y-3 cursor-pointer active:bg-surface-container-high transition-colors min-h-[44px]"
               >
                 <div className="flex items-center gap-3">
-                  <PlayerAvatar name={report.playerName} size={40} imageUrl={report.image} clickable aiGenerated={!!report.image && !report.image.includes('thesportsdb.com')} />
+                  <PlayerAvatar name={report.playerName} size={40} imageUrl={resolvedPhoto} clickable loading={loadingIds.has(report.playerId)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} />
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-on-surface truncate">{report.playerName}</p>
-                    <p className="text-[0.625rem] text-on-surface-variant font-data">
-                      {report.nationality} | {report.club}
+                    <p className="text-[0.625rem] text-on-surface-variant font-data flex items-center gap-1">
+                      <span>{report.nationality}</span>
+                      <span>|</span>
+                      <ClubDisplay club={report.club} isNationalTeam={report.isNationalTeam} />
                     </p>
                   </div>
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-sm text-[0.625rem] font-data font-medium uppercase border shrink-0 ${rec.className}`}>
@@ -150,7 +183,7 @@ export function ReportsListPage() {
                   </div>
                   <div>
                     <p className="text-[0.625rem] text-on-surface-variant uppercase">{t('common.age')}</p>
-                    <p className="font-data text-sm">{report.birth_date ? formatAge(report.birth_date) : (report.age && report.age > 0 ? String(report.age) : '—')}</p>
+                    <p className="font-data text-sm">{formatAge(report.birth_date)}</p>
                   </div>
                   <div>
                     <p className="text-[0.625rem] text-on-surface-variant uppercase">{t('reportsList.fitScore')}</p>
@@ -203,6 +236,7 @@ export function ReportsListPage() {
             <tbody className="text-sm">
               {reports.map((report, i) => {
                 const rec = recommendation[report.recommendation]
+                const resolvedPhoto = getPhoto({ id: report.playerId, image: report.image })
                 return (
                   <tr
                     key={report.playerId}
@@ -214,7 +248,7 @@ export function ReportsListPage() {
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <PlayerAvatar name={report.playerName} size={40} imageUrl={report.image} clickable aiGenerated={!!report.image && !report.image.includes('thesportsdb.com')} />
+                        <PlayerAvatar name={report.playerName} size={40} imageUrl={resolvedPhoto} clickable loading={loadingIds.has(report.playerId)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} />
                         <div>
                           <p className="font-semibold text-on-surface">{report.playerName}</p>
                           <p className="text-[0.625rem] text-on-surface-variant font-data">
@@ -224,10 +258,10 @@ export function ReportsListPage() {
                       </div>
                     </td>
                     <td className="px-4 py-4 text-center text-sm text-on-surface">
-                      {report.club}
+                      <ClubDisplay club={report.club} isNationalTeam={report.isNationalTeam} />
                     </td>
                     <td className="px-4 py-4 text-center font-data text-on-surface-variant">{report.position}</td>
-                    <td className="px-4 py-4 text-center font-data">{report.birth_date ? formatAge(report.birth_date) : (report.age && report.age > 0 ? String(report.age) : '—')}</td>
+                    <td className="px-4 py-4 text-center font-data">{formatAge(report.birth_date)}</td>
                     <td className="px-4 py-4 text-center">
                       <span className="text-primary font-data font-semibold">{report.fitScore}</span>
                     </td>

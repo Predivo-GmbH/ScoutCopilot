@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../../../lib/supabase'
+import { calculateAge } from '../../../lib/ageUtils'
 import type { MockComparisonPlayer } from '../../../lib/mock-data'
 
 export interface ComparisonVerdict {
@@ -54,7 +55,8 @@ function reportToComparison(row: {
     name: row.player_name,
     club: (d.club as string) ?? '',
     position: (d.position as string) ?? '',
-    age: typeof d.age === 'number' ? d.age : 0,
+    age: calculateAge(d.birth_date as string) ?? (typeof d.age === 'number' ? d.age : 0),
+    birth_date: (d.birth_date as string) ?? undefined,
     nationality: (d.nationality as string) ?? '',
     image: (d.image as string) ?? '',
     metrics: {

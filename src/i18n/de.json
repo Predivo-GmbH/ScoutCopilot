@@ -464,6 +464,9 @@
     "noResultsSub": "Versuchen Sie, Ihre Suchanfrage oder Filter anzupassen",
     "fitScoreTooltip": "KI-Übereinstimmung — wie gut dieser Spieler zu Ihren Suchkriterien passt (0-100)",
     "moreStats": "Weitere Statistiken anzeigen",
+    "expandDetails": "Details einblenden",
+    "collapseDetails": "Details ausblenden",
+    "allStats": "Alle Statistiken",
     "statTooltips": {
       "position": "Primäre Position(en) des Spielers auf dem Spielfeld",
       "age": "Aktuelles Alter des Spielers",
@@ -529,6 +532,7 @@
     "weaknesses": "Schwächen",
     "styleOfPlay": "Spielstil",
     "similarProfiles": "Ähnliche Profile",
+    "hasReport": "Bericht vorhanden",
     "watchlistAlert": "Watchlist-Alarm",
     "noReportYet": "Noch kein Bericht",
     "noReportDesc": "Erstellen Sie einen KI-Scouting-Bericht für diesen Spieler, um sein vollständiges Profil, Statistiken und taktische Analyse zu sehen.",
@@ -551,7 +555,9 @@
     "removeBtn": "Entfernen",
     "badgeSign": "Empfohlen",
     "badgeMonitor": "Beobachten",
-    "badgePass": "Ablehnen"
+    "badgePass": "Ablehnen",
+    "nationalTeam": "Nationalmannschaft",
+    "nationalTeamShort": "NM"
   },
   "comparison": {
     "heading": "Spieler vergleichen",
@@ -903,7 +909,8 @@
     "complete": "Abgeschlossen",
     "processing": "In Bearbeitung",
     "failed": "Fehlgeschlagen",
-    "results": "Ergebnisse"
+    "results": "Ergebnisse",
+    "showMore": "{{remaining}} weitere anzeigen"
   },
   "comparisonSteps": {
     "fetching": "Spielerdaten werden abgerufen...",

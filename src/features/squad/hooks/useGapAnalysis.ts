@@ -41,7 +41,7 @@ function analyzePosition(position: SquadPosition, players: SquadPlayer[], t: (ke
   let ageScore = 100
   if (available.length > 0) {
     const starter = available.reduce((a, b) => a.overallRating > b.overallRating ? a : b)
-    const starterAge = calculateAge(starter.birth_date) ?? starter.age
+    const starterAge = calculateAge(starter.birth_date) ?? 0
     if (starterAge >= 33) { ageScore = 0; reasons.push(t('gapAnalysis.reasons.approachingRetirement', { name: starter.name, age: starterAge })) }
     else if (starterAge >= 30) { ageScore = 40; reasons.push(t('gapAnalysis.reasons.aging', { name: starter.name, age: starterAge })) }
     else if (starterAge >= 27) { ageScore = 70 }
@@ -73,7 +73,7 @@ function analyzePosition(position: SquadPosition, players: SquadPlayer[], t: (ke
     totalScore < 55 ? 'high' :
     totalScore < 75 ? 'medium' : 'low'
 
-  const avgAge = available.length > 0 ? Math.round(available.reduce((s, p) => s + (calculateAge(p.birth_date) ?? p.age), 0) / available.length * 10) / 10 : 0
+  const avgAge = available.length > 0 ? Math.round(available.reduce((s, p) => s + (calculateAge(p.birth_date) ?? 0), 0) / available.length * 10) / 10 : 0
   const searchTerm = t(POSITION_SEARCH_KEY_MAP[position])
   const searchQuery = ageScore < 50 ? `${searchTerm} under 27` : `${searchTerm} under 25`
 

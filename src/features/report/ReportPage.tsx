@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useParams, useLocation, Navigate } from 'react-router-dom'
 import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
@@ -23,6 +23,7 @@ import { AddToWatchlistModal } from '../../components/shared/AddToWatchlistModal
 import { usePlayerReport } from './hooks/usePlayerReport'
 import { useGeneratedReports } from '../../lib/useGeneratedReportsHook'
 import { formatAge } from '../../lib/ageUtils'
+import { usePlayerPhotoFetch, derivePhotoSource } from '../../lib/usePlayerPhotoFetch'
 import type { MockWatchlistPlayer, WatchlistAlert } from '../../lib/mock-data'
 
 export function ReportPage() {
@@ -35,6 +36,27 @@ export function ReportPage() {
   const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
   const [showAlertBanner, setShowAlertBanner] = useState(true)
   const alertContext = (location.state as { alert?: WatchlistAlert } | null)?.alert
+
+  // If navigated here from a similar player link with a player name, auto-generate if needed
+  const similarPlayerName = (location.state as { playerName?: string } | null)?.playerName
+  const autoGenerateTriggered = useRef(false)
+
+  useEffect(() => {
+    if (id && similarPlayerName && !autoGenerateTriggered.current && !hasReport(id) && !isGenerating(id)) {
+      autoGenerateTriggered.current = true
+      generateReport(id, similarPlayerName)
+    }
+  }, [id, similarPlayerName, hasReport, isGenerating, generateReport])
+
+  // On-demand photo fetching for similar players without images
+  const similarPhotoPlayers = useMemo(
+    () => (report?.similarPlayers ?? []).map((sp) => ({
+      id: sp.playerId ?? '',
+      image: sp.image,
+    })).filter((p) => p.id),
+    [report?.similarPlayers],
+  )
+  const { getPhoto: getSimilarPhoto, loadingIds: similarLoadingIds } = usePlayerPhotoFetch(similarPhotoPlayers)
 
   if (!id) return <Navigate to="/players" replace />
 
@@ -131,7 +153,7 @@ export function ReportPage() {
       {/* Player Header */}
       <div className="bg-surface-container rounded-md p-4 sm:p-6 border border-outline-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-4 sm:gap-6">
-          <PlayerAvatar name={report.playerName} size={80} imageUrl={report.image} clickable aiGenerated={!!report.image && !report.image.includes('thesportsdb.com')} />
+          <PlayerAvatar name={report.playerName} size={80} imageUrl={report.image} clickable aiGenerated={!!report.image && derivePhotoSource(report.image) === 'stitch'} />
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-on-surface uppercase">{report.playerName}</h1>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
@@ -143,7 +165,7 @@ export function ReportPage() {
                 </span>
               ))}
               <span className="w-1 h-1 rounded-full bg-outline-variant" />
-              <span className="text-sm text-on-surface-variant">{t('common.age')}: {report.birth_date ? formatAge(report.birth_date) : (report.age > 0 ? String(report.age) : '—')}</span>
+              <span className="text-sm text-on-surface-variant">{t('common.age')}: {formatAge(report.birth_date)}</span>
               <span className="w-1 h-1 rounded-full bg-outline-variant" />
               <span className="text-sm text-on-surface-variant">{report.nationality}</span>
             </div>
@@ -270,25 +292,44 @@ export function ReportPage() {
           {/* Similar Players */}
           <Card header={<SectionLabel>{t('report.similarProfiles')}</SectionLabel>}>
             <div className="space-y-3">
-              {report.similarPlayers.map((p) => (
-                <div
-                  key={p.name}
-                  className="flex items-center justify-between p-3 bg-surface-container-low rounded-md hover:bg-surface-container-high transition-colors cursor-pointer"
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => navigate(p.playerId ? `/players/${p.playerId}` : '/search?q=' + encodeURIComponent(p.name))}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(p.playerId ? `/players/${p.playerId}` : '/search?q=' + encodeURIComponent(p.name)); } }}
-                >
-                  <div className="flex items-center gap-3">
-                    <PlayerAvatar name={p.name} size={40} imageUrl={p.image} clickable aiGenerated={!!p.image && !p.image.includes('thesportsdb.com')} />
-                    <div>
-                      <div className="text-sm font-semibold text-on-surface">{p.name}</div>
-                      <div className="text-[0.625rem] text-on-surface-variant">{p.club} &middot; {p.birth_date ? `${formatAge(p.birth_date)}y` : (p.age ? `${p.age}y` : '\u2014')}</div>
+              {report.similarPlayers.map((p) => {
+                const targetPath = p.playerId ? `/players/${p.playerId}` : undefined
+                const handleClick = () => {
+                  if (targetPath) {
+                    // Navigate to the similar player's report page.
+                    // Pass playerName so the report page can auto-generate if no report exists.
+                    navigate(targetPath, { state: { playerName: p.name } })
+                  }
+                }
+                const resolvedPhoto = p.playerId
+                  ? getSimilarPhoto({ id: p.playerId, image: p.image })
+                  : p.image
+                const isPhotoLoading = p.playerId ? similarLoadingIds.has(p.playerId) : false
+                return (
+                  <div
+                    key={p.playerId ?? p.name}
+                    className={`flex items-center justify-between p-3 bg-surface-container-low rounded-md transition-colors ${targetPath ? 'hover:bg-surface-container-high cursor-pointer' : 'opacity-60'}`}
+                    role={targetPath ? 'button' : undefined}
+                    tabIndex={targetPath ? 0 : undefined}
+                    onClick={handleClick}
+                    onKeyDown={(e) => { if (targetPath && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); handleClick() } }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <PlayerAvatar name={p.name} size={40} imageUrl={resolvedPhoto} clickable={!!targetPath} loading={isPhotoLoading} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} />
+                      <div>
+                        <div className="text-sm font-semibold text-on-surface flex items-center gap-2">
+                          {p.name}
+                          {p.playerId && hasReport(p.playerId) && (
+                            <FileText size={12} strokeWidth={1.5} className="text-secondary" aria-label={t('report.hasReport')} />
+                          )}
+                        </div>
+                        <div className="text-[0.625rem] text-on-surface-variant">{p.club} &middot; {formatAge(p.birth_date) !== '\u2014' ? `${formatAge(p.birth_date)}y` : '\u2014'}</div>
+                      </div>
                     </div>
+                    <div className="font-data text-sm text-primary font-semibold">{p.similarity}%</div>
                   </div>
-                  <div className="font-data text-sm text-primary font-semibold">{p.similarity}%</div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </Card>
         </div>

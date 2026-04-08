@@ -118,8 +118,9 @@ serve(async (req: Request) => {
         .limit(1);
 
       let stats = clubStatsRows?.[0];
+      let isNationalTeam = false;
 
-      // Fallback: if player only has international data, use it but clarify with competition name
+      // Fallback: if player only has international data, use it but flag as national team
       if (!stats) {
         const { data: fallbackRows } = await supabase
           .from("sb_player_season_stats")
@@ -128,9 +129,8 @@ serve(async (req: Request) => {
           .order("season_name", { ascending: false })
           .limit(1);
         stats = fallbackRows?.[0];
-        // Prepend competition context so the team name is unambiguous
         if (stats) {
-          stats.team_name = `${stats.team_name} (${stats.competition_name} ${stats.season_name})`;
+          isNationalTeam = true;
         }
       }
 
@@ -141,6 +141,7 @@ serve(async (req: Request) => {
         position: playerRow?.primary_position ?? "Unknown",
         positions: playerRow?.positions ?? [],
         team: stats?.team_name ?? "Unknown",
+        is_national_team: isNationalTeam,
         league: stats ? `${stats.competition_name} (${stats.season_name})` : "Unknown",
         matches_played: stats?.matches_played ?? 0,
         minutes_played: stats?.minutes_played ?? 0,
@@ -206,13 +207,12 @@ serve(async (req: Request) => {
       enrichedReport.age = Math.floor(
         (Date.now() - new Date(playerStats.birth_date as string).getTime()) / 31557600000
       );
-    } else if (playerStats.age !== undefined) {
-      enrichedReport.age = playerStats.age;
     }
     if (playerStats.nationality !== undefined) enrichedReport.nationality = playerStats.nationality;
     if (playerStats.position !== undefined) enrichedReport.position = playerStats.position;
     if (playerStats.team !== undefined) enrichedReport.team = playerStats.team;
     if (playerStats.league !== undefined) enrichedReport.league = playerStats.league;
+    if (playerStats.is_national_team !== undefined) enrichedReport.is_national_team = playerStats.is_national_team;
 
     // Replace AI-generated similar_players with database-driven similar players
     if (player_external_id.startsWith("sb-open-")) {

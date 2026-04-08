@@ -76,7 +76,7 @@ function SquadDetail({ squad, onBack }: { squad: MockSquad; onBack: () => void }
   const [formation, setFormation] = useState<FormationType>(squad.formation)
 
   const totalPlayers = squad.players.length
-  const avgAge = totalPlayers > 0 ? (squad.players.reduce((s, p) => s + (calculateAge(p.birth_date) ?? p.age), 0) / totalPlayers).toFixed(1) : '0'
+  const avgAge = totalPlayers > 0 ? (squad.players.reduce((s, p) => s + (calculateAge(p.birth_date) ?? 0), 0) / totalPlayers).toFixed(1) : '0'
   const injuredCount = squad.players.filter((p) => p.status === 'injured').length
   const onLoanCount = squad.players.filter((p) => p.status === 'on_loan').length
 

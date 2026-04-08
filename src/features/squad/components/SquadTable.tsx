@@ -1,7 +1,9 @@
+import { useMemo } from 'react'
 import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import { formatAge } from '../../../lib/ageUtils'
+import { usePlayerPhotoFetch, derivePhotoSource } from '../../../lib/usePlayerPhotoFetch'
 import type { SquadPlayer } from '../../../lib/mock-data'
 
 interface SquadTableProps {
@@ -34,6 +36,13 @@ export function SquadTable({ players }: SquadTableProps) {
   const navigate = useLocalizedNavigate()
   const sorted = [...players].sort((a, b) => a.shirtNumber - b.shirtNumber)
 
+  // On-demand photo fetching for squad players without images
+  const photoFetchPlayers = useMemo(
+    () => sorted.map((p) => ({ id: p.id, image: p.image })),
+    [sorted],
+  )
+  const { getPhoto, loadingIds } = usePlayerPhotoFetch(photoFetchPlayers)
+
   return (
     <>
       {/* Mobile card layout */}
@@ -42,6 +51,7 @@ export function SquadTable({ players }: SquadTableProps) {
           const dot = statusDotStyles[player.status]
           const textColor = statusTextStyles[player.status]
           const statusKey = statusKeys[player.status]
+          const resolvedPhoto = getPhoto(player)
           return (
             <div
               key={player.id}
@@ -50,7 +60,7 @@ export function SquadTable({ players }: SquadTableProps) {
             >
               <div className="flex items-center gap-3">
                 <span className="font-data text-on-surface-variant text-xs w-6 text-center shrink-0">{player.shirtNumber}</span>
-                <PlayerAvatar name={player.name} size={36} imageUrl={player.image} clickable aiGenerated={!!player.image && !player.image.includes('thesportsdb.com')} />
+                <PlayerAvatar name={player.name} size={36} imageUrl={resolvedPhoto} clickable loading={loadingIds.has(player.id)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} />
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-on-surface truncate">{player.name}</p>
                   <p className="text-[0.625rem] text-on-surface-variant font-data">{player.nationality}</p>
@@ -110,6 +120,7 @@ export function SquadTable({ players }: SquadTableProps) {
               const dot = statusDotStyles[player.status]
               const textColor = statusTextStyles[player.status]
               const statusKey = statusKeys[player.status]
+              const resolvedPhoto = getPhoto(player)
               return (
                 <tr
                   key={player.id}
@@ -122,7 +133,7 @@ export function SquadTable({ players }: SquadTableProps) {
                   <td className="px-6 py-4 font-data text-on-surface-variant text-xs">{player.shirtNumber}</td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
-                      <PlayerAvatar name={player.name} size={36} imageUrl={player.image} clickable aiGenerated={!!player.image && !player.image.includes('thesportsdb.com')} />
+                      <PlayerAvatar name={player.name} size={36} imageUrl={resolvedPhoto} clickable loading={loadingIds.has(player.id)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} />
                       <div>
                         <p className="font-semibold text-on-surface">{player.name}</p>
                         <p className="text-[0.625rem] text-on-surface-variant font-data">{player.nationality}</p>

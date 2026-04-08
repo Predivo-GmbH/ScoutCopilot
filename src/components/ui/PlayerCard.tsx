@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { cn } from '../../lib/utils'
 import { Badge } from './Badge'
+import { formatAge } from '../../lib/ageUtils'
 
 interface PlayerStat {
   label: string
@@ -11,6 +12,7 @@ interface PlayerCardProps {
   name: string
   position: string
   age: number
+  birth_date?: string
   league: string
   stats?: PlayerStat[]
   fitScore?: number
@@ -38,6 +40,7 @@ function PlayerCard({
   name,
   position,
   age,
+  birth_date,
   league,
   stats,
   fitScore,
@@ -70,7 +73,7 @@ function PlayerCard({
           <div className="flex items-center gap-2 mt-0.5">
             <Badge variant="primary">{position}</Badge>
             <span className="text-[0.75rem] text-on-surface-variant">
-              {age} {t('common.yrs')}
+              {formatAge(birth_date)} {t('common.yrs')}
             </span>
             <span className="text-[0.75rem] text-on-surface-variant">
               {league}

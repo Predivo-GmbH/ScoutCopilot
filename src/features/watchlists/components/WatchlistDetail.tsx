@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, FileText, Trash2 } from 'lucide-react'
@@ -6,6 +6,7 @@ import { Button } from '../../../components/ui/Button'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog'
 import { formatAge } from '../../../lib/ageUtils'
+import { usePlayerPhotoFetch, derivePhotoSource } from '../../../lib/usePlayerPhotoFetch'
 import type { MockWatchlist } from '../../../lib/mock-data'
 
 interface WatchlistDetailProps {
@@ -18,6 +19,13 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
+
+  // On-demand photo fetching for watchlist players without images
+  const photoFetchPlayers = useMemo(
+    () => watchlist.players.map((p) => ({ id: p.id, image: p.image })),
+    [watchlist.players],
+  )
+  const { getPhoto, loadingIds } = usePlayerPhotoFetch(photoFetchPlayers)
 
   const alertStatusStyles: Record<string, { dot: string; text: string; label: string }> = {
     stable: { dot: 'bg-secondary', text: 'text-secondary', label: t('watchlists.stable') },
@@ -60,13 +68,14 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
         <div className="block md:hidden space-y-3">
           {watchlist.players.map((player) => {
             const alert = alertStatusStyles[player.alertStatus]
+            const resolvedPhoto = getPhoto(player)
             return (
               <div
                 key={player.id}
                 className="bg-surface-container rounded-md border border-outline-variant p-4 space-y-3"
               >
                 <div className="flex items-center gap-3">
-                  <PlayerAvatar name={player.name} size={40} imageUrl={player.image} clickable aiGenerated={!!player.image && !player.image.includes('thesportsdb.com')} />
+                  <PlayerAvatar name={player.name} size={40} imageUrl={resolvedPhoto} clickable loading={loadingIds.has(player.id)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} />
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-on-surface truncate">{player.name}</p>
                     <p className="text-[0.625rem] text-on-surface-variant font-data">
@@ -84,7 +93,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
                   </div>
                   <div>
                     <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('common.age')}</p>
-                    <p className="font-data text-sm">{player.birth_date ? formatAge(player.birth_date) : (player.age > 0 ? String(player.age) : '—')}</p>
+                    <p className="font-data text-sm">{formatAge(player.birth_date)}</p>
                   </div>
                   <div>
                     <p className="text-[0.5625rem] text-on-surface-variant uppercase">{player.keyMetric.label}</p>
@@ -141,6 +150,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
             <tbody className="text-sm">
               {watchlist.players.map((player, i) => {
                 const alert = alertStatusStyles[player.alertStatus]
+                const resolvedPhoto = getPhoto(player)
                 return (
                   <tr
                     key={player.id}
@@ -148,7 +158,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <PlayerAvatar name={player.name} size={40} imageUrl={player.image} clickable aiGenerated={!!player.image && !player.image.includes('thesportsdb.com')} />
+                        <PlayerAvatar name={player.name} size={40} imageUrl={resolvedPhoto} clickable loading={loadingIds.has(player.id)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} />
                         <div>
                           <p className="font-semibold text-on-surface">{player.name}</p>
                           <p className="text-[0.625rem] text-on-surface-variant font-data">
@@ -163,7 +173,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
                       </span>
                     </td>
                     <td className="px-4 py-4 text-center font-data text-on-surface-variant">{player.position}</td>
-                    <td className="px-4 py-4 text-center font-data">{player.birth_date ? formatAge(player.birth_date) : (player.age > 0 ? String(player.age) : '—')}</td>
+                    <td className="px-4 py-4 text-center font-data">{formatAge(player.birth_date)}</td>
                     <td className="px-4 py-4 text-center">
                       <div className="flex flex-col">
                         <span className="text-primary font-data font-semibold">{player.keyMetric.value}</span>

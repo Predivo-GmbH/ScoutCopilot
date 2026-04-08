@@ -1,7 +1,8 @@
+import { useState } from 'react'
 import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, Clock, Search, CheckCircle2, Loader2, XCircle, Trash2 } from 'lucide-react'
+import { ArrowLeft, Clock, Search, CheckCircle2, Loader2, XCircle, Trash2, ChevronDown } from 'lucide-react'
 import { useRecentSearches, useDeleteSearch, useDeleteAllSearches } from '../dashboard/hooks/useDashboardData'
 
 function useFormatDate() {
@@ -40,6 +41,8 @@ function StatusBadge({ status }: { status: 'complete' | 'processing' | 'failed' 
   )
 }
 
+const PAGE_SIZE = 20
+
 export function SearchHistoryPage() {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
@@ -47,6 +50,10 @@ export function SearchHistoryPage() {
   const deleteSearch = useDeleteSearch()
   const deleteAllSearches = useDeleteAllSearches()
   const formatDate = useFormatDate()
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+
+  const visibleSearches = searches?.slice(0, visibleCount) ?? []
+  const hasMore = (searches?.length ?? 0) > visibleCount
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
@@ -85,45 +92,56 @@ export function SearchHistoryPage() {
           <span className="sr-only">{t('common.loading', 'Loading...')}</span>
         </div>
       ) : (
-        <div className="space-y-2">
-          {searches?.map((s) => (
-            <div
-              key={s.id}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { if (s.status === 'complete') navigate(`/search?q=${encodeURIComponent(s.query)}&saved=1&sid=${s.id}`) } }}
-              onClick={() => { if (s.status === 'complete') navigate(`/search?q=${encodeURIComponent(s.query)}&saved=1&sid=${s.id}`) }}
-              className={`bg-surface-container border border-outline-variant rounded-md p-4 transition-colors min-h-[44px] group ${
-                s.status === 'complete' ? 'cursor-pointer hover:bg-surface-container-high' : 'opacity-60'
-              }`}
-            >
-              <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
-                <div className="w-10 h-10 rounded-md bg-surface-container-highest flex items-center justify-center shrink-0">
-                  <Search size={16} strokeWidth={1.5} className="text-on-surface-variant" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-on-surface truncate">{s.query}</p>
-                  <div className="flex items-center gap-3 mt-1 flex-wrap">
-                    <span className="text-[0.625rem] font-data text-on-surface-variant">{formatDate(s.timestamp)}</span>
-                    <span className="w-1 h-1 rounded-full bg-outline-variant" />
-                    <StatusBadge status={s.status} />
+        <>
+          <div className="space-y-2">
+            {visibleSearches.map((s) => (
+              <div
+                key={s.id}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { if (s.status === 'complete') navigate(`/search?q=${encodeURIComponent(s.query)}&saved=1&sid=${s.id}`) } }}
+                onClick={() => { if (s.status === 'complete') navigate(`/search?q=${encodeURIComponent(s.query)}&saved=1&sid=${s.id}`) }}
+                className={`bg-surface-container border border-outline-variant rounded-md p-4 transition-colors min-h-[44px] group ${
+                  s.status === 'complete' ? 'cursor-pointer hover:bg-surface-container-high' : 'opacity-60'
+                }`}
+              >
+                <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
+                  <div className="w-10 h-10 rounded-md bg-surface-container-highest flex items-center justify-center shrink-0">
+                    <Search size={16} strokeWidth={1.5} className="text-on-surface-variant" />
                   </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-on-surface truncate">{s.query}</p>
+                    <div className="flex items-center gap-3 mt-1 flex-wrap">
+                      <span className="text-[0.625rem] font-data text-on-surface-variant">{formatDate(s.timestamp)}</span>
+                      <span className="w-1 h-1 rounded-full bg-outline-variant" />
+                      <StatusBadge status={s.status} />
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-lg font-data font-bold text-on-surface">{s.resultCount}</p>
+                    <p className="text-[0.625rem] font-data text-on-surface-variant">{t('searchHistory.results')}</p>
+                  </div>
+                  <button
+                    aria-label={t('search.deleteQuery')}
+                    className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-sm text-on-surface-variant/50 hover:text-error hover:bg-error/10 transition-all min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0"
+                    onClick={(e) => { e.stopPropagation(); deleteSearch.mutate(s.id) }}
+                  >
+                    <Trash2 size={16} strokeWidth={1.5} />
+                  </button>
                 </div>
-                <div className="text-right shrink-0">
-                  <p className="text-lg font-data font-bold text-on-surface">{s.resultCount}</p>
-                  <p className="text-[0.625rem] font-data text-on-surface-variant">{t('searchHistory.results')}</p>
-                </div>
-                <button
-                  aria-label={t('search.deleteQuery')}
-                  className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-sm text-on-surface-variant/50 hover:text-error hover:bg-error/10 transition-all min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0"
-                  onClick={(e) => { e.stopPropagation(); deleteSearch.mutate(s.id) }}
-                >
-                  <Trash2 size={16} strokeWidth={1.5} />
-                </button>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+          {hasMore && (
+            <button
+              onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+              className="mt-4 w-full text-[0.625rem] font-bold uppercase tracking-widest text-primary hover:text-primary-light transition-colors min-h-[44px] flex items-center justify-center gap-1.5 bg-surface-container border border-outline-variant rounded-md"
+            >
+              <ChevronDown size={14} strokeWidth={1.5} />
+              {t('searchHistory.showMore', { remaining: (searches?.length ?? 0) - visibleCount })}
+            </button>
+          )}
+        </>
       )}
     </div>
   )

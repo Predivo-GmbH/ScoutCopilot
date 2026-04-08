@@ -1,6 +1,7 @@
 import { useCallback, type ReactNode } from 'react'
 import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from './supabase'
+import { calculateAge } from './ageUtils'
 import type { MockWatchlist, MockWatchlistPlayer } from './mock-data'
 import { WatchlistContext } from './WatchlistContextDef'
 
@@ -152,7 +153,7 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
           player_data: {
             club: player.club,
             position: player.position,
-            age: player.age,
+            age: calculateAge(player.birth_date) ?? player.age,
             birth_date: player.birth_date,
             nationality: player.nationality,
             image: player.image,

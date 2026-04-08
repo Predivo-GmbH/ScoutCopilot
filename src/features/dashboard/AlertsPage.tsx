@@ -1,14 +1,23 @@
+import { useMemo } from 'react'
 import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Zap } from 'lucide-react'
 import { useWatchlistAlerts } from './hooks/useDashboardData'
 import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
+import { usePlayerPhotoFetch, derivePhotoSource } from '../../lib/usePlayerPhotoFetch'
 
 export function AlertsPage() {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
   const { data: alerts, isLoading } = useWatchlistAlerts()
+
+  // On-demand photo fetching for alert players without images
+  const alertPhotoPlayers = useMemo(
+    () => (alerts ?? []).map((a) => ({ id: a.playerId, image: a.imageUrl })),
+    [alerts],
+  )
+  const { getPhoto, loadingIds } = usePlayerPhotoFetch(alertPhotoPlayers)
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
@@ -45,6 +54,7 @@ export function AlertsPage() {
         <div className="space-y-3">
           {alerts?.map((alert) => {
             const borderColor = alert.changeType === 'warning' ? 'border-l-warning' : alert.changeType === 'positive' ? 'border-l-tertiary' : 'border-l-outline-variant'
+            const resolvedPhoto = getPhoto({ id: alert.playerId, image: alert.imageUrl })
             return (
               <div
                 key={alert.id}
@@ -55,7 +65,7 @@ export function AlertsPage() {
                 className="bg-surface-container border border-outline-variant rounded-md p-4 cursor-pointer hover:bg-surface-container-high transition-colors min-h-[44px]"
               >
                 <div className="flex items-start sm:items-center gap-3 sm:gap-4">
-                  <PlayerAvatar name={alert.playerName} size={44} imageUrl={alert.imageUrl} clickable aiGenerated={!!alert.imageUrl && !alert.imageUrl.includes('thesportsdb.com')} />
+                  <PlayerAvatar name={alert.playerName} size={44} imageUrl={resolvedPhoto} clickable loading={loadingIds.has(alert.playerId)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} />
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mb-1">
                       <h4 className="text-sm font-bold text-on-surface">{alert.playerName}</h4>

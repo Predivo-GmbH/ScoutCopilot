@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react'
 import { useDashboardStats, useRecentSearches, useWatchlistAlerts, useDeleteSearch, useDeleteAllSearches } from './hooks/useDashboardData'
 import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
+import { usePlayerPhotoFetch, derivePhotoSource } from '../../lib/usePlayerPhotoFetch'
 
 export function DashboardPage() {
   const { t } = useTranslation()
@@ -22,6 +24,13 @@ export function DashboardPage() {
   const deleteSearch = useDeleteSearch()
   const deleteAllSearches = useDeleteAllSearches()
   const { data: alerts, isLoading: alertsLoading } = useWatchlistAlerts()
+
+  // On-demand photo fetching for alert players without images
+  const alertPhotoPlayers = useMemo(
+    () => (alerts ?? []).map((a) => ({ id: a.playerId, image: a.imageUrl })),
+    [alerts],
+  )
+  const { getPhoto: getAlertPhoto, loadingIds: alertLoadingIds } = usePlayerPhotoFetch(alertPhotoPlayers)
 
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-8">
@@ -215,6 +224,7 @@ export function DashboardPage() {
                 <div className="p-2 space-y-2">
                   {alerts?.slice(0, 4).map((alert) => {
                     const borderColor = alert.changeType === 'warning' ? 'border-l-warning' : 'border-l-tertiary'
+                    const resolvedPhoto = getAlertPhoto({ id: alert.playerId, image: alert.imageUrl })
                     return (
                       <div
                         key={alert.id}
@@ -225,7 +235,7 @@ export function DashboardPage() {
                         className="p-3 rounded-sm border border-outline-variant/50 cursor-pointer hover:bg-surface-container-high transition-colors"
                       >
                         <div className="flex items-center gap-3 mb-1.5">
-                          <PlayerAvatar name={alert.playerName} size={36} imageUrl={alert.imageUrl} clickable aiGenerated={!!alert.imageUrl && !alert.imageUrl.includes('thesportsdb.com')} />
+                          <PlayerAvatar name={alert.playerName} size={36} imageUrl={resolvedPhoto} clickable loading={alertLoadingIds.has(alert.playerId)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} />
                           <div className="flex-1 min-w-0">
                             <h4 className="text-sm font-bold text-on-surface leading-tight">{alert.playerName}</h4>
                             <p className="text-[0.625rem] font-data text-on-surface-variant">{alert.club}</p>
