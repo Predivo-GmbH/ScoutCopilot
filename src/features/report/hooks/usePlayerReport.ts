@@ -96,15 +96,18 @@ function mapDbToReport(row: {
       ? (rd.transfer_history as Array<Record<string, unknown>>).map((t) => ({
           club: (t.club as string) ?? '',
           date: (t.date as string) ?? '',
-          fee: (t.fee as string) ?? 'Unknown',
+          fee: (t.fee as string) ?? (t.role as string) ?? 'Unknown',
         }))
       : [],
-    contractInfo: {
-      value: ((rd.contract_info as Record<string, unknown>)?.estimated_value as string) ?? '-',
-      until: ((rd.contract_info as Record<string, unknown>)?.contract_status as string) ?? '-',
-      wage: '-',
-      agent: ((rd.contract_info as Record<string, unknown>)?.agent as string) ?? '-',
-    },
+    contractInfo: (() => {
+      const ci = (rd.contract_info as Record<string, unknown>) ?? {}
+      return {
+        value: (ci.estimated_value as string) ?? (ci.current_club as string) ?? '-',
+        until: (ci.contract_status as string) ?? (ci.contract_end as string) ?? '-',
+        wage: (ci.wage as string) ?? '-',
+        agent: (ci.agent as string) ?? (ci.contract_start ? `Since ${ci.contract_start}` : '-'),
+      }
+    })(),
   }
 }
 

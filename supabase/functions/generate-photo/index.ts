@@ -280,17 +280,21 @@ serve(async (req: Request) => {
         photoUrl = null;
       }
 
-      if (photoUrl) {
-        const updateFields: Record<string, unknown> = { photo_url: photoUrl };
-        if (sportsDbResult.dateBorn) {
-          const parsed = new Date(sportsDbResult.dateBorn);
-          if (!isNaN(parsed.getTime())) {
-            updateFields.birth_date = sportsDbResult.dateBorn;
-          }
+      // Always persist birth_date when TheSportsDB returns it, regardless of photo
+      if (sportsDbResult.dateBorn) {
+        const parsed = new Date(sportsDbResult.dateBorn);
+        if (!isNaN(parsed.getTime())) {
+          await supabase
+            .from("sb_players")
+            .update({ birth_date: sportsDbResult.dateBorn })
+            .eq("player_id", p.player_id);
         }
+      }
+
+      if (photoUrl) {
         await supabase
           .from("sb_players")
-          .update(updateFields)
+          .update({ photo_url: photoUrl })
           .eq("player_id", p.player_id);
 
         const source = photoUrl.includes("thesportsdb.com") ? "sportsdb" : "stitch";

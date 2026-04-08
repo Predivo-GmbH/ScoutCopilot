@@ -108,7 +108,7 @@ serve(async (req: Request) => {
         .single();
 
       // Exclude international competitions to get the player's club team
-      const INTL_COMP_IDS = [43, 11, 55, 53, 72]; // FIFA WC, FIFA WWC, Euro, Women's Euro, Women's Olympics
+      const INTL_COMP_IDS = [43, 55, 53, 72]; // FIFA WC, Euro, Women's Euro, Women's Olympics
       const { data: clubStatsRows } = await supabase
         .from("sb_player_season_stats")
         .select("*")
@@ -232,7 +232,8 @@ serve(async (req: Request) => {
     try {
       const transferData = await fetchTransferAndContractData(
         player_name,
-        auth.organizationId
+        auth.organizationId,
+        (playerStats.nationality as string) ?? undefined
       );
       if (transferData.transfer_history.length > 0) {
         enrichedReport.transfer_history = transferData.transfer_history;
@@ -348,11 +349,14 @@ interface SportsDbContract {
 interface SportsDbPlayerSearchResult {
   idPlayer?: string;
   strPlayer?: string;
+  strNationality?: string;
+  strSport?: string;
 }
 
 async function fetchTransferAndContractData(
   playerName: string,
-  organizationId?: string
+  organizationId?: string,
+  playerNationality?: string
 ): Promise<{
   transfer_history: TransferHistoryEntry[];
   contract_info: ContractInfo | null;
@@ -382,8 +386,34 @@ async function fetchTransferAndContractData(
       throw new Error("Player not found on TheSportsDB");
     }
 
-    const idPlayer = players[0].idPlayer;
-    console.log(`[TransferData] Found idPlayer=${idPlayer} for "${players[0].strPlayer}"`);
+    // Disambiguate: pick best match instead of blindly using players[0]
+    const soccerPlayers = players.filter(
+      (p) => p.idPlayer && (!p.strSport || p.strSport === "Soccer")
+    );
+    const candidates = soccerPlayers.length > 0 ? soccerPlayers : players;
+
+    const nameNorm = stripAccents(playerName).toLowerCase().trim();
+    let bestMatch = candidates[0];
+
+    // Prefer exact name match (case-insensitive, accent-stripped)
+    const exactMatch = candidates.find(
+      (p) => stripAccents(p.strPlayer ?? "").toLowerCase().trim() === nameNorm
+    );
+    if (exactMatch) {
+      bestMatch = exactMatch;
+    } else if (playerNationality) {
+      // Cross-reference nationality if no exact name match
+      const natNorm = playerNationality.toLowerCase().trim();
+      const natMatch = candidates.find(
+        (p) => p.strNationality?.toLowerCase().trim() === natNorm
+      );
+      if (natMatch) {
+        bestMatch = natMatch;
+      }
+    }
+
+    const idPlayer = bestMatch.idPlayer!;
+    console.log(`[TransferData] Found idPlayer=${idPlayer} for "${bestMatch.strPlayer}" (from ${candidates.length} candidates)`);
 
     // Step 2: Fetch former teams and contracts in parallel
     const [formerTeamsRes, contractsRes] = await Promise.all([

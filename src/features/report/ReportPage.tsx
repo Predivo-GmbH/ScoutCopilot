@@ -216,7 +216,9 @@ export function ReportPage() {
           </Card>
 
           {/* Transfer History + Contract */}
+          {(report.transferHistory.length > 0 || Object.values(report.contractInfo).some((v) => v !== '-' && v !== '')) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {report.transferHistory.length > 0 && (
             <Card header={<SectionLabel>{t('report.transferHistory')}</SectionLabel>}>
               <div className="relative space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-px before:bg-outline-variant">
                 {report.transferHistory.map((tr, i) => (
@@ -228,7 +230,9 @@ export function ReportPage() {
                 ))}
               </div>
             </Card>
+            )}
 
+            {Object.values(report.contractInfo).some((v) => v !== '-' && v !== '') && (
             <Card header={<SectionLabel>{t('report.contractOverview')}</SectionLabel>}>
               <div className="grid grid-cols-2 gap-y-6">
                 {Object.entries(report.contractInfo).map(([key, value]) => (
@@ -239,7 +243,9 @@ export function ReportPage() {
                 ))}
               </div>
             </Card>
+            )}
           </div>
+          )}
         </div>
 
         {/* Right Column (40%) */}
