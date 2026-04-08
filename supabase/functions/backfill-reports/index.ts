@@ -85,27 +85,49 @@ serve(async (req: Request) => {
   }
 
   try {
-    const auth = await getAuthContext(req);
-
-    // Only owners/admins can run backfill
-    if (auth.role !== "owner" && auth.role !== "admin") {
-      return new Response(
-        JSON.stringify({ error: "Only owners and admins can run backfill" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     const body = await req.json().catch(() => ({}));
     const dryRun = body.dry_run === true;
 
     const supabase = getServiceClient();
 
-    // Fetch all reports for this organization
-    const { data: reports, error: fetchError } = await supabase
+    // Accept either a user JWT (owner/admin) or the service_role key
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const token = authHeader.replace("Bearer ", "");
+
+    let orgFilter: string | null = null;
+
+    // Decode JWT payload to check role
+    let isServiceRole = false;
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      isServiceRole = payload.role === "service_role";
+    } catch { /* not a valid JWT */ }
+
+    if (isServiceRole) {
+      console.log("[backfill] Called with service_role key — processing all orgs");
+    } else {
+      // Called with user JWT — scope to their org
+      const auth = await getAuthContext(req);
+      if (auth.role !== "owner" && auth.role !== "admin") {
+        return new Response(
+          JSON.stringify({ error: "Only owners and admins can run backfill" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      orgFilter = auth.organizationId;
+    }
+
+    // Fetch reports (scoped to org if user JWT, all if service_role)
+    let query = supabase
       .from("player_reports")
       .select("id, player_external_id, player_name, report_data")
-      .eq("organization_id", auth.organizationId)
       .order("created_at", { ascending: false });
+
+    if (orgFilter) {
+      query = query.eq("organization_id", orgFilter);
+    }
+
+    const { data: reports, error: fetchError } = await query;
 
     if (fetchError) {
       return new Response(
