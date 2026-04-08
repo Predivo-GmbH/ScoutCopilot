@@ -39,7 +39,7 @@ function getInitials(name: string): string {
 function PlayerCard({
   name,
   position,
-  age,
+  age: _age,
   birth_date,
   league,
   stats,
