@@ -1,15 +1,12 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
-import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, FileText, Loader2, Eye, Search as SearchIcon, ChevronDown, ChevronUp } from 'lucide-react'
+import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, FileText, Loader2, Eye, Search as SearchIcon } from 'lucide-react'
 import type { MockPlayer } from '../../../lib/mock-data'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import { useGeneratedReports } from '../../../lib/useGeneratedReportsHook'
 
 const PAGE_SIZE = 8
-
-// Key stats always visible in desktop table view (max 6)
-const KEY_STAT_LABELS = new Set(['Goals', 'Assists', 'xG', 'Pass %', 'Apps', 'Mins'])
 
 interface SearchResultsTableProps {
   results: MockPlayer[]
@@ -79,8 +76,6 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
   }
 
   const allStatKeys = Object.keys(results[0]?.stats ?? {})
-  const keyStatKeys = allStatKeys.filter((k) => KEY_STAT_LABELS.has(k))
-  const extraStatKeys = allStatKeys.filter((k) => !KEY_STAT_LABELS.has(k))
   const totalPages = Math.ceil(results.length / PAGE_SIZE)
   const paged = results.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
   const showFrom = (page - 1) * PAGE_SIZE + 1
@@ -126,11 +121,10 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
 
       {/* Content */}
       {viewMode === 'table' ? (
-        <DesktopTable
+        <DesktopCardRows
           paged={paged}
           page={page}
-          keyStatKeys={keyStatKeys}
-          extraStatKeys={extraStatKeys}
+          allStatKeys={allStatKeys}
           photoLoadingIds={photoLoadingIds}
           navigate={navigate}
           hasReport={hasReport}
@@ -232,11 +226,10 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
   )
 }
 
-function DesktopTable({ paged, page, keyStatKeys, extraStatKeys, photoLoadingIds, navigate, hasReport, isGenerating, generateReport, t }: {
+function DesktopCardRows({ paged, page, allStatKeys, photoLoadingIds, navigate, hasReport, isGenerating, generateReport, t }: {
   paged: MockPlayer[]
   page: number
-  keyStatKeys: string[]
-  extraStatKeys: string[]
+  allStatKeys: string[]
   photoLoadingIds?: Set<string>
   navigate: (path: string) => void
   hasReport: (id: string) => boolean
@@ -244,152 +237,70 @@ function DesktopTable({ paged, page, keyStatKeys, extraStatKeys, photoLoadingIds
   generateReport: (id: string) => void
   t: (key: string) => string
 }) {
-  const [expandedId, setExpandedId] = useState<string | null>(null)
-  const hasExtra = extraStatKeys.length > 0
-  // Total columns: # + Player + Position + Age + League + keyStats + Match Score + Report + (expand toggle if extra)
-  const totalCols = 6 + keyStatKeys.length + (hasExtra ? 1 : 0) + 1
-
   return (
-    <div>
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="bg-surface-container-high border-b border-outline-variant">
-            <th className="px-3 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant w-8">#</th>
-            <th className="px-3 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant min-w-[180px]">{t('common.player')}</th>
-            <th className="px-2 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap">{t('common.position')}</th>
-            <th className="px-2 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap">{t('common.age')}</th>
-            <th className="px-2 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap">{t('common.league')}</th>
-            {keyStatKeys.map((key) => (
-              <th key={key} className="px-2 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant text-right whitespace-nowrap">
-                {key}
-              </th>
-            ))}
-            <th className="px-3 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant w-36">{t('search.matchScore')}</th>
-            <th className="px-2 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant text-center whitespace-nowrap">{t('common.report')}</th>
-            {hasExtra && (
-              <th className="px-2 py-3 text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant text-center w-10" />
-            )}
-          </tr>
-        </thead>
-        <tbody className="text-sm">
-          {paged.map((player, i) => {
-            const globalIndex = (page - 1) * PAGE_SIZE + i
-            const rowBg = globalIndex % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'
-            const isExpanded = expandedId === player.id
-            return (
-              <DesktopTableRow
-                key={player.id}
-                player={player}
-                globalIndex={globalIndex}
-                rowBg={rowBg}
-                keyStatKeys={keyStatKeys}
-                extraStatKeys={extraStatKeys}
-                hasExtra={hasExtra}
-                totalCols={totalCols}
-                isExpanded={isExpanded}
-                onToggleExpand={() => setExpandedId(isExpanded ? null : player.id)}
-                photoLoadingIds={photoLoadingIds}
-                navigate={navigate}
-                hasReport={hasReport}
-                isGenerating={isGenerating}
-                generateReport={generateReport}
-              />
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
-function DesktopTableRow({ player, globalIndex, rowBg, keyStatKeys, extraStatKeys, hasExtra, totalCols, isExpanded, onToggleExpand, photoLoadingIds, navigate, hasReport, isGenerating, generateReport }: {
-  player: MockPlayer
-  globalIndex: number
-  rowBg: string
-  keyStatKeys: string[]
-  extraStatKeys: string[]
-  hasExtra: boolean
-  totalCols: number
-  isExpanded: boolean
-  onToggleExpand: () => void
-  photoLoadingIds?: Set<string>
-  navigate: (path: string) => void
-  hasReport: (id: string) => boolean
-  isGenerating: (id: string) => boolean
-  generateReport: (id: string) => void
-}) {
-  const { t } = useTranslation()
-  return (
-    <>
-      <tr
-        tabIndex={0}
-        role="link"
-        onClick={() => navigate(`/players/${player.id}`)}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/players/${player.id}`) } }}
-        className={`${rowBg} border-b border-outline-variant/30 hover:bg-surface-variant/50 transition-colors cursor-pointer group focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1`}
-      >
-        <td className={`px-3 py-3 font-data text-on-surface-variant text-xs`}>{globalIndex + 1}</td>
-        <td className="px-3 py-3">
-          <div className="flex items-center gap-2">
-            <PlayerAvatarWithFlag name={player.name} nationality={player.nationality} imageUrl={player.image} photoSource={player.photoSource} loading={photoLoadingIds?.has(player.id)} />
-            <div className="min-w-0">
-              <div className="font-bold text-on-surface text-[0.8125rem] truncate">{player.name}</div>
-              <div className="text-[0.5625rem] text-on-surface-variant flex items-center gap-1">
-                <span className="uppercase tracking-tight truncate">{player.club}</span>
+    <div className="divide-y divide-outline-variant/30">
+      {paged.map((player, i) => {
+        const globalIndex = (page - 1) * PAGE_SIZE + i
+        const rowBg = globalIndex % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'
+        return (
+          <div
+            key={player.id}
+            role="link"
+            tabIndex={0}
+            onClick={() => navigate(`/players/${player.id}`)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/players/${player.id}`) } }}
+            className={`${rowBg} px-4 sm:px-6 py-4 hover:bg-surface-variant/50 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1`}
+          >
+            {/* Top section: Player identity + meta */}
+            <div className="flex items-start gap-3 mb-3">
+              <span className="text-[0.625rem] font-data text-on-surface-variant pt-1 min-w-[1.25rem] text-right">{globalIndex + 1}</span>
+              <PlayerAvatarWithFlag name={player.name} nationality={player.nationality} imageUrl={player.image} photoSource={player.photoSource} loading={photoLoadingIds?.has(player.id)} />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-bold text-on-surface text-[0.8125rem]">{player.name}</span>
+                  <div className="flex gap-0.5">
+                    {player.position.split(', ').map((pos) => (
+                      <span key={pos} className="text-[0.5625rem] font-data bg-surface-container-highest text-on-surface px-1 py-0.5 rounded-sm whitespace-nowrap" title={t('search.statTooltips.position')}>
+                        {pos}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="text-[0.5625rem] text-on-surface-variant uppercase tracking-tight">{player.club}</div>
+              </div>
+              <div className="text-right text-[0.6875rem] text-on-surface-variant shrink-0 space-y-0.5">
+                <div title={t('search.statTooltips.age')}><span className="uppercase tracking-widest text-[0.5625rem] font-bold">{t('common.age')}:</span> {player.age > 0 ? player.age : '\u2014'}</div>
+                <div className="truncate max-w-[160px]" title={t('search.statTooltips.league')}><span className="uppercase tracking-widest text-[0.5625rem] font-bold">{t('common.league')}:</span> {player.league}</div>
+                <div><span className="uppercase tracking-widest text-[0.5625rem] font-bold">{t('csv.nationality')}:</span> {player.nationality}</div>
               </div>
             </div>
-          </div>
-        </td>
-        <td className="px-2 py-3">
-          <div className="flex gap-0.5">
-            {player.position.split(', ').map((pos) => (
-              <span key={pos} className="text-[0.5625rem] font-data bg-surface-container-highest text-on-surface px-1 py-0.5 rounded-sm whitespace-nowrap">
-                {pos}
-              </span>
-            ))}
-          </div>
-        </td>
-        <td className="px-2 py-3 font-data text-xs">{player.age > 0 ? player.age : '\u2014'}</td>
-        <td className="px-2 py-3 text-on-surface-variant text-[0.6875rem] whitespace-nowrap max-w-[120px] truncate">{player.league}</td>
-        {keyStatKeys.map((key) => (
-          <td key={key} className="px-2 py-3 font-data text-xs text-right text-on-surface-variant whitespace-nowrap">
-            {player.stats[key] ?? '\u2014'}
-          </td>
-        ))}
-        <td className="px-3 py-3">
-          <FitScoreBar score={player.fitScore} />
-        </td>
-        <td className="px-2 py-3 text-center">
-          <ReportButton playerId={player.id} hasReport={hasReport} isGenerating={isGenerating} generateReport={generateReport} navigate={navigate} />
-        </td>
-        {hasExtra && (
-          <td className="px-2 py-3 text-center">
-            <button
-              onClick={(e) => { e.stopPropagation(); onToggleExpand() }}
-              className="p-1 rounded-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
-              aria-label={t('search.moreStats')}
-              title={t('search.moreStats')}
-            >
-              {isExpanded ? <ChevronUp size={14} strokeWidth={1.5} /> : <ChevronDown size={14} strokeWidth={1.5} />}
-            </button>
-          </td>
-        )}
-      </tr>
-      {isExpanded && hasExtra && (
-        <tr className={`${rowBg} border-b border-outline-variant/30`}>
-          <td colSpan={totalCols} className="px-4 py-3">
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-x-6 gap-y-2">
-              {extraStatKeys.map((key) => (
-                <div key={key} className="flex justify-between items-center gap-2">
-                  <span className="text-[0.5625rem] uppercase tracking-widest text-on-surface-variant">{key}</span>
-                  <span className="font-data text-xs text-on-surface">{player.stats[key] ?? '\u2014'}</span>
-                </div>
-              ))}
+
+            {/* Stats grid — all stats, wrapping flex */}
+            <div className="border-t border-outline-variant/20 pt-2 mb-3">
+              <div className="flex flex-wrap gap-x-4 gap-y-1">
+                {allStatKeys.map((key) => (
+                  <div key={key} className="flex items-center gap-1.5" title={t(`search.statTooltips.${key}`, key)}>
+                    <span className="text-[0.5625rem] uppercase tracking-widest text-on-surface-variant font-bold cursor-help">{key}</span>
+                    <span className="font-data text-xs text-on-surface">{player.stats[key] ?? '\u2014'}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </td>
-        </tr>
-      )}
-    </>
+
+            {/* Bottom section: Match score + report */}
+            <div className="border-t border-outline-variant/20 pt-2 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-[0.5625rem] uppercase tracking-widest text-on-surface-variant font-bold">{t('search.matchScore')}</span>
+                <div className="w-32">
+                  <FitScoreBar score={player.fitScore} />
+                </div>
+              </div>
+              <ReportButton playerId={player.id} hasReport={hasReport} isGenerating={isGenerating} generateReport={generateReport} navigate={navigate} />
+            </div>
+          </div>
+        )
+      })}
+    </div>
   )
 }
 

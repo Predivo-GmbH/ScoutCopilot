@@ -174,8 +174,8 @@ export function usePlayerSearch() {
           }
         )
       }
-    } catch (error) {
-      console.warn('Photo fetch failed:', error)
+    } catch {
+      // Non-blocking: photos will appear next time
     } finally {
       setPhotoLoadingIds(new Set())
     }

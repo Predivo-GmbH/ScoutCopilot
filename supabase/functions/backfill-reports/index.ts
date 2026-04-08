@@ -61,8 +61,6 @@ function calcAge(dateBorn: string): number | null {
 /** Fields from generateScoutingReport that we consider backfillable */
 const REPORT_FIELDS = ["transfer_history", "contract_info", "similar_players"] as const;
 
-/** Metadata fields we also enrich */
-const METADATA_FIELDS = ["image", "age"] as const;
 
 interface BackfillResult {
   report_id: string;
