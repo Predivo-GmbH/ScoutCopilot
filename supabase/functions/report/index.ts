@@ -241,6 +241,21 @@ serve(async (req: Request) => {
       if (transferData.contract_info) {
         enrichedReport.contract_info = transferData.contract_info;
       }
+      // Fill in birth_date from TheSportsDB if not already in the DB
+      if (!enrichedReport.birth_date && transferData.dateBorn) {
+        enrichedReport.birth_date = transferData.dateBorn;
+        enrichedReport.age = Math.floor(
+          (Date.now() - new Date(transferData.dateBorn).getTime()) / 31557600000
+        );
+        // Also persist to sb_players for future lookups
+        if (player_external_id.startsWith("sb-open-")) {
+          const rawId = parseInt(player_external_id.replace("sb-open-", ""), 10);
+          await supabase
+            .from("sb_players")
+            .update({ birth_date: transferData.dateBorn })
+            .eq("player_id", rawId);
+        }
+      }
     } catch (transferErr) {
       console.error("Transfer/contract data fetch failed:", (transferErr as Error).message);
       // Non-fatal: report still saves without transfer data
@@ -351,6 +366,7 @@ interface SportsDbPlayerSearchResult {
   strPlayer?: string;
   strNationality?: string;
   strSport?: string;
+  dateBorn?: string;
 }
 
 async function fetchTransferAndContractData(
@@ -360,10 +376,12 @@ async function fetchTransferAndContractData(
 ): Promise<{
   transfer_history: TransferHistoryEntry[];
   contract_info: ContractInfo | null;
+  dateBorn: string | null;
 }> {
   const result = {
     transfer_history: [] as TransferHistoryEntry[],
     contract_info: null as ContractInfo | null,
+    dateBorn: null as string | null,
   };
 
   try {
@@ -413,6 +431,7 @@ async function fetchTransferAndContractData(
     }
 
     const idPlayer = bestMatch.idPlayer!;
+    result.dateBorn = bestMatch.dateBorn ?? null;
     console.log(`[TransferData] Found idPlayer=${idPlayer} for "${bestMatch.strPlayer}" (from ${candidates.length} candidates)`);
 
     // Step 2: Fetch former teams and contracts in parallel
