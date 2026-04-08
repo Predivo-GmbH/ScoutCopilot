@@ -5,7 +5,8 @@
 
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { handleCors } from "../_shared/cors.ts";
-import { getServiceClient } from "../_shared/auth.ts";
+import { AuthError, getAuthContext, getServiceClient } from "../_shared/auth.ts";
+import { checkRateLimit } from "../_shared/rate-limiter.ts";
 
 const SPORTSDB_BASE = "https://www.thesportsdb.com/api/v1/json/3";
 const STITCH_MCP_URL = "https://stitch.googleapis.com/mcp";
@@ -35,7 +36,7 @@ interface SportsDbResult {
 
 async function fetchFromSportsDb(playerName: string): Promise<SportsDbResult> {
   const empty: SportsDbResult = { photoUrl: null, dateBorn: null, strHeight: null, strWeight: null };
-  const safeName = stripAccents(playerName);
+  const safeName = stripAccents(playerName).slice(0, 100);
   const url = `${SPORTSDB_BASE}/searchplayers.php?p=${encodeURIComponent(safeName)}`;
   console.log(`[SportsDB] Searching for "${safeName}"…`);
 
@@ -160,10 +161,28 @@ serve(async (req: Request) => {
     });
   }
 
-  const stitchApiKey = Deno.env.get("STITCH_API_KEY");
-  const stitchProjectId = Deno.env.get("STITCH_PROJECT_ID");
-
   try {
+    // Auth
+    const auth = await getAuthContext(req);
+
+    // Rate limit: 10 requests/minute per organization
+    const { allowed, retryAfterMs } = checkRateLimit(auth.organizationId, 10 / 60, 10);
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": String(Math.ceil(retryAfterMs / 1000)),
+          },
+        }
+      );
+    }
+
+    const stitchApiKey = Deno.env.get("STITCH_API_KEY");
+    const stitchProjectId = Deno.env.get("STITCH_PROJECT_ID");
     const body = await req.json().catch(() => ({}));
     const playerIds: number[] = body.player_ids ?? [];
 
@@ -204,22 +223,43 @@ serve(async (req: Request) => {
     // Check if caller wants metadata even for players with photos
     const needsMetadata = body.include_metadata === true;
 
+    // Separate players that need SportsDB lookups from those that can be skipped
+    const skipPlayers: typeof players = [];
+    const lookupPlayers: typeof players = [];
+
     for (const p of players ?? []) {
       if (p.photo_url && !needsMetadata) {
         results.push({ player_id: p.player_id, status: "already_has_photo", photo_url: p.photo_url });
-        continue;
+        skipPlayers.push(p);
+      } else {
+        lookupPlayers.push(p);
       }
-      if (p.photo_url && needsMetadata) {
-        // Already has photo but caller wants metadata — fetch from SportsDB for metadata only
+    }
+
+    // Fetch TheSportsDB data in parallel for all players that need it
+    const sportsDbResults = await Promise.allSettled(
+      lookupPlayers.map((p) => {
         const displayName = p.player_nickname ?? p.player_name;
-        const metaResult = await fetchFromSportsDb(displayName);
+        return fetchFromSportsDb(displayName);
+      })
+    );
+
+    // Process results, using Stitch fallback sequentially where needed
+    for (let i = 0; i < lookupPlayers.length; i++) {
+      const p = lookupPlayers[i];
+      const settled = sportsDbResults[i];
+      const sportsDbResult = settled.status === "fulfilled"
+        ? settled.value
+        : { photoUrl: null, dateBorn: null, strHeight: null, strWeight: null };
+
+      if (p.photo_url && needsMetadata) {
         results.push({
           player_id: p.player_id,
           status: "already_has_photo",
           photo_url: p.photo_url,
-          birth_date: metaResult.dateBorn,
-          height: metaResult.strHeight,
-          weight: metaResult.strWeight,
+          birth_date: sportsDbResult.dateBorn,
+          height: sportsDbResult.strHeight,
+          weight: sportsDbResult.strWeight,
         });
         continue;
       }
@@ -227,14 +267,17 @@ serve(async (req: Request) => {
       const displayName = p.player_nickname ?? p.player_name;
       const nationality = p.nationality ?? "Unknown";
 
-      // 1. Try TheSportsDB (real photo + metadata, instant)
-      const sportsDbResult = await fetchFromSportsDb(displayName);
       let photoUrl = sportsDbResult.photoUrl;
 
-      // 2. Fallback: Stitch AI generation (slower, names get genericized)
+      // Fallback: Stitch AI generation (slower, kept sequential)
       if (!photoUrl && stitchApiKey && stitchProjectId) {
         console.log(`[Fallback] No SportsDB photo for "${displayName}", trying Stitch…`);
         photoUrl = await generateWithStitch(displayName, nationality, stitchProjectId, stitchApiKey);
+      }
+
+      if (photoUrl && !photoUrl.startsWith("https://")) {
+        console.warn(`[Validation] Rejecting non-HTTPS photo URL: ${photoUrl.slice(0, 80)}`);
+        photoUrl = null;
       }
 
       if (photoUrl) {
@@ -254,7 +297,6 @@ serve(async (req: Request) => {
           weight: sportsDbResult.strWeight,
         });
       } else {
-        // Even without a photo, we may have metadata from SportsDB
         results.push({
           player_id: p.player_id,
           status: "not_found",
@@ -275,9 +317,15 @@ serve(async (req: Request) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
+    if (err instanceof AuthError) {
+      return new Response(JSON.stringify({ error: err.message }), {
+        status: err.status,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     console.error("generate-photo error:", (err as Error).message);
     return new Response(
-      JSON.stringify({ error: (err as Error).message }),
+      JSON.stringify({ error: "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

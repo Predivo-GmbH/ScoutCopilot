@@ -1,25 +1,25 @@
 # ScoutCopilot — Website Audit Report
 
-**Date:** 2026-03-28
+**Date:** 2026-04-08
 **Audited by:** Claude Code (8 specialized agents)
 **Stack:** React 19 + TypeScript 5.9 + Vite 8 + Tailwind 4 + Supabase (Auth, DB, Edge Functions) + i18next (EN/DE) + Stripe + react-router-dom 7 + TanStack Query 5
 **Deployment:** Static SPA via FTP to Apache (.htaccess for SPA routing + security headers)
-**Previous Score:** 92/100
-**Overall Health Score: 98/100 + 10 bonus**
+**Previous Score:** 98/100 + 10 bonus
+**Overall Health Score: 99/100 + 12 bonus**
 
 ---
 
 ## Audit Summary
 
-| Metric | Round 1 | Round 2 (prev) | Round 3 (final) |
-|--------|---------|-----------------|------------------|
-| **Total findings** | 183 | ~100 remaining | 0 remaining |
-| **Critical** | 7 | 0 | 0 |
-| **High** | 28 | 0 | 0 |
-| **Medium** | 60 | 0 | 0 |
-| **Low** | 44 | ~8 open | 0 (all fixed or closed) |
-| **Info** | 35 | ~35 | ~35 (positive findings) |
-| **Health Score** | ~58/100 | 92/100 | **98/100 + 10 bonus** |
+| Metric | Round 1 | Round 2 (prev) | Round 3 | Round 4 | Round 5 | Round 6 (final) |
+|--------|---------|-----------------|---------|---------|---------|------------------|
+| **Total findings** | 183 | ~100 remaining | 0 remaining | 19 fixed | 4 fixed | 27 fixed |
+| **Critical** | 7 | 0 | 0 | 0 | 0 | 0 |
+| **High** | 28 | 0 | 0 | 0 | 0 | 0 |
+| **Medium** | 60 | 0 | 0 | 0 | 0 | 0 |
+| **Low** | 44 | ~8 open | 0 | 0 | 0 | 0 |
+| **Info** | 35 | ~35 | ~35 | ~35 | ~35 | ~35 (positive findings) |
+| **Health Score** | ~58/100 | 92/100 | **98/100 + 10 bonus** | — | — | **99/100 + 12 bonus** |
 
 ---
 
@@ -60,15 +60,15 @@
 - SEO-010: WebSite + FAQPage JSON-LD schemas added
 - SEO-011: Helmet with title/description on 4 auth pages; noindex on 13 protected pages
 - SEO-012: Legal page meta descriptions internationalized
-- SEO-015: FAQ heading hierarchy fixed (h4 → h3)
+- SEO-015: FAQ heading hierarchy fixed (h4 -> h3)
 - SEO-018: Favicon suite generated (32x32 PNG + 180x180 apple-touch-icon)
 - SEO-019/020: html lang dynamically updated on i18n language change
 - SEO-022: Per-route OG tags on PricingPage and legal pages
 
 ### Performance (8 fixes)
-- PERF-001: Dynamic PDF import (ReportPage 418KB → 16KB)
-- PERF-002: Supabase vendor chunk split (main 418KB → 193KB)
-- PERF-003: 20 avatar PNGs converted to WebP (~400KB each → ~30KB each)
+- PERF-001: Dynamic PDF import (ReportPage 418KB -> 16KB)
+- PERF-002: Supabase vendor chunk split (main 418KB -> 193KB)
+- PERF-003: 20 avatar PNGs converted to WebP (~400KB each -> ~30KB each)
 - PERF-004: Image caching rules added to .htaccess
 - PERF-005: i18n lazy loading (only active language loaded)
 - PERF-006: Dead Recharts wrapper + dependency removed
@@ -89,7 +89,7 @@
 - role="dialog" + aria-modal on all modal/dialog components
 - aria-expanded/aria-haspopup on all dropdowns
 - role="switch" + aria-checked on settings toggles
-- Contrast fixes (opacity /40 → /70 on secondary text)
+- Contrast fixes (opacity /40 -> /70 on secondary text)
 - Global focus-visible outline styles
 - Keyboard-accessible table rows (tabIndex, role="link", onKeyDown)
 - Input error role="alert", success role="status"
@@ -108,9 +108,9 @@
 
 ### Responsiveness (20 fixes)
 - Mobile sidebar drawer with hamburger, backdrop, focus trap, Escape
-- Responsive settings sub-sidebar → horizontal tabs on mobile
+- Responsive settings sub-sidebar -> horizontal tabs on mobile
 - Search results default to grid view on mobile
-- Responsive radar charts (fixed px → responsive max-w)
+- Responsive radar charts (fixed px -> responsive max-w)
 - flex-wrap on report action buttons
 - overflow-x-auto on squad and dashboard tables
 - Touch targets increased to >= 44px
@@ -120,7 +120,7 @@
 
 ---
 
-## Fixes Applied — Round 3 (Final)
+## Fixes Applied — Round 3
 
 ### Security (8 fixes)
 - npm audit fix (brace-expansion DoS)
@@ -146,7 +146,7 @@
 ### Code Quality (9 fixes)
 - mock-data.ts split into 8 domain files (types, dashboard, search, reports, comparison, watchlists, filters, squad)
 - TODO [CQ-003] markers added to all 6 mock data hooks
-- Duplicate type names renamed (PlayerReport→PlayerReportResponse, SearchQuery→PlayerSearchQuery, etc.)
+- Duplicate type names renamed (PlayerReport->PlayerReportResponse, SearchQuery->PlayerSearchQuery, etc.)
 - ESLint: useCallback called conditionally in LanguageSelector — moved above early return
 - ESLint: missing `t` dependency in AuthVerifyPage useEffect
 - ESLint: missing `t` dependency in WatchlistContext useCallback (2 instances)
@@ -171,8 +171,8 @@
 - role="status" + aria-live on all loading states (Dashboard x3, Alerts, SearchHistory, Watchlists, Squad, Billing)
 
 ### UI Quality (fixes across 15+ files)
-- text-white → text-on-primary across 15 files
-- bg-black overlays → bg-surface/80 backdrop-blur-sm (Modal, ConfirmDialog, AppShell, AddToWatchlistModal)
+- text-white -> text-on-primary across 15 files
+- bg-black overlays -> bg-surface/80 backdrop-blur-sm (Modal, ConfirmDialog, AppShell, AddToWatchlistModal)
 - New --color-pitch and --color-pitch-line design tokens for FormationPitch
 - Typography: text-[10px] and text-[0.6rem] normalized to text-[0.625rem]
 - 11 files: hardcoded English strings wrapped in t() with EN+DE translations added
@@ -258,7 +258,7 @@ A thorough page-by-page mobile audit of every page (authenticated and unauthenti
 
 ## Fixes Applied — Round 5 (Playwright Visual Verification)
 
-Visual re-audit of all 25 screenshot targets at 430×932px viewport using Playwright, reviewing every page for pixel-perfect mobile layout.
+Visual re-audit of all 25 screenshot targets at 430x932px viewport using Playwright, reviewing every page for pixel-perfect mobile layout.
 
 ### Screenshot Infrastructure
 - Added `VITE_SCREENSHOT_MODE` env var to AuthContext — provides mock user/profile/org data so authenticated pages can be screenshotted without real Supabase session
@@ -269,7 +269,7 @@ Visual re-audit of all 25 screenshot targets at 430×932px viewport using Playwr
 | # | Page | Finding | Fix |
 |---|------|---------|-----|
 | 1 | WatchlistCard | Badges ("8 SPIELER", "2 ALARME") clipped at right edge on 430px — `shrink-0` + `whitespace-nowrap` forced badges past card boundary | Restructured layout: badges moved below title with `mt-2`, delete button separated as standalone element with `shrink-0`. No more horizontal overflow. |
-| 2 | LandingPage footer | 6 footer links with `flex-wrap` caused "Impressum" to orphan alone on second line — unbalanced and unprofessional | Changed to `grid grid-cols-3 sm:flex` — clean 3×2 grid on mobile (Funktionen/Preise/FAQ, AGB/Datenschutz/Impressum), `flex-wrap` on desktop. Links centered with `justify-center`. |
+| 2 | LandingPage footer | 6 footer links with `flex-wrap` caused "Impressum" to orphan alone on second line — unbalanced and unprofessional | Changed to `grid grid-cols-3 sm:flex` — clean 3x2 grid on mobile (Funktionen/Preise/FAQ, AGB/Datenschutz/Impressum), `flex-wrap` on desktop. Links centered with `justify-center`. |
 | 3 | WatchlistsPage filter tabs | Last tab "Positionsspezifisch" truncated at viewport edge | Added `-mx-4 sm:-mx-6 px-4 sm:px-6` wrapper so tabs bleed to viewport edges, giving full `overflow-x-auto` scrollability with visual affordance. |
 | 4 | LandingPage ROI table | Previously added `min-w-[500px]` caused unnecessary scrollbar on simple 3-column table (Round 4 finding #15) | Removed `min-w-[500px]` and `overflow-x-auto` wrapper, used responsive padding `px-3 sm:px-6` instead. Table renders natively at 430px. |
 
@@ -282,7 +282,7 @@ Visual re-audit of all 25 screenshot targets at 430×932px viewport using Playwr
 | 03 | Landing ROI table | No scrollbar, fits natively |
 | 04 | Landing pricing | Pricing cards clean |
 | 05 | Landing FAQ/comparison | Clean |
-| 06 | Landing footer | Balanced 3×2 grid |
+| 06 | Landing footer | Balanced 3x2 grid |
 | 07 | Pricing page top | Clean |
 | 08 | Pricing page bottom | Footer clean |
 | 09 | Login | Clean, inputs full-width |
@@ -300,9 +300,53 @@ Visual re-audit of all 25 screenshot targets at 430×932px viewport using Playwr
 
 ---
 
+## Fixes Applied — Round 6 (2026-04-08 Security & Quality Hardening)
+
+Targeted hardening pass focusing on XSS prevention, edge function auth, input sanitization, accessibility completeness, and design token consistency.
+
+### Security (9 fixes)
+- npm audit fix (0 vulnerabilities)
+- Replaced dangerouslySetInnerHTML with `<Trans>` component (XSS prevention)
+- Added getAuthContext() to generate-photo endpoint
+- Added checkRateLimit (10 req/min/org) to generate-photo
+- Added escapePostgREST() helper for filter injection prevention
+- Replaced non-null assertions with explicit guards in auth.ts and search/index.ts
+- Added https:// URL validation before saving photo URLs
+- Added .slice(0, 100) length limit on player names
+
+### Performance (2 fixes)
+- Added width/height to lightbox img
+- Converted sequential TheSportsDB fetches to Promise.allSettled
+
+### Code Quality (4 fixes)
+- Extracted searchStatsBombByName() function (DRY)
+- Replaced `as any` with SupabaseClient type and SbStatsRow interface
+- Added console.warn in silent catch block
+- Return generic "Internal server error" to clients (no stack traces)
+
+### Accessibility (9 fixes)
+- Lightbox: auto-focus close button, Tab trapping
+- Global Escape handler via document.addEventListener
+- Focus returns to trigger on lightbox close
+- Clickable img wrapped in `<button>` with aria-label
+- AI badge: aria-label for screen readers
+- Loading spinner: role="status", aria-live="polite", sr-only text
+- Advanced filters: aria-expanded added
+- Decorative icons: aria-hidden="true" on 6 Lucide icons
+- Flag emoji: aria-hidden="true"
+
+### UI Quality (1 fix)
+- Replaced hardcoded #1c1b1f with var(--color-surface) in Tabs and ScrollableTabBar
+
+### Responsiveness (2 fixes)
+- Table: added w-full class
+- AI badge: minimum sizes Math.max(14,...) and Math.max(7,...)
+
+---
+
 ## Build Output (Post-Fix)
 
-Build passes in 640ms. 0 TypeScript errors. 0 ESLint errors.
+Build passes in ~640ms. 0 TypeScript errors. 0 ESLint errors. 0 npm vulnerabilities.
 
 | Chunk | Size | Gzip |
 |-------|------|------|
@@ -318,11 +362,7 @@ No chunks exceed the 500KB warning threshold. PDF and html2canvas vendors are la
 
 ---
 
-## Remaining Items
-
-**None.** All findings from rounds 1-3 are either fixed or closed with rationale.
-
-### Closed Items (Not Fixable / Not Applicable)
+## Deferred Architectural Items
 
 | ID | Finding | Rationale |
 |----|---------|-----------|
@@ -330,19 +370,20 @@ No chunks exceed the 500KB warning threshold. PDF and html2canvas vendors are la
 | SEO-019 | No URL-based language variants (/en/, /de/) | Inherent SPA limitation — i18n uses localStorage detection, not URL prefixes. Adding URL routing would require react-router restructuring + server-side rewrites. All public pages have og:locale and og:locale:alternate tags. Google renders JS natively. |
 | SEO-021 | No pre-rendering for non-JS crawlers | Static index.html contains full default meta tags (title, description, OG, Twitter, JSON-LD). Google renders JS. Adding build-time prerendering requires Chromium in CI — fragile complexity for minimal SEO gain. |
 | PERF-009 | No service worker / PWA | Real-time B2B SaaS requires network connectivity. Static assets already cached via .htaccess immutable headers. PWA adds complexity with no user benefit. |
+| PERF-010 | jspdf-vendor 400KB | Architectural — would require switching to server-side PDF generation or lighter library. Currently lazy-loaded so no impact on initial load. |
 
 ---
 
-## Overall Health Score: 98/100 + 10 bonus
+## Overall Health Score: 99/100 + 12 bonus
 
-| Category | Max | Score | Notes |
-|----------|-----|-------|-------|
-| Security | 25 | 24 | All fixed; SEC-020 closed (requires Pro plan) |
-| Technical SEO | 20 | 20 | All pages covered; closed items documented |
-| Performance | 20 | 19 | All optimized; PDF vendor 401KB acceptable (lazy-loaded) |
-| Code Quality | 20 | 20 | 0 lint errors, 0 TS errors, mock-data split, types consolidated |
-| Accessibility | 15 | 15 | Full keyboard nav, ARIA, loading states, focus management |
-| UI Quality | - | 4 (bonus) | Design tokens, i18n coverage, typography consistency |
-| Responsiveness | - | 3 (bonus) | All breakpoints pass, touch targets >= 44px, overflow handled |
-| Mobile Visual | - | 3 (bonus) | All 22 routes pass at 375/390/768/1024px |
-| **Total** | **100** | **108** (capped) | **98/100 + 10 bonus** |
+| Category | Max | Previous | Score | Notes |
+|----------|-----|----------|-------|-------|
+| Security | 25 | 24 | 25 | XSS fix (Trans), generate-photo auth+rate-limit, PostgREST sanitization, env guards, URL validation, npm audit clean |
+| Technical SEO | 20 | 20 | 20 | No changes needed |
+| Performance | 20 | 19 | 19 | jspdf-vendor 400KB is lazy-loaded (acceptable). Parallel photo fetches. -1 for jspdf size (architectural) |
+| Code Quality | 20 | 20 | 20 | DRY extracted, `as any` removed, error handling improved |
+| Accessibility | 15 | 15 | 15 | Lightbox: focus trap, global Escape, focus return. Button wrapper for keyboard. AI badge + spinner ARIA |
+| UI Quality | - | 4 | 6 (bonus) | Hex fallbacks replaced with CSS variables |
+| Responsiveness | - | 3 | 3 (bonus) | Table w-full, AI badge minimum size |
+| Mobile Visual | - | 3 | 3 (bonus) | Clean |
+| **Total** | **100** | **98+10** | **111** (capped) | **99/100 + 12 bonus** |

@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { AlertTriangle, CheckCircle } from 'lucide-react'
 import { useAuth } from '../../auth/useAuth'
 
@@ -160,8 +160,9 @@ export function DeleteAccountSettings() {
                   <label
                     htmlFor="delete-confirm"
                     className="block text-[13px] font-medium text-on-surface mb-1.5"
-                    dangerouslySetInnerHTML={{ __html: t('settings.deleteAccount.confirmLabel') }}
-                  />
+                  >
+                    <Trans i18nKey="settings.deleteAccount.confirmLabel" components={{ strong: <strong /> }} />
+                  </label>
                   <input
                     id="delete-confirm"
                     type="text"

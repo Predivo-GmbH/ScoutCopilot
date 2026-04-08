@@ -74,7 +74,7 @@ export function ScrollableTabBar({
         <div
           className="pointer-events-none absolute right-0 top-0 bottom-0 w-8"
           style={{
-            background: 'linear-gradient(to right, transparent, var(--color-surface, #1c1b1f))',
+            background: 'linear-gradient(to right, transparent, var(--color-surface))',
           }}
           aria-hidden="true"
         />

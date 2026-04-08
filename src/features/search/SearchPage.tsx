@@ -28,11 +28,11 @@ export function SearchPage() {
   const [queryInput, setQueryInput] = useState(initialQuery)
   const autoSearched = useRef(false)
 
-  // Load saved search results from DB (no AI credits) or re-run if no ID
+  // Auto-search: load saved results from DB, or run a fresh search when ?q= is present
   useEffect(() => {
-    if (isSavedSearch && initialQuery && !autoSearched.current) {
+    if (initialQuery && !autoSearched.current) {
       autoSearched.current = true
-      if (savedSearchId) {
+      if (isSavedSearch && savedSearchId) {
         loadSaved(savedSearchId, initialQuery)
       } else {
         search({ query: initialQuery })
@@ -51,6 +51,7 @@ export function SearchPage() {
 
   function handleSuggestion(query: string) {
     setQueryInput(query)
+    search({ query })
   }
 
   return (
@@ -58,14 +59,14 @@ export function SearchPage() {
       <Helmet><meta name="robots" content="noindex" /></Helmet>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <Sparkles size={16} strokeWidth={1.5} className="text-primary" />
+        <Sparkles size={16} strokeWidth={1.5} className="text-primary" aria-hidden="true" />
         <span className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant">{t('search.heading')}</span>
       </div>
 
       {/* Search Bar — full-width and prominent on mobile */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1 w-full">
-          <SearchIcon size={18} strokeWidth={1.5} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/70" />
+          <SearchIcon size={18} strokeWidth={1.5} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/70" aria-hidden="true" />
           <input
             type="text"
             value={queryInput}
@@ -135,7 +136,7 @@ function EmptyState({ onSuggestionClick, onLoadSaved }: {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center mb-4">
-        <SearchIcon size={32} strokeWidth={1.5} className="text-on-surface-variant" />
+        <SearchIcon size={32} strokeWidth={1.5} className="text-on-surface-variant" aria-hidden="true" />
       </div>
       <h3 className="text-lg font-semibold text-on-surface mb-2">{t('search.startSearch')}</h3>
       <p className="text-sm text-on-surface-variant max-w-md mb-8">
@@ -146,7 +147,7 @@ function EmptyState({ onSuggestionClick, onLoadSaved }: {
       {recentSearches && recentSearches.length > 0 && (
         <div className="w-full max-w-2xl mb-8">
           <div className="flex items-center gap-2 mb-3 justify-center">
-            <Clock size={14} strokeWidth={1.5} className="text-primary" />
+            <Clock size={14} strokeWidth={1.5} className="text-primary" aria-hidden="true" />
             <span className="text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant">{t('searchHistory.heading')}</span>
           </div>
           <div className="space-y-1.5">
@@ -156,7 +157,7 @@ function EmptyState({ onSuggestionClick, onLoadSaved }: {
                 onClick={() => onLoadSaved(s.id, s.query)}
                 className="w-full flex items-center gap-3 px-4 py-3 text-left bg-surface-container border border-outline-variant rounded-md hover:bg-surface-container-high hover:border-primary/30 transition-colors min-h-[44px] group"
               >
-                <SearchIcon size={14} strokeWidth={1.5} className="text-on-surface-variant/50 shrink-0" />
+                <SearchIcon size={14} strokeWidth={1.5} className="text-on-surface-variant/50 shrink-0" aria-hidden="true" />
                 <span className="text-sm text-on-surface truncate flex-1">{s.query}</span>
                 <span className="text-[0.625rem] font-data text-on-surface-variant/70 shrink-0">{s.resultCount} {t('searchHistory.results')}</span>
               </button>
@@ -168,7 +169,7 @@ function EmptyState({ onSuggestionClick, onLoadSaved }: {
       {/* Suggested Queries */}
       <div className="w-full max-w-2xl">
         <div className="flex items-center gap-2 mb-3 justify-center">
-          <Sparkles size={14} strokeWidth={1.5} className="text-tertiary" />
+          <Sparkles size={14} strokeWidth={1.5} className="text-tertiary" aria-hidden="true" />
           <span className="text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant">{t('search.suggestedQueries')}</span>
         </div>
         <div className="flex flex-wrap gap-2 justify-center">

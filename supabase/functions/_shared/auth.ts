@@ -17,8 +17,10 @@ export async function getAuthContext(req: Request): Promise<AuthContext> {
 
   const token = authHeader.replace("Bearer ", "");
 
-  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  if (!supabaseUrl) throw new Error("SUPABASE_URL not set");
+  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseServiceKey) throw new Error("SUPABASE_SERVICE_ROLE_KEY not set");
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -73,8 +75,9 @@ export class AuthError extends Error {
 
 /** Create a Supabase admin client (service role) for DB operations in edge functions */
 export function getServiceClient() {
-  return createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-  );
+  const url = Deno.env.get("SUPABASE_URL");
+  if (!url) throw new Error("SUPABASE_URL not set");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!serviceKey) throw new Error("SUPABASE_SERVICE_ROLE_KEY not set");
+  return createClient(url, serviceKey);
 }

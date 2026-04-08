@@ -50,6 +50,7 @@ async function callClaude(
 // ── NL Query Parsing ──────────────────────────────────────────────
 
 export interface ParsedSearchParams {
+  player_name?: string;
   position?: string;
   positions?: string[];
   foot?: "left" | "right" | "both";
@@ -80,6 +81,7 @@ You understand:
 
 Return ONLY valid JSON matching this schema:
 {
+  "player_name": "string (if the query is searching for a specific player by name, e.g. 'Granit Xhaka' or 'show me Lamine Yamal')",
   "position": "string (primary position code)",
   "positions": ["array of position codes if multiple"],
   "foot": "left | right | both",
@@ -98,6 +100,7 @@ Return ONLY valid JSON matching this schema:
   "limit": "number (default 20)"
 }
 
+If the query is a player name (e.g. "Granit Xhaka", "Lamine Yamal", "Mbappé"), set "player_name" to the player's full name. You may also set position/nationality if you know them, but player_name is the priority.
 Omit any fields that are not specified or implied by the query. Always include "metrics" with the most relevant metrics for the position and query context even if not explicitly mentioned. Default limit to 20 if not specified.`;
 
 export async function parseSearchQuery(
@@ -130,6 +133,14 @@ export interface RankedPlayer {
 }
 
 const RANKING_SYSTEM_PROMPT = `You are a football scouting analyst. Given a search query and a list of player stats, rank the players by how well they fit the search criteria.
+
+IMPORTANT: If the original query is a player name (e.g. "Granit Xhaka", "Lamine Yamal"), this is a NAME SEARCH. The user wants to find THAT specific player. In this case:
+- Players whose name exactly or closely matches the searched name should get fit_score 95-100
+- Players with partially matching names (e.g. same last name) should get fit_score 60-80
+- Players with no name similarity should get fit_score 10-30
+- Name matching is the PRIMARY ranking criterion for name searches — stats are secondary
+
+For tactical/criteria searches (e.g. "young left-footed CB in Bundesliga"), rank by how well players match the tactical criteria.
 
 For each player, provide:
 1. A fit_score from 0-100 (how well they match the criteria)

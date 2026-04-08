@@ -74,7 +74,7 @@ export function ReportPage() {
             {generating ? t('report.generatingDesc') : t('report.noReportDesc')}
           </p>
           <div className="flex gap-3">
-            <Button variant="secondary" size="sm" leftIcon={ArrowLeft} onClick={() => navigate('/search')}>
+            <Button variant="secondary" size="sm" leftIcon={ArrowLeft} onClick={() => navigate(-1)}>
               {t('common.back')}
             </Button>
             {!generating && !hasReport(id) && (
@@ -275,8 +275,8 @@ export function ReportPage() {
                   className="flex items-center justify-between p-3 bg-surface-container-low rounded-md hover:bg-surface-container-high transition-colors cursor-pointer"
                   role="button"
                   tabIndex={0}
-                  onClick={() => navigate(`/players/${p.playerId}`)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/players/${p.playerId}`); } }}
+                  onClick={() => navigate('/search?q=' + encodeURIComponent(p.name))}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/search?q=' + encodeURIComponent(p.name)); } }}
                 >
                   <div className="flex items-center gap-3">
                     <PlayerAvatar name={p.name} size={40} imageUrl={p.image} clickable aiGenerated={!!p.image && !p.image.includes('thesportsdb.com')} />

@@ -58,6 +58,7 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
           </label>
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
+            aria-expanded={showAdvanced}
             className={`flex items-center justify-center gap-2 bg-transparent border rounded-md text-xs font-bold uppercase tracking-widest transition-colors min-h-[44px] w-full ${
               showAdvanced || hasAdvancedFilters
                 ? 'border-primary text-primary hover:bg-primary/5'

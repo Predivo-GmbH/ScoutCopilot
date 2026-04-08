@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -44,20 +44,41 @@ interface PlayerAvatarProps {
 
 function PhotoLightbox({ src, alt, aiGenerated, onClose }: { src: string; alt: string; aiGenerated?: boolean; onClose: () => void }) {
   const { t } = useTranslation()
-  const handleKey = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') onClose()
+  const closeRef = useRef<HTMLButtonElement>(null)
+
+  // Fix #17: Global Escape listener
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
   }, [onClose])
+
+  // Fix #16: Auto-focus close button + focus trap
+  useEffect(() => {
+    closeRef.current?.focus()
+  }, [])
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Tab') {
+      // Trap focus between close button and image container
+      e.preventDefault()
+      closeRef.current?.focus()
+    }
+  }, [])
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-surface/90 backdrop-blur-md cursor-pointer"
       onClick={onClose}
-      onKeyDown={handleKey}
+      onKeyDown={handleKeyDown}
       role="dialog"
       aria-modal="true"
       aria-label={alt}
     >
       <button
+        ref={closeRef}
         onClick={onClose}
         className="absolute top-4 right-4 p-2 rounded-full bg-surface-container border border-outline-variant text-on-surface-variant hover:text-on-surface transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center z-10"
         aria-label={t('common.close')}
@@ -68,6 +89,8 @@ function PhotoLightbox({ src, alt, aiGenerated, onClose }: { src: string; alt: s
         <img
           src={src}
           alt={alt}
+          width={600}
+          height={600}
           className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg animate-[fadeIn_200ms_ease-out]"
           onClick={(e) => e.stopPropagation()}
         />
@@ -91,6 +114,8 @@ function LoadingAvatar({ name, size }: { name: string; size: number }) {
       className="relative rounded-md shrink-0 overflow-hidden group"
       style={{ width: size, height: size }}
       title={t('player.photoLoading')}
+      role="status"
+      aria-live="polite"
     >
       <svg
         width={size}
@@ -111,6 +136,7 @@ function LoadingAvatar({ name, size }: { name: string; size: number }) {
           {t('player.photoLoadingShort')}
         </span>
       </div>
+      <span className="sr-only">{t('player.photoLoading')}</span>
     </div>
   )
 }
@@ -139,14 +165,15 @@ function SilhouetteFallback({ name, size }: { name: string; size: number }) {
 function AiBadge({ size }: { size: number }) {
   const { t } = useTranslation()
   // Scale badge relative to avatar size
-  const badgeSize = Math.max(10, Math.round(size * 0.3))
-  const fontSize = Math.max(5, Math.round(size * 0.14))
+  const badgeSize = Math.max(14, Math.round(size * 0.3))
+  const fontSize = Math.max(7, Math.round(size * 0.15))
 
   return (
     <span
       className="absolute bottom-0 right-0 flex items-center justify-center bg-tertiary text-on-tertiary font-bold uppercase tracking-wider rounded-tl-sm rounded-br-md leading-none"
       style={{ width: badgeSize, height: badgeSize, fontSize }}
       title={t('player.aiGeneratedTooltip')}
+      aria-label={t('player.aiGeneratedTooltip')}
     >
       AI
     </span>
@@ -164,6 +191,13 @@ export function PlayerAvatar({
 }: PlayerAvatarProps) {
   const [imgError, setImgError] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+
+  // Fix #18: Return focus to trigger on close
+  const handleLightboxClose = useCallback(() => {
+    setLightboxOpen(false)
+    triggerRef.current?.focus()
+  }, [])
 
   // Loading state: show spinner animation
   if (loading && (!imageUrl || imgError)) {
@@ -186,20 +220,39 @@ export function PlayerAvatar({
   return (
     <>
       <div className={`relative inline-block shrink-0 ${className}`}>
-        <img
-          src={imageUrl}
-          alt={name}
-          width={size}
-          height={size}
-          loading="lazy"
-          className={`rounded-md shrink-0 object-cover ${clickable ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
-          onError={() => setImgError(true)}
-          onClick={clickable ? () => setLightboxOpen(true) : undefined}
-        />
+        {clickable ? (
+          <button
+            ref={triggerRef}
+            type="button"
+            onClick={() => setLightboxOpen(true)}
+            className="appearance-none border-0 p-0 bg-transparent cursor-pointer rounded-md hover:opacity-80 transition-opacity focus-visible:ring-2 focus-visible:ring-primary/40"
+            aria-label={name}
+          >
+            <img
+              src={imageUrl}
+              alt={name}
+              width={size}
+              height={size}
+              loading="lazy"
+              className="rounded-md shrink-0 object-cover"
+              onError={() => setImgError(true)}
+            />
+          </button>
+        ) : (
+          <img
+            src={imageUrl}
+            alt={name}
+            width={size}
+            height={size}
+            loading="lazy"
+            className="rounded-md shrink-0 object-cover"
+            onError={() => setImgError(true)}
+          />
+        )}
         {aiGenerated && <AiBadge size={size} />}
       </div>
       {clickable && lightboxOpen && (
-        <PhotoLightbox src={imageUrl} alt={name} aiGenerated={aiGenerated} onClose={() => setLightboxOpen(false)} />
+        <PhotoLightbox src={imageUrl} alt={name} aiGenerated={aiGenerated} onClose={handleLightboxClose} />
       )}
     </>
   )

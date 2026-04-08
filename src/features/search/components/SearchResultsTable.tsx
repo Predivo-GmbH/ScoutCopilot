@@ -122,7 +122,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
       {/* Content */}
       {viewMode === 'table' ? (
         <div className="overflow-x-auto">
-          <table className="text-left border-collapse">
+          <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-container-high border-b border-outline-variant">
                 {/* Sticky left columns */}
@@ -364,7 +364,7 @@ function PlayerAvatarWithFlag({ name, nationality, imageUrl, photoSource, loadin
         aiGenerated={photoSource === 'stitch'}
       />
       {flagEmoji && !loading && (
-        <span className="absolute -bottom-0.5 -right-0.5 text-[0.5rem] leading-none" title={nationality}>
+        <span className="absolute -bottom-0.5 -right-0.5 text-[0.5rem] leading-none" title={nationality} aria-hidden="true">
           {flagEmoji}
         </span>
       )}

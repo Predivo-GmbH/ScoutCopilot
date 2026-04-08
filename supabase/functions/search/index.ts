@@ -2,6 +2,7 @@
 // POST /search { query: string }
 
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
+import { type SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { handleCors } from "../_shared/cors.ts";
 import { AuthError, getAuthContext, getServiceClient } from "../_shared/auth.ts";
 import { parseSearchQuery, rankPlayers, type ParsedSearchParams } from "../_shared/claude.ts";
@@ -13,6 +14,11 @@ import {
   mapToGenericPlayer,
 } from "../_shared/providers/api-football.ts";
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
+
+/** Escape PostgREST special characters to prevent filter injection */
+function escapePostgREST(s: string): string {
+  return s.replace(/[,.*()%]/g, "");
+}
 
 serve(async (req: Request) => {
   // CORS preflight
@@ -68,61 +74,28 @@ serve(async (req: Request) => {
     const useMock = Deno.env.get("MOCK_DATA") === "true";
     let rawPlayers: Record<string, unknown>[];
 
-    // Detect if query looks like a player name (no structured filters extracted)
-    const isNameSearch = !parsedParams.position && !parsedParams.positions?.length
+    // Detect if query looks like a player name:
+    // Either Claude explicitly set player_name, or no structured filters were extracted
+    const isNameSearch = !!parsedParams.player_name || (
+      !parsedParams.position && !parsedParams.positions?.length
       && !parsedParams.league && !parsedParams.leagues?.length
       && !parsedParams.nationality && !parsedParams.foot
-      && !parsedParams.age_min && !parsedParams.age_max;
+      && !parsedParams.age_min && !parsedParams.age_max
+    );
 
     if (useMock) {
       const mockResults = searchMockPlayers(parsedParams);
       rawPlayers = mockResults.map(mockToGeneric);
     } else if (isNameSearch) {
-      // Name-based search: prioritize text matching over broad data queries
-      rawPlayers = [];
-
-      // Search StatsBomb open data by name
-      const supabase = getServiceClient();
-      const { data: textResults } = await supabase
-        .from("sb_players")
-        .select("player_id, player_name, player_nickname, nationality, primary_position, photo_url")
-        .or(`player_name.ilike.%${query.trim()}%,player_nickname.ilike.%${query.trim()}%`)
-        .limit(20);
-
-      if (textResults && textResults.length > 0) {
-        const playerIds = textResults.map((p: { player_id: number }) => p.player_id);
-        const { data: statsRows } = await supabase
-          .from("sb_player_season_stats")
-          .select("*")
-          .in("player_id", playerIds);
-
-        for (const p of textResults) {
-          const stats = (statsRows ?? []).find((s: { player_id: number }) => s.player_id === p.player_id);
-          rawPlayers.push({
-            player_external_id: `sb-open-${p.player_id}`,
-            player_name: p.player_nickname ?? p.player_name,
-            age: null,
-            nationality: p.nationality ?? "Unknown",
-            position: p.primary_position ?? "Unknown",
-            team: stats?.team_name ?? "Unknown",
-            league: stats ? `${stats.competition_name} (${stats.season_name})` : "Unknown",
-            photo_url: p.photo_url ?? undefined,
-            photo_source: p.photo_url?.includes('thesportsdb.com') ? 'sportsdb' : (p.photo_url ? 'stitch' : undefined),
-            stats: stats ? {
-              matches_played: stats.matches_played, minutes_played: stats.minutes_played,
-              goals: stats.goals, assists: stats.assists,
-              xG: Number(stats.xg), xA: Number(stats.xa),
-            } : {},
-            provider: "statsbomb-open",
-          });
-        }
-      }
+      // Name-based search: use parsed player_name if available, otherwise raw query
+      const nameToSearch = parsedParams.player_name ?? query.trim();
+      rawPlayers = await searchStatsBombByName(getServiceClient(), escapePostgREST(nameToSearch));
 
       // Also search API-Football by name
       if (Deno.env.get("API_FOOTBALL_KEY")) {
         try {
           const apiFootballResults = await apiFootballSearch(
-            query.trim(), auth.organizationId
+            nameToSearch, auth.organizationId
           );
           rawPlayers.push(...apiFootballResults.map(mapToGenericPlayer));
         } catch (err) {
@@ -135,41 +108,7 @@ serve(async (req: Request) => {
 
     if (rawPlayers.length === 0) {
       // Last resort: text search on player names in StatsBomb data
-      const supabase = getServiceClient();
-      const { data: textResults } = await supabase
-        .from("sb_players")
-        .select("player_id, player_name, player_nickname, nationality, primary_position, photo_url")
-        .or(`player_name.ilike.%${query.trim()}%,player_nickname.ilike.%${query.trim()}%`)
-        .limit(20);
-
-      if (textResults && textResults.length > 0) {
-        const playerIds = textResults.map((p: { player_id: number }) => p.player_id);
-        const { data: statsRows } = await supabase
-          .from("sb_player_season_stats")
-          .select("*")
-          .in("player_id", playerIds);
-
-        for (const p of textResults) {
-          const stats = (statsRows ?? []).find((s: { player_id: number }) => s.player_id === p.player_id);
-          rawPlayers.push({
-            player_external_id: `sb-open-${p.player_id}`,
-            player_name: p.player_nickname ?? p.player_name,
-            age: null,
-            nationality: p.nationality ?? "Unknown",
-            position: p.primary_position ?? "Unknown",
-            team: stats?.team_name ?? "Unknown",
-            league: stats ? `${stats.competition_name} (${stats.season_name})` : "Unknown",
-            photo_url: p.photo_url ?? undefined,
-            photo_source: p.photo_url?.includes('thesportsdb.com') ? 'sportsdb' : (p.photo_url ? 'stitch' : undefined),
-            stats: stats ? {
-              matches_played: stats.matches_played, minutes_played: stats.minutes_played,
-              goals: stats.goals, assists: stats.assists,
-              xG: Number(stats.xg), xA: Number(stats.xa),
-            } : {},
-            provider: "statsbomb-open",
-          });
-        }
-      }
+      rawPlayers = await searchStatsBombByName(getServiceClient(), escapePostgREST(query.trim()));
     }
 
     if (rawPlayers.length === 0) {
@@ -276,8 +215,10 @@ serve(async (req: Request) => {
 
     if (playersNeedingEnrichment.length > 0) {
       // Fetch photos + metadata from TheSportsDB (instant) and update results before returning
-      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const supabaseUrl = Deno.env.get("SUPABASE_URL");
+      if (!supabaseUrl) throw new Error("SUPABASE_URL not set");
+      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      if (!serviceKey) throw new Error("SUPABASE_SERVICE_ROLE_KEY not set");
       try {
         const photoResp = await fetch(`${supabaseUrl}/functions/v1/generate-photo`, {
           method: "POST",
@@ -336,9 +277,8 @@ serve(async (req: Request) => {
       });
     }
     console.error("Search error:", err);
-    const errMsg = err instanceof Error ? err.message : String(err);
     return new Response(
-      JSON.stringify({ error: errMsg }),
+      JSON.stringify({ error: "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
@@ -363,6 +303,49 @@ function mockToGeneric(player: MockPlayer): Record<string, unknown> {
     contract_expiry: player.contract_expiry,
     stats: player.stats,
   };
+}
+
+/** Search StatsBomb open data by player name (text search) */
+async function searchStatsBombByName(
+  supabase: SupabaseClient,
+  sanitizedQuery: string
+): Promise<Record<string, unknown>[]> {
+  const { data: textResults } = await supabase
+    .from("sb_players")
+    .select("player_id, player_name, player_nickname, nationality, primary_position, photo_url")
+    .or(`player_name.ilike.%${sanitizedQuery}%,player_nickname.ilike.%${sanitizedQuery}%`)
+    .limit(20);
+
+  if (!textResults || textResults.length === 0) return [];
+
+  const playerIds = textResults.map((p: { player_id: number }) => p.player_id);
+  const { data: statsRows } = await supabase
+    .from("sb_player_season_stats")
+    .select("*")
+    .in("player_id", playerIds);
+
+  const results: Record<string, unknown>[] = [];
+  for (const p of textResults) {
+    const stats = (statsRows ?? []).find((s: { player_id: number }) => s.player_id === p.player_id);
+    results.push({
+      player_external_id: `sb-open-${p.player_id}`,
+      player_name: p.player_nickname ?? p.player_name,
+      age: null,
+      nationality: p.nationality ?? "Unknown",
+      position: p.primary_position ?? "Unknown",
+      team: stats?.team_name ?? "Unknown",
+      league: stats ? `${stats.competition_name} (${stats.season_name})` : "Unknown",
+      photo_url: p.photo_url ?? undefined,
+      photo_source: p.photo_url?.includes('thesportsdb.com') ? 'sportsdb' : (p.photo_url ? 'stitch' : undefined),
+      stats: stats ? {
+        matches_played: stats.matches_played, minutes_played: stats.minutes_played,
+        goals: stats.goals, assists: stats.assists,
+        xG: Number(stats.xg), xA: Number(stats.xa),
+      } : {},
+      provider: "statsbomb-open",
+    });
+  }
+  return results;
 }
 
 async function fetchFromProviders(
@@ -478,8 +461,7 @@ async function fetchFromProviders(
 
 // Search StatsBomb open data stored in Supabase (free, always available)
 async function searchStatsBombOpenData(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: any,
+  supabase: SupabaseClient,
   params: ParsedSearchParams
 ): Promise<Record<string, unknown>[]> {
   // Build query against sb_player_season_stats joined with sb_players
@@ -515,8 +497,52 @@ async function searchStatsBombOpenData(
     return [];
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (data ?? []).map((row: any) => ({
+  interface SbStatsRow {
+    sb_players: {
+      player_id: number;
+      player_name: string;
+      player_nickname: string | null;
+      nationality: string | null;
+      primary_position: string | null;
+      positions: string[] | null;
+      photo_url: string | null;
+    };
+    team_name: string;
+    competition_name: string;
+    season_name: string;
+    matches_played: number;
+    minutes_played: number;
+    goals: number;
+    assists: number;
+    xg: number;
+    xa: number;
+    npxg: number;
+    key_passes: number;
+    passes_completed: number;
+    pass_completion: number;
+    progressive_passes: number;
+    progressive_carries: number;
+    through_balls: number;
+    long_balls: number;
+    crosses: number;
+    tackles: number;
+    interceptions: number;
+    clearances: number;
+    blocks: number;
+    aerial_duels: number;
+    aerial_duel_win_rate: number;
+    ground_duels: number;
+    ground_duel_win_rate: number;
+    dribbles: number;
+    dribble_success_rate: number;
+    pressures: number;
+    shot_creating_actions: number;
+    goal_creating_actions: number;
+    yellow_cards: number;
+    red_cards: number;
+  }
+
+  return (data ?? []).map((row: SbStatsRow) => ({
     player_external_id: `sb-open-${row.sb_players.player_id}`,
     player_name:
       row.sb_players.player_nickname ?? row.sb_players.player_name,
