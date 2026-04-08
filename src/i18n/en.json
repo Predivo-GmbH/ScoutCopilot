@@ -458,7 +458,8 @@
     "tableView": "Table view",
     "noResults": "No players found",
     "noResultsSub": "Try adjusting your search query or filters",
-    "fitScoreTooltip": "AI Match Score — how well this player fits your search criteria (0-100)"
+    "fitScoreTooltip": "AI Match Score — how well this player fits your search criteria (0-100)",
+    "moreStats": "Show more stats"
   },
   "filters": {
     "position": "Position",
@@ -754,16 +755,18 @@
         "errors": "AI may make errors in analysis. Always verify key findings with video analysis and your own scouting judgment.",
         "relative": "Fit scores are relative to your search query, not absolute player quality ratings.",
         "model": "Model: Claude 3 Haiku \u2014 optimized for speed and cost-effectiveness in high-volume scouting workflows.",
-        "noWeights": "There are currently no configurable scoring weights. All evaluations use the AI model's default reasoning."
+        "noWeights": "Scoring weights influence AI evaluations but are not deterministic. The AI model applies its own reasoning on top of your configured preferences."
       },
       "scoring": {
         "heading": "Scoring Preferences",
         "comingSoon": "Custom scoring weights \u2014 coming soon",
         "comingSoonSub": "Configure how much importance the AI places on each attribute category when ranking and evaluating players.",
+        "description": "Configure how much importance the AI places on each attribute category when ranking and evaluating players.",
         "attacking": "Attacking importance",
         "defending": "Defending importance",
         "passing": "Passing importance",
-        "physical": "Physical importance"
+        "physical": "Physical importance",
+        "saveWeights": "Save Weights"
       }
     }
   },

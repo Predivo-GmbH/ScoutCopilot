@@ -73,6 +73,7 @@ serve(async (req: Request) => {
     const useMock = Deno.env.get("MOCK_DATA") === "true";
     let playerStats: Record<string, unknown>;
     let sourceProvider: "wyscout" | "statsbomb" = "statsbomb";
+    let playerPhotoUrl: string | undefined;
 
     if (useMock) {
       const mock = getMockPlayer(player_external_id);
@@ -101,7 +102,7 @@ serve(async (req: Request) => {
       const rawId = parseInt(player_external_id.replace("sb-open-", ""), 10);
       const { data: playerRow } = await supabase
         .from("sb_players")
-        .select("player_id, player_name, player_nickname, nationality, primary_position, positions")
+        .select("player_id, player_name, player_nickname, nationality, primary_position, positions, photo_url")
         .eq("player_id", rawId)
         .single();
 
@@ -149,6 +150,7 @@ serve(async (req: Request) => {
         red_cards: stats?.red_cards ?? 0,
       };
       sourceProvider = "statsbomb";
+      if (playerRow?.photo_url) playerPhotoUrl = playerRow.photo_url;
     } else {
       const result = await fetchPlayerFullStats(
         auth.organizationId,
@@ -161,6 +163,29 @@ serve(async (req: Request) => {
     // Generate report via Claude
     const report = await generateScoutingReport(player_name, playerStats);
 
+    // Enrich report with player metadata so the reports list page can display it
+    // The frontend reads report_data.image, .age, .nationality, .position, .team, .league
+    const enrichedReport: Record<string, unknown> = { ...report as unknown as Record<string, unknown> };
+
+    // Inject photo_url as "image" (matching frontend field name in ReportsListPage)
+    if (playerPhotoUrl) {
+      // StatsBomb: photo_url fetched from sb_players during stats lookup
+      enrichedReport.image = playerPhotoUrl;
+    } else if (playerStats.imageDataURL && typeof playerStats.imageDataURL === "string") {
+      // Wyscout: imageDataURL from player details
+      enrichedReport.image = playerStats.imageDataURL;
+    } else if (playerStats.photo_url && typeof playerStats.photo_url === "string") {
+      // API-Football: photo_url from player data
+      enrichedReport.image = playerStats.photo_url;
+    }
+
+    // Inject player metadata for the reports list page
+    if (playerStats.age !== undefined) enrichedReport.age = playerStats.age;
+    if (playerStats.nationality !== undefined) enrichedReport.nationality = playerStats.nationality;
+    if (playerStats.position !== undefined) enrichedReport.position = playerStats.position;
+    if (playerStats.team !== undefined) enrichedReport.team = playerStats.team;
+    if (playerStats.league !== undefined) enrichedReport.league = playerStats.league;
+
     // Save to DB
     const { data: savedReport, error: saveError } = await supabase
       .from("player_reports")
@@ -169,7 +194,7 @@ serve(async (req: Request) => {
         organization_id: auth.organizationId,
         player_external_id,
         player_name,
-        report_data: report as unknown as Record<string, unknown>,
+        report_data: enrichedReport,
         source_provider: sourceProvider,
       })
       .select("id, created_at")

@@ -40,6 +40,10 @@ export function SettingsPage() {
     orgMembers,
     membersLoading,
     maxSeats,
+    scoringWeights,
+    updateScoringWeight,
+    saveScoringWeights,
+    scoringWeightsSaveStatus,
   } = useSettings()
   return (
     <div className="flex flex-col md:flex-row min-h-[calc(100vh-64px)]">
@@ -171,7 +175,12 @@ export function SettingsPage() {
           )}
 
           {activeTab === 'aiMethodology' && (
-            <AiMethodologySettings />
+            <AiMethodologySettings
+              scoringWeights={scoringWeights}
+              onUpdateWeight={updateScoringWeight}
+              onSaveWeights={saveScoringWeights}
+              weightsSaveStatus={scoringWeightsSaveStatus}
+            />
           )}
 
         </div>

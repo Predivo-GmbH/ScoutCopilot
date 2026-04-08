@@ -458,7 +458,8 @@
     "tableView": "Tabellenansicht",
     "noResults": "Keine Spieler gefunden",
     "noResultsSub": "Versuchen Sie, Ihre Suchanfrage oder Filter anzupassen",
-    "fitScoreTooltip": "KI-Übereinstimmung — wie gut dieser Spieler zu Ihren Suchkriterien passt (0-100)"
+    "fitScoreTooltip": "KI-Übereinstimmung — wie gut dieser Spieler zu Ihren Suchkriterien passt (0-100)",
+    "moreStats": "Weitere Statistiken anzeigen"
   },
   "filters": {
     "position": "Position",
@@ -754,16 +755,18 @@
         "errors": "KI kann Fehler in der Analyse machen. Überprüfen Sie wichtige Erkenntnisse immer mit Videoanalyse und Ihrem eigenen Scouting-Urteil.",
         "relative": "Fit-Scores sind relativ zu Ihrer Suchanfrage, keine absoluten Spielerqualitätsbewertungen.",
         "model": "Modell: Claude 3 Haiku \u2014 optimiert für Geschwindigkeit und Kosteneffizienz in hochvolumigen Scouting-Workflows.",
-        "noWeights": "Derzeit gibt es keine konfigurierbaren Bewertungsgewichtungen. Alle Bewertungen verwenden die Standardlogik des KI-Modells."
+        "noWeights": "Bewertungsgewichtungen beeinflussen KI-Bewertungen, sind aber nicht deterministisch. Das KI-Modell wendet seine eigene Logik zusätzlich zu Ihren konfigurierten Präferenzen an."
       },
       "scoring": {
         "heading": "Bewertungspräferenzen",
         "comingSoon": "Individuelle Bewertungsgewichtungen \u2014 demnächst verfügbar",
         "comingSoonSub": "Konfigurieren Sie, wie viel Bedeutung die KI jeder Attributkategorie bei der Bewertung und Rangfolge von Spielern beimisst.",
+        "description": "Konfigurieren Sie, wie viel Bedeutung die KI jeder Attributkategorie bei der Bewertung und Rangfolge von Spielern beimisst.",
         "attacking": "Angriff-Gewichtung",
         "defending": "Verteidigung-Gewichtung",
         "passing": "Passspiel-Gewichtung",
-        "physical": "Physis-Gewichtung"
+        "physical": "Physis-Gewichtung",
+        "saveWeights": "Gewichtungen speichern"
       }
     }
   },

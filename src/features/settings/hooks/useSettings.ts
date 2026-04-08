@@ -36,6 +36,20 @@ interface Preferences {
   transferUpdates: boolean
 }
 
+export interface ScoringWeights {
+  attacking_weight: number
+  defending_weight: number
+  passing_weight: number
+  physical_weight: number
+}
+
+const DEFAULT_SCORING_WEIGHTS: ScoringWeights = {
+  attacking_weight: 75,
+  defending_weight: 50,
+  passing_weight: 60,
+  physical_weight: 40,
+}
+
 export function useSettings() {
   const { user, profile: authProfile, organization: authOrg, refreshProfile } = useAuth()
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile')
@@ -77,6 +91,24 @@ export function useSettings() {
     weeklyDigest: false,
     transferUpdates: true,
   })
+
+  const [scoringWeights, setScoringWeights] = useState<ScoringWeights>(DEFAULT_SCORING_WEIGHTS)
+  const [scoringWeightsSaveStatus, setScoringWeightsSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+
+  // Load scoring weights from profiles table
+  useEffect(() => {
+    if (!user) return
+    supabase
+      .from('profiles')
+      .select('scoring_weights')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.scoring_weights) {
+          setScoringWeights({ ...DEFAULT_SCORING_WEIGHTS, ...(data.scoring_weights as Partial<ScoringWeights>) })
+        }
+      })
+  }, [user])
 
   function updateProfile(updates: Partial<ProfileData>) {
     setProfile((prev) => ({ ...prev, ...updates }))
@@ -140,6 +172,27 @@ export function useSettings() {
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }))
   }
 
+  function updateScoringWeight(key: keyof ScoringWeights, value: number) {
+    setScoringWeights((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const saveScoringWeights = useCallback(async () => {
+    if (!user) return
+    setScoringWeightsSaveStatus('saving')
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ scoring_weights: scoringWeights })
+        .eq('id', user.id)
+      if (error) throw error
+      setScoringWeightsSaveStatus('saved')
+      setTimeout(() => setScoringWeightsSaveStatus('idle'), 2000)
+    } catch {
+      setScoringWeightsSaveStatus('error')
+      setTimeout(() => setScoringWeightsSaveStatus('idle'), 3000)
+    }
+  }, [user, scoringWeights])
+
   // Fetch real org members from profiles table
   const { data: orgMembers = [], isLoading: membersLoading } = useQuery<OrgMember[]>({
     queryKey: ['settings', 'org-members', authOrg?.id],
@@ -184,5 +237,9 @@ export function useSettings() {
     orgMembers,
     membersLoading,
     maxSeats,
+    scoringWeights,
+    updateScoringWeight,
+    saveScoringWeights,
+    scoringWeightsSaveStatus,
   }
 }
