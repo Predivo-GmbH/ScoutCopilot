@@ -253,6 +253,16 @@ serve(async (req: Request) => {
         : { photoUrl: null, dateBorn: null, strHeight: null, strWeight: null };
 
       if (p.photo_url && needsMetadata) {
+        // Persist birth_date even for players that already have photos
+        if (sportsDbResult.dateBorn) {
+          const parsed = new Date(sportsDbResult.dateBorn);
+          if (!isNaN(parsed.getTime())) {
+            await supabase
+              .from("sb_players")
+              .update({ birth_date: sportsDbResult.dateBorn })
+              .eq("player_id", p.player_id);
+          }
+        }
         results.push({
           player_id: p.player_id,
           status: "already_has_photo",
