@@ -9,8 +9,9 @@ import {
   ArrowRight,
   TrendingUp,
   GitCompareArrows,
+  Trash2,
 } from 'lucide-react'
-import { useDashboardStats, useRecentSearches, useWatchlistAlerts } from './hooks/useDashboardData'
+import { useDashboardStats, useRecentSearches, useWatchlistAlerts, useDeleteSearch, useDeleteAllSearches } from './hooks/useDashboardData'
 import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 
 export function DashboardPage() {
@@ -18,6 +19,8 @@ export function DashboardPage() {
   const navigate = useLocalizedNavigate()
   const { data: stats, isLoading: statsLoading } = useDashboardStats()
   const { data: searches, isLoading: searchesLoading } = useRecentSearches()
+  const deleteSearch = useDeleteSearch()
+  const deleteAllSearches = useDeleteAllSearches()
   const { data: alerts, isLoading: alertsLoading } = useWatchlistAlerts()
 
   return (
@@ -94,12 +97,23 @@ export function DashboardPage() {
                 <Clock size={14} strokeWidth={1.5} className="text-primary" />
                 {t('dashboard.recentSearches')}
               </h3>
-              <button
-                onClick={() => navigate('/search-history')}
-                className="text-[0.625rem] font-data uppercase text-primary hover:underline min-h-[44px] flex items-center gap-1"
-              >
-                {t('dashboard.viewAll')} <ArrowRight size={10} strokeWidth={1.5} />
-              </button>
+              <div className="flex items-center gap-3">
+                {searches && searches.length > 0 && (
+                  <button
+                    onClick={() => deleteAllSearches.mutate()}
+                    className="text-[0.625rem] font-data uppercase text-on-surface-variant hover:text-error transition-colors min-h-[44px] flex items-center gap-1"
+                  >
+                    <Trash2 size={10} strokeWidth={1.5} />
+                    {t('dashboard.recentSearches.clearAll')}
+                  </button>
+                )}
+                <button
+                  onClick={() => navigate('/search-history')}
+                  className="text-[0.625rem] font-data uppercase text-primary hover:underline min-h-[44px] flex items-center gap-1"
+                >
+                  {t('dashboard.viewAll')} <ArrowRight size={10} strokeWidth={1.5} />
+                </button>
+              </div>
             </div>
             {searchesLoading ? (
               <div className="p-6 space-y-3" role="status" aria-live="polite">
@@ -109,6 +123,7 @@ export function DashboardPage() {
                 <span className="sr-only">{t('common.loading', 'Loading...')}</span>
               </div>
             ) : (
+              <>
               <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
@@ -117,15 +132,16 @@ export function DashboardPage() {
                     <th className="px-3 sm:px-4 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider text-right">{t('dashboard.results')}</th>
                     <th className="hidden sm:table-cell px-3 sm:px-4 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider">{t('dashboard.date')}</th>
                     <th className="px-3 sm:px-4 py-3 text-[0.625rem] font-data font-bold text-on-surface-variant uppercase tracking-wider">{t('dashboard.status')}</th>
+                    <th className="w-10 px-2 py-3"><span className="sr-only">{t('common.actions')}</span></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/30">
-                  {searches?.slice(0, 5).map((search) => (
+                  {searches?.slice(0, 20).map((search) => (
                     <tr
                       key={search.id}
                       tabIndex={0}
                       role="link"
-                      className="min-h-[44px] hover:bg-surface-container-high transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1"
+                      className="min-h-[44px] hover:bg-surface-container-high transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1 group"
                       onClick={() => navigate(`/search?q=${encodeURIComponent(search.query)}&saved=1&sid=${search.id}`)}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/search?q=${encodeURIComponent(search.query)}&saved=1&sid=${search.id}`) } }}
                     >
@@ -141,11 +157,31 @@ export function DashboardPage() {
                       <td className="px-3 sm:px-4 py-3">
                         <StatusBadge status={search.status} />
                       </td>
+                      <td className="px-2 py-3">
+                        <button
+                          aria-label={t('search.deleteQuery')}
+                          className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-sm text-on-surface-variant/50 hover:text-error hover:bg-error/10 transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
+                          onClick={(e) => { e.stopPropagation(); deleteSearch.mutate(search.id) }}
+                        >
+                          <Trash2 size={14} strokeWidth={1.5} />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
               </div>
+              {(searches?.length ?? 0) > 20 && (
+                <div className="px-4 sm:px-6 py-3 border-t border-outline-variant/30">
+                  <button
+                    onClick={() => navigate('/search-history')}
+                    className="w-full text-[0.625rem] font-bold uppercase tracking-widest text-primary hover:text-primary-light transition-colors min-h-[44px] flex items-center justify-center gap-1.5"
+                  >
+                    {t('search.showAllHistory')} <ArrowRight size={12} strokeWidth={1.5} />
+                  </button>
+                </div>
+              )}
+              </>
             )}
           </div>
         </div>

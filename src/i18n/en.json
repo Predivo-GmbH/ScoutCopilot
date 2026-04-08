@@ -431,7 +431,8 @@
     "complete": "COMPLETE",
     "processing": "PROCESSING",
     "failed": "FAILED",
-    "viewAllAlerts": "View all {{count}} alerts"
+    "viewAllAlerts": "View all {{count}} alerts",
+    "recentSearches.clearAll": "Clear All"
   },
   "search": {
     "heading": "Player Search",
@@ -456,6 +457,9 @@
       "compiling": "Compiling results..."
     },
     "tableView": "Table view",
+    "deleteQuery": "Delete search",
+    "clearHistory": "Clear All History",
+    "showAllHistory": "Show All Searches",
     "noResults": "No players found",
     "noResultsSub": "Try adjusting your search query or filters",
     "fitScoreTooltip": "AI Match Score — how well this player fits your search criteria (0-100)",

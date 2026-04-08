@@ -186,6 +186,19 @@ ${JSON.stringify(players, null, 2)}`;
 
 // ── Report Generation ─────────────────────────────────────────────
 
+export interface TransferHistoryEntry {
+  club: string;
+  date: string;
+  role: string; // "Joined" | "Left" | "Loan" | transfer fee
+}
+
+export interface ContractInfo {
+  current_club: string;
+  contract_start: string;
+  contract_end: string;
+  wage?: string;
+}
+
 export interface ScoutingReport {
   summary: string;
   strengths: string[];
@@ -204,6 +217,8 @@ export interface ScoutingReport {
     similarity_pct: number;
     reasoning: string;
   }>;
+  transfer_history?: TransferHistoryEntry[];
+  contract_info?: ContractInfo | null;
 }
 
 const REPORT_SYSTEM_PROMPT = `You are an expert football scout writing a professional scouting report. Given a player's full statistical profile, produce a detailed analysis.

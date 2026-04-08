@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../../lib/supabase'
 import type {
   DashboardStats,
@@ -64,7 +64,7 @@ export function useRecentSearches() {
         .from('search_queries')
         .select('id, query_text, result_count, created_at')
         .order('created_at', { ascending: false })
-        .limit(10)
+        .limit(20)
 
       if (error) throw new Error(error.message)
 
@@ -75,6 +75,41 @@ export function useRecentSearches() {
         timestamp: row.created_at,
         status: 'complete' as const,
       }))
+    },
+  })
+}
+
+export function useDeleteSearch() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (searchId: string) => {
+      // search_results cascade-delete via FK constraint
+      const { error } = await supabase
+        .from('search_queries')
+        .delete()
+        .eq('id', searchId)
+      if (error) throw new Error(error.message)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    },
+  })
+}
+
+export function useDeleteAllSearches() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+      const { error } = await supabase
+        .from('search_queries')
+        .delete()
+        .eq('user_id', user.id)
+      if (error) throw new Error(error.message)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
   })
 }

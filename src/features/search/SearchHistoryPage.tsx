@@ -1,8 +1,8 @@
 import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, Clock, Search, CheckCircle2, Loader2, XCircle } from 'lucide-react'
-import { useRecentSearches } from '../dashboard/hooks/useDashboardData'
+import { ArrowLeft, Clock, Search, CheckCircle2, Loader2, XCircle, Trash2 } from 'lucide-react'
+import { useRecentSearches, useDeleteSearch, useDeleteAllSearches } from '../dashboard/hooks/useDashboardData'
 
 function useFormatDate() {
   const { t } = useTranslation()
@@ -44,6 +44,8 @@ export function SearchHistoryPage() {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
   const { data: searches, isLoading } = useRecentSearches()
+  const deleteSearch = useDeleteSearch()
+  const deleteAllSearches = useDeleteAllSearches()
   const formatDate = useFormatDate()
 
   return (
@@ -63,6 +65,15 @@ export function SearchHistoryPage() {
           <h1 className="text-2xl font-semibold tracking-tight text-on-surface">{t('searchHistory.heading')}</h1>
         </div>
         <p className="text-on-surface-variant mt-1 text-sm">{t('searchHistory.subtitle')}</p>
+        {searches && searches.length > 0 && (
+          <button
+            onClick={() => deleteAllSearches.mutate()}
+            className="mt-3 text-xs font-data uppercase tracking-widest text-on-surface-variant hover:text-error transition-colors min-h-[44px] flex items-center gap-1.5"
+          >
+            <Trash2 size={12} strokeWidth={1.5} />
+            {t('search.clearHistory')}
+          </button>
+        )}
       </div>
 
       {/* Search List */}
@@ -82,7 +93,7 @@ export function SearchHistoryPage() {
               tabIndex={0}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { if (s.status === 'complete') navigate(`/search?q=${encodeURIComponent(s.query)}&saved=1&sid=${s.id}`) } }}
               onClick={() => { if (s.status === 'complete') navigate(`/search?q=${encodeURIComponent(s.query)}&saved=1&sid=${s.id}`) }}
-              className={`bg-surface-container border border-outline-variant rounded-md p-4 transition-colors min-h-[44px] ${
+              className={`bg-surface-container border border-outline-variant rounded-md p-4 transition-colors min-h-[44px] group ${
                 s.status === 'complete' ? 'cursor-pointer hover:bg-surface-container-high' : 'opacity-60'
               }`}
             >
@@ -102,6 +113,13 @@ export function SearchHistoryPage() {
                   <p className="text-lg font-data font-bold text-on-surface">{s.resultCount}</p>
                   <p className="text-[0.625rem] font-data text-on-surface-variant">{t('searchHistory.results')}</p>
                 </div>
+                <button
+                  aria-label={t('search.deleteQuery')}
+                  className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-sm text-on-surface-variant/50 hover:text-error hover:bg-error/10 transition-all min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0"
+                  onClick={(e) => { e.stopPropagation(); deleteSearch.mutate(s.id) }}
+                >
+                  <Trash2 size={16} strokeWidth={1.5} />
+                </button>
               </div>
             </div>
           ))}

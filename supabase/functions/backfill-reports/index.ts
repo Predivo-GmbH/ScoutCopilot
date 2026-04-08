@@ -61,6 +61,152 @@ function calcAge(dateBorn: string): number | null {
 /** Fields from generateScoutingReport that we consider backfillable */
 const REPORT_FIELDS = ["transfer_history", "contract_info", "similar_players"] as const;
 
+// ── Similar Players (database-driven) — copied from report/index.ts ──
+
+const SIMILARITY_STATS = [
+  "goals", "assists", "xg", "xa", "npxg",
+  "pass_completion", "progressive_passes", "progressive_carries",
+  "key_passes", "tackles", "interceptions", "clearances",
+  "aerial_duel_win_rate", "ground_duel_win_rate",
+  "dribbles", "dribble_success_rate", "pressures",
+  "shot_creating_actions", "goal_creating_actions",
+] as const;
+
+const STAT_RANGES: Record<string, number> = {
+  goals: 30, assists: 20, xg: 25, xa: 15, npxg: 20,
+  pass_completion: 100, progressive_passes: 200, progressive_carries: 150,
+  key_passes: 100, tackles: 100, interceptions: 80, clearances: 100,
+  aerial_duel_win_rate: 100, ground_duel_win_rate: 100,
+  dribbles: 150, dribble_success_rate: 100, pressures: 400,
+  shot_creating_actions: 150, goal_creating_actions: 50,
+};
+
+interface SimilarPlayer {
+  playerId: number;
+  name: string;
+  club: string;
+  position: string;
+  photo_url: string | null;
+  birth_date: string | null;
+  similarity_pct: number;
+  reasoning: string;
+}
+
+async function findSimilarPlayers(
+  supabase: ReturnType<typeof getServiceClient>,
+  currentPlayerId: number,
+  currentStats: Record<string, unknown>
+): Promise<SimilarPlayer[]> {
+  const position = (currentStats.position as string) ?? "Unknown";
+
+  const positionGroups: Record<string, string[]> = {
+    ST: ["ST", "CF"], CF: ["CF", "ST"],
+    LW: ["LW", "RW", "LM"], RW: ["RW", "LW", "RM"],
+    LM: ["LM", "LW"], RM: ["RM", "RW"],
+    CAM: ["CAM", "CM"], CM: ["CM", "CAM", "CDM"], CDM: ["CDM", "CM"],
+    CB: ["CB"], LB: ["LB", "LWB"], RB: ["RB", "RWB"],
+    LWB: ["LWB", "LB"], RWB: ["RWB", "RB"],
+    GK: ["GK"],
+  };
+  const targetPositions = positionGroups[position.toUpperCase()] ?? [position];
+
+  const { data: candidates } = await supabase
+    .from("sb_player_season_stats")
+    .select(`
+      *,
+      sb_players!inner (
+        player_id, player_name, player_nickname,
+        primary_position, photo_url, birth_date
+      )
+    `)
+    .in("sb_players.primary_position", targetPositions.map((p) => p.toUpperCase()))
+    .neq("sb_players.player_id", currentPlayerId)
+    .gt("minutes_played", 200)
+    .order("season_name", { ascending: false })
+    .limit(200);
+
+  if (!candidates || candidates.length === 0) return [];
+
+  const seen = new Set<number>();
+  const uniqueCandidates = candidates.filter((c: { sb_players: { player_id: number } }) => {
+    if (seen.has(c.sb_players.player_id)) return false;
+    seen.add(c.sb_players.player_id);
+    return true;
+  });
+
+  const currentVector: number[] = SIMILARITY_STATS.map((stat) => {
+    const val = Number(currentStats[stat] ?? currentStats[stat.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] ?? 0);
+    return val / (STAT_RANGES[stat] || 1);
+  });
+
+  const scored = uniqueCandidates.map((c: Record<string, unknown>) => {
+    const candidateVector: number[] = SIMILARITY_STATS.map((stat) => {
+      const val = Number((c as Record<string, unknown>)[stat] ?? 0);
+      return val / (STAT_RANGES[stat] || 1);
+    });
+
+    let distance = 0;
+    for (let i = 0; i < currentVector.length; i++) {
+      distance += (currentVector[i] - candidateVector[i]) ** 2;
+    }
+    distance = Math.sqrt(distance);
+
+    const statDiffs = SIMILARITY_STATS.map((stat, i) => ({
+      stat,
+      diff: Math.abs(currentVector[i] - candidateVector[i]),
+    }));
+    statDiffs.sort((a, b) => a.diff - b.diff);
+    const topMatchingStats = statDiffs.slice(0, 3).map((s) =>
+      s.stat.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+        .replace("Xg", "xG").replace("Xa", "xA").replace("Npxg", "npxG")
+    );
+
+    const player = c.sb_players as {
+      player_id: number;
+      player_name: string;
+      player_nickname: string | null;
+      primary_position: string | null;
+      photo_url: string | null;
+      birth_date: string | null;
+    };
+
+    return {
+      playerId: player.player_id,
+      name: player.player_nickname ?? player.player_name,
+      club: (c as Record<string, unknown>).team_name as string ?? "Unknown",
+      position: player.primary_position ?? "Unknown",
+      photo_url: player.photo_url ?? null,
+      birth_date: player.birth_date ?? null,
+      distance,
+      reasoning: `Similar statistical profile in ${topMatchingStats.join(", ").toLowerCase()}`,
+    };
+  });
+
+  scored.sort((a: { distance: number }, b: { distance: number }) => a.distance - b.distance);
+  const top5 = scored.slice(0, 5);
+
+  const scaleFactor = 20;
+  return top5.map((p: typeof scored[0]) => ({
+    playerId: p.playerId,
+    name: p.name,
+    club: p.club,
+    position: p.position,
+    photo_url: p.photo_url,
+    birth_date: p.birth_date,
+    similarity_pct: Math.round(Math.max(0, 100 - p.distance * scaleFactor)),
+    reasoning: p.reasoning,
+  }));
+}
+
+/** Check if similar_players entries lack real DB data (no photo_url, no playerId) */
+function needsSimilarPlayersBackfill(similarPlayers: unknown): boolean {
+  if (!Array.isArray(similarPlayers) || similarPlayers.length === 0) return true;
+  // If any entry lacks playerId (a number), it's old AI-generated data
+  return similarPlayers.some(
+    (sp: Record<string, unknown>) => typeof sp.playerId !== "number"
+  );
+}
+
 
 interface BackfillResult {
   report_id: string;
@@ -156,7 +302,12 @@ serve(async (req: Request) => {
 
       // Check report fields
       for (const field of REPORT_FIELDS) {
-        if (rd[field] === undefined || rd[field] === null) {
+        if (field === "similar_players") {
+          // Special check: backfill if missing OR if entries lack real DB data
+          if (needsSimilarPlayersBackfill(rd[field])) {
+            missing.push(field);
+          }
+        } else if (rd[field] === undefined || rd[field] === null) {
           missing.push(field);
         } else if (Array.isArray(rd[field]) && (rd[field] as unknown[]).length === 0) {
           // Also backfill empty arrays (e.g. transfer_history: [])
@@ -242,6 +393,63 @@ serve(async (req: Request) => {
           for (const field of missingReportFields) {
             if (freshData[field] !== undefined && freshData[field] !== null) {
               updatedData[field] = freshData[field];
+            }
+          }
+        }
+
+        // Re-run similar players from DB if flagged
+        if (
+          report.missingFields.includes("similar_players") &&
+          report.player_external_id.startsWith("sb-open-")
+        ) {
+          const rawId = parseInt(report.player_external_id.replace("sb-open-", ""), 10);
+
+          // Fetch this player's latest season stats for similarity comparison
+          const { data: statsRows } = await supabase
+            .from("sb_player_season_stats")
+            .select("*")
+            .eq("player_id", rawId)
+            .order("season_name", { ascending: false })
+            .limit(1);
+
+          const stats = statsRows?.[0];
+          if (stats) {
+            // Fetch player metadata for position
+            const { data: playerRow } = await supabase
+              .from("sb_players")
+              .select("primary_position")
+              .eq("player_id", rawId)
+              .single();
+
+            const playerStats: Record<string, unknown> = {
+              position: playerRow?.primary_position ?? updatedData.position ?? "Unknown",
+              goals: stats.goals ?? 0,
+              assists: stats.assists ?? 0,
+              xg: Number(stats.xg ?? 0),
+              xa: Number(stats.xa ?? 0),
+              npxg: Number(stats.npxg ?? 0),
+              pass_completion: Number(stats.pass_completion ?? 0),
+              progressive_passes: stats.progressive_passes ?? 0,
+              progressive_carries: stats.progressive_carries ?? 0,
+              key_passes: stats.key_passes ?? 0,
+              tackles: stats.tackles ?? 0,
+              interceptions: stats.interceptions ?? 0,
+              clearances: stats.clearances ?? 0,
+              aerial_duel_win_rate: Number(stats.aerial_duel_win_rate ?? 0),
+              ground_duel_win_rate: Number(stats.ground_duel_win_rate ?? 0),
+              dribbles: stats.dribbles ?? 0,
+              dribble_success_rate: Number(stats.dribble_success_rate ?? 0),
+              pressures: stats.pressures ?? 0,
+              shot_creating_actions: stats.shot_creating_actions ?? 0,
+              goal_creating_actions: stats.goal_creating_actions ?? 0,
+            };
+
+            try {
+              const dbSimilarPlayers = await findSimilarPlayers(supabase, rawId, playerStats);
+              updatedData.similar_players = dbSimilarPlayers;
+              console.log(`[backfill] Re-computed similar players for ${report.player_name}: ${dbSimilarPlayers.length} found`);
+            } catch (err) {
+              console.error(`[backfill] Similar players lookup failed for ${report.player_name}:`, (err as Error).message);
             }
           }
         }

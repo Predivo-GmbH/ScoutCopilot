@@ -281,9 +281,16 @@ serve(async (req: Request) => {
       }
 
       if (photoUrl) {
+        const updateFields: Record<string, unknown> = { photo_url: photoUrl };
+        if (sportsDbResult.dateBorn) {
+          const parsed = new Date(sportsDbResult.dateBorn);
+          if (!isNaN(parsed.getTime())) {
+            updateFields.birth_date = sportsDbResult.dateBorn;
+          }
+        }
         await supabase
           .from("sb_players")
-          .update({ photo_url: photoUrl })
+          .update(updateFields)
           .eq("player_id", p.player_id);
 
         const source = photoUrl.includes("thesportsdb.com") ? "sportsdb" : "stitch";

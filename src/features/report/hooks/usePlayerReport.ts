@@ -1,4 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
+import { useEffect, useRef } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../../lib/supabase'
 import type { MockPlayerReport } from '../../../lib/mock-data'
 
@@ -72,15 +73,23 @@ function mapDbToReport(row: {
     seasonStats,
     radarData,
     similarPlayers: Array.isArray(rd.similar_players)
-      ? (rd.similar_players as Array<Record<string, unknown>>).map((sp) => ({
-          playerId: (sp.player_id as string) ?? (sp.playerId as string) ?? '',
-          name: (sp.name as string) ?? '',
-          club: (sp.club as string) ?? '',
-          age: typeof sp.age === 'number' ? sp.age : 0,
-          birth_date: (sp.birth_date as string) ?? undefined,
-          similarity: typeof sp.similarity_pct === 'number' ? sp.similarity_pct : 0,
-          image: (sp.image as string) ?? (sp.photo_url as string) ?? undefined,
-        }))
+      ? (rd.similar_players as Array<Record<string, unknown>>).map((sp) => {
+          // DB-driven similar players have a numeric player_id from sb_players
+          const rawId = sp.player_id ?? sp.playerId
+          const numericId = typeof rawId === 'number' ? rawId : (typeof rawId === 'string' && /^\d+$/.test(rawId) ? parseInt(rawId, 10) : undefined)
+          // Format as sb-open-{id} for routing, or leave undefined for AI-generated entries
+          const playerId = numericId ? `sb-open-${numericId}` : (typeof rawId === 'string' && rawId ? rawId : undefined)
+          return {
+            playerId,
+            name: (sp.name as string) ?? '',
+            club: (sp.club as string) ?? '',
+            age: typeof sp.age === 'number' ? sp.age : 0,
+            birth_date: (sp.birth_date as string) ?? undefined,
+            similarity: typeof sp.similarity_pct === 'number' ? sp.similarity_pct : 0,
+            image: (sp.photo_url as string) ?? (sp.image as string) ?? undefined,
+            photo_url: (sp.photo_url as string) ?? undefined,
+          }
+        })
       : [],
     transferHistory: Array.isArray(rd.transfer_history)
       ? (rd.transfer_history as Array<Record<string, unknown>>).map((t) => ({
@@ -99,7 +108,10 @@ function mapDbToReport(row: {
 }
 
 export function usePlayerReport(playerId?: string) {
-  return useQuery<MockPlayerReport>({
+  const queryClient = useQueryClient()
+  const fetchedRef = useRef<string | null>(null)
+
+  const query = useQuery<MockPlayerReport>({
     queryKey: ['player-report', playerId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -137,4 +149,54 @@ export function usePlayerReport(playerId?: string) {
     },
     enabled: !!playerId,
   })
+
+  // Background fetch photos for similar players that have sb-open- IDs but no image
+  useEffect(() => {
+    const report = query.data
+    if (!report || !playerId) return
+    // Only fetch once per report
+    if (fetchedRef.current === playerId) return
+
+    const needsPhoto = report.similarPlayers.filter(
+      (sp) => !sp.image && sp.playerId?.startsWith('sb-open-')
+    )
+    if (needsPhoto.length === 0) return
+
+    fetchedRef.current = playerId
+    const playerIds = needsPhoto
+      .map((sp) => parseInt(sp.playerId!.replace('sb-open-', ''), 10))
+      .filter((id) => !isNaN(id))
+
+    if (playerIds.length === 0) return
+
+    supabase.functions
+      .invoke('generate-photo', { body: { player_ids: playerIds } })
+      .then(({ data: photoData }) => {
+        if (!photoData?.results) return
+        // Update the cached report with the fetched photos
+        queryClient.setQueryData<MockPlayerReport>(
+          ['player-report', playerId],
+          (old) => {
+            if (!old) return old
+            return {
+              ...old,
+              similarPlayers: old.similarPlayers.map((sp) => {
+                if (sp.image || !sp.playerId?.startsWith('sb-open-')) return sp
+                const rawId = parseInt(sp.playerId.replace('sb-open-', ''), 10)
+                const result = photoData.results.find(
+                  (r: { player_id: number; photo_url?: string }) => r.player_id === rawId
+                )
+                if (result?.photo_url) {
+                  return { ...sp, image: result.photo_url, photo_url: result.photo_url }
+                }
+                return sp
+              }),
+            }
+          }
+        )
+      })
+      .catch(() => {})
+  }, [query.data, playerId, queryClient])
+
+  return query
 }

@@ -4,10 +4,11 @@
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { handleCors } from "../_shared/cors.ts";
 import { AuthError, getAuthContext, getServiceClient } from "../_shared/auth.ts";
-import { generateScoutingReport } from "../_shared/claude.ts";
+import { generateScoutingReport, TransferHistoryEntry, ContractInfo } from "../_shared/claude.ts";
 import { getMockPlayer } from "../_shared/mock-data.ts";
 import { getPlayerStats as wyscoutStats, getPlayerDetails as wyscoutDetails } from "../_shared/providers/wyscout.ts";
 import { getPlayerSeasonStats as statsbombStats } from "../_shared/providers/statsbomb.ts";
+import { searchPlayersByName as apiFootballSearch, getTransfers as apiFootballTransfers } from "../_shared/providers/api-football.ts";
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
 
 serve(async (req: Request) => {
@@ -106,14 +107,33 @@ serve(async (req: Request) => {
         .eq("player_id", rawId)
         .single();
 
-      const { data: statsRows } = await supabase
+      // Exclude international competitions to get the player's club team
+      const INTL_COMP_IDS = [43, 11, 55, 53, 72]; // FIFA WC, FIFA WWC, Euro, Women's Euro, Women's Olympics
+      const { data: clubStatsRows } = await supabase
         .from("sb_player_season_stats")
         .select("*")
         .eq("player_id", rawId)
+        .not("competition_id", "in", `(${INTL_COMP_IDS.join(",")})`)
         .order("season_name", { ascending: false })
         .limit(1);
 
-      const stats = statsRows?.[0];
+      let stats = clubStatsRows?.[0];
+
+      // Fallback: if player only has international data, use it but clarify with competition name
+      if (!stats) {
+        const { data: fallbackRows } = await supabase
+          .from("sb_player_season_stats")
+          .select("*")
+          .eq("player_id", rawId)
+          .order("season_name", { ascending: false })
+          .limit(1);
+        stats = fallbackRows?.[0];
+        // Prepend competition context so the team name is unambiguous
+        if (stats) {
+          stats.team_name = `${stats.team_name} (${stats.competition_name} ${stats.season_name})`;
+        }
+      }
+
       playerStats = {
         player_name: playerRow?.player_nickname ?? playerRow?.player_name ?? player_name,
         birth_date: playerRow?.birth_date ?? undefined,
@@ -208,6 +228,23 @@ serve(async (req: Request) => {
       }
     }
 
+    // Fetch real transfer history and contract info from TheSportsDB / API-Football
+    try {
+      const transferData = await fetchTransferAndContractData(
+        player_name,
+        auth.organizationId
+      );
+      if (transferData.transfer_history.length > 0) {
+        enrichedReport.transfer_history = transferData.transfer_history;
+      }
+      if (transferData.contract_info) {
+        enrichedReport.contract_info = transferData.contract_info;
+      }
+    } catch (transferErr) {
+      console.error("Transfer/contract data fetch failed:", (transferErr as Error).message);
+      // Non-fatal: report still saves without transfer data
+    }
+
     // Save to DB
     const { data: savedReport, error: saveError } = await supabase
       .from("player_reports")
@@ -284,6 +321,191 @@ serve(async (req: Request) => {
     );
   }
 });
+
+// ── Transfer & Contract Data (TheSportsDB + API-Football fallback) ─
+
+const SPORTSDB_BASE = "https://www.thesportsdb.com/api/v1/json/3";
+
+/** Strip diacritics so search queries stay ASCII-safe. */
+function stripAccents(s: string): string {
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+interface SportsDbFormerTeam {
+  strFormerTeam?: string;
+  strJoined?: string;
+  strDeparted?: string;
+  strMoveType?: string; // "Contract", "Loan", "Free Transfer", etc.
+}
+
+interface SportsDbContract {
+  strTeam?: string;
+  strYearStart?: string;
+  strYearEnd?: string;
+  strWage?: string;
+}
+
+interface SportsDbPlayerSearchResult {
+  idPlayer?: string;
+  strPlayer?: string;
+}
+
+async function fetchTransferAndContractData(
+  playerName: string,
+  organizationId?: string
+): Promise<{
+  transfer_history: TransferHistoryEntry[];
+  contract_info: ContractInfo | null;
+}> {
+  const result = {
+    transfer_history: [] as TransferHistoryEntry[],
+    contract_info: null as ContractInfo | null,
+  };
+
+  try {
+    // Step 1: Search TheSportsDB for the player's idPlayer
+    const safeName = stripAccents(playerName).slice(0, 100);
+    const searchUrl = `${SPORTSDB_BASE}/searchplayers.php?p=${encodeURIComponent(safeName)}`;
+    console.log(`[TransferData] Searching TheSportsDB for "${safeName}"…`);
+
+    const searchRes = await fetch(searchUrl);
+    if (!searchRes.ok) {
+      console.error(`[TransferData] TheSportsDB search HTTP ${searchRes.status}`);
+      throw new Error("TheSportsDB search failed");
+    }
+
+    const searchData = await searchRes.json();
+    const players: SportsDbPlayerSearchResult[] = searchData?.player ?? [];
+
+    if (players.length === 0 || !players[0].idPlayer) {
+      console.log(`[TransferData] No TheSportsDB results for "${safeName}"`);
+      throw new Error("Player not found on TheSportsDB");
+    }
+
+    const idPlayer = players[0].idPlayer;
+    console.log(`[TransferData] Found idPlayer=${idPlayer} for "${players[0].strPlayer}"`);
+
+    // Step 2: Fetch former teams and contracts in parallel
+    const [formerTeamsRes, contractsRes] = await Promise.all([
+      fetch(`${SPORTSDB_BASE}/lookupformerteams.php?id=${idPlayer}`),
+      fetch(`${SPORTSDB_BASE}/lookupcontracts.php?id=${idPlayer}`),
+    ]);
+
+    // Parse former teams (transfer history)
+    if (formerTeamsRes.ok) {
+      const formerData = await formerTeamsRes.json();
+      const formerTeams: SportsDbFormerTeam[] = formerData?.formerteams ?? [];
+
+      result.transfer_history = formerTeams
+        .filter((ft) => ft.strFormerTeam)
+        .map((ft) => ({
+          club: ft.strFormerTeam!,
+          date: ft.strJoined
+            ? `${ft.strJoined}${ft.strDeparted ? ` – ${ft.strDeparted}` : ""}`
+            : "Unknown",
+          role: ft.strMoveType ?? "Transfer",
+        }));
+
+      console.log(`[TransferData] Found ${result.transfer_history.length} former teams`);
+    } else {
+      console.error(`[TransferData] Former teams HTTP ${formerTeamsRes.status}`);
+    }
+
+    // Parse contracts
+    if (contractsRes.ok) {
+      const contractData = await contractsRes.json();
+      const contracts: SportsDbContract[] = contractData?.contracts ?? [];
+
+      if (contracts.length > 0) {
+        // Most recent contract first (usually the last entry, but sort to be safe)
+        const sorted = [...contracts].sort((a, b) => {
+          const yearA = parseInt(a.strYearStart ?? "0", 10);
+          const yearB = parseInt(b.strYearStart ?? "0", 10);
+          return yearB - yearA;
+        });
+
+        const current = sorted[0];
+        result.contract_info = {
+          current_club: current.strTeam ?? "Unknown",
+          contract_start: current.strYearStart ?? "Unknown",
+          contract_end: current.strYearEnd ?? "Unknown",
+          wage: current.strWage || undefined,
+        };
+
+        console.log(
+          `[TransferData] Contract: ${result.contract_info.current_club} (${result.contract_info.contract_start}–${result.contract_info.contract_end})`
+        );
+      }
+    } else {
+      console.error(`[TransferData] Contracts HTTP ${contractsRes.status}`);
+    }
+
+    // If we got at least some data from TheSportsDB, return it
+    if (result.transfer_history.length > 0 || result.contract_info) {
+      return result;
+    }
+
+    // If TheSportsDB returned the player but no transfer/contract data, try API-Football
+    throw new Error("TheSportsDB returned no transfer/contract data");
+  } catch (sportsDbErr) {
+    console.log(
+      `[TransferData] TheSportsDB incomplete: ${(sportsDbErr as Error).message}. Trying API-Football fallback…`
+    );
+
+    // Fallback: API-Football
+    if (!organizationId) {
+      console.log("[TransferData] No organizationId for API-Football fallback, returning partial data");
+      return result;
+    }
+
+    try {
+      // Search API-Football for the player
+      const apiPlayers = await apiFootballSearch(playerName, organizationId);
+
+      if (apiPlayers.length === 0) {
+        console.log(`[TransferData] API-Football: no results for "${playerName}"`);
+        return result;
+      }
+
+      const apiPlayer = apiPlayers[0];
+      const apiPlayerId = apiPlayer.player.id;
+      console.log(`[TransferData] API-Football: found player ID ${apiPlayerId}`);
+
+      // Fetch transfers
+      const transferData = await apiFootballTransfers(apiPlayerId, organizationId);
+
+      if (transferData?.transfers && transferData.transfers.length > 0) {
+        result.transfer_history = transferData.transfers.map((t) => ({
+          club: t.teams.in.name,
+          date: t.date,
+          role: t.type || "Transfer", // "Loan", "Free", "$45M", etc.
+        }));
+
+        console.log(
+          `[TransferData] API-Football: found ${result.transfer_history.length} transfers`
+        );
+      }
+
+      // API-Football player stats include contract end date
+      const mainStats = apiPlayer.statistics?.[0];
+      if (mainStats) {
+        // API-Football doesn't have explicit contract start/wage,
+        // but the current team is known from stats
+        if (!result.contract_info) {
+          result.contract_info = {
+            current_club: mainStats.team?.name ?? "Unknown",
+            contract_start: "Unknown",
+            contract_end: "Unknown",
+          };
+        }
+      }
+    } catch (apiErr) {
+      console.error(`[TransferData] API-Football fallback failed: ${(apiErr as Error).message}`);
+    }
+
+    return result;
+  }
+}
 
 // ── Helpers ───────────────────────────────────────────────────────
 

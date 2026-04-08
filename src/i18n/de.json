@@ -431,7 +431,8 @@
     "complete": "ABGESCHLOSSEN",
     "processing": "IN BEARBEITUNG",
     "failed": "FEHLGESCHLAGEN",
-    "viewAllAlerts": "Alle {{count}} Benachrichtigungen anzeigen"
+    "viewAllAlerts": "Alle {{count}} Benachrichtigungen anzeigen",
+    "recentSearches.clearAll": "Alle löschen"
   },
   "search": {
     "heading": "Spielersuche",
@@ -456,6 +457,9 @@
       "compiling": "Ergebnisse werden zusammengestellt..."
     },
     "tableView": "Tabellenansicht",
+    "deleteQuery": "Suche löschen",
+    "clearHistory": "Gesamten Verlauf löschen",
+    "showAllHistory": "Alle Suchen anzeigen",
     "noResults": "Keine Spieler gefunden",
     "noResultsSub": "Versuchen Sie, Ihre Suchanfrage oder Filter anzupassen",
     "fitScoreTooltip": "KI-Übereinstimmung — wie gut dieser Spieler zu Ihren Suchkriterien passt (0-100)",

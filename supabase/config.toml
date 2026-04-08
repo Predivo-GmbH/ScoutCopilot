@@ -2,6 +2,9 @@
 # verify_jwt must be false because the project uses ES256 JWTs (new Supabase auth format)
 # which are incompatible with the edge runtime's HS256-based verify_jwt middleware.
 
+[functions.backfill-birth-dates]
+verify_jwt = false
+
 [functions.backfill-reports]
 verify_jwt = false
 

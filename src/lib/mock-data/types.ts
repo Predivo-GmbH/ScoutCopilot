@@ -69,7 +69,7 @@ export interface MockPlayerReport {
   fitScore: number
   seasonStats: Record<string, number | string>
   radarData: { label: string; value: number; average: number }[]
-  similarPlayers: { playerId: string; name: string; club: string; age: number; birth_date?: string; similarity: number; image?: string }[]
+  similarPlayers: { playerId?: string; name: string; club: string; age: number; birth_date?: string; similarity: number; image?: string; photo_url?: string }[]
   transferHistory: { club: string; date: string; fee: string }[]
   contractInfo: { value: string; until: string; wage: string; agent: string }
 }

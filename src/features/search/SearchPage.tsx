@@ -2,12 +2,12 @@ import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { Search as SearchIcon, ArrowRight, Sparkles, Clock } from 'lucide-react'
+import { Search as SearchIcon, ArrowRight, Sparkles, Clock, X } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { SearchFilters } from './components/SearchFilters'
 import { SearchResultsTable } from './components/SearchResultsTable'
 import { usePlayerSearch } from './hooks/usePlayerSearch'
-import { useRecentSearches } from '../dashboard/hooks/useDashboardData'
+import { useRecentSearches, useDeleteSearch } from '../dashboard/hooks/useDashboardData'
 
 const SUGGESTED_QUERIES = [
   'Left-backs under 23, >75% crossing accuracy',
@@ -133,6 +133,7 @@ function EmptyState({ onSuggestionClick, onLoadSaved }: {
 }) {
   const { t } = useTranslation()
   const { data: recentSearches } = useRecentSearches()
+  const deleteSearch = useDeleteSearch()
 
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -161,6 +162,16 @@ function EmptyState({ onSuggestionClick, onLoadSaved }: {
                 <SearchIcon size={14} strokeWidth={1.5} className="text-on-surface-variant/50 shrink-0" aria-hidden="true" />
                 <span className="text-sm text-on-surface truncate flex-1">{s.query}</span>
                 <span className="text-[0.625rem] font-data text-on-surface-variant/70 shrink-0">{s.resultCount} {t('searchHistory.results')}</span>
+                <span
+                  role="button"
+                  tabIndex={0}
+                  aria-label={t('search.deleteQuery')}
+                  className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded-sm text-on-surface-variant/50 hover:text-error hover:bg-error/10 transition-all shrink-0"
+                  onClick={(e) => { e.stopPropagation(); deleteSearch.mutate(s.id) }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); e.preventDefault(); deleteSearch.mutate(s.id) } }}
+                >
+                  <X size={14} strokeWidth={1.5} />
+                </span>
               </button>
             ))}
           </div>

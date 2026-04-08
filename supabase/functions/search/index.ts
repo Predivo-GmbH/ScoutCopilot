@@ -319,14 +319,36 @@ async function searchStatsBombByName(
   if (!textResults || textResults.length === 0) return [];
 
   const playerIds = textResults.map((p: { player_id: number }) => p.player_id);
-  const { data: statsRows } = await supabase
+  const INTL_COMP_IDS = [43, 11, 55, 53, 72]; // FIFA WC, FIFA WWC, Euro, Women's Euro, Women's Olympics
+
+  // Fetch club stats (excluding international competitions)
+  const { data: clubStatsRows } = await supabase
     .from("sb_player_season_stats")
     .select("*")
-    .in("player_id", playerIds);
+    .in("player_id", playerIds)
+    .not("competition_id", "in", `(${INTL_COMP_IDS.join(",")})`)
+    .order("season_name", { ascending: false });
+
+  // Also fetch all stats as fallback for players with only international data
+  const { data: allStatsRows } = await supabase
+    .from("sb_player_season_stats")
+    .select("*")
+    .in("player_id", playerIds)
+    .order("season_name", { ascending: false });
 
   const results: Record<string, unknown>[] = [];
   for (const p of textResults) {
-    const stats = (statsRows ?? []).find((s: { player_id: number }) => s.player_id === p.player_id);
+    // Prefer club stats; fall back to international with context label
+    let stats = (clubStatsRows ?? []).find((s: { player_id: number }) => s.player_id === p.player_id);
+    let teamName: string;
+    if (stats) {
+      teamName = stats.team_name ?? "Unknown";
+    } else {
+      stats = (allStatsRows ?? []).find((s: { player_id: number }) => s.player_id === p.player_id);
+      teamName = stats
+        ? `${stats.team_name} (${stats.competition_name} ${stats.season_name})`
+        : "Unknown";
+    }
     results.push({
       player_external_id: `sb-open-${p.player_id}`,
       player_name: p.player_nickname ?? p.player_name,
@@ -334,7 +356,7 @@ async function searchStatsBombByName(
       birth_date: p.birth_date ?? null,
       nationality: p.nationality ?? "Unknown",
       position: p.primary_position ?? "Unknown",
-      team: stats?.team_name ?? "Unknown",
+      team: teamName,
       league: stats ? `${stats.competition_name} (${stats.season_name})` : "Unknown",
       photo_url: p.photo_url ?? undefined,
       photo_source: p.photo_url?.includes('thesportsdb.com') ? 'sportsdb' : (p.photo_url ? 'stitch' : undefined),
@@ -466,6 +488,8 @@ async function searchStatsBombOpenData(
   params: ParsedSearchParams
 ): Promise<Record<string, unknown>[]> {
   // Build query against sb_player_season_stats joined with sb_players
+  // Exclude international competitions so club teams appear instead of national teams
+  const INTL_COMP_IDS = [43, 11, 55, 53, 72]; // FIFA WC, FIFA WWC, Euro, Women's Euro, Women's Olympics
   let query = supabase
     .from("sb_player_season_stats")
     .select(`
@@ -475,6 +499,7 @@ async function searchStatsBombOpenData(
         nationality, primary_position, positions, photo_url, birth_date
       )
     `)
+    .not("competition_id", "in", `(${INTL_COMP_IDS.join(",")})`)
     .limit(params.limit ?? 50);
 
   // Filter by position
