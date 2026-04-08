@@ -34,6 +34,7 @@ export function SearchPage() {
   useEffect(() => {
     if (initialQuery && lastAutoQuery.current !== initialQuery) {
       lastAutoQuery.current = initialQuery
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sync input with URL query param
       setQueryInput(initialQuery)
       clearResults()
       if (isSavedSearch && savedSearchId) {
