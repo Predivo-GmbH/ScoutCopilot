@@ -27,50 +27,53 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      - name: Deploy via FTP (zero-downtime)
+      - name: Install lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+      - name: Deploy assets (no deletion — zero-downtime overlap)
+        run: |
+          lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT
+          set ftp:ssl-allow no
+          mirror --reverse --verbose --no-perms \
+            ./dist/assets/ /httpdocs/assets/
+          bye
+          SCRIPT
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
           FTP_PASS: ${{ secrets.FTP_PASS }}
+
+      - name: Deploy root files and static directories
         run: |
-          sudo apt-get install -y lftp
+          lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT
+          set ftp:ssl-allow no
+          mirror --reverse --verbose --no-perms \
+            ./dist/fonts/ /httpdocs/fonts/
+          mirror --reverse --verbose --no-perms \
+            ./dist/avatars/ /httpdocs/avatars/
+          put ./dist/index.html -o /httpdocs/index.html
+          put ./dist/.htaccess -o /httpdocs/.htaccess
+          put ./dist/favicon.svg -o /httpdocs/favicon.svg
+          put ./dist/robots.txt -o /httpdocs/robots.txt
+          put ./dist/sitemap.xml -o /httpdocs/sitemap.xml
+          put ./dist/og-image.png -o /httpdocs/og-image.png
+          put ./dist/logo.png -o /httpdocs/logo.png
+          bye
+          SCRIPT
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
 
-          # Write credentials to .netrc to avoid shell escaping issues
-          printf "machine %s\nlogin %s\npassword %s\n" "$FTP_HOST" "$FTP_USER" "$FTP_PASS" > ~/.netrc
-          chmod 600 ~/.netrc
-
-          LFTP_SETTINGS="set ftp:ssl-allow yes; set ssl:verify-certificate no; set ftp:passive-mode yes; set net:max-retries 3; set net:reconnect-interval-base 5; set net:timeout 30;"
-
-          # Step 1: Upload new hashed assets alongside old ones (no deletion yet)
-          lftp -e "
-            $LFTP_SETTINGS
-            open $FTP_HOST;
-            mirror --reverse --no-perms --verbose ./dist/assets/ /httpdocs/assets/;
-            quit;
-          "
-
-          # Step 2: Upload root files (switches to new asset references)
-          lftp -e "
-            $LFTP_SETTINGS
-            open $FTP_HOST;
-            mirror --reverse --no-perms --verbose ./dist/fonts/ /httpdocs/fonts/;
-            mirror --reverse --no-perms --verbose ./dist/avatars/ /httpdocs/avatars/;
-            put ./dist/index.html -o /httpdocs/index.html;
-            put ./dist/.htaccess -o /httpdocs/.htaccess;
-            put ./dist/favicon.svg -o /httpdocs/favicon.svg;
-            put ./dist/robots.txt -o /httpdocs/robots.txt;
-            put ./dist/sitemap.xml -o /httpdocs/sitemap.xml;
-            put ./dist/og-image.png -o /httpdocs/og-image.png;
-            put ./dist/logo.png -o /httpdocs/logo.png;
-            quit;
-          "
-
-          # Step 3: Clean up stale assets no longer in the new build
-          lftp -e "
-            $LFTP_SETTINGS
-            open $FTP_HOST;
-            mirror --reverse --delete --no-perms --verbose ./dist/assets/ /httpdocs/assets/;
-            quit;
-          "
-
-          rm -f ~/.netrc
+      - name: Clean up stale assets
+        run: |
+          lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT
+          set ftp:ssl-allow no
+          mirror --reverse --verbose --no-perms --delete \
+            ./dist/assets/ /httpdocs/assets/
+          bye
+          SCRIPT
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
