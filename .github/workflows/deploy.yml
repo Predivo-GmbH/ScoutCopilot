@@ -54,6 +54,11 @@ jobs:
           put ./dist/index.html -o /httpdocs/index.html
           put ./dist/.htaccess -o /httpdocs/.htaccess
           put ./dist/favicon.svg -o /httpdocs/favicon.svg
+          put ./dist/favicon.ico -o /httpdocs/favicon.ico
+          put ./dist/favicon-16x16.png -o /httpdocs/favicon-16x16.png
+          put ./dist/favicon-32x32.png -o /httpdocs/favicon-32x32.png
+          put ./dist/apple-touch-icon.png -o /httpdocs/apple-touch-icon.png
+          put ./dist/site.webmanifest -o /httpdocs/site.webmanifest
           put ./dist/robots.txt -o /httpdocs/robots.txt
           put ./dist/sitemap.xml -o /httpdocs/sitemap.xml
           put ./dist/og-image.png -o /httpdocs/og-image.png
