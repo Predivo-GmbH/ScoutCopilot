@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf'
 import i18n from '../i18n'
+import { formatAge } from './ageUtils'
 import type { MockPlayerReport } from './mock-data'
 
 const COLORS = {
@@ -31,7 +32,8 @@ export function exportPlayerPdf(report: MockPlayerReport) {
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(10)
-  doc.text(`${report.club}  |  ${report.position}  |  Age ${report.age}  |  ${report.nationality}`, margin, 24)
+  const displayAge = report.birth_date ? formatAge(report.birth_date) : (report.age > 0 ? String(report.age) : '\u2014')
+  doc.text(`${report.club}  |  ${report.position}  |  Age ${displayAge}  |  ${report.nationality}`, margin, 24)
 
   const t = i18n.t.bind(i18n)
   const recLabel = report.recommendation === 'sign' ? t('pdf.recommendSign') : report.recommendation === 'monitor' ? t('pdf.monitor') : t('pdf.pass')

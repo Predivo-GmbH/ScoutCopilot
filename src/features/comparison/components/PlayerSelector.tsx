@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Plus, X, Search } from 'lucide-react'
+import { formatAge } from '../../../lib/ageUtils'
 import type { MockComparisonPlayer } from '../../../lib/mock-data'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import { dotColors } from '../constants'
@@ -110,7 +111,7 @@ export function PlayerSelector({ selectedPlayers, availablePlayers, maxPlayers, 
                         <p className="text-xs font-semibold text-on-surface truncate">{player.name}</p>
                         <p className="text-[0.625rem] font-data text-on-surface-variant truncate">{player.club} &middot; {player.position}</p>
                       </div>
-                      <span className="text-[0.625rem] font-data text-on-surface-variant/60">{player.age}y</span>
+                      <span className="text-[0.625rem] font-data text-on-surface-variant/60">{player.birth_date ? `${formatAge(player.birth_date)}y` : (player.age > 0 ? `${player.age}y` : '\u2014')}</span>
                     </button>
                   ))
                 )}

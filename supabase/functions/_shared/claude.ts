@@ -194,12 +194,13 @@ export interface ScoutingReport {
   stats_analysis: Record<string, unknown>;
   recommendation: string;
   fit_contexts: string[];
-  transfer_history: Array<{ club: string; date: string; fee: string }>;
-  contract_info: { estimated_value: string; contract_status: string; agent: string };
   similar_players: Array<{
+    playerId: number;
     name: string;
     club: string;
-    age: number;
+    position: string;
+    photo_url: string | null;
+    birth_date: string | null;
     similarity_pct: number;
     reasoning: string;
   }>;
@@ -220,29 +221,10 @@ Return ONLY valid JSON:
     "physical": { "rating": "A/B/C/D", "key_metrics": {} }
   },
   "recommendation": "Final recommendation paragraph including what type of team/system this player would suit",
-  "fit_contexts": ["3-5 tactical contexts where this player would excel, e.g. '4-3-3 high press as left-sided CB'"],
-  "transfer_history": [
-    { "club": "Club name", "date": "YYYY or YYYY-MM", "fee": "€Xm or Free or Loan or Unknown" }
-  ],
-  "contract_info": {
-    "estimated_value": "Estimated market value range, e.g. €15-20m",
-    "contract_status": "Known or estimated contract end date and status, e.g. Under contract until 2027",
-    "agent": "Agent name if known, otherwise Unknown"
-  },
-  "similar_players": [
-    {
-      "name": "Player name",
-      "club": "Current club",
-      "age": 25,
-      "similarity_pct": 85,
-      "reasoning": "Brief explanation of why this player is similar in style/profile"
-    }
-  ]
+  "fit_contexts": ["3-5 tactical contexts where this player would excel, e.g. '4-3-3 high press as left-sided CB'"]
 }
 
-For transfer_history: include known transfers from your training data. List chronologically (oldest first). If unknown, return an empty array.
-For contract_info: provide best estimates from your training data. Use "Unknown" for fields you cannot estimate.
-For similar_players: identify 3-5 players with a similar playing style, statistical profile, and/or physical attributes. Include a similarity percentage (0-100) and brief reasoning.
+Do NOT include transfer_history, contract_info, or similar_players — those are handled separately.
 
 Be specific. Reference actual numbers. Compare to positional averages where possible. Write in professional scouting language.`;
 

@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Users, Heart, AlertTriangle } from 'lucide-react'
 import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
+import { calculateAge } from '../../lib/ageUtils'
 import type { FormationType, MockSquad } from '../../lib/mock-data'
 import { useSquad } from './hooks/useSquad'
 import { useGapAnalysis } from './hooks/useGapAnalysis'
@@ -75,7 +76,7 @@ function SquadDetail({ squad, onBack }: { squad: MockSquad; onBack: () => void }
   const [formation, setFormation] = useState<FormationType>(squad.formation)
 
   const totalPlayers = squad.players.length
-  const avgAge = totalPlayers > 0 ? (squad.players.reduce((s, p) => s + p.age, 0) / totalPlayers).toFixed(1) : '0'
+  const avgAge = totalPlayers > 0 ? (squad.players.reduce((s, p) => s + (calculateAge(p.birth_date) ?? p.age), 0) / totalPlayers).toFixed(1) : '0'
   const injuredCount = squad.players.filter((p) => p.status === 'injured').length
   const onLoanCount = squad.players.filter((p) => p.status === 'on_loan').length
 

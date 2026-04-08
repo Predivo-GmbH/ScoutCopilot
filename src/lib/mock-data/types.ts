@@ -39,6 +39,7 @@ export interface MockPlayer {
   id: string
   name: string
   age: number
+  birth_date?: string
   nationality: string
   position: string
   club: string
@@ -54,6 +55,7 @@ export interface MockPlayerReport {
   playerId: string
   playerName: string
   age: number
+  birth_date?: string
   nationality: string
   position: string
   club: string
@@ -67,7 +69,7 @@ export interface MockPlayerReport {
   fitScore: number
   seasonStats: Record<string, number | string>
   radarData: { label: string; value: number; average: number }[]
-  similarPlayers: { playerId: string; name: string; club: string; age: number; similarity: number; image?: string }[]
+  similarPlayers: { playerId: string; name: string; club: string; age: number; birth_date?: string; similarity: number; image?: string }[]
   transferHistory: { club: string; date: string; fee: string }[]
   contractInfo: { value: string; until: string; wage: string; agent: string }
 }
@@ -89,6 +91,7 @@ export interface MockWatchlistPlayer {
   club: string
   position: string
   age: number
+  birth_date?: string
   nationality: string
   image?: string
   keyMetric: { value: string; label: string }
@@ -103,6 +106,7 @@ export interface MockComparisonPlayer {
   club: string
   position: string
   age: number
+  birth_date?: string
   nationality: string
   image: string
   metrics: Record<string, number>
@@ -115,6 +119,7 @@ export interface SquadPlayer {
   id: string
   name: string
   age: number
+  birth_date?: string
   nationality: string
   position: SquadPosition
   altPositions?: SquadPosition[]

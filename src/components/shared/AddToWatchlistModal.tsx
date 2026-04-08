@@ -3,6 +3,7 @@ import { Plus, Check, Minus, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/Button'
 import { useWatchlistActions } from '../../lib/useWatchlistActions'
+import { formatAge } from '../../lib/ageUtils'
 import type { MockWatchlistPlayer } from '../../lib/mock-data'
 
 interface AddToWatchlistModalProps {
@@ -116,7 +117,7 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
         {/* Player Info */}
         <div className="px-6 py-3 bg-surface-container-low border-b border-outline-variant">
           <p className="text-sm font-semibold text-on-surface">{player.name}</p>
-          <p className="text-[0.625rem] text-on-surface-variant">{player.club} &middot; {player.position} &middot; {player.age}y</p>
+          <p className="text-[0.625rem] text-on-surface-variant">{player.club} &middot; {player.position} &middot; {player.birth_date ? `${formatAge(player.birth_date)}y` : (player.age > 0 ? `${player.age}y` : '\u2014')}</p>
         </div>
 
         {/* Watchlist List */}

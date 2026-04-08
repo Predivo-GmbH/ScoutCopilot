@@ -8,11 +8,13 @@ import { Button } from '../../components/ui/Button'
 import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { supabase } from '../../lib/supabase'
+import { formatAge } from '../../lib/ageUtils'
 
 interface ReportListItem {
   playerId: string
   playerName: string
   age: number | null
+  birth_date?: string
   nationality: string
   position: string
   club: string
@@ -45,6 +47,7 @@ function mapDbRowToListItem(row: {
     playerId: row.player_external_id,
     playerName: row.player_name,
     age: typeof playerData.age === 'number' ? playerData.age : null,
+    birth_date: (playerData.birth_date as string) ?? undefined,
     nationality: (playerData.nationality as string) ?? '',
     position: (playerData.position as string) ?? '',
     club: (playerData.team as string) ?? (playerData.club as string) ?? '',
@@ -147,7 +150,7 @@ export function ReportsListPage() {
                   </div>
                   <div>
                     <p className="text-[0.625rem] text-on-surface-variant uppercase">{t('common.age')}</p>
-                    <p className="font-data text-sm">{report.age && report.age > 0 ? report.age : '—'}</p>
+                    <p className="font-data text-sm">{report.birth_date ? formatAge(report.birth_date) : (report.age && report.age > 0 ? String(report.age) : '—')}</p>
                   </div>
                   <div>
                     <p className="text-[0.625rem] text-on-surface-variant uppercase">{t('reportsList.fitScore')}</p>
@@ -220,13 +223,11 @@ export function ReportsListPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-center">
-                      <span className="px-2 py-1 bg-surface-container-low rounded-sm text-[0.625rem] font-semibold text-on-surface-variant uppercase">
-                        {report.club}
-                      </span>
+                    <td className="px-4 py-4 text-center text-sm text-on-surface">
+                      {report.club}
                     </td>
                     <td className="px-4 py-4 text-center font-data text-on-surface-variant">{report.position}</td>
-                    <td className="px-4 py-4 text-center font-data">{report.age && report.age > 0 ? report.age : '—'}</td>
+                    <td className="px-4 py-4 text-center font-data">{report.birth_date ? formatAge(report.birth_date) : (report.age && report.age > 0 ? String(report.age) : '—')}</td>
                     <td className="px-4 py-4 text-center">
                       <span className="text-primary font-data font-semibold">{report.fitScore}</span>
                     </td>

@@ -1,6 +1,7 @@
 import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
+import { formatAge } from '../../../lib/ageUtils'
 import type { SquadPlayer } from '../../../lib/mock-data'
 
 interface SquadTableProps {
@@ -72,7 +73,7 @@ export function SquadTable({ players }: SquadTableProps) {
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div>
                   <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('common.age')}</p>
-                  <p className="font-data text-sm">{player.age}</p>
+                  <p className="font-data text-sm">{player.birth_date ? formatAge(player.birth_date) : (player.age > 0 ? String(player.age) : '—')}</p>
                 </div>
                 <div>
                   <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('squad.rating')}</p>
@@ -138,7 +139,7 @@ export function SquadTable({ players }: SquadTableProps) {
                       </span>
                     ))}
                   </td>
-                  <td className="px-4 py-4 text-center font-data">{player.age}</td>
+                  <td className="px-4 py-4 text-center font-data">{player.birth_date ? formatAge(player.birth_date) : (player.age > 0 ? String(player.age) : '—')}</td>
                   <td className="px-4 py-4 text-center font-data text-on-surface-variant text-xs">
                     {new Date(player.contractUntil).toLocaleDateString(t('common.locale', 'en-GB'), { month: 'short', year: 'numeric' })}
                   </td>

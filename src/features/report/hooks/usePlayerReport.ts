@@ -57,6 +57,7 @@ function mapDbToReport(row: {
     playerId: row.player_external_id,
     playerName: row.player_name,
     age: typeof rd.age === 'number' ? rd.age : 0,
+    birth_date: (rd.birth_date as string) ?? undefined,
     nationality: (rd.nationality as string) ?? '',
     position: (rd.position as string) ?? '',
     club: (rd.team as string) ?? (rd.club as string) ?? '',
@@ -72,11 +73,13 @@ function mapDbToReport(row: {
     radarData,
     similarPlayers: Array.isArray(rd.similar_players)
       ? (rd.similar_players as Array<Record<string, unknown>>).map((sp) => ({
-          playerId: '',
+          playerId: (sp.player_id as string) ?? (sp.playerId as string) ?? '',
           name: (sp.name as string) ?? '',
           club: (sp.club as string) ?? '',
           age: typeof sp.age === 'number' ? sp.age : 0,
+          birth_date: (sp.birth_date as string) ?? undefined,
           similarity: typeof sp.similarity_pct === 'number' ? sp.similarity_pct : 0,
+          image: (sp.image as string) ?? (sp.photo_url as string) ?? undefined,
         }))
       : [],
     transferHistory: Array.isArray(rd.transfer_history)

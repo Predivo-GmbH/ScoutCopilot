@@ -22,6 +22,7 @@ import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 import { AddToWatchlistModal } from '../../components/shared/AddToWatchlistModal'
 import { usePlayerReport } from './hooks/usePlayerReport'
 import { useGeneratedReports } from '../../lib/useGeneratedReportsHook'
+import { formatAge } from '../../lib/ageUtils'
 import type { MockWatchlistPlayer, WatchlistAlert } from '../../lib/mock-data'
 
 export function ReportPage() {
@@ -142,7 +143,7 @@ export function ReportPage() {
                 </span>
               ))}
               <span className="w-1 h-1 rounded-full bg-outline-variant" />
-              <span className="text-sm text-on-surface-variant">{t('common.age')}: {report.age > 0 ? report.age : '—'}</span>
+              <span className="text-sm text-on-surface-variant">{t('common.age')}: {report.birth_date ? formatAge(report.birth_date) : (report.age > 0 ? String(report.age) : '—')}</span>
               <span className="w-1 h-1 rounded-full bg-outline-variant" />
               <span className="text-sm text-on-surface-variant">{report.nationality}</span>
             </div>
@@ -275,14 +276,14 @@ export function ReportPage() {
                   className="flex items-center justify-between p-3 bg-surface-container-low rounded-md hover:bg-surface-container-high transition-colors cursor-pointer"
                   role="button"
                   tabIndex={0}
-                  onClick={() => navigate('/search?q=' + encodeURIComponent(p.name))}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/search?q=' + encodeURIComponent(p.name)); } }}
+                  onClick={() => navigate(p.playerId ? `/players/${p.playerId}` : '/search?q=' + encodeURIComponent(p.name))}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(p.playerId ? `/players/${p.playerId}` : '/search?q=' + encodeURIComponent(p.name)); } }}
                 >
                   <div className="flex items-center gap-3">
                     <PlayerAvatar name={p.name} size={40} imageUrl={p.image} clickable aiGenerated={!!p.image && !p.image.includes('thesportsdb.com')} />
                     <div>
                       <div className="text-sm font-semibold text-on-surface">{p.name}</div>
-                      <div className="text-[0.625rem] text-on-surface-variant">{p.club} &middot; {p.age ? `${p.age}y` : '\u2014'}</div>
+                      <div className="text-[0.625rem] text-on-surface-variant">{p.club} &middot; {p.birth_date ? `${formatAge(p.birth_date)}y` : (p.age ? `${p.age}y` : '\u2014')}</div>
                     </div>
                   </div>
                   <div className="font-data text-sm text-primary font-semibold">{p.similarity}%</div>

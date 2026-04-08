@@ -312,7 +312,7 @@ async function searchStatsBombByName(
 ): Promise<Record<string, unknown>[]> {
   const { data: textResults } = await supabase
     .from("sb_players")
-    .select("player_id, player_name, player_nickname, nationality, primary_position, photo_url")
+    .select("player_id, player_name, player_nickname, nationality, primary_position, photo_url, birth_date")
     .or(`player_name.ilike.%${sanitizedQuery}%,player_nickname.ilike.%${sanitizedQuery}%`)
     .limit(20);
 
@@ -330,7 +330,8 @@ async function searchStatsBombByName(
     results.push({
       player_external_id: `sb-open-${p.player_id}`,
       player_name: p.player_nickname ?? p.player_name,
-      age: null,
+      age: p.birth_date ? calculateAge(p.birth_date) : null,
+      birth_date: p.birth_date ?? null,
       nationality: p.nationality ?? "Unknown",
       position: p.primary_position ?? "Unknown",
       team: stats?.team_name ?? "Unknown",
@@ -471,7 +472,7 @@ async function searchStatsBombOpenData(
       *,
       sb_players!inner (
         player_id, player_name, player_nickname,
-        nationality, primary_position, positions, photo_url
+        nationality, primary_position, positions, photo_url, birth_date
       )
     `)
     .limit(params.limit ?? 50);
@@ -506,6 +507,7 @@ async function searchStatsBombOpenData(
       primary_position: string | null;
       positions: string[] | null;
       photo_url: string | null;
+      birth_date: string | null;
     };
     team_name: string;
     competition_name: string;
@@ -546,7 +548,8 @@ async function searchStatsBombOpenData(
     player_external_id: `sb-open-${row.sb_players.player_id}`,
     player_name:
       row.sb_players.player_nickname ?? row.sb_players.player_name,
-    age: null, // enriched from TheSportsDB during photo fetch
+    age: row.sb_players.birth_date ? calculateAge(row.sb_players.birth_date) : null,
+    birth_date: row.sb_players.birth_date ?? null,
     nationality: row.sb_players.nationality ?? "Unknown",
     position: row.sb_players.primary_position ?? "Unknown",
     positions: row.sb_players.positions ?? [],

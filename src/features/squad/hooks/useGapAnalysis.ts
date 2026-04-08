@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { calculateAge } from '../../../lib/ageUtils'
 import type { SquadPlayer, SquadPosition, PositionGap } from '../../../lib/mock-data'
 import { positionLabels } from '../../../lib/mock-data'
 
@@ -40,9 +41,10 @@ function analyzePosition(position: SquadPosition, players: SquadPlayer[], t: (ke
   let ageScore = 100
   if (available.length > 0) {
     const starter = available.reduce((a, b) => a.overallRating > b.overallRating ? a : b)
-    if (starter.age >= 33) { ageScore = 0; reasons.push(t('gapAnalysis.reasons.approachingRetirement', { name: starter.name, age: starter.age })) }
-    else if (starter.age >= 30) { ageScore = 40; reasons.push(t('gapAnalysis.reasons.aging', { name: starter.name, age: starter.age })) }
-    else if (starter.age >= 27) { ageScore = 70 }
+    const starterAge = calculateAge(starter.birth_date) ?? starter.age
+    if (starterAge >= 33) { ageScore = 0; reasons.push(t('gapAnalysis.reasons.approachingRetirement', { name: starter.name, age: starterAge })) }
+    else if (starterAge >= 30) { ageScore = 40; reasons.push(t('gapAnalysis.reasons.aging', { name: starter.name, age: starterAge })) }
+    else if (starterAge >= 27) { ageScore = 70 }
   }
 
   // Performance score (weight 20%)
@@ -71,7 +73,7 @@ function analyzePosition(position: SquadPosition, players: SquadPlayer[], t: (ke
     totalScore < 55 ? 'high' :
     totalScore < 75 ? 'medium' : 'low'
 
-  const avgAge = available.length > 0 ? Math.round(available.reduce((s, p) => s + p.age, 0) / available.length * 10) / 10 : 0
+  const avgAge = available.length > 0 ? Math.round(available.reduce((s, p) => s + (calculateAge(p.birth_date) ?? p.age), 0) / available.length * 10) / 10 : 0
   const searchTerm = t(POSITION_SEARCH_KEY_MAP[position])
   const searchQuery = ageScore < 50 ? `${searchTerm} under 27` : `${searchTerm} under 25`
 

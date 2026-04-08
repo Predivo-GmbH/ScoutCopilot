@@ -100,6 +100,7 @@ function mapToMockPlayer(result: EdgeSearchResponse['results'][number]): MockPla
     id: result.player_external_id,
     name: result.player_name,
     age: (d.age as number) || 0,
+    birth_date: (d.birth_date as string) || undefined,
     nationality: (d.nationality as string) || 'Unknown',
     position: (d.position as string) || 'Unknown',
     club: (d.team as string) || 'Unknown',
@@ -242,9 +243,15 @@ export function usePlayerSearch() {
     enabled: hasSearched && searchTrigger > 0,
   })
 
+  function clearResults() {
+    queryClient.setQueryData(['player-search', searchTrigger], [])
+  }
+
   function search(newParams?: Partial<SearchParams>) {
     setSavedSearchId(null)
     setPhotoLoadingIds(new Set())
+    // Clear stale results from the previous query immediately
+    clearResults()
     if (newParams) {
       setParams((prev) => ({ ...prev, ...newParams }))
     }
@@ -253,6 +260,8 @@ export function usePlayerSearch() {
   }
 
   function loadSaved(searchId: string, query: string) {
+    // Clear stale results from the previous query immediately
+    clearResults()
     setSavedSearchId(searchId)
     setParams((prev) => ({ ...prev, query }))
     setHasSearched(true)
@@ -269,6 +278,7 @@ export function usePlayerSearch() {
     isLoading,
     hasSearched,
     photoLoadingIds,
+    clearResults,
     search,
     loadSaved,
     updateFilters,

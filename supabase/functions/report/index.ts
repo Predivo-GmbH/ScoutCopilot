@@ -102,7 +102,7 @@ serve(async (req: Request) => {
       const rawId = parseInt(player_external_id.replace("sb-open-", ""), 10);
       const { data: playerRow } = await supabase
         .from("sb_players")
-        .select("player_id, player_name, player_nickname, nationality, primary_position, positions, photo_url")
+        .select("player_id, player_name, player_nickname, nationality, primary_position, positions, photo_url, birth_date")
         .eq("player_id", rawId)
         .single();
 
@@ -116,6 +116,7 @@ serve(async (req: Request) => {
       const stats = statsRows?.[0];
       playerStats = {
         player_name: playerRow?.player_nickname ?? playerRow?.player_name ?? player_name,
+        birth_date: playerRow?.birth_date ?? undefined,
         nationality: playerRow?.nationality ?? "Unknown",
         position: playerRow?.primary_position ?? "Unknown",
         positions: playerRow?.positions ?? [],
@@ -180,11 +181,32 @@ serve(async (req: Request) => {
     }
 
     // Inject player metadata for the reports list page
-    if (playerStats.age !== undefined) enrichedReport.age = playerStats.age;
+    if (playerStats.birth_date) {
+      enrichedReport.birth_date = playerStats.birth_date;
+      enrichedReport.age = Math.floor(
+        (Date.now() - new Date(playerStats.birth_date as string).getTime()) / 31557600000
+      );
+    } else if (playerStats.age !== undefined) {
+      enrichedReport.age = playerStats.age;
+    }
     if (playerStats.nationality !== undefined) enrichedReport.nationality = playerStats.nationality;
     if (playerStats.position !== undefined) enrichedReport.position = playerStats.position;
     if (playerStats.team !== undefined) enrichedReport.team = playerStats.team;
     if (playerStats.league !== undefined) enrichedReport.league = playerStats.league;
+
+    // Replace AI-generated similar_players with database-driven similar players
+    if (player_external_id.startsWith("sb-open-")) {
+      try {
+        const dbSimilarPlayers = await findSimilarPlayers(
+          supabase,
+          parseInt(player_external_id.replace("sb-open-", ""), 10),
+          playerStats
+        );
+        enrichedReport.similar_players = dbSimilarPlayers;
+      } catch (err) {
+        console.error("Similar players lookup failed:", (err as Error).message);
+      }
+    }
 
     // Save to DB
     const { data: savedReport, error: saveError } = await supabase
@@ -311,4 +333,154 @@ async function fetchPlayerFullStats(
   }
 
   throw new Error("No matching credentials for this player's data provider.");
+}
+
+// ── Similar Players (database-driven) ─────────────────────────────
+
+/** Stats used for similarity comparison — must exist in sb_player_season_stats */
+const SIMILARITY_STATS = [
+  "goals", "assists", "xg", "xa", "npxg",
+  "pass_completion", "progressive_passes", "progressive_carries",
+  "key_passes", "tackles", "interceptions", "clearances",
+  "aerial_duel_win_rate", "ground_duel_win_rate",
+  "dribbles", "dribble_success_rate", "pressures",
+  "shot_creating_actions", "goal_creating_actions",
+] as const;
+
+/** Normalization ranges per stat (approximate ranges for professional players) */
+const STAT_RANGES: Record<string, number> = {
+  goals: 30, assists: 20, xg: 25, xa: 15, npxg: 20,
+  pass_completion: 100, progressive_passes: 200, progressive_carries: 150,
+  key_passes: 100, tackles: 100, interceptions: 80, clearances: 100,
+  aerial_duel_win_rate: 100, ground_duel_win_rate: 100,
+  dribbles: 150, dribble_success_rate: 100, pressures: 400,
+  shot_creating_actions: 150, goal_creating_actions: 50,
+};
+
+interface SimilarPlayer {
+  playerId: number;
+  name: string;
+  club: string;
+  position: string;
+  photo_url: string | null;
+  birth_date: string | null;
+  similarity_pct: number;
+  reasoning: string;
+}
+
+async function findSimilarPlayers(
+  supabase: ReturnType<typeof getServiceClient>,
+  currentPlayerId: number,
+  currentStats: Record<string, unknown>
+): Promise<SimilarPlayer[]> {
+  // Get current player's position
+  const position = (currentStats.position as string) ?? "Unknown";
+
+  // Map position to similar positions for broader candidate pool
+  const positionGroups: Record<string, string[]> = {
+    ST: ["ST", "CF"], CF: ["CF", "ST"],
+    LW: ["LW", "RW", "LM"], RW: ["RW", "LW", "RM"],
+    LM: ["LM", "LW"], RM: ["RM", "RW"],
+    CAM: ["CAM", "CM"], CM: ["CM", "CAM", "CDM"], CDM: ["CDM", "CM"],
+    CB: ["CB"], LB: ["LB", "LWB"], RB: ["RB", "RWB"],
+    LWB: ["LWB", "LB"], RWB: ["RWB", "RB"],
+    GK: ["GK"],
+  };
+  const targetPositions = positionGroups[position.toUpperCase()] ?? [position];
+
+  // Fetch candidates: players with same/similar position
+  const { data: candidates } = await supabase
+    .from("sb_player_season_stats")
+    .select(`
+      *,
+      sb_players!inner (
+        player_id, player_name, player_nickname,
+        primary_position, photo_url, birth_date
+      )
+    `)
+    .in("sb_players.primary_position", targetPositions.map((p) => p.toUpperCase()))
+    .neq("sb_players.player_id", currentPlayerId)
+    .gt("minutes_played", 200)
+    .order("season_name", { ascending: false })
+    .limit(200);
+
+  if (!candidates || candidates.length === 0) return [];
+
+  // Deduplicate: keep only latest season per player
+  const seen = new Set<number>();
+  const uniqueCandidates = candidates.filter((c: { sb_players: { player_id: number } }) => {
+    if (seen.has(c.sb_players.player_id)) return false;
+    seen.add(c.sb_players.player_id);
+    return true;
+  });
+
+  // Build current player's stat vector (normalized)
+  const currentVector: number[] = SIMILARITY_STATS.map((stat) => {
+    const val = Number(currentStats[stat] ?? currentStats[stat.replace(/_([a-z])/g, (_, c) => c.toUpperCase())] ?? 0);
+    return val / (STAT_RANGES[stat] || 1);
+  });
+
+  // Calculate distance for each candidate
+  const scored = uniqueCandidates.map((c: Record<string, unknown>) => {
+    const candidateVector: number[] = SIMILARITY_STATS.map((stat) => {
+      const val = Number((c as Record<string, unknown>)[stat] ?? 0);
+      return val / (STAT_RANGES[stat] || 1);
+    });
+
+    // Sum of squared differences
+    let distance = 0;
+    for (let i = 0; i < currentVector.length; i++) {
+      distance += (currentVector[i] - candidateVector[i]) ** 2;
+    }
+    distance = Math.sqrt(distance);
+
+    // Determine which stats are most similar for reasoning
+    const statDiffs = SIMILARITY_STATS.map((stat, i) => ({
+      stat,
+      diff: Math.abs(currentVector[i] - candidateVector[i]),
+    }));
+    statDiffs.sort((a, b) => a.diff - b.diff);
+    const topMatchingStats = statDiffs.slice(0, 3).map((s) =>
+      s.stat.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+        .replace("Xg", "xG").replace("Xa", "xA").replace("Npxg", "npxG")
+    );
+
+    const player = c.sb_players as {
+      player_id: number;
+      player_name: string;
+      player_nickname: string | null;
+      primary_position: string | null;
+      photo_url: string | null;
+      birth_date: string | null;
+    };
+
+    return {
+      playerId: player.player_id,
+      name: player.player_nickname ?? player.player_name,
+      club: (c as Record<string, unknown>).team_name as string ?? "Unknown",
+      position: player.primary_position ?? "Unknown",
+      photo_url: player.photo_url ?? null,
+      birth_date: player.birth_date ?? null,
+      distance,
+      reasoning: `Similar statistical profile in ${topMatchingStats.join(", ").toLowerCase()}`,
+    };
+  });
+
+  // Sort by distance ascending (most similar first), take top 5
+  scored.sort((a: { distance: number }, b: { distance: number }) => a.distance - b.distance);
+  const top5 = scored.slice(0, 5);
+
+  // Convert distance to similarity_pct
+  // Scale factor: a distance of 0 = 95%, distance of ~2 = ~55%
+  const scaleFactor = 20;
+  return top5.map((p: typeof scored[0]) => ({
+    playerId: p.playerId,
+    name: p.name,
+    club: p.club,
+    position: p.position,
+    photo_url: p.photo_url,
+    birth_date: p.birth_date,
+    similarity_pct: Math.round(Math.max(0, 100 - p.distance * scaleFactor)),
+    reasoning: p.reasoning,
+  }));
 }

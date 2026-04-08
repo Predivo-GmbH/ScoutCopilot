@@ -20,7 +20,7 @@ const SUGGESTED_QUERIES = [
 
 export function SearchPage() {
   const { t } = useTranslation()
-  const { params, results, isLoading, hasSearched, photoLoadingIds, search, loadSaved, updateFilters } = usePlayerSearch()
+  const { params, results, isLoading, hasSearched, photoLoadingIds, clearResults, search, loadSaved, updateFilters } = usePlayerSearch()
   const [searchParams, setSearchParams] = useSearchParams()
   const initialQuery = searchParams.get('q') ?? ''
   const isSavedSearch = searchParams.get('saved') === '1'
@@ -32,6 +32,7 @@ export function SearchPage() {
   useEffect(() => {
     if (initialQuery && !autoSearched.current) {
       autoSearched.current = true
+      clearResults()
       if (isSavedSearch && savedSearchId) {
         loadSaved(savedSearchId, initialQuery)
       } else {

@@ -5,6 +5,7 @@ import { ArrowLeft, FileText, Trash2 } from 'lucide-react'
 import { Button } from '../../../components/ui/Button'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog'
+import { formatAge } from '../../../lib/ageUtils'
 import type { MockWatchlist } from '../../../lib/mock-data'
 
 interface WatchlistDetailProps {
@@ -83,7 +84,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
                   </div>
                   <div>
                     <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('common.age')}</p>
-                    <p className="font-data text-sm">{player.age}</p>
+                    <p className="font-data text-sm">{player.birth_date ? formatAge(player.birth_date) : (player.age > 0 ? String(player.age) : '—')}</p>
                   </div>
                   <div>
                     <p className="text-[0.5625rem] text-on-surface-variant uppercase">{player.keyMetric.label}</p>
@@ -162,7 +163,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
                       </span>
                     </td>
                     <td className="px-4 py-4 text-center font-data text-on-surface-variant">{player.position}</td>
-                    <td className="px-4 py-4 text-center font-data">{player.age}</td>
+                    <td className="px-4 py-4 text-center font-data">{player.birth_date ? formatAge(player.birth_date) : (player.age > 0 ? String(player.age) : '—')}</td>
                     <td className="px-4 py-4 text-center">
                       <div className="flex flex-col">
                         <span className="text-primary font-data font-semibold">{player.keyMetric.value}</span>

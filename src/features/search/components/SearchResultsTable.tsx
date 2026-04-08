@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, Fragment } from 'react'
 import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
-import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, FileText, Loader2, Eye, Search as SearchIcon } from 'lucide-react'
+import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, FileText, Loader2, Eye, Search as SearchIcon } from 'lucide-react'
 import type { MockPlayer } from '../../../lib/mock-data'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import { useGeneratedReports } from '../../../lib/useGeneratedReportsHook'
@@ -48,6 +48,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
     typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches ? 'grid' : 'table'
   )
   const { generateReport, isGenerating, hasReport } = useGeneratedReports()
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
 
   // Reset page when results change (React-recommended pattern)
   if (prevResultsLen !== results.length) {
@@ -121,17 +122,117 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
 
       {/* Content */}
       {viewMode === 'table' ? (
-        <DesktopCardRows
-          paged={paged}
-          page={page}
-          allStatKeys={allStatKeys}
-          photoLoadingIds={photoLoadingIds}
-          navigate={navigate}
-          hasReport={hasReport}
-          isGenerating={isGenerating}
-          generateReport={generateReport}
-          t={t}
-        />
+        <div className="overflow-hidden">
+          <table className="w-full table-fixed">
+            <thead>
+              <tr className="sticky top-0 z-10 bg-surface-container-highest border-b border-outline-variant/30">
+                <th className="w-[2.5rem] px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">#</th>
+                <th className="px-3 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+                  {t('csv.name')}
+                </th>
+                <th className="w-[7rem] px-3 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant" title={t('search.statTooltips.position')}>
+                  {t('csv.position')}
+                </th>
+                <th className="w-[3.5rem] px-3 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant" title={t('search.statTooltips.age')}>
+                  {t('common.age')}
+                </th>
+                <th className="w-[9rem] px-3 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant" title={t('search.statTooltips.league')}>
+                  {t('common.league')}
+                </th>
+                <th className="w-[8rem] px-3 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+                  {t('search.matchScore')}
+                </th>
+                <th className="w-[5rem] px-3 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+                  {t('common.actions', 'Actions')}
+                </th>
+                <th className="w-[2.5rem] px-2 py-3" />
+              </tr>
+            </thead>
+            <tbody>
+              {paged.map((player, i) => {
+                const globalIndex = (page - 1) * PAGE_SIZE + i
+                const rowBg = globalIndex % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'
+                const isExpanded = expandedRows.has(player.id)
+                return (
+                  <Fragment key={player.id}>
+                    <tr
+                      role="link"
+                      tabIndex={0}
+                      onClick={() => navigate(`/players/${player.id}`)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/players/${player.id}`) } }}
+                      className={`${rowBg} hover:bg-surface-variant/50 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1`}
+                    >
+                      <td className="px-2 py-3 text-[0.625rem] font-data text-on-surface-variant text-right align-middle">
+                        {globalIndex + 1}
+                      </td>
+                      <td className="px-3 py-3 align-middle">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <PlayerAvatarWithFlag name={player.name} nationality={player.nationality} imageUrl={player.image} photoSource={player.photoSource} loading={photoLoadingIds?.has(player.id)} />
+                          <div className="min-w-0">
+                            <div className="font-bold text-on-surface text-[0.8125rem] truncate">{player.name}</div>
+                            <div className="text-[0.5625rem] text-on-surface-variant uppercase tracking-tight truncate">{player.club}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-3 py-3 align-middle">
+                        <div className="flex flex-wrap gap-0.5">
+                          {player.position.split(', ').map((pos) => (
+                            <span key={pos} className="text-[0.5625rem] font-data bg-surface-container-highest text-on-surface px-1 py-0.5 rounded-sm whitespace-nowrap">
+                              {pos}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-3 py-3 text-center align-middle font-data text-xs text-on-surface">
+                        {player.age > 0 ? player.age : '\u2014'}
+                      </td>
+                      <td className="px-3 py-3 align-middle text-xs text-on-surface truncate">
+                        {player.league}
+                      </td>
+                      <td className="px-3 py-3 align-middle">
+                        <FitScoreBar score={player.fitScore} />
+                      </td>
+                      <td className="px-3 py-3 text-center align-middle">
+                        <ReportButton playerId={player.id} hasReport={hasReport} isGenerating={isGenerating} generateReport={generateReport} navigate={navigate} />
+                      </td>
+                      <td className="px-2 py-3 align-middle">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setExpandedRows((prev) => {
+                              const next = new Set(prev)
+                              if (next.has(player.id)) next.delete(player.id)
+                              else next.add(player.id)
+                              return next
+                            })
+                          }}
+                          className="p-1 rounded-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+                          aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
+                        >
+                          {isExpanded ? <ChevronUp size={14} strokeWidth={1.5} /> : <ChevronDown size={14} strokeWidth={1.5} />}
+                        </button>
+                      </td>
+                    </tr>
+                    {isExpanded && (
+                      <tr className={rowBg}>
+                        <td colSpan={8} className="px-6 pb-4 pt-1">
+                          <div className="flex flex-wrap gap-x-5 gap-y-2">
+                            {allStatKeys.map((key) => (
+                              <div key={key} className="flex items-center gap-1.5" title={t(`search.statTooltips.${key}`)}>
+                                <span className="text-[0.5625rem] uppercase tracking-widest text-on-surface-variant font-bold cursor-help">{key}</span>
+                                <span className="font-data text-xs text-on-surface">{player.stats[key] ?? '\u2014'}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       ) : (
         <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {paged.map((player, i) => {
@@ -222,84 +323,6 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
           </div>
         </div>
       )}
-    </div>
-  )
-}
-
-function DesktopCardRows({ paged, page, allStatKeys, photoLoadingIds, navigate, hasReport, isGenerating, generateReport, t }: {
-  paged: MockPlayer[]
-  page: number
-  allStatKeys: string[]
-  photoLoadingIds?: Set<string>
-  navigate: (path: string) => void
-  hasReport: (id: string) => boolean
-  isGenerating: (id: string) => boolean
-  generateReport: (id: string) => void
-  t: (key: string) => string
-}) {
-  return (
-    <div className="divide-y divide-outline-variant/30">
-      {paged.map((player, i) => {
-        const globalIndex = (page - 1) * PAGE_SIZE + i
-        const rowBg = globalIndex % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'
-        return (
-          <div
-            key={player.id}
-            role="link"
-            tabIndex={0}
-            onClick={() => navigate(`/players/${player.id}`)}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/players/${player.id}`) } }}
-            className={`${rowBg} px-4 sm:px-6 py-4 hover:bg-surface-variant/50 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1`}
-          >
-            {/* Top section: Player identity + meta */}
-            <div className="flex items-start gap-3 mb-3">
-              <span className="text-[0.625rem] font-data text-on-surface-variant pt-1 min-w-[1.25rem] text-right">{globalIndex + 1}</span>
-              <PlayerAvatarWithFlag name={player.name} nationality={player.nationality} imageUrl={player.image} photoSource={player.photoSource} loading={photoLoadingIds?.has(player.id)} />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-bold text-on-surface text-[0.8125rem]">{player.name}</span>
-                  <div className="flex gap-0.5">
-                    {player.position.split(', ').map((pos) => (
-                      <span key={pos} className="text-[0.5625rem] font-data bg-surface-container-highest text-on-surface px-1 py-0.5 rounded-sm whitespace-nowrap" title={t('search.statTooltips.position')}>
-                        {pos}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="text-[0.5625rem] text-on-surface-variant uppercase tracking-tight">{player.club}</div>
-              </div>
-              <div className="text-right text-[0.6875rem] text-on-surface-variant shrink-0 space-y-0.5">
-                <div title={t('search.statTooltips.age')}><span className="uppercase tracking-widest text-[0.5625rem] font-bold">{t('common.age')}:</span> {player.age > 0 ? player.age : '\u2014'}</div>
-                <div className="truncate max-w-[160px]" title={t('search.statTooltips.league')}><span className="uppercase tracking-widest text-[0.5625rem] font-bold">{t('common.league')}:</span> {player.league}</div>
-                <div><span className="uppercase tracking-widest text-[0.5625rem] font-bold">{t('csv.nationality')}:</span> {player.nationality}</div>
-              </div>
-            </div>
-
-            {/* Stats grid — all stats, wrapping flex */}
-            <div className="border-t border-outline-variant/20 pt-2 mb-3">
-              <div className="flex flex-wrap gap-x-4 gap-y-1">
-                {allStatKeys.map((key) => (
-                  <div key={key} className="flex items-center gap-1.5" title={t(`search.statTooltips.${key}`)}>
-                    <span className="text-[0.5625rem] uppercase tracking-widest text-on-surface-variant font-bold cursor-help">{key}</span>
-                    <span className="font-data text-xs text-on-surface">{player.stats[key] ?? '\u2014'}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Bottom section: Match score + report */}
-            <div className="border-t border-outline-variant/20 pt-2 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-[0.5625rem] uppercase tracking-widest text-on-surface-variant font-bold">{t('search.matchScore')}</span>
-                <div className="w-32">
-                  <FitScoreBar score={player.fitScore} />
-                </div>
-              </div>
-              <ReportButton playerId={player.id} hasReport={hasReport} isGenerating={isGenerating} generateReport={generateReport} navigate={navigate} />
-            </div>
-          </div>
-        )
-      })}
     </div>
   )
 }
