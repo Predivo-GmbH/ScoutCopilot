@@ -182,7 +182,7 @@ export function useSettings() {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ scoring_weights: scoringWeights })
+        .update({ scoring_weights: scoringWeights as unknown as Record<string, number> })
         .eq('id', user.id)
       if (error) throw error
       setScoringWeightsSaveStatus('saved')

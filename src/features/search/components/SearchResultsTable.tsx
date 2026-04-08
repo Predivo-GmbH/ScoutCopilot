@@ -279,7 +279,7 @@ function DesktopCardRows({ paged, page, allStatKeys, photoLoadingIds, navigate, 
             <div className="border-t border-outline-variant/20 pt-2 mb-3">
               <div className="flex flex-wrap gap-x-4 gap-y-1">
                 {allStatKeys.map((key) => (
-                  <div key={key} className="flex items-center gap-1.5" title={t(`search.statTooltips.${key}`, key)}>
+                  <div key={key} className="flex items-center gap-1.5" title={t(`search.statTooltips.${key}`)}>
                     <span className="text-[0.5625rem] uppercase tracking-widest text-on-surface-variant font-bold cursor-help">{key}</span>
                     <span className="font-data text-xs text-on-surface">{player.stats[key] ?? '\u2014'}</span>
                   </div>
