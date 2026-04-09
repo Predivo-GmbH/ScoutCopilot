@@ -14,6 +14,7 @@ import { PasswordSettings } from './components/PasswordSettings'
 import { LanguageSelector } from '../../components/shared/LanguageSelector'
 import { DeleteAccountSettings } from './components/DeleteAccountSettings'
 import { AiMethodologySettings } from './components/AiMethodologySettings'
+import { PlayerDatabaseSettings } from './components/PlayerDatabaseSettings'
 import { supabase } from '../../lib/supabase'
 
 const settingsTabs: { key: SettingsTab; labelKey: string }[] = [
@@ -23,6 +24,7 @@ const settingsTabs: { key: SettingsTab; labelKey: string }[] = [
   { key: 'preferences', labelKey: 'settings.tabs.notifications' },
   { key: 'billing', labelKey: 'settings.tabs.billing' },
   { key: 'aiMethodology', labelKey: 'settings.tabs.aiInsights' },
+  { key: 'playerDatabase', labelKey: 'settings.tabs.playerDatabase' },
 ]
 
 export function SettingsPage() {
@@ -183,6 +185,10 @@ export function SettingsPage() {
               onSaveWeights={saveScoringWeights}
               weightsSaveStatus={scoringWeightsSaveStatus}
             />
+          )}
+
+          {activeTab === 'playerDatabase' && (
+            <PlayerDatabaseSettings />
           )}
 
         </div>

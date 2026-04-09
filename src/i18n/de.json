@@ -676,7 +676,8 @@
       "teamManagement": "Teamverwaltung",
       "notifications": "Benachrichtigungen",
       "billing": "Abrechnung & Abonnement",
-      "aiInsights": "KI-Einblicke"
+      "aiInsights": "KI-Einblicke",
+      "playerDatabase": "Spielerdatenbank"
     },
     "profile": {
       "heading": "Benutzerprofil",
@@ -853,6 +854,18 @@
         "physical": "Physis-Gewichtung",
         "saveWeights": "Gewichtungen speichern"
       }
+    },
+    "playerDatabase": {
+      "heading": "Spielerdatenbank",
+      "searchPlaceholder": "Nach Name, Nationalit\u00e4t oder Position suchen...",
+      "name": "Name",
+      "nationality": "Nationalit\u00e4t",
+      "birthDate": "Alter",
+      "addToSquad": "Zum Kader hinzuf\u00fcgen",
+      "noResults": "Keine Spieler gefunden, die Ihrer Suche entsprechen.",
+      "showing": "{{from}}\u2013{{to}} von {{total}}",
+      "previousPage": "Vorherige Seite",
+      "nextPage": "N\u00e4chste Seite"
     }
   },
   "pricing": {

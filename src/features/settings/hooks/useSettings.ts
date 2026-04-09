@@ -20,7 +20,7 @@ export interface PendingInvitation {
   expires_at: string
 }
 
-export type SettingsTab = 'profile' | 'organization' | 'credentials' | 'billing' | 'preferences' | 'aiMethodology'
+export type SettingsTab = 'profile' | 'organization' | 'credentials' | 'billing' | 'preferences' | 'aiMethodology' | 'playerDatabase'
 
 interface ProfileData {
   fullName: string

@@ -322,7 +322,7 @@ async function searchStatsBombByName(
   if (!textResults || textResults.length === 0) return [];
 
   const playerIds = textResults.map((p: { player_id: number }) => p.player_id);
-  const INTL_COMP_IDS = [43, 11, 55, 53, 72]; // FIFA WC, FIFA WWC, Euro, Women's Euro, Women's Olympics
+  const INTL_COMP_IDS = [43, 55, 53, 72]; // FIFA WC, Euro, Women's Euro, Women's Olympics (11 = La Liga, NOT international)
 
   // Fetch club stats (excluding international competitions)
   const { data: clubStatsRows } = await supabase
@@ -414,11 +414,9 @@ async function fetchFromProviders(
     .eq("organization_id", organizationId)
     .eq("is_active", true);
 
-  // If no paid credentials and no open/free data results, give a helpful message
+  // If no paid credentials and no open/free data results, return empty (caller handles it gracefully)
   if (!credentials?.length && results.length === 0) {
-    throw new Error(
-      "No players found. Add your Wyscout or StatsBomb credentials in Settings for broader search coverage."
-    );
+    return results;
   }
 
   for (const cred of credentials ?? []) {
@@ -492,7 +490,7 @@ async function searchStatsBombOpenData(
 ): Promise<Record<string, unknown>[]> {
   // Build query against sb_player_season_stats joined with sb_players
   // Exclude international competitions so club teams appear instead of national teams
-  const INTL_COMP_IDS = [43, 11, 55, 53, 72]; // FIFA WC, FIFA WWC, Euro, Women's Euro, Women's Olympics
+  const INTL_COMP_IDS = [43, 55, 53, 72]; // FIFA WC, Euro, Women's Euro, Women's Olympics (11 = La Liga, NOT international)
   let query = supabase
     .from("sb_player_season_stats")
     .select(`

@@ -265,7 +265,7 @@ async function fetchStatsBombOpenPlayer(
   if (!player) return null;
 
   // Fetch most recent club stats (excluding international competitions)
-  const INTL_COMP_IDS = [43, 11, 55, 53, 72];
+  const INTL_COMP_IDS = [43, 55, 53, 72]; // FIFA WC, Euro, Women's Euro, Women's Olympics (11 = La Liga, NOT international)
   const { data: clubStats } = await supabase
     .from("sb_player_season_stats")
     .select("*")

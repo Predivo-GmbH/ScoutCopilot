@@ -676,7 +676,8 @@
       "teamManagement": "Team Management",
       "notifications": "Notifications",
       "billing": "Billing & Subscription",
-      "aiInsights": "AI Insights"
+      "aiInsights": "AI Insights",
+      "playerDatabase": "Player Database"
     },
     "profile": {
       "heading": "User Profile",
@@ -853,6 +854,18 @@
         "physical": "Physical importance",
         "saveWeights": "Save Weights"
       }
+    },
+    "playerDatabase": {
+      "heading": "Player Database",
+      "searchPlaceholder": "Search by name, nationality, or position...",
+      "name": "Name",
+      "nationality": "Nationality",
+      "birthDate": "Age",
+      "addToSquad": "Add to Squad",
+      "noResults": "No players found matching your search.",
+      "showing": "Showing {{from}}\u2013{{to}} of {{total}}",
+      "previousPage": "Previous page",
+      "nextPage": "Next page"
     }
   },
   "pricing": {
