@@ -44,6 +44,9 @@ export function SettingsPage() {
     updateScoringWeight,
     saveScoringWeights,
     scoringWeightsSaveStatus,
+    changeEmail,
+    emailChangeStatus,
+    originalEmail,
   } = useSettings()
   return (
     <div className="flex flex-col md:flex-row min-h-[calc(100vh-64px)]">
@@ -81,7 +84,7 @@ export function SettingsPage() {
         <div className="max-w-4xl space-y-6">
           {activeTab === 'profile' && (
             <>
-              <ProfileSettings profile={profile} onUpdate={updateProfile} onSave={saveProfile} saveStatus={saveStatus} />
+              <ProfileSettings profile={profile} originalEmail={originalEmail} onUpdate={updateProfile} onSave={saveProfile} saveStatus={saveStatus} onChangeEmail={changeEmail} emailChangeStatus={emailChangeStatus} />
               <PasswordSettings />
               <OrgSettings org={org} onUpdate={updateOrg} onSave={saveOrg} saveStatus={saveStatus} />
               <section className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">

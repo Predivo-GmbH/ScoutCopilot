@@ -671,7 +671,11 @@
         "technicalDirector": "Technischer Direktor",
         "analyst": "Analyst"
       },
-      "saveProfile": "Profil speichern"
+      "saveProfile": "Profil speichern",
+      "changeEmail": "E-Mail ändern",
+      "changingEmail": "Senden…",
+      "emailConfirmationSent": "Bestätigungsmail an Ihre neue Adresse gesendet. Bitte prüfen Sie Ihren Posteingang.",
+      "emailChangeError": "E-Mail-Änderung fehlgeschlagen. Bitte versuchen Sie es erneut."
     },
     "password": {
       "heading": "Passwort ändern",

@@ -1,15 +1,19 @@
 import { useTranslation } from 'react-i18next'
-import { User, Check, Loader2 } from 'lucide-react'
+import { User, Check, Loader2, Mail } from 'lucide-react'
 
 interface ProfileSettingsProps {
   profile: { fullName: string; email: string; role: string }
+  originalEmail?: string
   onUpdate: (updates: Record<string, string>) => void
   onSave?: () => void
   saveStatus?: 'idle' | 'saving' | 'saved' | 'error'
+  onChangeEmail?: () => void
+  emailChangeStatus?: 'idle' | 'saving' | 'sent' | 'error'
 }
 
-export function ProfileSettings({ profile, onUpdate, onSave, saveStatus = 'idle' }: ProfileSettingsProps) {
+export function ProfileSettings({ profile, originalEmail, onUpdate, onSave, saveStatus = 'idle', onChangeEmail, emailChangeStatus = 'idle' }: ProfileSettingsProps) {
   const { t } = useTranslation()
+  const emailChanged = originalEmail !== undefined && profile.email !== originalEmail && profile.email.includes('@')
 
   return (
     <section className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
@@ -32,13 +36,35 @@ export function ProfileSettings({ profile, onUpdate, onSave, saveStatus = 'idle'
               value={profile.fullName}
               onChange={(v) => onUpdate({ fullName: v })}
             />
-            <FormField
-              label={t('settings.profile.emailAddress')}
-              value={profile.email}
-              onChange={() => {}}
-              type="email"
-              readOnly
-            />
+            <div>
+              <FormField
+                label={t('settings.profile.emailAddress')}
+                value={profile.email}
+                onChange={(v) => onUpdate({ email: v })}
+                type="email"
+              />
+              {emailChanged && onChangeEmail && (
+                <div className="mt-2 flex items-center gap-2">
+                  <button
+                    onClick={onChangeEmail}
+                    disabled={emailChangeStatus === 'saving'}
+                    className="px-3 py-1.5 bg-secondary text-on-secondary rounded-md text-xs font-medium hover:bg-secondary/80 transition-colors disabled:opacity-50 min-h-[36px] flex items-center gap-1.5"
+                  >
+                    {emailChangeStatus === 'saving' ? (
+                      <><Loader2 size={12} className="animate-spin" /> {t('settings.profile.changingEmail')}</>
+                    ) : (
+                      <><Mail size={12} /> {t('settings.profile.changeEmail')}</>
+                    )}
+                  </button>
+                </div>
+              )}
+              {emailChangeStatus === 'sent' && (
+                <p className="mt-2 text-xs text-secondary" role="status">{t('settings.profile.emailConfirmationSent')}</p>
+              )}
+              {emailChangeStatus === 'error' && (
+                <p className="mt-2 text-xs text-error" role="status">{t('settings.profile.emailChangeError')}</p>
+              )}
+            </div>
             <div className="sm:col-span-2">
               <label htmlFor="profile-role" className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">{t('settings.profile.role')}</label>
               <select

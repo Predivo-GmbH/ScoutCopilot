@@ -94,6 +94,7 @@ export function useSettings() {
 
   const [scoringWeights, setScoringWeights] = useState<ScoringWeights>(DEFAULT_SCORING_WEIGHTS)
   const [scoringWeightsSaveStatus, setScoringWeightsSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [emailChangeStatus, setEmailChangeStatus] = useState<'idle' | 'saving' | 'sent' | 'error'>('idle')
 
   // Load scoring weights from profiles table
   useEffect(() => {
@@ -135,6 +136,20 @@ export function useSettings() {
       setTimeout(() => setSaveStatus('idle'), 3000)
     }
   }, [user, profile.fullName, profile.role, refreshProfile])
+
+  const changeEmail = useCallback(async () => {
+    if (!user || profile.email === user.email) return
+    setEmailChangeStatus('saving')
+    try {
+      const { error } = await supabase.auth.updateUser({ email: profile.email })
+      if (error) throw error
+      setEmailChangeStatus('sent')
+      setTimeout(() => setEmailChangeStatus('idle'), 5000)
+    } catch {
+      setEmailChangeStatus('error')
+      setTimeout(() => setEmailChangeStatus('idle'), 3000)
+    }
+  }, [user, profile.email])
 
   const saveOrg = useCallback(async () => {
     if (!user) return
@@ -227,6 +242,9 @@ export function useSettings() {
     profile,
     updateProfile,
     saveProfile,
+    changeEmail,
+    emailChangeStatus,
+    originalEmail: user?.email ?? '',
     org,
     updateOrg,
     saveOrg,
