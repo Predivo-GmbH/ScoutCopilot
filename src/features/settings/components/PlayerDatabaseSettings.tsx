@@ -120,14 +120,12 @@ export function PlayerDatabaseSettings() {
 
   // Pagination
   const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE))
-  const paged = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-  const showFrom = sorted.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1
-  const showTo = Math.min(page * PAGE_SIZE, sorted.length)
+  const paged = sorted.slice((effectivePage - 1) * PAGE_SIZE, effectivePage * PAGE_SIZE)
+  const showFrom = sorted.length === 0 ? 0 : (effectivePage - 1) * PAGE_SIZE + 1
+  const showTo = Math.min(effectivePage * PAGE_SIZE, sorted.length)
 
-  // Reset page when search changes
-  useEffect(() => {
-    setPage(1)
-  }, [searchTerm])
+  // Clamp page to valid range when filter shrinks results
+  const effectivePage = Math.min(page, totalPages)
 
   const handleSort = useCallback((field: SortField) => {
     setSortField((prev) => {
