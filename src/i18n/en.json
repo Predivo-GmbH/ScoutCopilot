@@ -472,6 +472,8 @@
     "expandDetails": "Expand details",
     "collapseDetails": "Collapse details",
     "allStats": "All Statistics",
+    "clubTooltip": "Club from the season these stats were recorded — may not reflect current team",
+    "historicalData": "from stats season",
     "statTooltips": {
       "position": "Player's primary position(s) on the pitch",
       "age": "Player's current age",

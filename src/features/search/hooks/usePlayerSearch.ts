@@ -150,9 +150,9 @@ export function usePlayerSearch() {
       })
 
       if (photoData?.results) {
-        // Update query cache with fetched photos
-        queryClient.setQueryData<MockPlayer[]>(
-          ['player-search', searchTrigger],
+        // Update query cache with fetched photos (match all player-search queries)
+        queryClient.setQueriesData<MockPlayer[]>(
+          { queryKey: ['player-search'] },
           (old) => {
             if (!old) return old
             return old.map((player) => {
@@ -177,7 +177,7 @@ export function usePlayerSearch() {
     } finally {
       setPhotoLoadingIds(new Set())
     }
-  }, [queryClient, searchTrigger])
+  }, [queryClient])
 
   const { data, isLoading } = useQuery<MockPlayer[]>({
     queryKey: ['player-search', searchTrigger, savedSearchId ?? params.query],
@@ -234,6 +234,12 @@ export function usePlayerSearch() {
       if (params.minFitScore > 0) {
         results = results.filter((p) => p.fitScore >= params.minFitScore)
       }
+
+      // Trigger background photo fetch for players without images
+      fetchMissingPhotos(results)
+
+      // Invalidate search history so the new search appears immediately
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'recent-searches'] })
 
       return results
     },

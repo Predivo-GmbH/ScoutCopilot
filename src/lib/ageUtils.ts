@@ -12,8 +12,10 @@ export function calculateAge(birthDate: string | null | undefined): number | nul
   return age
 }
 
-/** Format age for display. Shows dash if unknown. */
-export function formatAge(birthDate: string | null | undefined): string {
+/** Format age for display. Falls back to raw age number if birth_date is missing. Shows dash if unknown. */
+export function formatAge(birthDate: string | null | undefined, fallbackAge?: number): string {
   const age = calculateAge(birthDate)
-  return age !== null ? String(age) : '\u2014'
+  if (age !== null) return String(age)
+  if (fallbackAge && fallbackAge > 0) return String(fallbackAge)
+  return '\u2014'
 }

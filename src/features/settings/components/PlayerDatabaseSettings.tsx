@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { Search, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, UserPlus, Check, Plus, AlertCircle, Loader2, ArrowUpDown } from 'lucide-react'
@@ -72,12 +73,24 @@ export function PlayerDatabaseSettings() {
   const { data: players = [], isLoading, error } = useQuery<SbPlayer[]>({
     queryKey: ['sb-players-database'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('sb_players' as string)
-        .select('*')
-        .order('player_name', { ascending: true })
-      if (error) throw error
-      return (data ?? []) as unknown as SbPlayer[]
+      // Supabase default limit is 1,000 rows — paginate to fetch all
+      const PAGE = 1000
+      let allRows: unknown[] = []
+      let offset = 0
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const { data, error } = await supabase
+          .from('sb_players' as string)
+          .select('*')
+          .order('player_name', { ascending: true })
+          .range(offset, offset + PAGE - 1)
+        if (error) throw error
+        if (!data || data.length === 0) break
+        allRows = allRows.concat(data)
+        if (data.length < PAGE) break
+        offset += PAGE
+      }
+      return allRows as unknown as SbPlayer[]
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -358,12 +371,23 @@ function DbAddToSquadButton({ player }: { player: SbPlayer }) {
   const { squads, addPlayer, createSquad } = useSquad()
   const [open, setOpen] = useState(false)
   const [feedback, setFeedback] = useState<'added' | 'exists' | null>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 })
+
+  useEffect(() => {
+    if (!open || !buttonRef.current) return
+    const rect = buttonRef.current.getBoundingClientRect()
+    setDropdownPos({ top: rect.bottom + 4, left: rect.right })
+  }, [open])
 
   useEffect(() => {
     if (!open) return
     function handleClick(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        buttonRef.current && !buttonRef.current.contains(e.target as Node) &&
+        dropdownRef.current && !dropdownRef.current.contains(e.target as Node)
+      ) {
         setOpen(false)
       }
     }
@@ -417,8 +441,9 @@ function DbAddToSquadButton({ player }: { player: SbPlayer }) {
   }
 
   return (
-    <div ref={containerRef} className="relative">
+    <>
       <button
+        ref={buttonRef}
         onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
         className="p-1.5 rounded-sm text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
         title={t('settings.playerDatabase.addToSquad')}
@@ -426,9 +451,11 @@ function DbAddToSquadButton({ player }: { player: SbPlayer }) {
       >
         <UserPlus size={14} strokeWidth={1.5} />
       </button>
-      {open && (
+      {open && createPortal(
         <div
-          className="absolute right-0 top-full mt-1 z-50 min-w-[180px] bg-surface-container-high border border-outline-variant rounded-md shadow-lg py-1"
+          ref={dropdownRef}
+          className="fixed z-[100] min-w-[180px] bg-surface-container-high border border-outline-variant rounded-md shadow-lg py-1"
+          style={{ top: dropdownPos.top, left: dropdownPos.left, transform: 'translateX(-100%)' }}
           onClick={(e) => e.stopPropagation()}
         >
           {squads.length === 0 ? (
@@ -453,9 +480,10 @@ function DbAddToSquadButton({ player }: { player: SbPlayer }) {
               {t('search.createNewSquad')}
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   )
 }
 

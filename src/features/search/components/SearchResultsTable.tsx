@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback, Fragment } from 'react'
+import { createPortal } from 'react-dom'
 import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
 import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, FileText, Loader2, Eye, Search as SearchIcon, UserPlus, Check, Plus, AlertCircle } from 'lucide-react'
@@ -24,7 +25,7 @@ function exportResultsCsv(results: MockPlayer[], t: (key: string) => string) {
   const rows = results.map((p, i) => [
     i + 1,
     p.name,
-    formatAge(p.birth_date),
+    formatAge(p.birth_date, p.age),
     p.nationality,
     p.position,
     p.club,
@@ -126,7 +127,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
 
       {/* Content */}
       {viewMode === 'table' ? (
-        <div className="overflow-hidden">
+        <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="sticky top-0 z-10 bg-surface-container-highest border-b border-outline-variant/30">
@@ -134,31 +135,31 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                 <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
                   {t('csv.name')}
                 </th>
-                <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant" title={t('search.statTooltips.position')}>
-                  {t('csv.position')}
-                </th>
-                <th className="w-10 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant" title={t('search.statTooltips.age')}>
-                  {t('common.age')}
-                </th>
                 <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
-                  {t('common.club')}
-                </th>
-                <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant" title={t('search.statTooltips.league')}>
-                  {t('common.league')}
-                </th>
-                {allStatKeys.map((key) => (
-                  <th key={key} className="w-16 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap cursor-help" title={t(`search.statTooltips.${key}`, key)}>
-                    {key}
-                  </th>
-                ))}
-                <th className="w-24 px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
-                  {t('search.matchScore')}
-                </th>
-                <th className="w-16 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
-                  {t('common.report')}
+                  <StatTooltip label={t('csv.position')} tooltip={t('search.statTooltips.position')} />
                 </th>
                 <th className="w-10 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
-                  {t('search.addToSquad')}
+                  <StatTooltip label={t('common.age')} tooltip={t('search.statTooltips.age')} />
+                </th>
+                <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+                  <StatTooltip label={t('common.club')} tooltip={t('search.clubTooltip')} />
+                </th>
+                <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+                  <StatTooltip label={t('common.league')} tooltip={t('search.statTooltips.league')} />
+                </th>
+                {allStatKeys.map((key) => (
+                  <th key={key} className="w-16 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap">
+                    <StatTooltip label={key} tooltip={t(`search.statTooltips.${key}`, key)} />
+                  </th>
+                ))}
+                <th className="w-24 px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap">
+                  {t('search.matchScore')}
+                </th>
+                <th className="w-12 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant" title={t('common.report')}>
+                  <FileText size={12} strokeWidth={1.5} className="mx-auto text-on-surface-variant" />
+                </th>
+                <th className="w-12 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant" title={t('search.addToSquad')}>
+                  <UserPlus size={12} strokeWidth={1.5} className="mx-auto text-on-surface-variant" />
                 </th>
                 <th className="w-8 px-1 py-3" />
               </tr>
@@ -197,16 +198,16 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                         </div>
                       </td>
                       <td className="px-1 py-2.5 text-center align-middle font-data text-xs text-on-surface">
-                        {formatAge(player.birth_date)}
+                        {formatAge(player.birth_date, player.age)}
                       </td>
                       <td className="px-2 py-2.5 align-middle text-xs text-on-surface">
-                        <span className="truncate block max-w-[7rem]">{player.club}</span>
+                        <span className="truncate block max-w-[7rem]" title={`${player.club} (${t('search.historicalData')})`}>{player.club}</span>
                       </td>
                       <td className="px-2 py-2.5 align-middle text-xs text-on-surface">
                         <span className="truncate block max-w-[7rem]">{player.league}</span>
                       </td>
                       {allStatKeys.map((key) => (
-                        <td key={key} className="px-1 py-2.5 text-center align-middle font-data text-xs text-on-surface" title={t(`search.statTooltips.${key}`, key)}>
+                        <td key={key} className="px-1 py-2.5 text-center align-middle font-data text-xs text-on-surface">
                           {player.stats[key] ?? '\u2014'}
                         </td>
                       ))}
@@ -244,8 +245,10 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                             <h4 className="text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant mb-2">{t('search.allStats')}</h4>
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-2">
                               {allStatKeys.map((key) => (
-                                <div key={key} className="flex items-baseline justify-between gap-2" title={t(`search.statTooltips.${key}`, key)}>
-                                  <span className="text-[0.5625rem] uppercase tracking-widest text-on-surface-variant font-bold cursor-help whitespace-nowrap">{key}</span>
+                                <div key={key} className="flex items-baseline justify-between gap-2">
+                                  <span className="text-[0.5625rem] uppercase tracking-widest text-on-surface-variant font-bold whitespace-nowrap">
+                                    <StatTooltip label={key} tooltip={t(`search.statTooltips.${key}`, key)} />
+                                  </span>
                                   <span className="font-data text-xs text-on-surface font-medium">{player.stats[key] ?? '\u2014'}</span>
                                 </div>
                               ))}
@@ -290,7 +293,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 mb-3">
-                  <StatRow label={t('common.age')} value={formatAge(player.birth_date)} />
+                  <StatRow label={t('common.age')} value={formatAge(player.birth_date, player.age)} />
                   <StatRow label={t('common.league')} value={player.league} />
                   {allStatKeys.map((key) => (
                     <StatRow key={key} label={key} value={String(player.stats[key])} />
@@ -357,6 +360,52 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
   )
 }
 
+/** Hover tooltip for stat column headers — shows full description on hover */
+function StatTooltip({ label, tooltip }: { label: string; tooltip: string }) {
+  const [show, setShow] = useState(false)
+  const [pos, setPos] = useState({ top: 0, left: 0 })
+  const ref = useRef<HTMLSpanElement>(null)
+
+  const handleEnter = useCallback(() => {
+    if (ref.current) {
+      const rect = ref.current.getBoundingClientRect()
+      setPos({ top: rect.bottom + 6, left: rect.left + rect.width / 2 })
+    }
+    setShow(true)
+  }, [])
+
+  // Don't show tooltip if label equals tooltip (no extra info)
+  if (label === tooltip) {
+    return <span>{label}</span>
+  }
+
+  return (
+    <>
+      <span
+        ref={ref}
+        className="cursor-help border-b border-dotted border-on-surface-variant/30"
+        onMouseEnter={handleEnter}
+        onMouseLeave={() => setShow(false)}
+        onFocus={handleEnter}
+        onBlur={() => setShow(false)}
+        tabIndex={0}
+      >
+        {label}
+      </span>
+      {show && createPortal(
+        <div
+          className="fixed z-[100] max-w-[220px] px-3 py-2 text-xs text-on-surface bg-surface-container-highest border border-outline-variant rounded-md shadow-lg pointer-events-none"
+          style={{ top: pos.top, left: pos.left, transform: 'translateX(-50%)' }}
+        >
+          <div className="font-bold text-[0.625rem] uppercase tracking-widest text-primary mb-0.5">{label}</div>
+          <div className="text-on-surface-variant leading-snug">{tooltip}</div>
+        </div>,
+        document.body
+      )}
+    </>
+  )
+}
+
 function ReportButton({ playerId, hasReport, isGenerating, generateReport, navigate }: {
   playerId: string
   hasReport: (id: string) => boolean
@@ -420,13 +469,29 @@ function AddToSquadButton({ player, squads, addPlayer, createSquad }: {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [feedback, setFeedback] = useState<'added' | 'exists' | null>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 })
+
+  // Position dropdown via portal when opening
+  useEffect(() => {
+    if (!open || !buttonRef.current) return
+    const rect = buttonRef.current.getBoundingClientRect()
+    // Position below the button, right-aligned
+    setDropdownPos({
+      top: rect.bottom + 4,
+      left: rect.right,
+    })
+  }, [open])
 
   // Close on click outside
   useEffect(() => {
     if (!open) return
     function handleClick(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        buttonRef.current && !buttonRef.current.contains(e.target as Node) &&
+        dropdownRef.current && !dropdownRef.current.contains(e.target as Node)
+      ) {
         setOpen(false)
       }
     }
@@ -479,8 +544,9 @@ function AddToSquadButton({ player, squads, addPlayer, createSquad }: {
   }
 
   return (
-    <div ref={containerRef} className="relative">
+    <>
       <button
+        ref={buttonRef}
         onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
         className="p-1.5 rounded-sm text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
         title={t('search.addToSquad')}
@@ -488,9 +554,11 @@ function AddToSquadButton({ player, squads, addPlayer, createSquad }: {
       >
         <UserPlus size={14} strokeWidth={1.5} />
       </button>
-      {open && (
+      {open && createPortal(
         <div
-          className="absolute right-0 top-full mt-1 z-50 min-w-[180px] bg-surface-container-high border border-outline-variant rounded-md shadow-lg py-1"
+          ref={dropdownRef}
+          className="fixed z-[100] min-w-[180px] bg-surface-container-high border border-outline-variant rounded-md shadow-lg py-1"
+          style={{ top: dropdownPos.top, left: dropdownPos.left, transform: 'translateX(-100%)' }}
           onClick={(e) => e.stopPropagation()}
         >
           {squads.length === 0 ? (
@@ -515,9 +583,10 @@ function AddToSquadButton({ player, squads, addPlayer, createSquad }: {
               {t('search.createNewSquad')}
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   )
 }
 
