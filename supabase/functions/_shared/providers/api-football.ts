@@ -301,6 +301,7 @@ export function mapToGenericPlayer(
     market_value: 0, // API-Football doesn't provide market value
     contract_expiry: "",
     photo_url: p.photo,
+    photo_source: "api-football",
     injured: p.injured,
     stats: {
       matches_played: mainStats?.games?.appearences ?? 0,

@@ -89,7 +89,7 @@ export function ComparisonPage() {
       ) : generated && players.length >= 2 ? (
         <>
           {/* Radar + AI Verdict */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             {/* Radar Chart */}
             <div className="lg:col-span-8">
               <Card header={
@@ -137,7 +137,7 @@ export function ComparisonPage() {
                       {verdict.players.length > 0 && (
                         <div className="space-y-2">
                           {verdict.players.map((vp) => (
-                            <div key={vp.player_external_id} className="flex items-start gap-2">
+                            <div key={vp.player_external_id} className="flex items-baseline gap-2">
                               <span className="text-xs font-data font-bold text-primary shrink-0">#{vp.overall_rank}</span>
                               <div className="min-w-0">
                                 <span className="text-xs font-semibold text-on-surface">{vp.player_name}</span>

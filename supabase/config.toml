@@ -29,6 +29,9 @@ verify_jwt = false
 [functions.generate-photo]
 verify_jwt = false
 
+[functions.invite-member]
+verify_jwt = false
+
 [functions.report]
 verify_jwt = false
 

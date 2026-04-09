@@ -111,6 +111,9 @@ serve(async (req: Request) => {
       rawPlayers = await searchStatsBombByName(getServiceClient(), escapePostgREST(query.trim()));
     }
 
+    // Deduplicate players from different providers (e.g. StatsBomb + API-Football)
+    rawPlayers = deduplicatePlayers(rawPlayers);
+
     if (rawPlayers.length === 0) {
       // Save empty search to DB
       const supabase = getServiceClient();
@@ -728,6 +731,90 @@ function fallbackParseQuery(query: string): ParsedSearchParams {
 
   params.limit = 50;
   return params;
+}
+
+/**
+ * Deduplicate players from multiple providers by normalized name + nationality.
+ * When duplicates are found, keeps the entry with the most data (prefers one with photo, then most stats).
+ */
+function deduplicatePlayers(players: Record<string, unknown>[]): Record<string, unknown>[] {
+  if (players.length === 0) return players;
+
+  // Normalize: lowercase, remove diacritics, collapse whitespace
+  function normalizeKey(name: string, nationality: string): string {
+    const normName = name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z\s]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    const normNat = nationality
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+    return `${normName}|${normNat}`;
+  }
+
+  // Score how "complete" a player record is (higher = more data)
+  function completenessScore(p: Record<string, unknown>): number {
+    let score = 0;
+    if (p.photo_url) score += 10; // photo is highly valuable
+    if (p.age && p.age !== 0) score += 2;
+    if (p.birth_date) score += 2;
+    if (p.height && p.height !== 0) score += 1;
+    if (p.weight && p.weight !== 0) score += 1;
+    if (p.team && p.team !== "Unknown") score += 1;
+    if (p.league && p.league !== "Unknown") score += 1;
+    const stats = p.stats as Record<string, number> | undefined;
+    if (stats) {
+      const nonZero = Object.values(stats).filter((v) => typeof v === "number" && v !== 0).length;
+      score += nonZero;
+    }
+    return score;
+  }
+
+  const seen = new Map<string, { index: number; score: number }>();
+  const result: Record<string, unknown>[] = [];
+
+  for (const player of players) {
+    const name = (player.player_name as string) ?? "";
+    const nationality = (player.nationality as string) ?? "Unknown";
+    if (!name) {
+      result.push(player);
+      continue;
+    }
+
+    const key = normalizeKey(name, nationality);
+    const score = completenessScore(player);
+    const existing = seen.get(key);
+
+    if (!existing) {
+      const idx = result.length;
+      result.push(player);
+      seen.set(key, { index: idx, score });
+    } else if (score > existing.score) {
+      // Merge: keep the better record but carry over photo_url from the other if missing
+      const prev = result[existing.index];
+      if (!player.photo_url && prev.photo_url) {
+        player.photo_url = prev.photo_url;
+        player.photo_source = prev.photo_source;
+      }
+      result[existing.index] = player;
+      seen.set(key, { index: existing.index, score });
+    } else {
+      // Existing is better, but merge photo from this one if existing lacks it
+      const prev = result[existing.index];
+      if (!prev.photo_url && player.photo_url) {
+        prev.photo_url = player.photo_url;
+        prev.photo_source = player.photo_source;
+      }
+    }
+  }
+
+  // Filter out any undefined slots (shouldn't happen, but safety)
+  return result.filter(Boolean);
 }
 
 function calculateAge(birthDate: string): number {

@@ -18,6 +18,30 @@ export interface ComparisonVerdict {
   }>
 }
 
+/**
+ * Build radar chart data from computed metrics.
+ * Each metric is normalised to 0-100 using sensible per-90 ceilings so the
+ * polygon is meaningful even without a dedicated radarData payload from Claude.
+ */
+const RADAR_METRIC_CONFIG: { key: string; label: string; max: number }[] = [
+  { key: 'Goals/90',          label: 'Goals',    max: 1.0  },
+  { key: 'Assists/90',        label: 'Assists',  max: 0.8  },
+  { key: 'Key Passes/90',     label: 'Chances',  max: 3.0  },
+  { key: 'Pass %',            label: 'Passing',  max: 100  },
+  { key: 'Prog. Carries/90',  label: 'Carries',  max: 8.0  },
+  { key: 'Tackles/90',        label: 'Tackles',  max: 4.0  },
+  { key: 'Aerial Won %',      label: 'Aerials',  max: 100  },
+]
+
+function buildRadarFromMetrics(metrics: Record<string, number>): { label: string; value: number }[] {
+  return RADAR_METRIC_CONFIG.map(({ key, label, max }) => {
+    const raw = metrics[key] ?? 0
+    // Clamp between 0 and 100
+    const value = Math.min(100, Math.max(0, Math.round((raw / max) * 100)))
+    return { label, value }
+  })
+}
+
 /** Map a player_reports row into the comparison format */
 function reportToComparison(row: {
   id: string
@@ -43,12 +67,23 @@ function reportToComparison(row: {
   const keyPasses90 = typeof seasonStats['Key Passes/90'] === 'number' ? seasonStats['Key Passes/90'] : 0
   const progCarries90 = typeof seasonStats['Prog. Carries/90'] === 'number' ? seasonStats['Prog. Carries/90'] : 0
 
-  const radarRaw = Array.isArray(d.radarData)
+  const radarRaw = Array.isArray(d.radarData) && d.radarData.length > 0
     ? (d.radarData as { label: string; value: number }[]).map((r) => ({
         label: r.label,
         value: r.value,
       }))
     : []
+
+  // Fallback: compute radar data from metrics when radarData is missing
+  const radarFinal = radarRaw.length > 0 ? radarRaw : buildRadarFromMetrics({
+    'Goals/90': Number((goals / per90).toFixed(2)),
+    'Assists/90': Number((assists / per90).toFixed(2)),
+    'Pass %': passAcc,
+    'Tackles/90': Number((tacklesWon / per90).toFixed(1)),
+    'Key Passes/90': keyPasses90,
+    'Aerial Won %': aerialDuels,
+    'Prog. Carries/90': progCarries90,
+  })
 
   return {
     id: row.player_external_id,
@@ -68,7 +103,7 @@ function reportToComparison(row: {
       'Aerial Won %': aerialDuels,
       'Prog. Carries/90': progCarries90,
     },
-    radarData: radarRaw,
+    radarData: radarFinal,
   }
 }
 

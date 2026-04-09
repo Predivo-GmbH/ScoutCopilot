@@ -1,10 +1,12 @@
-import { useState, useEffect, useMemo, Fragment } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback, Fragment } from 'react'
 import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
-import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, FileText, Loader2, Eye, Search as SearchIcon } from 'lucide-react'
+import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, FileText, Loader2, Eye, Search as SearchIcon, UserPlus, Check, Plus, AlertCircle } from 'lucide-react'
 import type { MockPlayer } from '../../../lib/mock-data'
+import type { SquadPlayer, SquadPosition } from '../../../lib/mock-data/types'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import { useGeneratedReports } from '../../../lib/useGeneratedReportsHook'
+import { useSquad } from '../../squad/hooks/useSquad'
 import { formatAge } from '../../../lib/ageUtils'
 
 const PAGE_SIZE = 8
@@ -49,6 +51,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
     typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches ? 'grid' : 'table'
   )
   const { generateReport, isGenerating, hasReport } = useGeneratedReports()
+  const { squads, addPlayer, createSquad } = useSquad()
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
 
   // Reset page when results change (React-recommended pattern)
@@ -154,6 +157,9 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                 <th className="w-16 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
                   {t('common.report')}
                 </th>
+                <th className="w-10 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+                  {t('search.addToSquad')}
+                </th>
                 <th className="w-8 px-1 py-3" />
               </tr>
             </thead>
@@ -162,7 +168,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                 const globalIndex = (page - 1) * PAGE_SIZE + i
                 const rowBg = globalIndex % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'
                 const isExpanded = expandedRows.has(player.id)
-                const totalCols = 10 + allStatKeys.length
+                const totalCols = 11 + allStatKeys.length
                 return (
                   <Fragment key={player.id}>
                     <tr
@@ -209,6 +215,9 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                       </td>
                       <td className="px-1 py-2.5 text-center align-middle">
                         <ReportButton playerId={player.id} hasReport={hasReport} isGenerating={isGenerating} generateReport={generateReport} navigate={navigate} />
+                      </td>
+                      <td className="px-1 py-2.5 text-center align-middle">
+                        <AddToSquadButton player={player} squads={squads} addPlayer={addPlayer} createSquad={createSquad} />
                       </td>
                       <td className="px-1 py-2.5 align-middle">
                         <button
@@ -290,7 +299,10 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
 
                 <div className="flex items-center justify-between pt-3 border-t border-outline-variant/30">
                   <FitScoreBar score={player.fitScore} />
-                  <ReportButton playerId={player.id} hasReport={hasReport} isGenerating={isGenerating} generateReport={generateReport} navigate={navigate} />
+                  <div className="flex items-center gap-2">
+                    <AddToSquadButton player={player} squads={squads} addPlayer={addPlayer} createSquad={createSquad} />
+                    <ReportButton playerId={player.id} hasReport={hasReport} isGenerating={isGenerating} generateReport={generateReport} navigate={navigate} />
+                  </div>
                 </div>
               </div>
             )
@@ -378,6 +390,137 @@ function ReportButton({ playerId, hasReport, isGenerating, generateReport, navig
   )
 }
 
+function mapPlayerToSquad(player: MockPlayer): SquadPlayer {
+  const primaryPos = player.position.split(', ')[0] as SquadPosition
+  return {
+    id: player.id,
+    name: player.name,
+    age: player.age,
+    birth_date: player.birth_date,
+    nationality: player.nationality,
+    position: primaryPos,
+    shirtNumber: 0,
+    contractUntil: '',
+    weeklyWage: '',
+    marketValue: '',
+    status: 'fit',
+    image: player.image,
+    stats: player.stats,
+    radarData: [],
+    overallRating: player.fitScore,
+  }
+}
+
+function AddToSquadButton({ player, squads, addPlayer, createSquad }: {
+  player: MockPlayer
+  squads: { id: string; name: string; players: SquadPlayer[] }[]
+  addPlayer: (squadId: string, player: SquadPlayer, positionKey?: string) => void
+  createSquad: (name: string, description: string) => Promise<string>
+}) {
+  const { t } = useTranslation()
+  const [open, setOpen] = useState(false)
+  const [feedback, setFeedback] = useState<'added' | 'exists' | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Close on click outside
+  useEffect(() => {
+    if (!open) return
+    function handleClick(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [open])
+
+  // Auto-clear feedback
+  useEffect(() => {
+    if (!feedback) return
+    const timer = setTimeout(() => setFeedback(null), 2000)
+    return () => clearTimeout(timer)
+  }, [feedback])
+
+  const handleSquadSelect = useCallback((squadId: string) => {
+    const squad = squads.find((s) => s.id === squadId)
+    if (squad?.players.some((p) => p.id === player.id)) {
+      setFeedback('exists')
+      setOpen(false)
+      return
+    }
+    addPlayer(squadId, mapPlayerToSquad(player))
+    setFeedback('added')
+    setOpen(false)
+  }, [squads, player, addPlayer])
+
+  const handleCreateNew = useCallback(async () => {
+    const newId = await createSquad('New Squad', '')
+    addPlayer(newId, mapPlayerToSquad(player))
+    setFeedback('added')
+    setOpen(false)
+  }, [createSquad, addPlayer, player])
+
+  if (feedback === 'added') {
+    return (
+      <span className="inline-flex items-center gap-1 text-secondary text-xs font-medium min-h-[44px]">
+        <Check size={14} strokeWidth={1.5} />
+        <span className="hidden sm:inline">{t('search.addedToSquad')}</span>
+      </span>
+    )
+  }
+
+  if (feedback === 'exists') {
+    return (
+      <span className="inline-flex items-center gap-1 text-warning text-xs font-medium min-h-[44px]">
+        <AlertCircle size={14} strokeWidth={1.5} />
+        <span className="hidden sm:inline">{t('search.alreadyInSquad')}</span>
+      </span>
+    )
+  }
+
+  return (
+    <div ref={containerRef} className="relative">
+      <button
+        onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
+        className="p-1.5 rounded-sm text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+        title={t('search.addToSquad')}
+        aria-label={t('search.addToSquad')}
+      >
+        <UserPlus size={14} strokeWidth={1.5} />
+      </button>
+      {open && (
+        <div
+          className="absolute right-0 top-full mt-1 z-50 min-w-[180px] bg-surface-container-high border border-outline-variant rounded-md shadow-lg py-1"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {squads.length === 0 ? (
+            <div className="px-3 py-2 text-xs text-on-surface-variant">{t('search.noSquads')}</div>
+          ) : (
+            squads.map((squad) => (
+              <button
+                key={squad.id}
+                onClick={() => handleSquadSelect(squad.id)}
+                className="w-full text-left px-3 py-2 text-xs text-on-surface hover:bg-surface-variant/50 transition-colors truncate"
+              >
+                {squad.name}
+              </button>
+            ))
+          )}
+          <div className="border-t border-outline-variant/30 mt-1 pt-1">
+            <button
+              onClick={handleCreateNew}
+              className="w-full text-left px-3 py-2 text-xs text-primary hover:bg-primary/10 transition-colors flex items-center gap-1.5"
+            >
+              <Plus size={12} strokeWidth={1.5} />
+              {t('search.createNewSquad')}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function StatRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between items-center">
@@ -403,7 +546,7 @@ function PlayerAvatarWithFlag({ name, nationality, imageUrl, photoSource, loadin
   name: string
   nationality: string
   imageUrl?: string
-  photoSource?: 'sportsdb' | 'stitch'
+  photoSource?: 'sportsdb' | 'api-football' | 'stitch'
   loading?: boolean
 }) {
   const flagEmoji = countryToFlag(nationality)
