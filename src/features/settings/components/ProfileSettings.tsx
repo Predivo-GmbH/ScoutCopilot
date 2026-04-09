@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { User, Check, Loader2, Mail } from 'lucide-react'
 
@@ -9,11 +10,24 @@ interface ProfileSettingsProps {
   saveStatus?: 'idle' | 'saving' | 'saved' | 'error'
   onChangeEmail?: () => void
   emailChangeStatus?: 'idle' | 'saving' | 'sent' | 'error'
+  avatarUrl?: string | null
+  onAvatarUpload?: (file: File) => Promise<{ error: string | null }>
+  avatarUploadStatus?: 'idle' | 'uploading' | 'error'
+  avatarError?: string | null
 }
 
-export function ProfileSettings({ profile, originalEmail, onUpdate, onSave, saveStatus = 'idle', onChangeEmail, emailChangeStatus = 'idle' }: ProfileSettingsProps) {
+export function ProfileSettings({ profile, originalEmail, onUpdate, onSave, saveStatus = 'idle', onChangeEmail, emailChangeStatus = 'idle', avatarUrl, onAvatarUpload, avatarUploadStatus = 'idle', avatarError }: ProfileSettingsProps) {
   const { t } = useTranslation()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const emailChanged = originalEmail !== undefined && profile.email !== originalEmail && profile.email.includes('@')
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !onAvatarUpload) return
+    await onAvatarUpload(file)
+    // Reset input so the same file can be re-selected
+    e.target.value = ''
+  }
 
   return (
     <section className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
@@ -24,10 +38,33 @@ export function ProfileSettings({ profile, originalEmail, onUpdate, onSave, save
         <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
           {/* Avatar */}
           <div className="flex flex-col items-center gap-3 shrink-0">
-            <div className="w-20 h-20 rounded-md bg-surface-container-highest flex items-center justify-center">
-              <User size={32} strokeWidth={1.5} className="text-on-surface-variant" />
-            </div>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={avatarUploadStatus === 'uploading'}
+              className="relative w-20 h-20 rounded-md bg-surface-container-highest flex items-center justify-center overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all disabled:cursor-wait group"
+              aria-label={t('settings.profile.updateAvatar')}
+            >
+              {avatarUploadStatus === 'uploading' ? (
+                <Loader2 size={24} className="animate-spin text-on-surface-variant" />
+              ) : avatarUrl ? (
+                <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <User size={32} strokeWidth={1.5} className="text-on-surface-variant" />
+              )}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleFileChange}
+              className="hidden"
+              aria-hidden="true"
+            />
             <span className="text-[0.625rem] font-data uppercase tracking-wider text-on-surface-variant">{t('settings.profile.updateAvatar')}</span>
+            {avatarError && (
+              <p className="text-xs text-error" role="status">{t(avatarError)}</p>
+            )}
           </div>
           {/* Form */}
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">

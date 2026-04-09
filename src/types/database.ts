@@ -51,6 +51,7 @@ export type Database = {
           role: UserRole;
           avatar_url: string | null;
           scoring_weights: Record<string, number> | null;
+          notification_preferences: Record<string, boolean> | null;
           created_at: string;
           updated_at: string;
         };
@@ -61,6 +62,7 @@ export type Database = {
           role?: UserRole;
           avatar_url?: string | null;
           scoring_weights?: Record<string, number> | null;
+          notification_preferences?: Record<string, boolean> | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -70,6 +72,7 @@ export type Database = {
           role?: UserRole;
           avatar_url?: string | null;
           scoring_weights?: Record<string, number> | null;
+          notification_preferences?: Record<string, boolean> | null;
           updated_at?: string;
         };
         Relationships: [];
@@ -277,6 +280,99 @@ export type Database = {
           notes?: string | null;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "watchlist_players_watchlist_id_fkey";
+            columns: ["watchlist_id"];
+            isOneToOne: false;
+            referencedRelation: "watchlists";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      squads: {
+        Row: {
+          id: string;
+          user_id: string;
+          organization_id: string;
+          name: string;
+          description: string | null;
+          formation: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          organization_id: string;
+          name: string;
+          description?: string | null;
+          formation?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          description?: string | null;
+          formation?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      squad_players: {
+        Row: {
+          id: string;
+          squad_id: string;
+          player_external_id: string;
+          player_name: string;
+          player_data: Record<string, unknown> | null;
+          position_key: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          squad_id: string;
+          player_external_id: string;
+          player_name: string;
+          player_data?: Record<string, unknown> | null;
+          position_key?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          player_name?: string;
+          player_data?: Record<string, unknown> | null;
+          position_key?: string | null;
+        };
+        Relationships: [];
+      };
+      team_invitations: {
+        Row: {
+          id: string;
+          organization_id: string;
+          invited_by: string;
+          email: string;
+          role: string;
+          status: string;
+          token: string;
+          expires_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          invited_by: string;
+          email: string;
+          role?: string;
+          status?: string;
+          token?: string;
+          expires_at?: string;
+          created_at?: string;
+        };
+        Update: {
+          role?: string;
+          status?: string;
+          expires_at?: string;
+        };
         Relationships: [];
       };
       usage_tracking: {
@@ -335,3 +431,6 @@ export type PlayerComparison = Database["public"]["Tables"]["player_comparisons"
 export type Watchlist = Database["public"]["Tables"]["watchlists"]["Row"];
 export type WatchlistPlayer = Database["public"]["Tables"]["watchlist_players"]["Row"];
 export type UsageTracking = Database["public"]["Tables"]["usage_tracking"]["Row"];
+export type Squad = Database["public"]["Tables"]["squads"]["Row"];
+export type SquadPlayerRow = Database["public"]["Tables"]["squad_players"]["Row"];
+export type TeamInvitation = Database["public"]["Tables"]["team_invitations"]["Row"];

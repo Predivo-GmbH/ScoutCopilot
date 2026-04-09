@@ -675,7 +675,10 @@
       "changeEmail": "Change Email",
       "changingEmail": "Sending…",
       "emailConfirmationSent": "Confirmation email sent to your new address. Please check your inbox.",
-      "emailChangeError": "Failed to change email. Please try again."
+      "emailChangeError": "Failed to change email. Please try again.",
+      "avatarUploadError": "Failed to upload avatar. Please try again.",
+      "avatarTooLarge": "Image must be under 2 MB.",
+      "avatarInvalidType": "Only JPEG, PNG, and WebP images are allowed."
     },
     "password": {
       "heading": "Change Password",
@@ -702,7 +705,23 @@
     "team": {
       "heading": "Team Management",
       "seatsUsed": "{{used}} of {{total}} seats used",
-      "inviteMember": "Invite Member"
+      "inviteMember": "Invite Member",
+      "inviteTitle": "Invite Team Member",
+      "inviteDescription": "Send an invitation email to add a new member to your organization.",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "colleague@club.com",
+      "roleLabel": "Role",
+      "sendInvite": "Send Invitation",
+      "sending": "Sending…",
+      "inviteSent": "Invitation sent successfully!",
+      "inviteError": "Failed to send invitation. Please try again.",
+      "pending": "Pending",
+      "noMembers": "No team members found.",
+      "unnamed": "Unnamed",
+      "roleScout": "Scout",
+      "roleHeadOfRecruitment": "Head of Recruitment",
+      "roleTechnicalDirector": "Technical Director",
+      "roleAnalyst": "Analyst"
     },
     "notifications": {
       "heading": "Notification Preferences",
@@ -713,7 +732,8 @@
       "weeklyDigest": "Weekly digest",
       "weeklyDigestSub": "Summarized scouting activities",
       "transferUpdates": "Transfer window updates",
-      "transferUpdatesSub": "Live market news for targets"
+      "transferUpdatesSub": "Live market news for targets",
+      "savePreferences": "Save Preferences"
     },
     "billing": {
       "heading": "Billing & Subscription",
@@ -900,7 +920,10 @@
   "alerts": {
     "backToDashboard": "Back to Dashboard",
     "heading": "Watchlist Alerts",
-    "subtitle": "All recent alerts from your watched players."
+    "subtitle": "All recent alerts from your watched players.",
+    "typeNewReport": "New Report",
+    "typeRecentlyAdded": "Recently Added",
+    "typeTransferRumor": "Transfer Rumor"
   },
   "searchHistory": {
     "backToDashboard": "Back to Dashboard",

@@ -10,9 +10,10 @@ interface Credential {
 
 interface CredentialSettingsProps {
   credentials: Credential[]
+  loading?: boolean
 }
 
-export function CredentialSettings({ credentials }: CredentialSettingsProps) {
+export function CredentialSettings({ credentials, loading }: CredentialSettingsProps) {
   const { t } = useTranslation()
 
   return (
@@ -21,6 +22,13 @@ export function CredentialSettings({ credentials }: CredentialSettingsProps) {
         <h3 className="text-sm font-semibold uppercase tracking-widest text-on-surface-variant">{t('settings.credentials.heading')}</h3>
         <Button variant="secondary" size="sm">{t('settings.credentials.addConnection')}</Button>
       </div>
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="bg-surface-container p-6 rounded-md border border-outline-variant h-28 animate-pulse" />
+          ))}
+        </div>
+      ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {credentials.map((cred) => (
           <div
@@ -60,6 +68,7 @@ export function CredentialSettings({ credentials }: CredentialSettingsProps) {
           </div>
         ))}
       </div>
+      )}
     </section>
   )
 }

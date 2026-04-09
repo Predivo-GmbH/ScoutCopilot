@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, X, Loader2, Clock } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '../../components/ui/Button'
 import { ScrollableTabBar } from '../../components/ui/ScrollableTabBar'
-import { useSettings, type SettingsTab } from './hooks/useSettings'
+import { useSettings, type SettingsTab, type PendingInvitation, type OrgMember } from './hooks/useSettings'
 import { ProfileSettings } from './components/ProfileSettings'
 import { OrgSettings } from './components/OrgSettings'
 import { CredentialSettings } from './components/CredentialSettings'
@@ -12,6 +14,7 @@ import { PasswordSettings } from './components/PasswordSettings'
 import { LanguageSelector } from '../../components/shared/LanguageSelector'
 import { DeleteAccountSettings } from './components/DeleteAccountSettings'
 import { AiMethodologySettings } from './components/AiMethodologySettings'
+import { supabase } from '../../lib/supabase'
 
 const settingsTabs: { key: SettingsTab; labelKey: string }[] = [
   { key: 'profile', labelKey: 'settings.tabs.account' },
@@ -35,10 +38,14 @@ export function SettingsPage() {
     saveOrg,
     saveStatus,
     credentials,
+    credentialsLoading,
     preferences,
     togglePreference,
+    savePreferences,
+    preferencesSaveStatus,
     orgMembers,
     membersLoading,
+    pendingInvitations,
     maxSeats,
     scoringWeights,
     updateScoringWeight,
@@ -47,6 +54,10 @@ export function SettingsPage() {
     changeEmail,
     emailChangeStatus,
     originalEmail,
+    avatarUrl,
+    uploadAvatar,
+    avatarUploadStatus,
+    avatarError,
   } = useSettings()
   return (
     <div className="flex flex-col md:flex-row min-h-[calc(100vh-64px)]">
@@ -84,7 +95,7 @@ export function SettingsPage() {
         <div className="max-w-4xl space-y-6">
           {activeTab === 'profile' && (
             <>
-              <ProfileSettings profile={profile} originalEmail={originalEmail} onUpdate={updateProfile} onSave={saveProfile} saveStatus={saveStatus} onChangeEmail={changeEmail} emailChangeStatus={emailChangeStatus} />
+              <ProfileSettings profile={profile} originalEmail={originalEmail} onUpdate={updateProfile} onSave={saveProfile} saveStatus={saveStatus} onChangeEmail={changeEmail} emailChangeStatus={emailChangeStatus} avatarUrl={avatarUrl} onAvatarUpload={uploadAvatar} avatarUploadStatus={avatarUploadStatus} avatarError={avatarError} />
               <PasswordSettings />
               <OrgSettings org={org} onUpdate={updateOrg} onSave={saveOrg} saveStatus={saveStatus} />
               <section className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
@@ -101,42 +112,16 @@ export function SettingsPage() {
           )}
 
           {activeTab === 'credentials' && (
-            <CredentialSettings credentials={credentials} />
+            <CredentialSettings credentials={credentials} loading={credentialsLoading} />
           )}
 
           {activeTab === 'organization' && (
-            <section className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
-              <div className="px-6 py-4 bg-surface-container-high border-b border-outline-variant">
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">{t('settings.team.heading')}</h2>
-              </div>
-              <div className="p-6 space-y-4">
-                <div className="flex flex-wrap justify-between items-center gap-3">
-                  <p className="text-sm text-on-surface-variant">{t('settings.team.seatsUsed', { used: orgMembers.length, total: maxSeats })}</p>
-                  <Button variant="secondary" size="sm">{t('settings.team.inviteMember')}</Button>
-                </div>
-                {membersLoading ? (
-                  <div className="space-y-2">
-                    {Array.from({ length: 2 }).map((_, i) => (
-                      <div key={i} className="h-14 bg-surface-container-high rounded-md animate-pulse" />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {orgMembers.map((member) => (
-                      <TeamMember
-                        key={member.id}
-                        name={member.fullName || t('settings.team.unnamed')}
-                        email={member.email}
-                        role={member.role}
-                      />
-                    ))}
-                    {orgMembers.length === 0 && (
-                      <p className="text-sm text-on-surface-variant py-2">{t('settings.team.noMembers', 'No team members found.')}</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            </section>
+            <OrganizationTab
+              orgMembers={orgMembers}
+              membersLoading={membersLoading}
+              pendingInvitations={pendingInvitations}
+              maxSeats={maxSeats}
+            />
           )}
 
           {activeTab === 'preferences' && (
@@ -144,31 +129,45 @@ export function SettingsPage() {
               <div className="px-6 py-4 bg-surface-container-high border-b border-outline-variant">
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">{t('settings.notifications.heading')}</h2>
               </div>
-              <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-                <ToggleRow
-                  title={t('settings.notifications.emailAlerts')}
-                  description={t('settings.notifications.emailAlertsSub')}
-                  enabled={preferences.emailAlerts}
-                  onToggle={() => togglePreference('emailAlerts')}
-                />
-                <ToggleRow
-                  title={t('settings.notifications.watchlistTriggers')}
-                  description={t('settings.notifications.watchlistTriggersSub')}
-                  enabled={preferences.watchlistTriggers}
-                  onToggle={() => togglePreference('watchlistTriggers')}
-                />
-                <ToggleRow
-                  title={t('settings.notifications.weeklyDigest')}
-                  description={t('settings.notifications.weeklyDigestSub')}
-                  enabled={preferences.weeklyDigest}
-                  onToggle={() => togglePreference('weeklyDigest')}
-                />
-                <ToggleRow
-                  title={t('settings.notifications.transferUpdates')}
-                  description={t('settings.notifications.transferUpdatesSub')}
-                  enabled={preferences.transferUpdates}
-                  onToggle={() => togglePreference('transferUpdates')}
-                />
+              <div className="p-4 sm:p-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                  <ToggleRow
+                    title={t('settings.notifications.emailAlerts')}
+                    description={t('settings.notifications.emailAlertsSub')}
+                    enabled={preferences.emailAlerts}
+                    onToggle={() => togglePreference('emailAlerts')}
+                  />
+                  <ToggleRow
+                    title={t('settings.notifications.watchlistTriggers')}
+                    description={t('settings.notifications.watchlistTriggersSub')}
+                    enabled={preferences.watchlistTriggers}
+                    onToggle={() => togglePreference('watchlistTriggers')}
+                  />
+                  <ToggleRow
+                    title={t('settings.notifications.weeklyDigest')}
+                    description={t('settings.notifications.weeklyDigestSub')}
+                    enabled={preferences.weeklyDigest}
+                    onToggle={() => togglePreference('weeklyDigest')}
+                  />
+                  <ToggleRow
+                    title={t('settings.notifications.transferUpdates')}
+                    description={t('settings.notifications.transferUpdatesSub')}
+                    enabled={preferences.transferUpdates}
+                    onToggle={() => togglePreference('transferUpdates')}
+                  />
+                </div>
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    onClick={savePreferences}
+                    disabled={preferencesSaveStatus === 'saving'}
+                    className="px-4 py-2 rounded-sm text-sm font-semibold bg-primary text-on-primary hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {preferencesSaveStatus === 'saving' ? t('common.saving') : preferencesSaveStatus === 'saved' ? t('common.saved') : t('settings.notifications.savePreferences')}
+                  </button>
+                  {preferencesSaveStatus === 'error' && (
+                    <span className="text-xs text-error">{t('common.failedToSave')}</span>
+                  )}
+                </div>
               </div>
             </section>
           )}
@@ -189,6 +188,160 @@ export function SettingsPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+function OrganizationTab({ orgMembers, membersLoading, pendingInvitations, maxSeats }: {
+  orgMembers: OrgMember[]
+  membersLoading: boolean
+  pendingInvitations: PendingInvitation[]
+  maxSeats: number
+}) {
+  const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const [showInviteModal, setShowInviteModal] = useState(false)
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteRole, setInviteRole] = useState('scout')
+  const [inviteStatus, setInviteStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+
+  async function handleSendInvite() {
+    if (!inviteEmail.trim()) return
+    setInviteStatus('sending')
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) throw new Error('No session')
+
+      const { data: inviteData, error } = await supabase.functions.invoke('invite-member', {
+        body: { email: inviteEmail.trim().toLowerCase(), role: inviteRole },
+      })
+      if (error) throw new Error(error.message ?? 'Failed to send invitation')
+      if (inviteData?.error) throw new Error(inviteData.error)
+      setInviteStatus('sent')
+      queryClient.invalidateQueries({ queryKey: ['settings', 'pending-invitations'] })
+      setTimeout(() => {
+        setShowInviteModal(false)
+        setInviteEmail('')
+        setInviteRole('scout')
+        setInviteStatus('idle')
+      }, 1500)
+    } catch {
+      setInviteStatus('error')
+      setTimeout(() => setInviteStatus('idle'), 3000)
+    }
+  }
+
+  return (
+    <>
+      <section className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
+        <div className="px-6 py-4 bg-surface-container-high border-b border-outline-variant">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-on-surface">{t('settings.team.heading')}</h2>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="flex flex-wrap justify-between items-center gap-3">
+            <p className="text-sm text-on-surface-variant">{t('settings.team.seatsUsed', { used: orgMembers.length, total: maxSeats })}</p>
+            <Button variant="secondary" size="sm" onClick={() => setShowInviteModal(true)}>{t('settings.team.inviteMember')}</Button>
+          </div>
+          {membersLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <div key={i} className="h-14 bg-surface-container-high rounded-md animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {orgMembers.map((member) => (
+                <TeamMember
+                  key={member.id}
+                  name={member.fullName || t('settings.team.unnamed')}
+                  email={member.email}
+                  role={member.role}
+                />
+              ))}
+              {orgMembers.length === 0 && (
+                <p className="text-sm text-on-surface-variant py-2">{t('settings.team.noMembers')}</p>
+              )}
+            </div>
+          )}
+          {pendingInvitations.length > 0 && (
+            <div className="pt-4 border-t border-outline-variant space-y-2">
+              <p className="text-[0.625rem] font-medium text-on-surface-variant uppercase tracking-widest">{t('settings.team.pending')}</p>
+              {pendingInvitations.map((inv) => (
+                <div key={inv.id} className="flex items-center justify-between p-3 bg-surface-container-low rounded-md border border-outline-variant opacity-70">
+                  <div className="flex items-center gap-3">
+                    <Clock size={14} className="text-on-surface-variant shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm text-on-surface truncate">{inv.email}</p>
+                      <p className="text-[0.625rem] text-on-surface-variant uppercase">{inv.role}</p>
+                    </div>
+                  </div>
+                  <span className="text-[0.5625rem] font-medium text-on-surface-variant uppercase">{t('settings.team.pending')}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Invite Modal */}
+      {showInviteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim/60" onClick={() => setShowInviteModal(false)}>
+          <div className="bg-surface-container border border-outline-variant rounded-md w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-on-surface">{t('settings.team.inviteTitle')}</h3>
+              <button onClick={() => setShowInviteModal(false)} className="text-on-surface-variant hover:text-on-surface min-w-[44px] min-h-[44px] flex items-center justify-center">
+                <X size={16} />
+              </button>
+            </div>
+            <p className="text-xs text-on-surface-variant mb-4">{t('settings.team.inviteDescription')}</p>
+            <div className="space-y-3">
+              <div>
+                <label htmlFor="invite-email" className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">{t('settings.team.emailLabel')}</label>
+                <input
+                  id="invite-email"
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder={t('settings.team.emailPlaceholder')}
+                  className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
+                />
+              </div>
+              <div>
+                <label htmlFor="invite-role" className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">{t('settings.team.roleLabel')}</label>
+                <select
+                  id="invite-role"
+                  value={inviteRole}
+                  onChange={(e) => setInviteRole(e.target.value)}
+                  className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors appearance-none min-h-[44px]"
+                >
+                  <option value="scout">{t('settings.team.roleScout')}</option>
+                  <option value="head_of_recruitment">{t('settings.team.roleHeadOfRecruitment')}</option>
+                  <option value="technical_director">{t('settings.team.roleTechnicalDirector')}</option>
+                  <option value="analyst">{t('settings.team.roleAnalyst')}</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  onClick={handleSendInvite}
+                  disabled={inviteStatus === 'sending' || !inviteEmail.includes('@')}
+                  className="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-light transition-colors disabled:opacity-50 min-h-[44px] flex items-center gap-2"
+                >
+                  {inviteStatus === 'sending' ? (
+                    <><Loader2 size={14} className="animate-spin" /> {t('settings.team.sending')}</>
+                  ) : inviteStatus === 'sent' ? (
+                    t('settings.team.inviteSent')
+                  ) : (
+                    t('settings.team.sendInvite')
+                  )}
+                </button>
+                {inviteStatus === 'error' && (
+                  <span className="text-xs text-error">{t('settings.team.inviteError')}</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 

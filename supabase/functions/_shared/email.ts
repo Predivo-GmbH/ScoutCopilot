@@ -322,6 +322,42 @@ ${button('View Users', `https://supabase.com/dashboard/project/rlcsuqwqzoqjykdiq
   }
 }
 
+/** Team invitation email */
+export function invitationEmail(
+  inviterName: string,
+  orgName: string,
+  token: string,
+  lang: EmailLang = 'en',
+): { subject: string; html: string } {
+  const safeInviter = escapeHtml(inviterName)
+  const safeOrg = escapeHtml(orgName)
+  const acceptUrl = `${APP_URL}/auth/accept-invite?token=${token}`
+
+  if (lang === 'de') {
+    return {
+      subject: `${safeInviter} l\u00e4dt Sie zu ${safeOrg} auf ScoutCopilot ein`,
+      html: layout(
+`<h1 style="${S.h1}">Teameinladung</h1>
+<p style="${S.p}">${safeInviter} hat Sie eingeladen, <strong style="${S.strong}">${safeOrg}</strong> auf ScoutCopilot beizutreten.</p>
+<p style="${S.pNoMargin}">Klicken Sie auf den Button unten, um die Einladung anzunehmen und loszulegen.</p>
+${button('Einladung annehmen', acceptUrl)}
+<p style="${S.hint}">Dieser Link ist 7 Tage g&uuml;ltig. Wenn Sie diese Einladung nicht erwartet haben, k&ouml;nnen Sie diese E-Mail ignorieren.</p>`
+      ),
+    }
+  }
+
+  return {
+    subject: `${safeInviter} invited you to join ${safeOrg} on ScoutCopilot`,
+    html: layout(
+`<h1 style="${S.h1}">Team Invitation</h1>
+<p style="${S.p}">${safeInviter} has invited you to join <strong style="${S.strong}">${safeOrg}</strong> on ScoutCopilot.</p>
+<p style="${S.pNoMargin}">Click the button below to accept the invitation and get started.</p>
+${button('Accept Invitation', acceptUrl)}
+<p style="${S.hint}">This link is valid for 7 days. If you weren't expecting this invitation, you can safely ignore this email.</p>`
+    ),
+  }
+}
+
 /** Account deleted confirmation */
 export function accountDeletedEmail(userName: string, lang: EmailLang = 'en'): { subject: string; html: string } {
   const safeName = escapeHtml(userName)

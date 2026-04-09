@@ -2,11 +2,17 @@
 // POST /compare { player_ids: string[], context?: string }
 
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
+import { type SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { handleCors } from "../_shared/cors.ts";
 import { AuthError, getAuthContext, getServiceClient } from "../_shared/auth.ts";
 import { comparePlayers as claudeCompare } from "../_shared/claude.ts";
 import { getMockPlayer } from "../_shared/mock-data.ts";
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
+import {
+  getPlayer as apiFootballGetPlayer,
+  mapToGenericPlayer,
+  type ApiFootballSearchResult,
+} from "../_shared/providers/api-football.ts";
 
 serve(async (req: Request) => {
   const { corsHeaders, preflightResponse } = handleCors(req);
@@ -108,13 +114,17 @@ serve(async (req: Request) => {
             stats: cached.player_data as Record<string, unknown>,
           });
         } else {
-          // TODO: Fetch fresh from provider if not cached
-          return new Response(
-            JSON.stringify({
-              error: `No cached data for player ${id}. Search for this player first.`,
-            }),
-            { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+          // Fallback: fetch fresh from provider based on player ID prefix
+          const fetched = await fetchPlayerFromProvider(supabase, id, auth.organizationId);
+          if (!fetched) {
+            return new Response(
+              JSON.stringify({
+                error: `Player not found: ${id}. Could not retrieve data from any provider.`,
+              }),
+              { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+          playersData.push(fetched);
         }
       }
     }
@@ -162,3 +172,158 @@ serve(async (req: Request) => {
     );
   }
 });
+
+// ── Helpers ───────────────────────────────────────────────────────
+
+/**
+ * Fetch a player directly from their provider when not found in the search_results cache.
+ * Caches the result in search_results for future lookups.
+ */
+async function fetchPlayerFromProvider(
+  supabase: SupabaseClient,
+  playerExternalId: string,
+  organizationId: string
+): Promise<{ id: string; name: string; stats: Record<string, unknown> } | null> {
+  let playerData: Record<string, unknown> | null = null;
+
+  if (playerExternalId.startsWith("apifb-")) {
+    // API-Football player — fetch by numeric ID
+    playerData = await fetchApiFootballPlayer(playerExternalId, organizationId);
+  } else if (playerExternalId.startsWith("sb-open-")) {
+    // StatsBomb open data player — fetch from sb_players + sb_player_season_stats
+    playerData = await fetchStatsBombOpenPlayer(supabase, playerExternalId);
+  }
+  // Wyscout (wy-) and paid StatsBomb (sb-) require org credentials;
+  // those players should always be cached from a prior search, so no fallback here.
+
+  if (!playerData) return null;
+
+  // Cache in search_results for future comparisons
+  const { error: cacheError } = await supabase.from("search_results").insert({
+    player_external_id: playerExternalId,
+    player_name: playerData.player_name as string,
+    player_data: playerData,
+    rank: 0,
+    fit_score: 0,
+  });
+  if (cacheError) {
+    console.error("Failed to cache player data:", cacheError.message);
+  }
+
+  return {
+    id: playerExternalId,
+    name: playerData.player_name as string,
+    stats: playerData,
+  };
+}
+
+/** Fetch an API-Football player by their external ID (apifb-{numericId}) */
+async function fetchApiFootballPlayer(
+  playerExternalId: string,
+  organizationId: string
+): Promise<Record<string, unknown> | null> {
+  const apiKey = Deno.env.get("API_FOOTBALL_KEY");
+  if (!apiKey) {
+    console.error("API_FOOTBALL_KEY not configured — cannot fetch player");
+    return null;
+  }
+
+  const numericId = parseInt(playerExternalId.replace("apifb-", ""), 10);
+  if (isNaN(numericId)) return null;
+
+  const currentYear = new Date().getFullYear();
+
+  try {
+    const result = await apiFootballGetPlayer(numericId, currentYear, organizationId);
+    if (!result) {
+      // Try previous season as fallback
+      const prevResult = await apiFootballGetPlayer(numericId, currentYear - 1, organizationId);
+      if (!prevResult) return null;
+      return mapToGenericPlayer(prevResult as unknown as ApiFootballSearchResult);
+    }
+    return mapToGenericPlayer(result as unknown as ApiFootballSearchResult);
+  } catch (err) {
+    console.error("API-Football player fetch error:", (err as Error).message);
+    return null;
+  }
+}
+
+/** Fetch a StatsBomb open data player from the DB by their external ID (sb-open-{numericId}) */
+async function fetchStatsBombOpenPlayer(
+  supabase: SupabaseClient,
+  playerExternalId: string
+): Promise<Record<string, unknown> | null> {
+  const numericId = parseInt(playerExternalId.replace("sb-open-", ""), 10);
+  if (isNaN(numericId)) return null;
+
+  const { data: player } = await supabase
+    .from("sb_players")
+    .select("player_id, player_name, player_nickname, nationality, primary_position, photo_url, birth_date")
+    .eq("player_id", numericId)
+    .single();
+
+  if (!player) return null;
+
+  // Fetch most recent club stats (excluding international competitions)
+  const INTL_COMP_IDS = [43, 11, 55, 53, 72];
+  const { data: clubStats } = await supabase
+    .from("sb_player_season_stats")
+    .select("*")
+    .eq("player_id", numericId)
+    .not("competition_id", "in", `(${INTL_COMP_IDS.join(",")})`)
+    .order("season_name", { ascending: false })
+    .limit(1)
+    .single();
+
+  // Fall back to any stats (including international) if no club stats
+  let stats = clubStats;
+  if (!stats) {
+    const { data: anyStats } = await supabase
+      .from("sb_player_season_stats")
+      .select("*")
+      .eq("player_id", numericId)
+      .order("season_name", { ascending: false })
+      .limit(1)
+      .single();
+    stats = anyStats;
+  }
+
+  const teamName = stats?.team_name ?? "Unknown";
+  const league = stats ? `${stats.competition_name} (${stats.season_name})` : "Unknown";
+
+  return {
+    player_external_id: playerExternalId,
+    player_name: player.player_nickname ?? player.player_name,
+    age: player.birth_date ? calculateAge(player.birth_date) : null,
+    birth_date: player.birth_date ?? null,
+    nationality: player.nationality ?? "Unknown",
+    position: player.primary_position ?? "Unknown",
+    team: teamName,
+    league,
+    photo_url: player.photo_url ?? undefined,
+    stats: stats
+      ? {
+          matches_played: stats.matches_played,
+          minutes_played: stats.minutes_played,
+          goals: stats.goals,
+          assists: stats.assists,
+          xG: Number(stats.xg),
+          xA: Number(stats.xa),
+        }
+      : {},
+    provider: "statsbomb-open",
+  };
+}
+
+function calculateAge(birthDate: string): number {
+  const birth = new Date(birthDate);
+  const now = new Date();
+  let age = now.getFullYear() - birth.getFullYear();
+  if (
+    now.getMonth() < birth.getMonth() ||
+    (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())
+  ) {
+    age--;
+  }
+  return age;
+}

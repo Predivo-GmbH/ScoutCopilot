@@ -675,7 +675,10 @@
       "changeEmail": "E-Mail ändern",
       "changingEmail": "Senden…",
       "emailConfirmationSent": "Bestätigungsmail an Ihre neue Adresse gesendet. Bitte prüfen Sie Ihren Posteingang.",
-      "emailChangeError": "E-Mail-Änderung fehlgeschlagen. Bitte versuchen Sie es erneut."
+      "emailChangeError": "E-Mail-Änderung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "avatarUploadError": "Avatar-Upload fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "avatarTooLarge": "Bild muss kleiner als 2 MB sein.",
+      "avatarInvalidType": "Nur JPEG-, PNG- und WebP-Bilder sind erlaubt."
     },
     "password": {
       "heading": "Passwort ändern",
@@ -702,7 +705,23 @@
     "team": {
       "heading": "Teamverwaltung",
       "seatsUsed": "{{used}} von {{total}} Plätzen belegt",
-      "inviteMember": "Mitglied einladen"
+      "inviteMember": "Mitglied einladen",
+      "inviteTitle": "Teammitglied einladen",
+      "inviteDescription": "Senden Sie eine Einladungs-E-Mail, um ein neues Mitglied zu Ihrer Organisation hinzuzufügen.",
+      "emailLabel": "E-Mail-Adresse",
+      "emailPlaceholder": "kollege@verein.ch",
+      "roleLabel": "Rolle",
+      "sendInvite": "Einladung senden",
+      "sending": "Wird gesendet…",
+      "inviteSent": "Einladung erfolgreich gesendet!",
+      "inviteError": "Einladung konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+      "pending": "Ausstehend",
+      "noMembers": "Keine Teammitglieder gefunden.",
+      "unnamed": "Unbenannt",
+      "roleScout": "Scout",
+      "roleHeadOfRecruitment": "Leiter Rekrutierung",
+      "roleTechnicalDirector": "Technischer Direktor",
+      "roleAnalyst": "Analyst"
     },
     "notifications": {
       "heading": "Benachrichtigungseinstellungen",
@@ -713,7 +732,8 @@
       "weeklyDigest": "Wöchentliche Zusammenfassung",
       "weeklyDigestSub": "Zusammengefasste Scouting-Aktivitäten",
       "transferUpdates": "Transferfenster-Updates",
-      "transferUpdatesSub": "Live-Marktnews für Zielspieler"
+      "transferUpdatesSub": "Live-Marktnews für Zielspieler",
+      "savePreferences": "Einstellungen speichern"
     },
     "billing": {
       "heading": "Abrechnung & Abonnement",
@@ -900,7 +920,10 @@
   "alerts": {
     "backToDashboard": "Zurück zum Dashboard",
     "heading": "Watchlist-Benachrichtigungen",
-    "subtitle": "Alle aktuellen Benachrichtigungen Ihrer beobachteten Spieler."
+    "subtitle": "Alle aktuellen Benachrichtigungen Ihrer beobachteten Spieler.",
+    "typeNewReport": "Neuer Bericht",
+    "typeRecentlyAdded": "Kürzlich hinzugefügt",
+    "typeTransferRumor": "Transfergerücht"
   },
   "searchHistory": {
     "backToDashboard": "Zurück zum Dashboard",
