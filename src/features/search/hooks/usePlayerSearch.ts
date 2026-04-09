@@ -180,7 +180,7 @@ export function usePlayerSearch() {
   }, [queryClient, searchTrigger])
 
   const { data, isLoading } = useQuery<MockPlayer[]>({
-    queryKey: ['player-search', searchTrigger],
+    queryKey: ['player-search', searchTrigger, savedSearchId ?? params.query],
     queryFn: async () => {
       // Load cached results from DB (no AI credits)
       if (savedSearchId) {
@@ -241,7 +241,7 @@ export function usePlayerSearch() {
   })
 
   function clearResults() {
-    queryClient.setQueryData(['player-search', searchTrigger], [])
+    queryClient.removeQueries({ queryKey: ['player-search'] })
   }
 
   function search(newParams?: Partial<SearchParams>) {
