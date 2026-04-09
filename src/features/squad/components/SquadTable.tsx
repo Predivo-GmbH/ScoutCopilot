@@ -90,7 +90,7 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
                 </div>
                 <div>
                   <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('squad.rating')}</p>
-                  <RatingBar rating={player.overallRating} />
+                  <RatingBar rating={player.overallRating} hasStats={!!player.stats && Object.values(player.stats).some((v) => typeof v === 'number' && v > 0)} />
                 </div>
                 <div>
                   <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('squad.marketValue')}</p>
@@ -191,7 +191,7 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
                     {new Date(player.contractUntil).toLocaleDateString(t('common.locale', 'en-GB'), { month: 'short', year: 'numeric' })}
                   </td>
                   <td className="px-4 py-4">
-                    <RatingBar rating={player.overallRating} />
+                    <RatingBar rating={player.overallRating} hasStats={!!player.stats && Object.values(player.stats).some((v) => typeof v === 'number' && v > 0)} />
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-2">
@@ -240,7 +240,25 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
   )
 }
 
-function RatingBar({ rating }: { rating: number }) {
+function RatingBar({ rating, hasStats }: { rating: number; hasStats: boolean }) {
+  const { t } = useTranslation()
+
+  if (rating === 0 && !hasStats) {
+    return (
+      <span className="text-[0.625rem] font-data text-on-surface-variant/50 italic">
+        {t('squad.noRating', 'N/A')}
+      </span>
+    )
+  }
+
+  if (rating === 0 && hasStats) {
+    return (
+      <span className="text-[0.625rem] font-data text-on-surface-variant animate-pulse">
+        {t('squad.ratingPending', 'Rating...')}
+      </span>
+    )
+  }
+
   const color = rating >= 78 ? 'bg-secondary' : rating >= 65 ? 'bg-warning' : 'bg-error'
   const textColor = rating >= 78 ? 'text-secondary' : rating >= 65 ? 'text-warning' : 'text-error'
 

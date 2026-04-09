@@ -206,6 +206,56 @@ export function useSquad() {
         })
 
       if (error) throw error
+
+      // Background: generate AI rating if player has stats but no rating
+      if (player.overallRating === 0 && player.stats && Object.values(player.stats).some((v) => typeof v === 'number' && v > 0)) {
+        supabase.functions
+          .invoke('rate-player', {
+            body: {
+              players: [{
+                player_external_id: player.id,
+                player_name: player.name,
+                position: player.position,
+                stats: player.stats,
+              }],
+            },
+          })
+          .then(({ data }) => {
+            const rating = data?.ratings?.[0]
+            if (rating && rating.rating > 0) {
+              // Update the squad_player row with the AI rating
+              supabase
+                .from('squad_players')
+                .update({
+                  player_data: {
+                    age: player.age,
+                    birth_date: player.birth_date,
+                    nationality: player.nationality,
+                    position: player.position,
+                    altPositions: player.altPositions,
+                    shirtNumber: player.shirtNumber,
+                    contractUntil: player.contractUntil,
+                    weeklyWage: player.weeklyWage,
+                    marketValue: player.marketValue,
+                    status: player.status,
+                    image: player.image,
+                    stats: player.stats,
+                    radarData: player.radarData,
+                    overallRating: rating.rating,
+                    ratingReasoning: rating.reasoning,
+                  },
+                })
+                .eq('squad_id', squadId)
+                .eq('player_external_id', player.id)
+                .then(() => {
+                  queryClient.invalidateQueries({ queryKey: SQUADS_KEY })
+                })
+            }
+          })
+          .catch(() => {
+            // Non-blocking — rating will show 0 until manually refreshed
+          })
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SQUADS_KEY })

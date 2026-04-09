@@ -114,6 +114,11 @@ serve(async (req: Request) => {
     // Deduplicate players from different providers (e.g. StatsBomb + API-Football)
     rawPlayers = deduplicatePlayers(rawPlayers);
 
+    // Enrich StatsBomb players with current club + birth_date from API-Football (cached)
+    if (rawPlayers.length > 0) {
+      rawPlayers = await enrichWithCurrentData(rawPlayers, auth.organizationId);
+    }
+
     if (rawPlayers.length === 0) {
       // Save empty search to DB
       const supabase = getServiceClient();
@@ -286,6 +291,143 @@ serve(async (req: Request) => {
     );
   }
 });
+
+// ── Enrichment: current club + birth_date from API-Football (cached) ──
+
+const ENRICHMENT_TTL_DAYS = 30;
+
+/**
+ * Enrich StatsBomb players with current club, league, and birth_date from
+ * API-Football. Uses a Supabase cache table to avoid burning through the
+ * free-tier 100 req/day limit.
+ *
+ * Flow per player:
+ * 1. Check player_enrichment_cache — if fresh (< TTL), use cached data
+ * 2. If stale/missing AND API_FOOTBALL_KEY set, search API-Football by name
+ * 3. Upsert result into cache
+ * 4. Override team/league/birth_date on the player record
+ */
+async function enrichWithCurrentData(
+  players: Record<string, unknown>[],
+  organizationId: string
+): Promise<Record<string, unknown>[]> {
+  const supabase = getServiceClient();
+  const apiKey = Deno.env.get("API_FOOTBALL_KEY");
+
+  // Only enrich StatsBomb players (they have historical team data)
+  const sbPlayers = players.filter(
+    (p) => (p.provider === "statsbomb-open") && (p.player_external_id as string).startsWith("sb-open-")
+  );
+
+  if (sbPlayers.length === 0) return players;
+
+  // 1. Batch-fetch existing cache entries
+  const extIds = sbPlayers.map((p) => p.player_external_id as string);
+  const { data: cacheRows } = await supabase
+    .from("player_enrichment_cache")
+    .select("*")
+    .in("player_external_id", extIds);
+
+  const cacheMap = new Map<string, {
+    current_club: string | null;
+    current_league: string | null;
+    birth_date: string | null;
+    photo_url: string | null;
+    enriched_at: string;
+  }>();
+  for (const row of cacheRows ?? []) {
+    cacheMap.set(row.player_external_id, row);
+  }
+
+  const now = Date.now();
+  const ttlMs = ENRICHMENT_TTL_DAYS * 24 * 60 * 60 * 1000;
+
+  // 2. Identify which players need fresh enrichment
+  const needsEnrichment: Record<string, unknown>[] = [];
+  for (const p of sbPlayers) {
+    const extId = p.player_external_id as string;
+    const cached = cacheMap.get(extId);
+    if (cached && (now - new Date(cached.enriched_at).getTime()) < ttlMs) {
+      // Cache is fresh — apply it
+      if (cached.current_club) p.team = cached.current_club;
+      if (cached.current_league) p.league = cached.current_league;
+      if (cached.birth_date) {
+        p.birth_date = cached.birth_date;
+        p.age = calculateAge(cached.birth_date);
+      }
+      if (cached.photo_url && !p.photo_url) p.photo_url = cached.photo_url;
+    } else {
+      needsEnrichment.push(p);
+    }
+  }
+
+  // 3. Fetch from API-Football for uncached/stale players (max 5 per search to conserve quota)
+  if (apiKey && needsEnrichment.length > 0) {
+    const toEnrich = needsEnrichment.slice(0, 5); // conserve API quota
+
+    for (const p of toEnrich) {
+      const playerName = p.player_name as string;
+      try {
+        const results = await apiFootballSearch(playerName, organizationId);
+        if (results.length > 0) {
+          // Find best match by normalized name
+          const normTarget = playerName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+          const match = results.find((r) => {
+            const normResult = r.player.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+            return normResult.includes(normTarget) || normTarget.includes(normResult);
+          }) ?? results[0];
+
+          const mainStats = match.statistics?.[0];
+          const currentClub = mainStats?.team?.name ?? null;
+          const currentLeague = mainStats?.league?.name ?? null;
+          const birthDate = match.player.birth?.date ?? null;
+          const photoUrl = match.player.photo ?? null;
+
+          // Apply to player
+          if (currentClub) p.team = currentClub;
+          if (currentLeague) p.league = currentLeague;
+          if (birthDate) {
+            p.birth_date = birthDate;
+            p.age = calculateAge(birthDate);
+          }
+          if (photoUrl && !p.photo_url) {
+            p.photo_url = photoUrl;
+            p.photo_source = "api-football";
+          }
+
+          // Upsert cache
+          await supabase.from("player_enrichment_cache").upsert({
+            player_external_id: p.player_external_id as string,
+            current_club: currentClub,
+            current_league: currentLeague,
+            birth_date: birthDate,
+            photo_url: photoUrl,
+            api_football_id: match.player.id,
+            raw_data: { statistics: mainStats },
+            enriched_at: new Date().toISOString(),
+          }, { onConflict: "player_external_id" });
+        } else {
+          // No match found — cache empty result to avoid re-querying
+          await supabase.from("player_enrichment_cache").upsert({
+            player_external_id: p.player_external_id as string,
+            current_club: null,
+            current_league: null,
+            birth_date: null,
+            photo_url: null,
+            api_football_id: null,
+            raw_data: {},
+            enriched_at: new Date().toISOString(),
+          }, { onConflict: "player_external_id" });
+        }
+      } catch (err) {
+        console.error(`Enrichment failed for ${playerName}:`, (err as Error).message);
+        // Non-blocking — player keeps StatsBomb data
+      }
+    }
+  }
+
+  return players;
+}
 
 // ── Helpers ───────────────────────────────────────────────────────
 

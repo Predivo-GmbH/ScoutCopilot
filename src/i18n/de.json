@@ -472,8 +472,6 @@
     "expandDetails": "Details einblenden",
     "collapseDetails": "Details ausblenden",
     "allStats": "Alle Statistiken",
-    "clubTooltip": "Verein aus der Saison, in der diese Statistiken erfasst wurden — entspricht nicht unbedingt dem aktuellen Team",
-    "historicalData": "aus Statistik-Saison",
     "statTooltips": {
       "position": "Primäre Position(en) des Spielers auf dem Spielfeld",
       "age": "Aktuelles Alter des Spielers",
@@ -637,6 +635,8 @@
     "number": "#",
     "contract": "Vertrag",
     "rating": "Bewertung",
+    "noRating": "N/A",
+    "ratingPending": "Bewertung...",
     "marketValue": "Marktwert",
     "positionAnalysis": "Positionsanalyse",
     "noGaps": "Ihr Kader hat keine kritischen Lücken. Alle Positionen sind gut besetzt.",

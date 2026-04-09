@@ -48,6 +48,13 @@ export function ReportPage() {
     }
   }, [id, similarPlayerName, hasReport, isGenerating, generateReport])
 
+  // On-demand photo fetching for main player
+  const mainPhotoPlayers = useMemo(
+    () => id ? [{ id, image: report?.image }] : [],
+    [id, report?.image],
+  )
+  const { getPhoto: getMainPhoto, loadingIds: mainLoadingIds } = usePlayerPhotoFetch(mainPhotoPlayers)
+
   // On-demand photo fetching for similar players without images
   const similarPhotoPlayers = useMemo(
     () => (report?.similarPlayers ?? []).map((sp) => ({
@@ -153,7 +160,7 @@ export function ReportPage() {
       {/* Player Header */}
       <div className="bg-surface-container rounded-md p-4 sm:p-6 border border-outline-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-4 sm:gap-6">
-          <PlayerAvatar name={report.playerName} size={80} imageUrl={report.image} clickable aiGenerated={!!report.image && derivePhotoSource(report.image) === 'stitch'} />
+          <PlayerAvatar name={report.playerName} size={80} imageUrl={getMainPhoto({ id: id!, image: report.image })} clickable loading={mainLoadingIds.has(id!)} aiGenerated={!!getMainPhoto({ id: id!, image: report.image }) && derivePhotoSource(getMainPhoto({ id: id!, image: report.image })) === 'stitch'} />
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-on-surface uppercase">{report.playerName}</h1>
             <div className="flex items-center gap-3 mt-1 flex-wrap">

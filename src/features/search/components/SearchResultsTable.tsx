@@ -25,7 +25,7 @@ function exportResultsCsv(results: MockPlayer[], t: (key: string) => string) {
   const rows = results.map((p, i) => [
     i + 1,
     p.name,
-    formatAge(p.birth_date, p.age),
+    formatAge(p.birth_date),
     p.nationality,
     p.position,
     p.club,
@@ -142,7 +142,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                   <StatTooltip label={t('common.age')} tooltip={t('search.statTooltips.age')} />
                 </th>
                 <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
-                  <StatTooltip label={t('common.club')} tooltip={t('search.clubTooltip')} />
+                  <StatTooltip label={t('common.club')} tooltip={t('search.statTooltips.club', t('common.club'))} />
                 </th>
                 <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
                   <StatTooltip label={t('common.league')} tooltip={t('search.statTooltips.league')} />
@@ -198,10 +198,10 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                         </div>
                       </td>
                       <td className="px-1 py-2.5 text-center align-middle font-data text-xs text-on-surface">
-                        {formatAge(player.birth_date, player.age)}
+                        {formatAge(player.birth_date)}
                       </td>
                       <td className="px-2 py-2.5 align-middle text-xs text-on-surface">
-                        <span className="truncate block max-w-[7rem]" title={`${player.club} (${t('search.historicalData')})`}>{player.club}</span>
+                        <span className="truncate block max-w-[7rem]" title={player.club}>{player.club}</span>
                       </td>
                       <td className="px-2 py-2.5 align-middle text-xs text-on-surface">
                         <span className="truncate block max-w-[7rem]">{player.league}</span>
@@ -293,7 +293,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 mb-3">
-                  <StatRow label={t('common.age')} value={formatAge(player.birth_date, player.age)} />
+                  <StatRow label={t('common.age')} value={formatAge(player.birth_date)} />
                   <StatRow label={t('common.league')} value={player.league} />
                   {allStatKeys.map((key) => (
                     <StatRow key={key} label={key} value={String(player.stats[key])} />

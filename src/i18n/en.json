@@ -472,8 +472,6 @@
     "expandDetails": "Expand details",
     "collapseDetails": "Collapse details",
     "allStats": "All Statistics",
-    "clubTooltip": "Club from the season these stats were recorded — may not reflect current team",
-    "historicalData": "from stats season",
     "statTooltips": {
       "position": "Player's primary position(s) on the pitch",
       "age": "Player's current age",
@@ -637,6 +635,8 @@
     "number": "#",
     "contract": "Contract",
     "rating": "Rating",
+    "noRating": "N/A",
+    "ratingPending": "Rating...",
     "marketValue": "Market Value",
     "positionAnalysis": "Position Analysis",
     "noGaps": "Your squad has no critical gaps. All positions are well covered.",

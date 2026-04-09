@@ -290,6 +290,7 @@ export function mapToGenericPlayer(
     player_external_id: `apifb-${p.id}`,
     player_name: p.name,
     age: p.age,
+    birth_date: p.birth?.date ?? null,
     nationality: p.nationality,
     position: mainStats?.games?.position ?? "Unknown",
     positions: mainStats?.games?.position ? [mainStats.games.position] : [],
