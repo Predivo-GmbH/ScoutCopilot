@@ -47,6 +47,7 @@ export function SearchPage() {
   }, [initialQuery]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSearch() {
+    if (!queryInput.trim()) return
     search({ query: queryInput })
   }
 
@@ -184,7 +185,7 @@ function EmptyState({ onSuggestionClick, onLoadSaved }: {
                   role="button"
                   tabIndex={0}
                   aria-label={t('search.deleteQuery')}
-                  className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded-sm text-on-surface-variant/50 hover:text-error hover:bg-error/10 transition-all shrink-0"
+                  className="opacity-50 group-hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 p-1 rounded-sm text-on-surface-variant/70 hover:text-error hover:bg-error/10 transition-all shrink-0"
                   onClick={(e) => { e.stopPropagation(); deleteSearch.mutate(s.id) }}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); e.preventDefault(); deleteSearch.mutate(s.id) } }}
                 >

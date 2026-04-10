@@ -2,15 +2,50 @@ import { useState, useEffect, useMemo, useRef, useCallback, Fragment } from 'rea
 import { createPortal } from 'react-dom'
 import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
-import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, FileText, Loader2, Eye, Search as SearchIcon, UserPlus, Check, Plus, AlertCircle } from 'lucide-react'
+import { Download, LayoutGrid, LayoutList, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, FileText, Loader2, Eye, Search as SearchIcon, UserPlus, Check, Plus, AlertCircle, XCircle } from 'lucide-react'
 import type { MockPlayer } from '../../../lib/mock-data'
 import type { SquadPlayer, SquadPosition } from '../../../lib/mock-data/types'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import { useGeneratedReports } from '../../../lib/useGeneratedReportsHook'
 import { useSquad } from '../../squad/hooks/useSquad'
-import { formatAge } from '../../../lib/ageUtils'
+import { calculateAge, formatAge } from '../../../lib/ageUtils'
 
 const PAGE_SIZE = 8
+const SEARCH_TIMEOUT_MS = 90_000
+
+const statHeaderLabels: Record<string, string> = {
+  'xA': 'xA',
+  'xG': 'xG',
+  'npxG': 'npxG',
+  'goals': 'Goals',
+  'blocks': 'Blocks',
+  'assists': 'Assists',
+  'crosses': 'Crosses',
+  'tackles': 'Tackles',
+  'dribbles': 'Dribbles',
+  'press': 'Press.',
+  'rc': 'RC',
+  'key_pass': 'Key Pass',
+  'long_balls': 'Long Balls',
+  'aerial': 'Aerial',
+  'yc': 'YC',
+  'int': 'Int.',
+  'through_balls': 'Thru Balls',
+  'apps': 'Apps',
+  'mins': 'Mins',
+  'pass_pct': 'Pass %',
+  'pass_cmp': 'Pass Cmp',
+  'prog_pass': 'Prog Pass',
+  'prog_carry': 'Prog Carry',
+  'drib_pct': 'Drib %',
+  'gca': 'GCA',
+  'sca': 'SCA',
+}
+
+function formatStatHeader(key: string): string {
+  if (statHeaderLabels[key]) return statHeaderLabels[key]
+  return key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+}
 
 interface SearchResultsTableProps {
   results: MockPlayer[]
@@ -54,6 +89,17 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
   const { generateReport, isGenerating, hasReport } = useGeneratedReports()
   const { squads, addPlayer, createSquad } = useSquad()
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
+  const [searchTimedOut, setSearchTimedOut] = useState(false)
+
+  // Timeout: after 90s of loading, show error state
+  useEffect(() => {
+    if (!isLoading) {
+      setSearchTimedOut(false)
+      return
+    }
+    const timer = setTimeout(() => setSearchTimedOut(true), SEARCH_TIMEOUT_MS)
+    return () => clearTimeout(timer)
+  }, [isLoading])
 
   // Reset page when results change (React-recommended pattern)
   if (prevResultsLen !== results.length) {
@@ -62,6 +108,21 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
   }
 
   if (isLoading) {
+    if (searchTimedOut) {
+      return (
+        <div className="bg-surface-container rounded-md border border-outline-variant overflow-hidden">
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-16 h-16 rounded-md bg-error/10 flex items-center justify-center mb-4">
+              <XCircle size={32} strokeWidth={1.5} className="text-error" />
+            </div>
+            <h3 className="text-lg font-semibold text-on-surface mb-2">{t('search.timeoutTitle', 'Search is taking longer than expected')}</h3>
+            <p className="text-sm text-on-surface-variant max-w-md">
+              {t('search.timeoutMessage', 'Please try again.')}
+            </p>
+          </div>
+        </div>
+      )
+    }
     return <AIThinkingAnimation />
   }
 
@@ -132,7 +193,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
             <thead>
               <tr className="sticky top-0 z-10 bg-surface-container-highest border-b border-outline-variant/30">
                 <th className="w-8 px-1 py-3 text-right text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">#</th>
-                <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
+                <th className="min-w-[180px] px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
                   {t('csv.name')}
                 </th>
                 <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
@@ -149,7 +210,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                 </th>
                 {allStatKeys.map((key) => (
                   <th key={key} className="w-16 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap">
-                    <StatTooltip label={key} tooltip={t(`search.statTooltips.${key}`, key)} />
+                    <StatTooltip label={formatStatHeader(key)} tooltip={t(`search.statTooltips.${key}`, key)} />
                   </th>
                 ))}
                 <th className="w-24 px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap">
@@ -183,9 +244,9 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                         {globalIndex + 1}
                       </td>
                       <td className="px-2 py-2.5 align-middle">
-                        <div className="flex items-center gap-2 min-w-0">
+                        <div className="flex items-center gap-2 min-w-0 max-w-[220px]">
                           <PlayerAvatarWithFlag name={player.name} nationality={player.nationality} imageUrl={player.image} photoSource={player.photoSource} loading={photoLoadingIds?.has(player.id)} />
-                          <span className="font-bold text-on-surface text-[0.8125rem] truncate">{player.name}</span>
+                          <span className="font-bold text-on-surface text-[0.8125rem] truncate" title={player.name}>{player.name}</span>
                         </div>
                       </td>
                       <td className="px-2 py-2.5 align-middle">
@@ -201,10 +262,10 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                         {formatAge(player.birth_date)}
                       </td>
                       <td className="px-2 py-2.5 align-middle text-xs text-on-surface">
-                        <span className="truncate block max-w-[7rem]" title={player.club}>{player.club}</span>
+                        <span className="truncate block max-w-[10rem]" title={player.club}>{player.club}</span>
                       </td>
                       <td className="px-2 py-2.5 align-middle text-xs text-on-surface">
-                        <span className="truncate block max-w-[7rem]">{player.league}</span>
+                        <span className="truncate block max-w-[10rem]">{player.league}</span>
                       </td>
                       {allStatKeys.map((key) => (
                         <td key={key} className="px-1 py-2.5 text-center align-middle font-data text-xs text-on-surface">
@@ -247,7 +308,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                               {allStatKeys.map((key) => (
                                 <div key={key} className="flex items-baseline justify-between gap-2">
                                   <span className="text-[0.5625rem] uppercase tracking-widest text-on-surface-variant font-bold whitespace-nowrap">
-                                    <StatTooltip label={key} tooltip={t(`search.statTooltips.${key}`, key)} />
+                                    <StatTooltip label={formatStatHeader(key)} tooltip={t(`search.statTooltips.${key}`, key)} />
                                   </span>
                                   <span className="font-data text-xs text-on-surface font-medium">{player.stats[key] ?? '\u2014'}</span>
                                 </div>
@@ -272,6 +333,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                 key={player.id}
                 role="button"
                 tabIndex={0}
+                aria-label={`${t('common.player')}: ${player.name}`}
                 onClick={() => navigate(`/players/${player.id}`)}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/players/${player.id}`) } }}
                 className="bg-surface-container-low border border-outline-variant rounded-md p-4 hover:border-primary/30 hover:bg-surface-container-high transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1"
@@ -296,7 +358,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                   <StatRow label={t('common.age')} value={formatAge(player.birth_date)} />
                   <StatRow label={t('common.league')} value={player.league} />
                   {allStatKeys.map((key) => (
-                    <StatRow key={key} label={key} value={String(player.stats[key])} />
+                    <StatRow key={key} label={formatStatHeader(key)} value={player.stats[key] != null ? String(player.stats[key]) : '\u2014'} />
                   ))}
                 </div>
 
@@ -323,7 +385,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
             <button
               onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page === 1}
-              className="w-11 h-11 flex items-center justify-center border border-outline-variant rounded-sm text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="w-11 h-11 flex items-center justify-center border border-outline-variant rounded-sm text-on-surface-variant hover:bg-surface-container-high disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label={t('search.previousPage', 'Previous page')}
             >
               <ChevronLeft size={14} strokeWidth={1.5} />
@@ -348,7 +410,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
             <button
               onClick={() => setPage(Math.min(totalPages, page + 1))}
               disabled={page === totalPages}
-              className="w-11 h-11 flex items-center justify-center border border-outline-variant rounded-sm text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="w-11 h-11 flex items-center justify-center border border-outline-variant rounded-sm text-on-surface-variant hover:bg-surface-container-high disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               aria-label={t('search.nextPage', 'Next page')}
             >
               <ChevronRight size={14} strokeWidth={1.5} />
@@ -444,7 +506,7 @@ function mapPlayerToSquad(player: MockPlayer): SquadPlayer {
   return {
     id: player.id,
     name: player.name,
-    age: player.age,
+    age: calculateAge(player.birth_date) ?? player.age,
     birth_date: player.birth_date,
     nationality: player.nationality,
     position: primaryPos,

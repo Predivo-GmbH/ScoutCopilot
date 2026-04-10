@@ -64,7 +64,7 @@ export function SquadPage() {
           <div className="bg-surface-container border border-outline-variant rounded-md w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-on-surface">{t('squad.createSquad')}</h3>
-              <button onClick={() => setShowCreateModal(false)} className="text-on-surface-variant hover:text-on-surface min-w-[44px] min-h-[44px] flex items-center justify-center">
+              <button onClick={() => setShowCreateModal(false)} aria-label={t('common.close', 'Close')} className="text-on-surface-variant hover:text-on-surface min-w-[44px] min-h-[44px] flex items-center justify-center">
                 <X size={16} />
               </button>
             </div>

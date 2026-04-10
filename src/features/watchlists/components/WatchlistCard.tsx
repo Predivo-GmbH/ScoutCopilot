@@ -16,6 +16,7 @@ export function WatchlistCard({ watchlist, isSelected, onClick, onDelete }: Watc
     <div
       role="button"
       tabIndex={0}
+      aria-label={`${t('watchlists.heading')}: ${watchlist.name}`}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } }}
       className={`bg-surface-container p-3 sm:p-5 rounded-md border transition-all cursor-pointer group focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1 ${

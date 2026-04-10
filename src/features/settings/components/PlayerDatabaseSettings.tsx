@@ -7,7 +7,7 @@ import { supabase } from '../../../lib/supabase'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import { usePlayerPhotoFetch, derivePhotoSource } from '../../../lib/usePlayerPhotoFetch'
 import { useSquad } from '../../squad/hooks/useSquad'
-import { formatAge } from '../../../lib/ageUtils'
+import { calculateAge, formatAge } from '../../../lib/ageUtils'
 import type { SquadPlayer, SquadPosition } from '../../../lib/mock-data/types'
 
 const PAGE_SIZE = 50
@@ -48,7 +48,7 @@ function mapSbPlayerToSquad(player: SbPlayer): SquadPlayer {
   return {
     id: `sb-open-${player.player_id}`,
     name: player.player_nickname ?? player.player_name,
-    age: 0,
+    age: calculateAge(player.birth_date) ?? 0,
     birth_date: player.birth_date ?? undefined,
     nationality: player.nationality,
     position: pos,

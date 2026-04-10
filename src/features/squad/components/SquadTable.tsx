@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
 import { Trash2 } from 'lucide-react'
@@ -37,7 +37,21 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
+  const [removedName, setRemovedName] = useState<string | null>(null)
   const sorted = [...players].sort((a, b) => a.shirtNumber - b.shirtNumber)
+
+  // Auto-clear removal feedback
+  useEffect(() => {
+    if (!removedName) return
+    const timer = setTimeout(() => setRemovedName(null), 3000)
+    return () => clearTimeout(timer)
+  }, [removedName])
+
+  function handleRemove(player: SquadPlayer) {
+    onRemovePlayer?.(player.id)
+    setRemovedName(player.name)
+    setConfirmingId(null)
+  }
 
   // On-demand photo fetching for squad players without images
   const photoFetchPlayers = useMemo(
@@ -109,7 +123,7 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
                         {t('common.cancel')}
                       </button>
                       <button
-                        onClick={(e) => { e.stopPropagation(); onRemovePlayer(player.id); setConfirmingId(null) }}
+                        onClick={(e) => { e.stopPropagation(); handleRemove(player) }}
                         className="px-2 py-1 text-xs text-error font-medium hover:bg-error/10 rounded transition-colors min-h-[32px]"
                       >
                         {t('common.remove')}
@@ -188,7 +202,7 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
                   </td>
                   <td className="px-4 py-4 text-center font-data">{player.birth_date ? formatAge(player.birth_date) : (player.age > 0 ? String(player.age) : '—')}</td>
                   <td className="px-4 py-4 text-center font-data text-on-surface-variant text-xs">
-                    {new Date(player.contractUntil).toLocaleDateString(t('common.locale', 'en-GB'), { month: 'short', year: 'numeric' })}
+                    {player.contractUntil ? new Date(player.contractUntil).toLocaleDateString(t('common.locale', 'en-GB'), { month: 'short', year: 'numeric' }) : '\u2014'}
                   </td>
                   <td className="px-4 py-4">
                     <RatingBar rating={player.overallRating} hasStats={!!player.stats && Object.values(player.stats).some((v) => typeof v === 'number' && v > 0)} />
@@ -205,7 +219,7 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
                       {confirmingId === player.id ? (
                         <div className="flex items-center gap-1">
                           <button
-                            onClick={(e) => { e.stopPropagation(); onRemovePlayer(player.id); setConfirmingId(null) }}
+                            onClick={(e) => { e.stopPropagation(); handleRemove(player) }}
                             className="px-2 py-1 text-xs text-error font-medium hover:bg-error/10 rounded transition-colors min-h-[32px]"
                           >
                             {t('common.remove')}
@@ -236,6 +250,11 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
         </table>
         </div>
       </div>
+      {removedName && (
+        <div role="status" className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-secondary text-on-secondary px-4 py-2.5 rounded-md shadow-lg text-sm font-medium animate-[fadeIn_0.2s_ease-in]">
+          {t('squad.playerRemoved', { name: removedName, defaultValue: `${removedName} removed` })}
+        </div>
+      )}
     </>
   )
 }

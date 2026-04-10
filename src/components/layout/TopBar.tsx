@@ -120,7 +120,7 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
             {profile?.avatar_url ? (
               <img
                 src={profile.avatar_url}
-                alt=""
+                alt="User avatar"
                 className="w-8 h-8 rounded-md object-cover"
               />
             ) : (

@@ -18,13 +18,13 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
       {...props}
     >
       {header && (
-        <div className="px-6 py-4 border-b border-outline-variant">
+        <div className="px-4 sm:px-6 py-4 border-b border-outline-variant">
           {header}
         </div>
       )}
       <div className="p-4 sm:p-6">{children}</div>
       {footer && (
-        <div className="px-6 py-4 border-t border-outline-variant">
+        <div className="px-4 sm:px-6 py-4 border-t border-outline-variant">
           {footer}
         </div>
       )}

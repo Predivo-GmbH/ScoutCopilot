@@ -136,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const sendOtp = useCallback(async (email: string) => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: true },
+      options: { shouldCreateUser: true, emailRedirectTo: `${window.location.origin}/en/dashboard` },
     })
     if (error) throw error
   }, [])
@@ -146,7 +146,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Supabase returns 200 regardless (prevents email enumeration)
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: false },
+      options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/en/dashboard` },
     })
     if (error) throw error
   }, [])

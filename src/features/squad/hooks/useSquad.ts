@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { calculateAge } from '../../../lib/ageUtils'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../../lib/supabase'
 import { useAuth } from '../../auth/useAuth'
@@ -27,7 +28,7 @@ function mapPlayerRow(row: {
   return {
     id: row.player_external_id,
     name: row.player_name,
-    age: (d.age as number) ?? 0,
+    age: calculateAge(d.birth_date as string) ?? (d.age as number) ?? 0,
     birth_date: (d.birth_date as string) ?? undefined,
     nationality: (d.nationality as string) ?? '',
     position: ((d.position ?? row.position_key ?? 'CM') as SquadPlayer['position']),
@@ -209,7 +210,24 @@ export function useSquad() {
 
       // Background: generate AI rating if player has stats but no rating
       if (player.overallRating === 0 && player.stats && Object.values(player.stats).some((v) => typeof v === 'number' && v > 0)) {
-        supabase.functions
+        const playerDataBase = {
+          age: player.age,
+          birth_date: player.birth_date,
+          nationality: player.nationality,
+          position: player.position,
+          altPositions: player.altPositions,
+          shirtNumber: player.shirtNumber,
+          contractUntil: player.contractUntil,
+          weeklyWage: player.weeklyWage,
+          marketValue: player.marketValue,
+          status: player.status,
+          image: player.image,
+          stats: player.stats,
+          radarData: player.radarData,
+        }
+
+        // Race the edge function against a 30s timeout
+        const ratePromise = supabase.functions
           .invoke('rate-player', {
             body: {
               players: [{
@@ -220,30 +238,20 @@ export function useSquad() {
               }],
             },
           })
-          .then(({ data }) => {
+
+        const timeoutPromise = new Promise<{ data: null; error: Error }>((resolve) =>
+          setTimeout(() => resolve({ data: null, error: new Error('Rating timeout') }), 30_000),
+        )
+
+        Promise.race([ratePromise, timeoutPromise])
+          .then(({ data, error: fnError }) => {
             const rating = data?.ratings?.[0]
-            if (rating && rating.rating > 0) {
+            if (!fnError && rating && rating.rating > 0) {
               // Update the squad_player row with the AI rating
-              supabase
+              return supabase
                 .from('squad_players')
                 .update({
-                  player_data: {
-                    age: player.age,
-                    birth_date: player.birth_date,
-                    nationality: player.nationality,
-                    position: player.position,
-                    altPositions: player.altPositions,
-                    shirtNumber: player.shirtNumber,
-                    contractUntil: player.contractUntil,
-                    weeklyWage: player.weeklyWage,
-                    marketValue: player.marketValue,
-                    status: player.status,
-                    image: player.image,
-                    stats: player.stats,
-                    radarData: player.radarData,
-                    overallRating: rating.rating,
-                    ratingReasoning: rating.reasoning,
-                  },
+                  player_data: { ...playerDataBase, overallRating: rating.rating, ratingReasoning: rating.reasoning },
                 })
                 .eq('squad_id', squadId)
                 .eq('player_external_id', player.id)
@@ -251,9 +259,30 @@ export function useSquad() {
                   queryClient.invalidateQueries({ queryKey: SQUADS_KEY })
                 })
             }
+            // Timeout or no valid rating — clear "Rating..." by writing overallRating: 0
+            return supabase
+              .from('squad_players')
+              .update({
+                player_data: { ...playerDataBase, overallRating: 0 },
+              })
+              .eq('squad_id', squadId)
+              .eq('player_external_id', player.id)
+              .then(() => {
+                queryClient.invalidateQueries({ queryKey: SQUADS_KEY })
+              })
           })
           .catch(() => {
-            // Non-blocking — rating will show 0 until manually refreshed
+            // Final fallback — write rating 0 so UI shows "N/A" instead of "Rating..."
+            supabase
+              .from('squad_players')
+              .update({
+                player_data: { ...playerDataBase, overallRating: 0 },
+              })
+              .eq('squad_id', squadId)
+              .eq('player_external_id', player.id)
+              .then(() => {
+                queryClient.invalidateQueries({ queryKey: SQUADS_KEY })
+              })
           })
       }
     },

@@ -127,7 +127,7 @@ export function DashboardPage() {
             {searchesLoading ? (
               <div className="p-6 space-y-3" role="status" aria-live="polite">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="h-10 bg-surface-container-high rounded-sm animate-pulse" />
+                  <div key={i} className="h-14 bg-surface-container-high rounded-sm animate-pulse" />
                 ))}
                 <span className="sr-only">{t('common.loading', 'Loading...')}</span>
               </div>
@@ -150,6 +150,7 @@ export function DashboardPage() {
                       key={search.id}
                       tabIndex={0}
                       role="link"
+                      aria-label={`${t('dashboard.recentSearches')}: ${search.query}`}
                       className="min-h-[44px] hover:bg-surface-container-high transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1 group"
                       onClick={() => navigate(`/search?q=${encodeURIComponent(search.query)}&saved=1&sid=${search.id}`)}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/search?q=${encodeURIComponent(search.query)}&saved=1&sid=${search.id}`) } }}
@@ -169,7 +170,7 @@ export function DashboardPage() {
                       <td className="px-2 py-3">
                         <button
                           aria-label={t('search.deleteQuery')}
-                          className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-sm text-on-surface-variant/50 hover:text-error hover:bg-error/10 transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
+                          className="opacity-50 group-hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-sm text-on-surface-variant/70 hover:text-error hover:bg-error/10 transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
                           onClick={(e) => { e.stopPropagation(); deleteSearch.mutate(search.id) }}
                         >
                           <Trash2 size={14} strokeWidth={1.5} />
@@ -195,33 +196,39 @@ export function DashboardPage() {
           </div>
         </div>
 
-        {/* Watchlist Alerts — hidden entirely when empty */}
-        {(alertsLoading || (alerts && alerts.length > 0)) && (
-          <div className="w-full xl:w-80 shrink-0">
-            <div className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
-              <button
-                onClick={() => navigate('/alerts')}
-                className="w-full px-3 sm:px-4 py-4 border-b border-outline-variant flex justify-between items-center cursor-pointer hover:bg-surface-container-high transition-colors"
-              >
-                <h3 className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
-                  <Zap size={14} strokeWidth={1.5} className="text-tertiary" />
-                  {t('dashboard.watchlistAlerts')}
-                </h3>
-                {(alerts?.length ?? 0) > 0 && (
-                  <span className="text-[0.625rem] font-data font-medium text-on-error-container bg-error-container px-2 py-0.5 rounded-sm">
-                    {String(alerts?.length ?? 0).padStart(2, '0')} {t('dashboard.new')}
-                  </span>
-                )}
-              </button>
-              {alertsLoading ? (
-                <div className="p-3 space-y-3" role="status" aria-live="polite">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="h-20 bg-surface-container-high rounded-sm animate-pulse" />
-                  ))}
-                  <span className="sr-only">{t('common.loading', 'Loading...')}</span>
-                </div>
-              ) : (
-                <div className="p-2 space-y-2">
+        {/* Watchlist Alerts */}
+        <div className="w-full xl:w-80 shrink-0">
+          <div className="bg-surface-container border border-outline-variant rounded-md overflow-hidden">
+            <button
+              onClick={() => navigate('/alerts')}
+              className="w-full px-3 sm:px-4 py-4 border-b border-outline-variant flex justify-between items-center cursor-pointer hover:bg-surface-container-high transition-colors"
+            >
+              <h3 className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
+                <Zap size={14} strokeWidth={1.5} className="text-tertiary" />
+                {t('dashboard.watchlistAlerts')}
+              </h3>
+              {(alerts?.length ?? 0) > 0 && (
+                <span className="text-[0.625rem] font-data font-medium text-on-error-container bg-error-container px-2 py-0.5 rounded-sm">
+                  {String(alerts?.length ?? 0).padStart(2, '0')} {t('dashboard.new')}
+                </span>
+              )}
+            </button>
+            {alertsLoading ? (
+              <div className="p-3 space-y-3" role="status" aria-live="polite">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-20 bg-surface-container-high rounded-sm animate-pulse" />
+                ))}
+                <span className="sr-only">{t('common.loading', 'Loading...')}</span>
+              </div>
+            ) : !alerts || alerts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+                <Zap size={24} strokeWidth={1.5} className="text-on-surface-variant/50 mb-3" />
+                <p className="text-sm text-on-surface-variant">
+                  {t('dashboard.emptyAlerts', 'No alerts yet. Add players to watchlists to receive alerts.')}
+                </p>
+              </div>
+            ) : (
+              <div className="p-2 space-y-2">
                   {alerts?.slice(0, 4).map((alert) => {
                     const borderColor = alert.changeType === 'warning' ? 'border-l-warning' : 'border-l-tertiary'
                     const resolvedPhoto = getAlertPhoto({ id: alert.playerId, image: alert.imageUrl })
@@ -230,6 +237,7 @@ export function DashboardPage() {
                         key={alert.id}
                         role="button"
                         tabIndex={0}
+                        aria-label={`${t('dashboard.watchlistAlerts')}: ${alert.playerName} — ${alert.change}`}
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/players/${alert.playerId}`, { state: { alert } }) }}
                         onClick={() => navigate(`/players/${alert.playerId}`, { state: { alert } })}
                         className="p-3 rounded-sm border border-outline-variant/50 cursor-pointer hover:bg-surface-container-high transition-colors"
@@ -267,7 +275,6 @@ export function DashboardPage() {
               )}
             </div>
           </div>
-        )}
       </div>
 
       {/* Quick Actions — at the bottom, matching Stitch */}
@@ -277,6 +284,7 @@ export function DashboardPage() {
           <div
             role="button"
             tabIndex={0}
+            aria-label={t('dashboard.newPlayerSearch')}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate('/search') }}
             onClick={() => navigate('/search')}
             className="relative bg-surface-container border border-outline-variant p-4 sm:p-6 rounded-md text-left cursor-pointer hover:bg-surface-container-high transition-colors overflow-hidden"
@@ -289,6 +297,7 @@ export function DashboardPage() {
           <div
             role="button"
             tabIndex={0}
+            aria-label={t('dashboard.viewPlayers')}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate('/players') }}
             onClick={() => navigate('/players')}
             className="relative bg-surface-container border border-outline-variant p-4 sm:p-6 rounded-md text-left cursor-pointer hover:bg-surface-container-high transition-colors overflow-hidden"
@@ -301,6 +310,7 @@ export function DashboardPage() {
           <div
             role="button"
             tabIndex={0}
+            aria-label={t('dashboard.comparePlayers')}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate('/compare') }}
             onClick={() => navigate('/compare')}
             className="relative bg-surface-container border border-outline-variant p-4 sm:p-6 rounded-md text-left cursor-pointer hover:bg-surface-container-high transition-colors overflow-hidden"

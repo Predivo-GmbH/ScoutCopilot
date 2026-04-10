@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, FileText, Trash2 } from 'lucide-react'
@@ -19,6 +19,14 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
+  const [removedName, setRemovedName] = useState<string | null>(null)
+
+  // Auto-clear removal feedback
+  useEffect(() => {
+    if (!removedName) return
+    const timer = setTimeout(() => setRemovedName(null), 3000)
+    return () => clearTimeout(timer)
+  }, [removedName])
 
   // On-demand photo fetching for watchlist players without images
   const photoFetchPlayers = useMemo(
@@ -37,6 +45,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
   function handleDelete() {
     if (!deleteTarget) return
     onRemovePlayer(deleteTarget.id)
+    setRemovedName(deleteTarget.name)
     setDeleteTarget(null)
   }
 
@@ -225,6 +234,12 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
       ) : (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <p className="text-sm text-on-surface-variant">{t('watchlists.noPlayersYet')}</p>
+        </div>
+      )}
+
+      {removedName && (
+        <div role="status" className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-secondary text-on-secondary px-4 py-2.5 rounded-md shadow-lg text-sm font-medium animate-[fadeIn_0.2s_ease-in]">
+          {t('watchlists.playerRemoved', { name: removedName, defaultValue: `${removedName} removed` })}
         </div>
       )}
 

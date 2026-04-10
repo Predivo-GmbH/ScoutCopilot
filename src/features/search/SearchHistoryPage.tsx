@@ -91,6 +91,16 @@ export function SearchHistoryPage() {
           ))}
           <span className="sr-only">{t('common.loading', 'Loading...')}</span>
         </div>
+      ) : !searches || searches.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center mb-4">
+            <Clock size={32} strokeWidth={1.5} className="text-on-surface-variant" />
+          </div>
+          <h3 className="text-lg font-semibold text-on-surface mb-2">{t('searchHistory.emptyTitle', 'No search history yet')}</h3>
+          <p className="text-sm text-on-surface-variant max-w-md">
+            {t('searchHistory.emptyMessage', 'Run a search to see it here.')}
+          </p>
+        </div>
       ) : (
         <>
           <div className="space-y-2">
@@ -99,6 +109,7 @@ export function SearchHistoryPage() {
                 key={s.id}
                 role="button"
                 tabIndex={0}
+                aria-label={`${t('searchHistory.heading')}: ${s.query}`}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { if (s.status === 'complete') navigate(`/search?q=${encodeURIComponent(s.query)}&saved=1&sid=${s.id}`) } }}
                 onClick={() => { if (s.status === 'complete') navigate(`/search?q=${encodeURIComponent(s.query)}&saved=1&sid=${s.id}`) }}
                 className={`bg-surface-container border border-outline-variant rounded-md p-4 transition-colors min-h-[44px] group ${
@@ -123,7 +134,7 @@ export function SearchHistoryPage() {
                   </div>
                   <button
                     aria-label={t('search.deleteQuery')}
-                    className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-sm text-on-surface-variant/50 hover:text-error hover:bg-error/10 transition-all min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0"
+                    className="opacity-50 group-hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-sm text-on-surface-variant/70 hover:text-error hover:bg-error/10 transition-all min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0"
                     onClick={(e) => { e.stopPropagation(); deleteSearch.mutate(s.id) }}
                   >
                     <Trash2 size={16} strokeWidth={1.5} />
