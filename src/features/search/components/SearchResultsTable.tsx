@@ -90,13 +90,19 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
   const { squads, addPlayer, createSquad } = useSquad()
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
   const [searchTimedOut, setSearchTimedOut] = useState(false)
+  const [prevIsLoading, setPrevIsLoading] = useState(isLoading)
+
+  // Reset timeout flag when loading stops (React-recommended render-time pattern)
+  if (prevIsLoading && !isLoading) {
+    setSearchTimedOut(false)
+  }
+  if (prevIsLoading !== isLoading) {
+    setPrevIsLoading(isLoading)
+  }
 
   // Timeout: after 90s of loading, show error state
   useEffect(() => {
-    if (!isLoading) {
-      setSearchTimedOut(false)
-      return
-    }
+    if (!isLoading) return
     const timer = setTimeout(() => setSearchTimedOut(true), SEARCH_TIMEOUT_MS)
     return () => clearTimeout(timer)
   }, [isLoading])
