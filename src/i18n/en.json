@@ -432,7 +432,8 @@
     "processing": "PROCESSING",
     "failed": "FAILED",
     "viewAllAlerts": "View all {{count}} alerts",
-    "recentSearches.clearAll": "Clear All"
+    "recentSearches.clearAll": "Clear All",
+    "emptyAlerts": "No alerts yet. Add players to watchlists to receive alerts."
   },
   "search": {
     "heading": "Player Search",
@@ -618,7 +619,9 @@
     "score": "SCORE:",
     "noWatchlistsFound": "No watchlists found for this filter.",
     "deleteConfirmMessage": "Are you sure you want to delete \"{{name}}\"? This will remove all players in this watchlist. This action cannot be undone.",
-    "deleteWatchlist": "Delete watchlist"
+    "deleteWatchlist": "Delete watchlist",
+    "noWatchlistsYet": "No watchlists yet",
+    "noWatchlistsGuidance": "Create one to start tracking players and receive alerts on their performance."
   },
   "squad": {
     "heading": "My Squads",
@@ -971,7 +974,9 @@
     "processing": "Processing",
     "failed": "Failed",
     "results": "results",
-    "showMore": "Show {{remaining}} more"
+    "showMore": "Show {{remaining}} more",
+    "emptyTitle": "No search history yet",
+    "emptyMessage": "Run a search to see it here."
   },
   "comparisonSteps": {
     "fetching": "Fetching player data...",

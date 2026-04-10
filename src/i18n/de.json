@@ -432,7 +432,8 @@
     "processing": "IN BEARBEITUNG",
     "failed": "FEHLGESCHLAGEN",
     "viewAllAlerts": "Alle {{count}} Benachrichtigungen anzeigen",
-    "recentSearches.clearAll": "Alle löschen"
+    "recentSearches.clearAll": "Alle löschen",
+    "emptyAlerts": "Noch keine Benachrichtigungen. Füge Spieler zu Watchlists hinzu, um Benachrichtigungen zu erhalten."
   },
   "search": {
     "heading": "Spielersuche",
@@ -618,7 +619,9 @@
     "score": "WERT:",
     "noWatchlistsFound": "Keine Watchlists für diesen Filter gefunden.",
     "deleteConfirmMessage": "Möchten Sie \"{{name}}\" wirklich löschen? Alle Spieler in dieser Watchlist werden entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
-    "deleteWatchlist": "Watchlist löschen"
+    "deleteWatchlist": "Watchlist löschen",
+    "noWatchlistsYet": "Noch keine Watchlists",
+    "noWatchlistsGuidance": "Erstelle eine, um Spieler zu verfolgen und Benachrichtigungen über ihre Leistung zu erhalten."
   },
   "squad": {
     "heading": "Meine Kader",
@@ -971,7 +974,9 @@
     "processing": "In Bearbeitung",
     "failed": "Fehlgeschlagen",
     "results": "Ergebnisse",
-    "showMore": "{{remaining}} weitere anzeigen"
+    "showMore": "{{remaining}} weitere anzeigen",
+    "emptyTitle": "Noch kein Suchverlauf",
+    "emptyMessage": "Führe eine Suche durch, um sie hier zu sehen."
   },
   "comparisonSteps": {
     "fetching": "Spielerdaten werden abgerufen...",
