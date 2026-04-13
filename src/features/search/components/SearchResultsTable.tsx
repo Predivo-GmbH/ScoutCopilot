@@ -13,43 +13,16 @@ import { calculateAge, formatAge } from '../../../lib/ageUtils'
 const PAGE_SIZE = 8
 const SEARCH_TIMEOUT_MS = 90_000
 
-/** Stat keys shown as table columns by default (fits without horizontal scroll) */
+/** Stat keys shown as table columns by default (fits without horizontal scroll).
+ *  These must match the LABEL values produced by STAT_LABELS in usePlayerSearch.ts. */
 const PRIMARY_STAT_KEYS = new Set([
-  'apps', 'mins', 'goals', 'assists', 'xG', 'pass_pct',
+  'Apps', 'Mins', 'Goals', 'Assists', 'xG', 'Pass %',
 ])
 
-const statHeaderLabels: Record<string, string> = {
-  'xA': 'xA',
-  'xG': 'xG',
-  'npxG': 'npxG',
-  'goals': 'Goals',
-  'blocks': 'Blocks',
-  'assists': 'Assists',
-  'crosses': 'Crosses',
-  'tackles': 'Tackles',
-  'dribbles': 'Dribbles',
-  'press': 'Press.',
-  'rc': 'RC',
-  'key_pass': 'Key Pass',
-  'long_balls': 'Long Balls',
-  'aerial': 'Aerial',
-  'yc': 'YC',
-  'int': 'Int.',
-  'through_balls': 'Thru Balls',
-  'apps': 'Apps',
-  'mins': 'Mins',
-  'pass_pct': 'Pass %',
-  'pass_cmp': 'Pass Cmp',
-  'prog_pass': 'Prog Pass',
-  'prog_carry': 'Prog Carry',
-  'drib_pct': 'Drib %',
-  'gca': 'GCA',
-  'sca': 'SCA',
-}
-
+/** Stats already arrive with human-readable labels from usePlayerSearch (e.g. 'Apps', 'xG').
+ *  formatStatHeader is a pass-through; no mapping needed. */
 function formatStatHeader(key: string): string {
-  if (statHeaderLabels[key]) return statHeaderLabels[key]
-  return key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+  return key
 }
 
 interface SearchResultsTableProps {

@@ -64,10 +64,9 @@ export function FormationPitch({ formation, players }: FormationPitchProps) {
               style={{ left: `${safeX}%`, bottom: `${safeY}%` }}
               onMouseEnter={() => player && setHoveredId(player.id)}
               onMouseLeave={() => setHoveredId(null)}
-              onClick={() => player && setHoveredId(hoveredId === player.id ? null : player.id)}
             >
               {player ? (
-                <div className={`relative ${isHovered ? 'scale-125' : ''} transition-transform`}>
+                <div className="relative">
                   <span className="sm:hidden">
                     <PlayerAvatar
                       name={player.name}
