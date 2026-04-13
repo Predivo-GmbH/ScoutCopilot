@@ -194,7 +194,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
 
       {/* Content */}
       {viewMode === 'table' ? (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto overflow-y-hidden">
           <table className="w-full">
             <thead>
               <tr className="sticky top-0 z-10 bg-surface-container-highest border-b border-outline-variant/30">

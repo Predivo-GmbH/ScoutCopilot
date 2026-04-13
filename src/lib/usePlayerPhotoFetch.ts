@@ -31,8 +31,12 @@ export function derivePhotoSource(photoUrl: string | undefined): 'sportsdb' | 'a
  * Returns NaN for non-sb-open IDs.
  */
 function extractNumericId(playerId: string): number {
-  if (!playerId.startsWith('sb-open-')) return NaN
-  return parseInt(playerId.replace('sb-open-', ''), 10)
+  if (playerId.startsWith('sb-open-')) {
+    return parseInt(playerId.replace('sb-open-', ''), 10)
+  }
+  // Handle bare numeric IDs (e.g. "5545" from squad insertions)
+  const parsed = parseInt(playerId, 10)
+  return String(parsed) === playerId ? parsed : NaN
 }
 
 /**

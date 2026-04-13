@@ -264,29 +264,14 @@ async function fetchStatsBombOpenPlayer(
 
   if (!player) return null;
 
-  // Fetch most recent club stats (excluding international competitions)
-  const INTL_COMP_IDS = [43, 55, 53, 72]; // FIFA WC, Euro, Women's Euro, Women's Olympics (11 = La Liga, NOT international)
-  const { data: clubStats } = await supabase
+  // Fetch most recent stats
+  const { data: stats } = await supabase
     .from("sb_player_season_stats")
     .select("*")
     .eq("player_id", numericId)
-    .not("competition_id", "in", `(${INTL_COMP_IDS.join(",")})`)
     .order("season_name", { ascending: false })
     .limit(1)
     .single();
-
-  // Fall back to any stats (including international) if no club stats
-  let stats = clubStats;
-  if (!stats) {
-    const { data: anyStats } = await supabase
-      .from("sb_player_season_stats")
-      .select("*")
-      .eq("player_id", numericId)
-      .order("season_name", { ascending: false })
-      .limit(1)
-      .single();
-    stats = anyStats;
-  }
 
   const teamName = stats?.team_name ?? "Unknown";
   const league = stats ? `${stats.competition_name} (${stats.season_name})` : "Unknown";

@@ -107,32 +107,16 @@ serve(async (req: Request) => {
         .eq("player_id", rawId)
         .single();
 
-      // Exclude international competitions to get the player's club team
-      const INTL_COMP_IDS = [43, 55, 53, 72]; // FIFA WC, Euro, Women's Euro, Women's Olympics
-      const { data: clubStatsRows } = await supabase
+      // Fetch most recent stats
+      const { data: statsRows } = await supabase
         .from("sb_player_season_stats")
         .select("*")
         .eq("player_id", rawId)
-        .not("competition_id", "in", `(${INTL_COMP_IDS.join(",")})`)
         .order("season_name", { ascending: false })
         .limit(1);
 
-      let stats = clubStatsRows?.[0];
-      let isNationalTeam = false;
-
-      // Fallback: if player only has international data, use it but flag as national team
-      if (!stats) {
-        const { data: fallbackRows } = await supabase
-          .from("sb_player_season_stats")
-          .select("*")
-          .eq("player_id", rawId)
-          .order("season_name", { ascending: false })
-          .limit(1);
-        stats = fallbackRows?.[0];
-        if (stats) {
-          isNationalTeam = true;
-        }
-      }
+      let stats = statsRows?.[0];
+      const isNationalTeam = false;
 
       playerStats = {
         player_name: playerRow?.player_nickname ?? playerRow?.player_name ?? player_name,

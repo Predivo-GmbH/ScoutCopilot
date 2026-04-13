@@ -181,11 +181,14 @@ export function useSquad() {
       player: SquadPlayer
       positionKey?: string
     }) => {
+      // Normalize player ID to include sb-open- prefix for consistency
+      const normalizedId = player.id.startsWith('sb-open-') ? player.id : `sb-open-${player.id}`
+
       const { error } = await supabase
         .from('squad_players')
         .insert({
           squad_id: squadId,
-          player_external_id: player.id,
+          player_external_id: normalizedId,
           player_name: player.name,
           position_key: positionKey ?? player.position,
           player_data: {
@@ -231,7 +234,7 @@ export function useSquad() {
           .invoke('rate-player', {
             body: {
               players: [{
-                player_external_id: player.id,
+                player_external_id: normalizedId,
                 player_name: player.name,
                 position: player.position,
                 stats: player.stats,
@@ -254,7 +257,7 @@ export function useSquad() {
                   player_data: { ...playerDataBase, overallRating: rating.rating, ratingReasoning: rating.reasoning },
                 })
                 .eq('squad_id', squadId)
-                .eq('player_external_id', player.id)
+                .eq('player_external_id', normalizedId)
                 .then(() => {
                   queryClient.invalidateQueries({ queryKey: SQUADS_KEY })
                 })
@@ -266,7 +269,7 @@ export function useSquad() {
                 player_data: { ...playerDataBase, overallRating: 0 },
               })
               .eq('squad_id', squadId)
-              .eq('player_external_id', player.id)
+              .eq('player_external_id', normalizedId)
               .then(() => {
                 queryClient.invalidateQueries({ queryKey: SQUADS_KEY })
               })
@@ -279,7 +282,7 @@ export function useSquad() {
                 player_data: { ...playerDataBase, overallRating: 0 },
               })
               .eq('squad_id', squadId)
-              .eq('player_external_id', player.id)
+              .eq('player_external_id', normalizedId)
               .then(() => {
                 queryClient.invalidateQueries({ queryKey: SQUADS_KEY })
               })

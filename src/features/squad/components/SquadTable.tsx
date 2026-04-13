@@ -150,7 +150,7 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
 
       {/* Desktop table layout */}
       <div className="hidden md:block bg-surface-container rounded-md overflow-hidden border border-outline-variant">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto overflow-y-hidden">
         <table className="w-full text-left">
           <thead>
             <tr className="bg-surface-container-low text-[0.625rem] font-medium text-on-surface-variant uppercase tracking-widest border-b border-outline-variant">
