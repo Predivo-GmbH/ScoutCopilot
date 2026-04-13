@@ -115,7 +115,7 @@ serve(async (req: Request) => {
         .order("season_name", { ascending: false })
         .limit(1);
 
-      let stats = statsRows?.[0];
+      const stats = statsRows?.[0];
       const isNationalTeam = false;
 
       playerStats = {
