@@ -13,6 +13,11 @@ import { calculateAge, formatAge } from '../../../lib/ageUtils'
 const PAGE_SIZE = 8
 const SEARCH_TIMEOUT_MS = 90_000
 
+/** Stat keys shown as table columns by default (fits without horizontal scroll) */
+const PRIMARY_STAT_KEYS = new Set([
+  'apps', 'mins', 'goals', 'assists', 'xG', 'pass_pct',
+])
+
 const statHeaderLabels: Record<string, string> = {
   'xA': 'xA',
   'xG': 'xG',
@@ -149,6 +154,8 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
   }
 
   const allStatKeys = Object.keys(results[0]?.stats ?? {})
+  const primaryStatKeys = allStatKeys.filter((k) => PRIMARY_STAT_KEYS.has(k))
+  const secondaryStatKeys = allStatKeys.filter((k) => !PRIMARY_STAT_KEYS.has(k))
   const totalPages = Math.ceil(results.length / PAGE_SIZE)
   const paged = results.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
   const showFrom = (page - 1) * PAGE_SIZE + 1
@@ -194,7 +201,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
 
       {/* Content */}
       {viewMode === 'table' ? (
-        <div className="overflow-x-auto overflow-y-hidden">
+        <div>
           <table className="w-full">
             <thead>
               <tr className="sticky top-0 z-10 bg-surface-container-highest border-b border-outline-variant/30">
@@ -214,7 +221,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                 <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
                   <StatTooltip label={t('common.league')} tooltip={t('search.statTooltips.league')} />
                 </th>
-                {allStatKeys.map((key) => (
+                {primaryStatKeys.map((key) => (
                   <th key={key} className="w-16 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap">
                     <StatTooltip label={formatStatHeader(key)} tooltip={t(`search.statTooltips.${key}`, key)} />
                   </th>
@@ -236,7 +243,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                 const globalIndex = (page - 1) * PAGE_SIZE + i
                 const rowBg = globalIndex % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'
                 const isExpanded = expandedRows.has(player.id)
-                const totalCols = 11 + allStatKeys.length
+                const totalCols = 11 + primaryStatKeys.length
                 return (
                   <Fragment key={player.id}>
                     <tr
@@ -273,7 +280,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                       <td className="px-2 py-2.5 align-middle text-xs text-on-surface">
                         <span className="truncate block max-w-[10rem]">{player.league}</span>
                       </td>
-                      {allStatKeys.map((key) => (
+                      {primaryStatKeys.map((key) => (
                         <td key={key} className="px-1 py-2.5 text-center align-middle font-data text-xs text-on-surface">
                           {player.stats[key] ?? '\u2014'}
                         </td>
@@ -309,6 +316,21 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                       <tr className={rowBg}>
                         <td colSpan={totalCols} className="px-6 pb-4 pt-2">
                           <div className="border-t border-outline-variant/20 pt-3">
+                            {secondaryStatKeys.length > 0 && (
+                              <>
+                                <h4 className="text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant mb-2">{t('search.detailedStats', 'Detailed Stats')}</h4>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-2 mb-3">
+                                  {secondaryStatKeys.map((key) => (
+                                    <div key={key} className="flex items-baseline justify-between gap-2">
+                                      <span className="text-[0.5625rem] uppercase tracking-widest text-on-surface-variant font-bold whitespace-nowrap">
+                                        <StatTooltip label={formatStatHeader(key)} tooltip={t(`search.statTooltips.${key}`, key)} />
+                                      </span>
+                                      <span className="font-data text-xs text-on-surface font-medium">{player.stats[key] ?? '\u2014'}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </>
+                            )}
                             <h4 className="text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant mb-2">{t('search.allStats')}</h4>
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-2">
                               {allStatKeys.map((key) => (

@@ -91,6 +91,16 @@ export function usePlayerPhotoFetch(players: PhotoFetchablePlayer[]) {
       return next
     })
 
+    // Build reverse lookup: numeric ID → original player ID string
+    // so we can map generate-photo results back to the correct key
+    const numericToOriginalId = new Map<number, string>()
+    for (const p of needsPhoto) {
+      const numId = extractNumericId(p.id)
+      if (!isNaN(numId)) {
+        numericToOriginalId.set(numId, p.id)
+      }
+    }
+
     supabase.functions
       .invoke('generate-photo', { body: { player_ids: playerIds } })
       .then(({ data: photoData }) => {
@@ -99,7 +109,8 @@ export function usePlayerPhotoFetch(players: PhotoFetchablePlayer[]) {
         const newPhotos = new Map<string, string>()
         for (const result of photoData.results as PhotoResult[]) {
           if (result.photo_url) {
-            const playerId = `sb-open-${result.player_id}`
+            // Use the original player ID (could be "sb-open-123" or bare "123")
+            const playerId = numericToOriginalId.get(result.player_id) ?? `sb-open-${result.player_id}`
             newPhotos.set(playerId, result.photo_url)
           }
         }

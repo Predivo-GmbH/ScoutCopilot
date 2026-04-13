@@ -119,6 +119,30 @@ serve(async (req: Request) => {
       rawPlayers = await enrichWithCurrentData(rawPlayers, auth.organizationId);
     }
 
+    // Post-enrichment: clean up misleading historical data for un-enriched StatsBomb players.
+    // StatsBomb data often shows national team as "club" (e.g. "Switzerland") and
+    // competition with season year (e.g. "FIFA World Cup (2022)") — strip the season
+    // suffix and mark team as unknown when it looks like a national team entry.
+    for (const p of rawPlayers) {
+      if (p.provider !== "statsbomb-open") continue;
+      const league = (p.league as string) ?? "";
+      const team = (p.team as string) ?? "";
+      // If league contains a season year like "(2022)" and team looks like a national team
+      // (matches from international competitions where team_name = country name)
+      const seasonMatch = league.match(/^(.+?)\s*\((\d{4}(?:\/\d{2,4})?)\)$/);
+      if (seasonMatch) {
+        const competitionName = seasonMatch[1].trim();
+        // International competitions: World Cup, Euro, Nations League, friendlies, qualifiers
+        const isInternational = /world cup|euro|nations league|friendly|qualifier|copa america|gold cup|afcon|asian cup/i.test(competitionName);
+        if (isInternational) {
+          // The "team" is actually the national team, not the player's club
+          p.team = "Unknown";
+          p.league = competitionName;
+          p.data_is_historical = true;
+        }
+      }
+    }
+
     if (rawPlayers.length === 0) {
       // Save empty search to DB
       const supabase = getServiceClient();
@@ -420,7 +444,13 @@ async function enrichWithCurrentData(
           }, { onConflict: "player_external_id" });
         }
       } catch (err) {
-        console.error(`Enrichment failed for ${playerName}:`, (err as Error).message);
+        const errMsg = (err as Error).message;
+        console.error(`Enrichment failed for ${playerName}: ${errMsg}`);
+        // If API-Football account is suspended/errored, stop burning requests for remaining players
+        if (errMsg.includes("suspended") || errMsg.includes("API-Football errors")) {
+          console.warn("[Enrichment] API-Football unavailable — skipping remaining players");
+          break;
+        }
         // Non-blocking — player keeps StatsBomb data
       }
     }
@@ -624,14 +654,34 @@ async function searchStatsBombOpenData(
     `)
     .limit(params.limit ?? 50);
 
-  // Filter by position
+  // Filter by position — expand related positions so "CM" also matches CDM/CAM etc.
+  const POSITION_GROUPS: Record<string, string[]> = {
+    CM: ["CM", "CDM", "CAM"],
+    CDM: ["CDM", "CM"],
+    CAM: ["CAM", "CM"],
+    LW: ["LW", "Left Midfield"],
+    RW: ["RW", "Right Midfield"],
+    LB: ["LB"],
+    RB: ["RB"],
+    CB: ["CB"],
+    GK: ["GK"],
+    ST: ["ST", "CF"],
+    CF: ["CF", "ST"],
+  };
   const targetPositions =
     params.positions ?? (params.position ? [params.position] : null);
   if (targetPositions) {
-    query = query.in(
-      "sb_players.primary_position",
-      targetPositions.map((p: string) => p.toUpperCase())
-    );
+    const expanded = new Set<string>();
+    for (const pos of targetPositions) {
+      const upper = pos.toUpperCase();
+      const group = POSITION_GROUPS[upper];
+      if (group) {
+        for (const g of group) expanded.add(g);
+      } else {
+        expanded.add(upper);
+      }
+    }
+    query = query.in("sb_players.primary_position", [...expanded]);
   }
 
   // Filter by nationality

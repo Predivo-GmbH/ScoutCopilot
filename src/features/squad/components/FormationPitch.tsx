@@ -73,7 +73,6 @@ export function FormationPitch({ formation, players }: FormationPitchProps) {
                       name={player.name}
                       size={28}
                       imageUrl={getPhoto(player)}
-                      clickable
                       loading={loadingIds.has(player.id)}
                       aiGenerated={!!getPhoto(player) && derivePhotoSource(getPhoto(player)) === 'stitch'}
                     />
@@ -83,7 +82,6 @@ export function FormationPitch({ formation, players }: FormationPitchProps) {
                       name={player.name}
                       size={36}
                       imageUrl={getPhoto(player)}
-                      clickable
                       loading={loadingIds.has(player.id)}
                       aiGenerated={!!getPhoto(player) && derivePhotoSource(getPhoto(player)) === 'stitch'}
                     />
