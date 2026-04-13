@@ -87,6 +87,44 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
     return () => clearTimeout(timer)
   }, [isLoading])
 
+  // Sorting logic (must be before early returns to satisfy React hooks rules)
+  const allStatKeys = Object.keys(results[0]?.stats ?? {})
+  const primaryStatKeys = [...PRIMARY_STAT_KEYS].filter((k) => allStatKeys.includes(k))
+  const secondaryStatKeys = allStatKeys.filter((k) => !PRIMARY_STAT_KEYS.has(k))
+
+  function handleSort(key: string) {
+    if (sortKey === key) {
+      setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDirection(key === '_name' || key === '_club' || key === '_league' ? 'asc' : 'desc')
+    }
+  }
+
+  const sorted = useMemo(() => {
+    if (!sortKey) return results
+    const dir = sortDirection === 'asc' ? 1 : -1
+    return [...results].sort((a, b) => {
+      let va: string | number, vb: string | number
+      switch (sortKey) {
+        case '_name': va = a.name.toLowerCase(); vb = b.name.toLowerCase(); break
+        case '_age': va = a.birth_date ? calculateAge(a.birth_date) ?? 0 : a.age; vb = b.birth_date ? calculateAge(b.birth_date) ?? 0 : b.age; break
+        case '_club': va = a.club.toLowerCase(); vb = b.club.toLowerCase(); break
+        case '_league': va = a.league.toLowerCase(); vb = b.league.toLowerCase(); break
+        case '_matchScore': va = a.fitScore; vb = b.fitScore; break
+        default: va = a.stats[sortKey] ?? -Infinity; vb = b.stats[sortKey] ?? -Infinity; break
+      }
+      if (va < vb) return -1 * dir
+      if (va > vb) return 1 * dir
+      return 0
+    })
+  }, [results, sortKey, sortDirection])
+
+  const totalPages = Math.ceil(results.length / PAGE_SIZE)
+  const paged = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const showFrom = (page - 1) * PAGE_SIZE + 1
+  const showTo = Math.min(page * PAGE_SIZE, results.length)
+
   // Reset page when results change (React-recommended pattern)
   if (prevResultsLen !== results.length) {
     setPrevResultsLen(results.length)
@@ -127,43 +165,6 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
       </div>
     )
   }
-
-  const allStatKeys = Object.keys(results[0]?.stats ?? {})
-  const primaryStatKeys = [...PRIMARY_STAT_KEYS].filter((k) => allStatKeys.includes(k))
-  const secondaryStatKeys = allStatKeys.filter((k) => !PRIMARY_STAT_KEYS.has(k))
-
-  function handleSort(key: string) {
-    if (sortKey === key) {
-      setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'))
-    } else {
-      setSortKey(key)
-      setSortDirection(key === '_name' || key === '_club' || key === '_league' ? 'asc' : 'desc')
-    }
-  }
-
-  const sorted = useMemo(() => {
-    if (!sortKey) return results
-    const dir = sortDirection === 'asc' ? 1 : -1
-    return [...results].sort((a, b) => {
-      let va: string | number, vb: string | number
-      switch (sortKey) {
-        case '_name': va = a.name.toLowerCase(); vb = b.name.toLowerCase(); break
-        case '_age': va = a.birth_date ? calculateAge(a.birth_date) ?? 0 : a.age; vb = b.birth_date ? calculateAge(b.birth_date) ?? 0 : b.age; break
-        case '_club': va = a.club.toLowerCase(); vb = b.club.toLowerCase(); break
-        case '_league': va = a.league.toLowerCase(); vb = b.league.toLowerCase(); break
-        case '_matchScore': va = a.fitScore; vb = b.fitScore; break
-        default: va = a.stats[sortKey] ?? -Infinity; vb = b.stats[sortKey] ?? -Infinity; break
-      }
-      if (va < vb) return -1 * dir
-      if (va > vb) return 1 * dir
-      return 0
-    })
-  }, [results, sortKey, sortDirection])
-
-  const totalPages = Math.ceil(results.length / PAGE_SIZE)
-  const paged = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-  const showFrom = (page - 1) * PAGE_SIZE + 1
-  const showTo = Math.min(page * PAGE_SIZE, results.length)
 
   return (
     <div className="bg-surface-container rounded-md border border-outline-variant">
