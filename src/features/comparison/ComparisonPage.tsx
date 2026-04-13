@@ -10,6 +10,22 @@ import { ComparisonTable } from './components/ComparisonTable'
 import { PlayerSelector } from './components/PlayerSelector'
 import { dotColors } from './constants'
 
+function useFormatTimeAgo() {
+  const { t } = useTranslation()
+  return function formatTimeAgo(timestamp: string): string {
+    const now = new Date()
+    const diffMs = now.getTime() - new Date(timestamp).getTime()
+    const minutes = Math.floor(diffMs / 60_000)
+    if (minutes < 1) return t('searchHistory.justNow')
+    if (minutes < 60) return `${minutes}m ago`
+    const hours = Math.floor(minutes / 60)
+    if (hours < 24) return t('searchHistory.hoursAgo', { count: hours })
+    const days = Math.floor(hours / 24)
+    if (days === 1) return t('searchHistory.yesterday')
+    return t('searchHistory.daysAgo', { count: days })
+  }
+}
+
 const GENERATE_STEP_KEYS = [
   'comparisonSteps.fetching',
   'comparisonSteps.computing',
@@ -210,18 +226,7 @@ function EmptyState({ playerCount, totalAvailable, onLoadSaved }: {
 
   const VISIBLE_LIMIT = 5
   const visibleComparisons = recentComparisons?.slice(0, VISIBLE_LIMIT) ?? []
-
-  function formatTimeAgo(timestamp: string): string {
-    const diffMs = Date.now() - new Date(timestamp).getTime()
-    const minutes = Math.floor(diffMs / 60_000)
-    if (minutes < 1) return t('searchHistory.justNow')
-    if (minutes < 60) return `${minutes}m ago`
-    const hours = Math.floor(minutes / 60)
-    if (hours < 24) return t('searchHistory.hoursAgo', { count: hours })
-    const days = Math.floor(hours / 24)
-    if (days === 1) return t('searchHistory.yesterday')
-    return t('searchHistory.daysAgo', { count: days })
-  }
+  const formatTimeAgo = useFormatTimeAgo()
 
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
