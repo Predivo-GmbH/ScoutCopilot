@@ -134,22 +134,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const sendOtp = useCallback(async (email: string) => {
+    const lang = i18n.language || window.location.pathname.split('/')[1] || 'en'
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: true, emailRedirectTo: `${window.location.origin}/en/dashboard` },
+      options: { shouldCreateUser: true, emailRedirectTo: `${window.location.origin}/${lang}/dashboard` },
     })
     if (error) throw error
-  }, [])
+  }, [i18n.language])
 
   const sendLoginOtp = useCallback(async (email: string) => {
     // shouldCreateUser: false — only sends OTP if account exists
     // Supabase returns 200 regardless (prevents email enumeration)
+    const lang = i18n.language || window.location.pathname.split('/')[1] || 'en'
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/en/dashboard` },
+      options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/${lang}/dashboard` },
     })
     if (error) throw error
-  }, [])
+  }, [i18n.language])
 
   const verifyOtp = useCallback(async (email: string, token: string) => {
     const { data, error } = await supabase.auth.verifyOtp({
@@ -182,10 +184,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [state.user])
 
   const resetPassword = useCallback(async (email: string) => {
-    const redirectTo = `${window.location.origin}/reset-password`
+    const lang = i18n.language || window.location.pathname.split('/')[1] || 'en'
+    const redirectTo = `${window.location.origin}/${lang}/reset-password`
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
     if (error) throw error
-  }, [])
+  }, [i18n.language])
 
   const updatePassword = useCallback(async (password: string) => {
     const { error } = await supabase.auth.updateUser({ password })

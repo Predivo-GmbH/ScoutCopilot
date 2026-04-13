@@ -6,6 +6,8 @@ export interface GeneratedReportsContextValue {
   removeReport: (id: string) => void
   isGenerating: (id: string) => boolean
   hasReport: (id: string) => boolean
+  generationError: string | null
+  clearGenerationError: () => void
 }
 
 export const GeneratedReportsContext = createContext<GeneratedReportsContextValue | null>(null)

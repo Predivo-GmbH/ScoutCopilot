@@ -237,7 +237,7 @@ export function DashboardPage() {
                         key={alert.id}
                         role="button"
                         tabIndex={0}
-                        aria-label={`${t('dashboard.watchlistAlerts')}: ${alert.playerName} — ${alert.change}`}
+                        aria-label={`${t('dashboard.watchlistAlerts')}: ${alert.playerName} — ${t(alert.changeKey, alert.changeParams)}`}
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/players/${alert.playerId}`, { state: { alert } }) }}
                         onClick={() => navigate(`/players/${alert.playerId}`, { state: { alert } })}
                         className="p-3 rounded-sm border border-outline-variant/50 cursor-pointer hover:bg-surface-container-high transition-colors"
@@ -256,7 +256,7 @@ export function DashboardPage() {
                             alert.changeType === 'warning' ? 'text-warning font-data' :
                             'text-on-surface-variant'
                           }`}>
-                            {alert.change}
+                            {t(alert.changeKey, alert.changeParams)}
                           </p>
                         </div>
                       </div>

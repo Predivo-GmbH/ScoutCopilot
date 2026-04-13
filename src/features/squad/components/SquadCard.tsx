@@ -1,6 +1,25 @@
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Users, Calendar } from 'lucide-react'
 import type { MockSquad } from '../../../lib/mock-data'
+
+function useFormatDate() {
+  const { t } = useTranslation()
+  return useMemo(() => function formatDate(iso: string) {
+    const d = new Date(iso)
+    if (isNaN(d.getTime())) return iso
+    const now = new Date()
+    const diffMs = now.getTime() - d.getTime()
+    const diffH = Math.floor(diffMs / 3600000)
+    if (diffH < 1) return t('searchHistory.justNow')
+    if (diffH < 24) return t('searchHistory.hoursAgo', { count: diffH })
+    const diffD = Math.floor(diffH / 24)
+    if (diffD === 1) return t('searchHistory.yesterday')
+    if (diffD < 7) return t('searchHistory.daysAgo', { count: diffD })
+    const locale = t('common.locale', 'en-GB')
+    return d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })
+  }, [t])
+}
 
 interface SquadCardProps {
   squad: MockSquad
@@ -10,6 +29,7 @@ interface SquadCardProps {
 
 export function SquadCard({ squad, isSelected, onClick }: SquadCardProps) {
   const { t } = useTranslation()
+  const formatDate = useFormatDate()
 
   return (
     <div
@@ -44,7 +64,7 @@ export function SquadCard({ squad, isSelected, onClick }: SquadCardProps) {
         <p className="text-xs text-on-surface-variant leading-relaxed">{squad.description}</p>
       )}
       <p className="text-[0.625rem] text-on-surface-variant font-data mt-3 uppercase">
-        {t('squad.updated')}: {squad.lastUpdated}
+        {t('squad.updated')}: {formatDate(squad.lastUpdated)}
       </p>
     </div>
   )

@@ -11,22 +11,34 @@ import { WatchlistCard } from './components/WatchlistCard'
 import { WatchlistDetail } from './components/WatchlistDetail'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 
+const CATEGORY_OPTIONS = ['all', 'transfer', 'youth', 'position'] as const
+
 export function WatchlistsPage() {
   const { t } = useTranslation()
   const { lists, isLoading, filter, setFilter, selectedWatchlist, selectWatchlist, clearSelection, removePlayerFromWatchlist, deleteWatchlist } = useWatchlists()
-  const { createWatchlist } = useWatchlistActions()
+  const { createWatchlist, updateWatchlist } = useWatchlistActions()
   const [showNewForm, setShowNewForm] = useState(false)
   const [newName, setNewName] = useState('')
   const [newDesc, setNewDesc] = useState('')
+  const [newCategory, setNewCategory] = useState<string>('all')
   const nameInputRef = useRef<HTMLInputElement>(null)
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
+  const [editTarget, setEditTarget] = useState<{ id: string; name: string; description: string } | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editDesc, setEditDesc] = useState('')
+  const editNameRef = useRef<HTMLInputElement>(null)
 
-  const filterTabs = [
-    { key: 'all', label: t('watchlists.all') },
-    { key: 'transfer', label: t('watchlists.transferTargets') },
-    { key: 'youth', label: t('watchlists.youthProspects') },
-    { key: 'position', label: t('watchlists.positionSpecific') },
-  ] as const
+  const categoryLabels: Record<string, string> = {
+    all: t('watchlists.all'),
+    transfer: t('watchlists.transferTargets'),
+    youth: t('watchlists.youthProspects'),
+    position: t('watchlists.positionSpecific'),
+  }
+
+  const filterTabs = CATEGORY_OPTIONS.map((key) => ({
+    key,
+    label: categoryLabels[key],
+  }))
 
   useEffect(() => {
     if (showNewForm && nameInputRef.current) {
@@ -34,11 +46,18 @@ export function WatchlistsPage() {
     }
   }, [showNewForm])
 
+  useEffect(() => {
+    if (editTarget && editNameRef.current) {
+      editNameRef.current.focus()
+    }
+  }, [editTarget])
+
   async function handleCreate() {
     if (!newName.trim()) return
-    await createWatchlist(newName.trim(), newDesc.trim())
+    await createWatchlist(newName.trim(), newDesc.trim(), newCategory)
     setNewName('')
     setNewDesc('')
+    setNewCategory('all')
     setShowNewForm(false)
   }
 
@@ -46,6 +65,18 @@ export function WatchlistsPage() {
     if (!deleteTarget) return
     deleteWatchlist(deleteTarget.id)
     setDeleteTarget(null)
+  }
+
+  function openEdit(watchlist: { id: string; name: string; description: string }) {
+    setEditTarget(watchlist)
+    setEditName(watchlist.name)
+    setEditDesc(watchlist.description)
+  }
+
+  function handleSaveEdit() {
+    if (!editTarget || !editName.trim()) return
+    updateWatchlist(editTarget.id, editName.trim(), editDesc.trim())
+    setEditTarget(null)
   }
 
   if (selectedWatchlist) {
@@ -94,9 +125,48 @@ export function WatchlistsPage() {
             className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
             onKeyDown={(e) => { if (e.key === 'Enter') handleCreate() }}
           />
+          <select
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+            aria-label={t('watchlists.category', 'Category')}
+            className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
+          >
+            {CATEGORY_OPTIONS.map((key) => (
+              <option key={key} value={key}>{categoryLabels[key]}</option>
+            ))}
+          </select>
           <div className="flex justify-end gap-2">
             <Button variant="ghost" size="sm" onClick={() => setShowNewForm(false)}>{t('common.cancel')}</Button>
             <Button variant="primary" size="sm" onClick={handleCreate} disabled={!newName.trim()}>{t('common.create')}</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Edit Watchlist Modal */}
+      <Modal open={editTarget !== null} onClose={() => setEditTarget(null)} title={t('watchlists.editWatchlist', 'Edit watchlist')}>
+        <div className="space-y-3">
+          <input
+            ref={editNameRef}
+            type="text"
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            placeholder={t('watchlists.watchlistName')}
+            aria-label={t('watchlists.watchlistName')}
+            className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
+            onKeyDown={(e) => { if (e.key === 'Enter') handleSaveEdit() }}
+          />
+          <input
+            type="text"
+            value={editDesc}
+            onChange={(e) => setEditDesc(e.target.value)}
+            placeholder={t('watchlists.descriptionOptional')}
+            aria-label={t('watchlists.descriptionOptional')}
+            className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
+            onKeyDown={(e) => { if (e.key === 'Enter') handleSaveEdit() }}
+          />
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setEditTarget(null)}>{t('common.cancel')}</Button>
+            <Button variant="primary" size="sm" onClick={handleSaveEdit} disabled={!editName.trim()}>{t('common.save', 'Save')}</Button>
           </div>
         </div>
       </Modal>
@@ -132,6 +202,7 @@ export function WatchlistsPage() {
               isSelected={false}
               onClick={() => selectWatchlist(watchlist.id)}
               onDelete={() => setDeleteTarget({ id: watchlist.id, name: watchlist.name })}
+              onEdit={() => openEdit(watchlist)}
             />
           ))}
         </div>

@@ -5,21 +5,19 @@ import {
   positionOptions,
   leagueOptions,
   ageRangeOptions,
-  footOptions,
 } from '../../../lib/mock-data'
 
 interface SearchFiltersProps {
   position: string
   ageRange: string
   league: string
-  foot: string
   minFitScore: number
   minPassAccuracy: number
   minProgCarries: number
   onUpdate: (updates: Record<string, string | number>) => void
 }
 
-export function SearchFilters({ position, ageRange, league, foot, minFitScore, minPassAccuracy, minProgCarries, onUpdate }: SearchFiltersProps) {
+export function SearchFilters({ position, ageRange, league, minFitScore, minPassAccuracy, minProgCarries, onUpdate }: SearchFiltersProps) {
   const { t } = useTranslation()
   const [showAdvanced, setShowAdvanced] = useState(false)
 
@@ -27,7 +25,7 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <FilterSelect
           label={t('filters.position')}
           value={position}
@@ -45,12 +43,6 @@ export function SearchFilters({ position, ageRange, league, foot, minFitScore, m
           value={league}
           options={leagueOptions}
           onChange={(v) => onUpdate({ league: v })}
-        />
-        <FilterSelect
-          label={t('filters.foot')}
-          value={foot}
-          options={footOptions}
-          onChange={(v) => onUpdate({ foot: v })}
         />
         <div className="flex flex-col gap-1.5 col-span-1 sm:col-span-2 md:col-span-1">
           <label className="text-[0.625rem] uppercase tracking-widest font-bold text-on-surface-variant hidden md:block">

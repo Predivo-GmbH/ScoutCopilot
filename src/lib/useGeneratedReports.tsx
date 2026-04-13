@@ -7,6 +7,7 @@ export function GeneratedReportsProvider({ children }: { children: ReactNode }) 
   const queryClient = useQueryClient()
   const [reportIds, setReportIds] = useState<string[]>([])
   const [generatingIds, setGeneratingIds] = useState<Set<string>>(new Set())
+  const [generationError, setGenerationError] = useState<string | null>(null)
 
   // Load existing report IDs from DB on mount
   useEffect(() => {
@@ -35,6 +36,18 @@ export function GeneratedReportsProvider({ children }: { children: ReactNode }) 
         }
       }
 
+      // Fallback: query sb_players directly if name is still unknown
+      if (playerName === 'Unknown' && id.startsWith('sb-open-')) {
+        const { data: sbPlayer } = await supabase
+          .from('sb_players')
+          .select('player_name, player_nickname')
+          .eq('player_id', parseInt(id.replace('sb-open-', ''), 10))
+          .maybeSingle()
+        if (sbPlayer) {
+          playerName = sbPlayer.player_nickname || sbPlayer.player_name || 'Unknown'
+        }
+      }
+
       const { error } = await supabase.functions.invoke('report', {
         body: { player_external_id: id, player_name: playerName },
       })
@@ -48,6 +61,7 @@ export function GeneratedReportsProvider({ children }: { children: ReactNode }) 
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Report generation failed:', err)
+      setGenerationError(err instanceof Error ? err.message : 'Report generation failed. Please try again.')
     } finally {
       setGeneratingIds((prev) => {
         const next = new Set(prev)
@@ -63,9 +77,10 @@ export function GeneratedReportsProvider({ children }: { children: ReactNode }) 
 
   const isGenerating = useCallback((id: string) => generatingIds.has(id), [generatingIds])
   const hasReport = useCallback((id: string) => reportIds.includes(id), [reportIds])
+  const clearGenerationError = useCallback(() => setGenerationError(null), [])
 
   return (
-    <GeneratedReportsContext.Provider value={{ generatedReportIds: reportIds, generateReport, removeReport, isGenerating, hasReport }}>
+    <GeneratedReportsContext.Provider value={{ generatedReportIds: reportIds, generateReport, removeReport, isGenerating, hasReport, generationError, clearGenerationError }}>
       {children}
     </GeneratedReportsContext.Provider>
   )

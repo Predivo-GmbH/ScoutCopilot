@@ -58,12 +58,12 @@ export function AuthVerifyPage() {
             </svg>
           </div>
           <p className="text-sm text-on-surface-variant">{error}</p>
-          <a
-            href={type === 'signup' ? '/signup' : '/login'}
+          <button
+            onClick={() => navigate(type === 'signup' ? '/signup' : '/login')}
             className="mt-4 text-sm font-medium text-primary-light hover:underline min-h-[44px] inline-flex items-center"
           >
             {type === 'signup' ? t('auth.verify.tryAgain', 'Try signing up again') : t('auth.verify.goToLogin', 'Go to login')}
-          </a>
+          </button>
         </div>
       </div>
     )

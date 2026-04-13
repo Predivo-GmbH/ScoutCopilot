@@ -67,6 +67,8 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
   const { generateReport, isGenerating, hasReport } = useGeneratedReports()
   const { squads, addPlayer, createSquad } = useSquad()
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
+  const [sortKey, setSortKey] = useState<string | null>(null)
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [searchTimedOut, setSearchTimedOut] = useState(false)
   const [prevIsLoading, setPrevIsLoading] = useState(isLoading)
 
@@ -127,10 +129,39 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
   }
 
   const allStatKeys = Object.keys(results[0]?.stats ?? {})
-  const primaryStatKeys = allStatKeys.filter((k) => PRIMARY_STAT_KEYS.has(k))
+  const primaryStatKeys = [...PRIMARY_STAT_KEYS].filter((k) => allStatKeys.includes(k))
   const secondaryStatKeys = allStatKeys.filter((k) => !PRIMARY_STAT_KEYS.has(k))
+
+  function handleSort(key: string) {
+    if (sortKey === key) {
+      setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDirection(key === '_name' || key === '_club' || key === '_league' ? 'asc' : 'desc')
+    }
+  }
+
+  const sorted = useMemo(() => {
+    if (!sortKey) return results
+    const dir = sortDirection === 'asc' ? 1 : -1
+    return [...results].sort((a, b) => {
+      let va: string | number, vb: string | number
+      switch (sortKey) {
+        case '_name': va = a.name.toLowerCase(); vb = b.name.toLowerCase(); break
+        case '_age': va = a.birth_date ? calculateAge(a.birth_date) ?? 0 : a.age; vb = b.birth_date ? calculateAge(b.birth_date) ?? 0 : b.age; break
+        case '_club': va = a.club.toLowerCase(); vb = b.club.toLowerCase(); break
+        case '_league': va = a.league.toLowerCase(); vb = b.league.toLowerCase(); break
+        case '_matchScore': va = a.fitScore; vb = b.fitScore; break
+        default: va = a.stats[sortKey] ?? -Infinity; vb = b.stats[sortKey] ?? -Infinity; break
+      }
+      if (va < vb) return -1 * dir
+      if (va > vb) return 1 * dir
+      return 0
+    })
+  }, [results, sortKey, sortDirection])
+
   const totalPages = Math.ceil(results.length / PAGE_SIZE)
-  const paged = results.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const paged = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
   const showFrom = (page - 1) * PAGE_SIZE + 1
   const showTo = Math.min(page * PAGE_SIZE, results.length)
 
@@ -179,28 +210,46 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
             <thead>
               <tr className="sticky top-0 z-10 bg-surface-container-highest border-b border-outline-variant/30">
                 <th className="w-8 px-1 py-3 text-right text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">#</th>
-                <th className="min-w-[180px] px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
-                  {t('csv.name')}
+                <th className="min-w-[180px] px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant cursor-pointer select-none hover:text-on-surface transition-colors" onClick={() => handleSort('_name')}>
+                  <span className="inline-flex items-center gap-0.5">
+                    {t('csv.name')}
+                    <SortIndicator active={sortKey === '_name'} direction={sortDirection} />
+                  </span>
                 </th>
                 <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
                   <StatTooltip label={t('csv.position')} tooltip={t('search.statTooltips.position')} />
                 </th>
-                <th className="w-10 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
-                  <StatTooltip label={t('common.age')} tooltip={t('search.statTooltips.age')} />
+                <th className="w-10 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant cursor-pointer select-none hover:text-on-surface transition-colors" onClick={() => handleSort('_age')}>
+                  <span className="inline-flex items-center gap-0.5">
+                    <StatTooltip label={t('common.age')} tooltip={t('search.statTooltips.age')} />
+                    <SortIndicator active={sortKey === '_age'} direction={sortDirection} />
+                  </span>
                 </th>
-                <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
-                  <StatTooltip label={t('common.club')} tooltip={t('search.statTooltips.club', t('common.club'))} />
+                <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant cursor-pointer select-none hover:text-on-surface transition-colors" onClick={() => handleSort('_club')}>
+                  <span className="inline-flex items-center gap-0.5">
+                    <StatTooltip label={t('common.club')} tooltip={t('search.statTooltips.club', t('common.club'))} />
+                    <SortIndicator active={sortKey === '_club'} direction={sortDirection} />
+                  </span>
                 </th>
-                <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant">
-                  <StatTooltip label={t('common.league')} tooltip={t('search.statTooltips.league')} />
+                <th className="px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant cursor-pointer select-none hover:text-on-surface transition-colors" onClick={() => handleSort('_league')}>
+                  <span className="inline-flex items-center gap-0.5">
+                    <StatTooltip label={t('common.league')} tooltip={t('search.statTooltips.league')} />
+                    <SortIndicator active={sortKey === '_league'} direction={sortDirection} />
+                  </span>
                 </th>
                 {primaryStatKeys.map((key) => (
-                  <th key={key} className="w-16 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap">
-                    <StatTooltip label={formatStatHeader(key)} tooltip={t(`search.statTooltips.${key}`, key)} />
+                  <th key={key} className="w-16 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap cursor-pointer select-none hover:text-on-surface transition-colors" onClick={() => handleSort(key)}>
+                    <span className="inline-flex items-center gap-0.5">
+                      <StatTooltip label={formatStatHeader(key)} tooltip={t(`search.statTooltips.${key}`, key)} />
+                      <SortIndicator active={sortKey === key} direction={sortDirection} />
+                    </span>
                   </th>
                 ))}
-                <th className="w-24 px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap">
-                  {t('search.matchScore')}
+                <th className="w-24 px-2 py-3 text-left text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant whitespace-nowrap cursor-pointer select-none hover:text-on-surface transition-colors" onClick={() => handleSort('_matchScore')}>
+                  <span className="inline-flex items-center gap-0.5">
+                    {t('search.matchScore')}
+                    <SortIndicator active={sortKey === '_matchScore'} direction={sortDirection} />
+                  </span>
                 </th>
                 <th className="w-12 px-1 py-3 text-center text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant" title={t('common.report')}>
                   <FileText size={12} strokeWidth={1.5} className="mx-auto text-on-surface-variant" />
@@ -292,7 +341,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                             {secondaryStatKeys.length > 0 && (
                               <>
                                 <h4 className="text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant mb-2">{t('search.detailedStats', 'Detailed Stats')}</h4>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-2 mb-3">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-2">
                                   {secondaryStatKeys.map((key) => (
                                     <div key={key} className="flex items-baseline justify-between gap-2">
                                       <span className="text-[0.5625rem] uppercase tracking-widest text-on-surface-variant font-bold whitespace-nowrap">
@@ -304,17 +353,6 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                                 </div>
                               </>
                             )}
-                            <h4 className="text-[0.5625rem] uppercase tracking-widest font-bold text-on-surface-variant mb-2">{t('search.allStats')}</h4>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-2">
-                              {allStatKeys.map((key) => (
-                                <div key={key} className="flex items-baseline justify-between gap-2">
-                                  <span className="text-[0.5625rem] uppercase tracking-widest text-on-surface-variant font-bold whitespace-nowrap">
-                                    <StatTooltip label={formatStatHeader(key)} tooltip={t(`search.statTooltips.${key}`, key)} />
-                                  </span>
-                                  <span className="font-data text-xs text-on-surface font-medium">{player.stats[key] ?? '\u2014'}</span>
-                                </div>
-                              ))}
-                            </div>
                           </div>
                         </td>
                       </tr>
@@ -421,6 +459,13 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
       )}
     </div>
   )
+}
+
+function SortIndicator({ active, direction }: { active: boolean; direction: 'asc' | 'desc' }) {
+  if (!active) return <ChevronDown size={10} strokeWidth={1.5} className="opacity-0 group-hover:opacity-30" />
+  return direction === 'asc'
+    ? <ChevronUp size={10} strokeWidth={1.5} className="text-primary" />
+    : <ChevronDown size={10} strokeWidth={1.5} className="text-primary" />
 }
 
 /** Hover tooltip for stat column headers — shows full description on hover */

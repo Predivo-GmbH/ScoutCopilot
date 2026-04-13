@@ -10,7 +10,6 @@ export interface SearchParams {
   position: string
   ageRange: string
   league: string
-  foot: string
   minFitScore: number
   minPassAccuracy: number
   minProgCarries: number
@@ -116,7 +115,6 @@ export function usePlayerSearch() {
     position: 'All Positions',
     ageRange: 'All Ages',
     league: 'All Leagues',
-    foot: 'Either Foot',
     minFitScore: 0,
     minPassAccuracy: 0,
     minProgCarries: 0,

@@ -12,6 +12,8 @@ import {
   SkipForward,
 } from 'lucide-react'
 import { useAuth } from './useAuth'
+import { saveCredential } from '../../lib/api'
+import { supabase } from '../../lib/supabase'
 import { Logo } from '../../components/shared/Logo'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
@@ -61,7 +63,7 @@ const POSITION_KEYS = [
 
 export function OnboardingPage() {
   const navigate = useLocalizedNavigate()
-  const { profile, refreshProfile } = useAuth()
+  const { user, profile, refreshProfile } = useAuth()
   const { t } = useTranslation()
 
   const [stepIndex, setStepIndex] = useState(0)
@@ -90,6 +92,37 @@ export function OnboardingPage() {
   }
 
   async function finish() {
+    // Save credentials if any were entered (best-effort, don't block navigation)
+    const credentialPromises: Promise<unknown>[] = []
+    if (wyscoutUser && wyscoutPass) {
+      credentialPromises.push(
+        saveCredential('wyscout', wyscoutUser, wyscoutPass).catch(() => { /* best-effort */ })
+      )
+    }
+    if (statsbombUser && statsbombPass) {
+      credentialPromises.push(
+        saveCredential('statsbomb', statsbombUser, statsbombPass).catch(() => { /* best-effort */ })
+      )
+    }
+
+    // Save league/position preferences to the user's scoring_weights (or a preferences field)
+    if (user && (selectedLeagues.length > 0 || selectedPositions.length > 0)) {
+      credentialPromises.push(
+        supabase
+          .from('profiles')
+          .update({
+            scoring_weights: {
+              preferred_leagues: selectedLeagues,
+              preferred_positions: selectedPositions,
+            } as unknown as Record<string, number>,
+          })
+          .eq('id', user.id)
+          .then(() => { /* saved */ })
+          .catch(() => { /* best-effort */ })
+      )
+    }
+
+    await Promise.all(credentialPromises)
     await refreshProfile()
     navigate('/dashboard', { replace: true })
   }

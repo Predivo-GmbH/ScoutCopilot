@@ -5,6 +5,7 @@ import { Search, Bell, Settings, LogOut, Menu } from 'lucide-react'
 import { useAuth } from '../../features/auth/useAuth'
 import { ThemeToggle } from '../shared/ThemeToggle'
 import { LanguageSelector } from '../shared/LanguageSelector'
+import { useWatchlistAlerts } from '../../features/dashboard/hooks/useDashboardData'
 
 interface TopBarProps {
   onMenuToggle?: () => void
@@ -14,6 +15,8 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
   const navigate = useLocalizedNavigate()
   const { t } = useTranslation()
   const { profile, signOut } = useAuth()
+  const { data: alerts } = useWatchlistAlerts()
+  const alertCount = alerts?.length ?? 0
   const [searchValue, setSearchValue] = useState('')
   const [profileOpen, setProfileOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
@@ -75,7 +78,7 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
         </button>
       )}
 
-      {/* Search bar */}
+      {/* Search bar — desktop */}
       <form onSubmit={handleSearch} className="flex-1 max-w-xl relative hidden sm:block">
         <Search size={16} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
         <input
@@ -88,15 +91,26 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
         />
       </form>
 
+      {/* Search icon — mobile only */}
+      <button
+        onClick={() => navigate('/search')}
+        className="sm:hidden p-2 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ml-auto"
+        aria-label={t('topbar.searchPlaceholder')}
+      >
+        <Search size={20} strokeWidth={1.5} />
+      </button>
+
       <div className="flex items-center gap-2 ml-auto">
         {/* Alerts */}
         <button
-          onClick={() => navigate('/watchlists')}
+          onClick={() => navigate('/alerts')}
           className="relative p-2.5 rounded-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label={t('topbar.alerts')}
         >
           <Bell size={18} strokeWidth={1.5} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full" />
+          {alertCount > 0 && (
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full" />
+          )}
         </button>
 
         {/* Theme toggle */}

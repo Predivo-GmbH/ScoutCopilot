@@ -29,7 +29,8 @@ export interface WatchlistAlert {
   playerId: string
   playerName: string
   club: string
-  change: string
+  changeKey: string
+  changeParams: Record<string, string>
   changeType: 'positive' | 'warning' | 'neutral'
   timeAgo: string
   imageUrl?: string

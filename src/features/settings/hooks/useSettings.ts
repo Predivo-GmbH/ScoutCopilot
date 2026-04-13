@@ -372,12 +372,13 @@ export function useSettings() {
 
       if (error) throw new Error(error.message)
 
-      // We need emails from auth.users but can't query that client-side.
-      // Use the current user's email for their own row, leave others blank.
+      // Supabase RLS prevents querying auth.users from the client — emails are
+      // only accessible for the current user. Other members show their name or
+      // a fallback. To surface all emails, an admin edge function would be needed.
       return (data ?? []).map((row) => ({
         id: row.id,
         fullName: row.full_name ?? '',
-        email: row.id === user?.id ? (user?.email ?? '') : '',
+        email: row.id === user?.id ? (user?.email ?? '') : (row.full_name || 'Email hidden'),
         role: row.role ?? 'scout',
       }))
     },

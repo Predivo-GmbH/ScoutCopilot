@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../../lib/supabase'
 import { calculateAge } from '../../../lib/ageUtils'
 import type { MockComparisonPlayer } from '../../../lib/mock-data'
@@ -107,8 +107,70 @@ function reportToComparison(row: {
   }
 }
 
-export function useComparison() {
+// ── Comparison History Hooks ──────────────────────────────────────
+
+export interface RecentComparison {
+  id: string
+  title: string
+  player_ids: string[]
+  created_at: string
+}
+
+export function useRecentComparisons() {
+  return useQuery<RecentComparison[]>({
+    queryKey: ['comparison', 'history'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('player_comparisons')
+        .select('id, title, player_ids, created_at')
+        .order('created_at', { ascending: false })
+        .limit(100)
+
+      if (error) throw new Error(error.message)
+      return (data ?? []) as RecentComparison[]
+    },
+  })
+}
+
+export function useDeleteComparison() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (comparisonId: string) => {
+      const { error } = await supabase
+        .from('player_comparisons')
+        .delete()
+        .eq('id', comparisonId)
+      if (error) throw new Error(error.message)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comparison', 'history'] })
+    },
+  })
+}
+
+export function useDeleteAllComparisons() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+      const { error } = await supabase
+        .from('player_comparisons')
+        .delete()
+        .eq('user_id', user.id)
+      if (error) throw new Error(error.message)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comparison', 'history'] })
+    },
+  })
+}
+
+// ── Main Comparison Hook ─────────────────────────────────────────
+
+export function useComparison(maxPlayers = 4) {
   const [searchParams, setSearchParams] = useSearchParams()
+  const queryClient = useQueryClient()
 
   // Read initial player from URL param (e.g. /compare?add=p1)
   const [selectedIds, setSelectedIds] = useState<string[]>(() => {
@@ -171,7 +233,7 @@ export function useComparison() {
   })
 
   function addPlayer(id: string) {
-    if (selectedIds.length < 4 && !selectedIds.includes(id)) {
+    if (selectedIds.length < maxPlayers && !selectedIds.includes(id)) {
       setSelectedIds((prev) => [...prev, id])
       setGenerated(false)
     }
@@ -188,6 +250,33 @@ export function useComparison() {
       refetch()
     }
   }
+
+  const resetComparison = useCallback(() => {
+    setSelectedIds([])
+    setVerdict(null)
+    setGenerated(false)
+    setTacticalContext('')
+  }, [])
+
+  const loadSavedComparison = useCallback(async (comparisonId: string) => {
+    const { data, error } = await supabase
+      .from('player_comparisons')
+      .select('*')
+      .eq('id', comparisonId)
+      .single()
+
+    if (error || !data) return
+
+    const ids = data.player_ids as string[]
+    const comparisonData = data.comparison_data as Record<string, unknown> | null
+    setSelectedIds(ids)
+    if (comparisonData) {
+      setVerdict(comparisonData as unknown as ComparisonVerdict)
+    }
+    setGenerated(true)
+    // Invalidate so the query re-runs with the new selectedIds
+    queryClient.invalidateQueries({ queryKey: ['comparison', ids] })
+  }, [queryClient])
 
   const availablePlayers = allPlayers.filter((p) => !selectedIds.includes(p.id))
   const selectedPlayers = allPlayers.filter((p) => selectedIds.includes(p.id))
@@ -206,5 +295,7 @@ export function useComparison() {
     addPlayer,
     removePlayer,
     generate,
+    resetComparison,
+    loadSavedComparison,
   }
 }

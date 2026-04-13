@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
+import { Link } from '../shared/LocalizedLink'
 
 export function AppShell() {
   const { t } = useTranslation()
@@ -108,10 +109,15 @@ export function AppShell() {
         `}</style>
         <div className="app-shell-content flex-1 flex flex-col h-screen min-w-0" style={{ transition: 'margin-left var(--duration-slow) ease-in-out' }}>
           <TopBar onMenuToggle={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
-          <main id="main-content" aria-label={t('nav.mainContent')} className="flex-1 overflow-y-auto">
-            <div className="mx-auto max-w-[1280px]">
+          <main id="main-content" aria-label={t('nav.mainContent')} className="flex-1 overflow-y-auto flex flex-col">
+            <div className="mx-auto max-w-[1280px] flex-1">
               <Outlet />
             </div>
+            <footer className="mt-auto px-6 py-3 border-t border-outline-variant/10 flex gap-4 text-xs text-on-surface-variant">
+              <Link to="/privacy">{t('common.privacy')}</Link>
+              <Link to="/terms">{t('common.terms')}</Link>
+              <Link to="/imprint">{t('common.imprint')}</Link>
+            </footer>
           </main>
         </div>
       </div>

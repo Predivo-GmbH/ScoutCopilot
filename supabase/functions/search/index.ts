@@ -143,15 +143,36 @@ serve(async (req: Request) => {
     }
 
     if (rawPlayers.length === 0) {
-      // Save empty search to DB
+      // Save empty search to DB (deduplicate: update if same query within last 60s)
       const supabase = getServiceClient();
-      await supabase.from("search_queries").insert({
-        user_id: auth.userId,
-        organization_id: auth.organizationId,
-        query_text: query.trim(),
-        parsed_parameters: parsedParams as Record<string, unknown>,
-        result_count: 0,
-      });
+      const oneMinuteAgo = new Date(Date.now() - 60_000).toISOString();
+      const { data: recentDup } = await supabase
+        .from("search_queries")
+        .select("id")
+        .eq("user_id", auth.userId)
+        .eq("query_text", query.trim())
+        .gte("created_at", oneMinuteAgo)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (recentDup) {
+        await supabase
+          .from("search_queries")
+          .update({
+            parsed_parameters: parsedParams as Record<string, unknown>,
+            result_count: 0,
+          })
+          .eq("id", recentDup.id);
+      } else {
+        await supabase.from("search_queries").insert({
+          user_id: auth.userId,
+          organization_id: auth.organizationId,
+          query_text: query.trim(),
+          parsed_parameters: parsedParams as Record<string, unknown>,
+          result_count: 0,
+        });
+      }
 
       return new Response(
         JSON.stringify({ results: [], parsed_parameters: parsedParams, total: 0 }),
@@ -194,22 +215,52 @@ serve(async (req: Request) => {
       }
     }
 
-    // Step 4: Save search query + results to DB
+    // Step 4: Save search query + results to DB (deduplicate: update if same query within last 60s)
     const supabase = getServiceClient();
-    const { data: searchQuery, error: sqError } = await supabase
+    const oneMinuteAgo = new Date(Date.now() - 60_000).toISOString();
+    const { data: recentDup } = await supabase
       .from("search_queries")
-      .insert({
-        user_id: auth.userId,
-        organization_id: auth.organizationId,
-        query_text: query.trim(),
-        parsed_parameters: parsedParams as Record<string, unknown>,
-        result_count: ranked.length,
-      })
       .select("id")
-      .single();
+      .eq("user_id", auth.userId)
+      .eq("query_text", query.trim())
+      .gte("created_at", oneMinuteAgo)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    if (sqError) {
-      console.error("Failed to save search query:", sqError.message);
+    let searchQuery: { id: string } | null = null;
+    if (recentDup) {
+      // Update existing record instead of creating a duplicate
+      const { error: upError } = await supabase
+        .from("search_queries")
+        .update({
+          parsed_parameters: parsedParams as Record<string, unknown>,
+          result_count: ranked.length,
+        })
+        .eq("id", recentDup.id);
+      if (upError) {
+        console.error("Failed to update search query:", upError.message);
+      } else {
+        searchQuery = recentDup;
+        // Delete old search_results for this query so we can insert fresh ones
+        await supabase.from("search_results").delete().eq("search_query_id", recentDup.id);
+      }
+    } else {
+      const { data: newQuery, error: sqError } = await supabase
+        .from("search_queries")
+        .insert({
+          user_id: auth.userId,
+          organization_id: auth.organizationId,
+          query_text: query.trim(),
+          parsed_parameters: parsedParams as Record<string, unknown>,
+          result_count: ranked.length,
+        })
+        .select("id")
+        .single();
+      if (sqError) {
+        console.error("Failed to save search query:", sqError.message);
+      }
+      searchQuery = newQuery;
     }
 
     if (searchQuery) {

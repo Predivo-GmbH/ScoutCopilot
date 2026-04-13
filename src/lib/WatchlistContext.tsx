@@ -59,13 +59,22 @@ async function fetchWatchlists(): Promise<MockWatchlist[]> {
 
   return rows.map((row) => {
     const players = playersByWatchlist.get(row.id) ?? []
+
+    // Count players added in the last 7 days as alerts
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
+    const recentCount = players.filter((p) => {
+      const added = new Date(p.addedDate).getTime()
+      return !Number.isNaN(added) && added >= sevenDaysAgo
+    }).length
+
     return {
       id: row.id,
       name: row.name,
       description: row.description ?? '',
       playerCount: players.length,
       lastUpdated: row.updated_at ?? row.created_at,
-      alertCount: 0,
+      alertCount: recentCount,
+      category: (row.category as MockWatchlist['category']) ?? undefined,
       players,
     } satisfies MockWatchlist
   })
@@ -85,7 +94,7 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
   // ── Create watchlist ────────────────────────────────────────────────
 
   const createMutation = useMutation({
-    mutationFn: async ({ name, description }: { name: string; description: string }) => {
+    mutationFn: async ({ name, description, category }: { name: string; description: string; category?: string }) => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
@@ -96,9 +105,12 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
         .single()
       if (!profile?.organization_id) throw new Error('No organization')
 
+      const insertPayload: Record<string, unknown> = { name, description, user_id: user.id, organization_id: profile.organization_id }
+      if (category && category !== 'all') insertPayload.category = category
+
       const { data, error } = await supabase
         .from('watchlists')
-        .insert({ name, description, user_id: user.id, organization_id: profile.organization_id })
+        .insert(insertPayload)
         .select('id')
         .single()
 
@@ -111,8 +123,8 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
   })
 
   const createWatchlist = useCallback(
-    async (name: string, description: string): Promise<string> => {
-      return createMutation.mutateAsync({ name, description })
+    async (name: string, description: string, category?: string): Promise<string> => {
+      return createMutation.mutateAsync({ name, description, category })
     },
     [createMutation],
   )
@@ -143,13 +155,14 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
   // ── Add player to watchlist ─────────────────────────────────────────
 
   const addPlayerMutation = useMutation({
-    mutationFn: async ({ watchlistId, player }: { watchlistId: string; player: MockWatchlistPlayer }) => {
+    mutationFn: async ({ watchlistId, player, notes }: { watchlistId: string; player: MockWatchlistPlayer; notes?: string }) => {
       const { error } = await supabase
         .from('watchlist_players')
         .insert({
           watchlist_id: watchlistId,
           player_external_id: player.id,
           player_name: player.name,
+          notes: notes?.trim() || null,
           player_data: {
             club: player.club,
             position: player.position,
@@ -171,8 +184,8 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
   })
 
   const addPlayerToWatchlist = useCallback(
-    (watchlistId: string, player: MockWatchlistPlayer) => {
-      addPlayerMutation.mutate({ watchlistId, player })
+    (watchlistId: string, player: MockWatchlistPlayer, notes?: string) => {
+      addPlayerMutation.mutate({ watchlistId, player, notes })
     },
     [addPlayerMutation],
   )
@@ -201,6 +214,29 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
     [removePlayerMutation],
   )
 
+  // ── Update watchlist (rename / description) ────────────────────────
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, name, description }: { id: string; name: string; description: string }) => {
+      const { error } = await supabase
+        .from('watchlists')
+        .update({ name, description })
+        .eq('id', id)
+
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: WATCHLISTS_KEY })
+    },
+  })
+
+  const updateWatchlist = useCallback(
+    (id: string, name: string, description: string) => {
+      updateMutation.mutate({ id, name, description })
+    },
+    [updateMutation],
+  )
+
   // ── Render ──────────────────────────────────────────────────────────
 
   return (
@@ -212,6 +248,7 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
         removePlayerFromWatchlist,
         createWatchlist,
         deleteWatchlist,
+        updateWatchlist,
       }}
     >
       {children}

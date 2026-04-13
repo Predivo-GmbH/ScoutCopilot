@@ -3,6 +3,7 @@ import { useParams, useLocation, Navigate } from 'react-router-dom'
 import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
+import { useQuery } from '@tanstack/react-query'
 import {
   Star,
   GitCompareArrows,
@@ -15,6 +16,7 @@ import {
   FileText,
   Loader2,
   ArrowLeft,
+  AlertTriangle,
 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
@@ -22,6 +24,7 @@ import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 import { AddToWatchlistModal } from '../../components/shared/AddToWatchlistModal'
 import { usePlayerReport } from './hooks/usePlayerReport'
 import { useGeneratedReports } from '../../lib/useGeneratedReportsHook'
+import { supabase } from '../../lib/supabase'
 import { formatAge } from '../../lib/ageUtils'
 import { usePlayerPhotoFetch, derivePhotoSource } from '../../lib/usePlayerPhotoFetch'
 import type { MockWatchlistPlayer, WatchlistAlert } from '../../lib/mock-data'
@@ -32,10 +35,27 @@ export function ReportPage() {
   const navigate = useLocalizedNavigate()
   const location = useLocation()
   const { data: report, isLoading, error } = usePlayerReport(id)
-  const { generateReport, isGenerating, hasReport } = useGeneratedReports()
+  const { generateReport, isGenerating, hasReport, generationError, clearGenerationError } = useGeneratedReports()
   const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
   const [showAlertBanner, setShowAlertBanner] = useState(true)
   const alertContext = (location.state as { alert?: WatchlistAlert } | null)?.alert
+
+  // Check if the player exists in sb_players (for sb-open-* IDs without a report)
+  const isSbOpen = id?.startsWith('sb-open-') ?? false
+  const sbNumericId = isSbOpen ? parseInt(id!.replace('sb-open-', ''), 10) : NaN
+  const { data: sbPlayerInfo, isLoading: sbPlayerLoading } = useQuery({
+    queryKey: ['sb-player-info', id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('sb_players')
+        .select('player_name, player_nickname, nationality, primary_position, photo_url, birth_date')
+        .eq('player_id', sbNumericId)
+        .maybeSingle()
+      return data
+    },
+    enabled: isSbOpen && !isNaN(sbNumericId) && !report && !isLoading,
+    staleTime: 5 * 60 * 1000,
+  })
 
   // If navigated here from a similar player link with a player name, auto-generate if needed
   const similarPlayerName = (location.state as { playerName?: string } | null)?.playerName
@@ -87,28 +107,76 @@ export function ReportPage() {
 
   if (error || !report) {
     const generating = isGenerating(id)
+    // Determine if the player exists: for sb-open-* IDs, check sbPlayerInfo
+    const playerExists = isSbOpen ? sbPlayerInfo !== null && sbPlayerInfo !== undefined : true
+    const playerNotFound = isSbOpen && !sbPlayerLoading && !playerExists && !generating
+    // Resolve player display name from state or sb_players query
+    const playerDisplayName = similarPlayerName || (sbPlayerInfo ? (sbPlayerInfo.player_nickname || sbPlayerInfo.player_name) : null)
+
     return (
       <div className="p-4 sm:p-6">
+        {/* Generation error banner */}
+        {generationError && (
+          <div className="mb-6 rounded-md p-4 border bg-error/10 border-error/30 flex items-center gap-3">
+            <AlertTriangle size={16} strokeWidth={1.5} className="text-error shrink-0" />
+            <p className="text-sm text-error flex-1">{generationError}</p>
+            <button onClick={clearGenerationError} aria-label={t('common.dismiss')} className="text-error hover:text-on-surface transition-colors shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center">
+              <X size={14} strokeWidth={1.5} />
+            </button>
+          </div>
+        )}
+
+        {/* Player info card when player exists but has no report yet */}
+        {!playerNotFound && !generating && sbPlayerInfo && (
+          <div className="bg-surface-container rounded-md p-4 sm:p-6 border border-outline-variant mb-6 flex items-center gap-4 sm:gap-6">
+            <PlayerAvatar name={playerDisplayName ?? ''} size={64} imageUrl={sbPlayerInfo.photo_url ?? undefined} />
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight text-on-surface uppercase">{playerDisplayName}</h2>
+              <div className="flex items-center gap-3 mt-1 flex-wrap">
+                {sbPlayerInfo.primary_position && (
+                  <span className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-2 py-0.5 rounded-sm">
+                    {sbPlayerInfo.primary_position}
+                  </span>
+                )}
+                {sbPlayerInfo.nationality && (
+                  <>
+                    <span className="w-1 h-1 rounded-full bg-outline-variant" />
+                    <span className="text-sm text-on-surface-variant">{sbPlayerInfo.nationality}</span>
+                  </>
+                )}
+                {sbPlayerInfo.birth_date && (
+                  <>
+                    <span className="w-1 h-1 rounded-full bg-outline-variant" />
+                    <span className="text-sm text-on-surface-variant">{t('common.age')}: {formatAge(sbPlayerInfo.birth_date)}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center mb-4">
             {generating ? (
               <Loader2 size={32} strokeWidth={1.5} className="text-primary animate-spin" />
+            ) : playerNotFound ? (
+              <AlertTriangle size={32} strokeWidth={1.5} className="text-error" />
             ) : (
               <FileText size={32} strokeWidth={1.5} className="text-on-surface-variant" />
             )}
           </div>
           <h3 className="text-lg font-semibold text-on-surface mb-2">
-            {generating ? t('report.generating') : t('report.noReportYet')}
+            {generating ? t('report.generating') : playerNotFound ? t('report.playerNotFound', 'Player not found') : t('report.noReportYet')}
           </h3>
           <p className="text-sm text-on-surface-variant max-w-md mb-6">
-            {generating ? t('report.generatingDesc') : t('report.noReportDesc')}
+            {generating ? t('report.generatingDesc') : playerNotFound ? t('report.playerNotFoundDesc', 'This player ID does not exist in the database.') : t('report.noReportDesc')}
           </p>
           <div className="flex gap-3">
             <Button variant="secondary" size="sm" leftIcon={ArrowLeft} onClick={() => navigate(-1)}>
               {t('common.back')}
             </Button>
-            {!generating && !hasReport(id) && (
-              <Button variant="primary" size="sm" leftIcon={FileText} onClick={() => generateReport(id)}>
+            {!generating && !hasReport(id) && !playerNotFound && (
+              <Button variant="primary" size="sm" leftIcon={FileText} onClick={() => generateReport(id, playerDisplayName ?? undefined)}>
                 {t('report.generateReport')}
               </Button>
             )}

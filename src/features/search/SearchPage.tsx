@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { Search as SearchIcon, ArrowRight, Sparkles, Clock, X, Trash2 } from 'lucide-react'
+import { Search as SearchIcon, ArrowRight, Sparkles, Clock, X, Trash2, RotateCcw } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { SearchFilters } from './components/SearchFilters'
 import { SearchResultsTable } from './components/SearchResultsTable'
@@ -27,7 +27,20 @@ export function SearchPage() {
   const isSavedSearch = searchParams.get('saved') === '1'
   const savedSearchId = searchParams.get('sid') ?? ''
   const [queryInput, setQueryInput] = useState(initialQuery)
+  const searchInputRef = useRef<HTMLInputElement>(null)
   const lastAutoQuery = useRef<string | null>(null)
+
+  // Cmd+K / Ctrl+K to focus search input
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        searchInputRef.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   // When navigated with ?q=…&saved=1&sid=…, load saved results from DB.
   // For regular ?q= navigation, only fill the input — let the user review and click Search.
@@ -73,6 +86,7 @@ export function SearchPage() {
         <div className="relative flex-1 w-full">
           <SearchIcon size={18} strokeWidth={1.5} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/70" aria-hidden="true" />
           <input
+            ref={searchInputRef}
             type="text"
             value={queryInput}
             onChange={(e) => setQueryInput(e.target.value)}
@@ -98,16 +112,26 @@ export function SearchPage() {
       </div>
 
       {/* Filters */}
-      <SearchFilters
-        position={params.position}
-        ageRange={params.ageRange}
-        league={params.league}
-        foot={params.foot}
-        minFitScore={params.minFitScore}
-        minPassAccuracy={params.minPassAccuracy}
-        minProgCarries={params.minProgCarries}
-        onUpdate={(updates) => updateFilters(updates)}
-      />
+      <div className="space-y-3">
+        <SearchFilters
+          position={params.position}
+          ageRange={params.ageRange}
+          league={params.league}
+          minFitScore={params.minFitScore}
+          minPassAccuracy={params.minPassAccuracy}
+          minProgCarries={params.minProgCarries}
+          onUpdate={(updates) => updateFilters(updates)}
+        />
+        {(params.position !== 'All Positions' || params.ageRange !== 'All Ages' || params.league !== 'All Leagues' || params.minFitScore > 0 || params.minPassAccuracy > 0 || params.minProgCarries > 0) && (
+          <button
+            onClick={() => updateFilters({ position: 'All Positions', ageRange: 'All Ages', league: 'All Leagues', minFitScore: 0, minPassAccuracy: 0, minProgCarries: 0 })}
+            className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary-light transition-colors min-h-[44px]"
+          >
+            <RotateCcw size={12} strokeWidth={1.5} />
+            {t('filters.resetAll', 'Reset Filters')}
+          </button>
+        )}
+      </div>
 
       {/* Results */}
       {hasSearched ? (
@@ -125,7 +149,7 @@ export function SearchPage() {
           )}
         </>
       ) : (
-        <EmptyState onSuggestionClick={handleSuggestion} onLoadSaved={loadSaved} />
+        <EmptyState onSuggestionClick={handleSuggestion} onLoadSaved={(id, query) => { setQueryInput(query); loadSaved(id, query) }} />
       )}
     </div>
   )
@@ -179,7 +203,7 @@ function EmptyState({ onSuggestionClick, onLoadSaved }: {
               >
                 <SearchIcon size={14} strokeWidth={1.5} className="text-on-surface-variant/50 shrink-0" aria-hidden="true" />
                 <span className="text-sm text-on-surface truncate flex-1">{s.query}</span>
-                <span className="text-[0.625rem] font-data text-on-surface-variant/70 shrink-0">{s.resultCount} {t('searchHistory.results')}</span>
+                <span className="text-[0.625rem] font-data text-on-surface-variant/70 shrink-0">{s.resultCount} {s.resultCount === 1 ? t('searchHistory.result', 'result') : t('searchHistory.results')}</span>
                 <span
                   role="button"
                   tabIndex={0}

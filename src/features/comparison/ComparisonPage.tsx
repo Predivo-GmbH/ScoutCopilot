@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { Zap, GitCompareArrows, Loader2, ArrowRight } from 'lucide-react'
+import { Zap, GitCompareArrows, Loader2, ArrowRight, Clock, Trash2, X, RotateCcw } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
-import { useComparison } from './hooks/useComparison'
+import { useComparison, useRecentComparisons, useDeleteComparison, useDeleteAllComparisons } from './hooks/useComparison'
+import { useSubscription } from '../../hooks/useSubscription'
 import { ComparisonTable } from './components/ComparisonTable'
 import { PlayerSelector } from './components/PlayerSelector'
 import { dotColors } from './constants'
@@ -18,6 +19,8 @@ const GENERATE_STEP_KEYS = [
 
 export function ComparisonPage() {
   const { t } = useTranslation()
+  const { limits } = useSubscription()
+  const maxPlayers = limits.maxComparisons
   const {
     players,
     selectedPlayers,
@@ -31,7 +34,9 @@ export function ComparisonPage() {
     addPlayer,
     removePlayer,
     generate,
-  } = useComparison()
+    resetComparison,
+    loadSavedComparison,
+  } = useComparison(maxPlayers)
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
@@ -42,13 +47,23 @@ export function ComparisonPage() {
           <h1 className="text-2xl font-semibold tracking-tight text-on-surface">{t('comparison.heading')}</h1>
           <p className="text-on-surface-variant mt-1 text-sm">{t('comparison.subheading')}</p>
         </div>
+        {generated && (
+          <Button
+            variant="outlined"
+            size="sm"
+            rightIcon={RotateCcw}
+            onClick={resetComparison}
+          >
+            {t('comparison.newComparison')}
+          </Button>
+        )}
       </div>
 
       {/* Player Selection */}
       <PlayerSelector
         selectedPlayers={selectedPlayers}
         availablePlayers={availablePlayers}
-        maxPlayers={4}
+        maxPlayers={maxPlayers}
         onAdd={addPlayer}
         onRemove={removePlayer}
       />
@@ -161,7 +176,7 @@ export function ComparisonPage() {
                       <div className="bg-surface-container-high p-4 rounded-md border-l-4 border-tertiary">
                         <span className="text-[0.625rem] font-data text-tertiary font-semibold block mb-1">{t('comparison.strategicFit')}</span>
                         <p className="text-xs text-on-surface-variant">
-                          {t('comparison.verdictFitDefault', { player1: players[0]?.name.split(' ').pop(), player2: players[1]?.name.split(' ').pop() })}
+                          {t('comparison.verdictFitDefault', { player1: players[0]?.name.split(' ').pop(), player2: players[1]?.name.split(' ').pop(), score1: '\u2014', score2: '\u2014' })}
                         </p>
                       </div>
                     </>
@@ -175,7 +190,7 @@ export function ComparisonPage() {
           <ComparisonTable players={players} />
         </>
       ) : !generated ? (
-        <EmptyState playerCount={selectedIds.length} totalAvailable={selectedPlayers.length + availablePlayers.length} />
+        <EmptyState playerCount={selectedIds.length} totalAvailable={selectedPlayers.length + availablePlayers.length} onLoadSaved={loadSavedComparison} />
       ) : null}
     </div>
   )
@@ -183,11 +198,33 @@ export function ComparisonPage() {
 
 // ─── Empty State ────────────────────────────────────────────
 
-function EmptyState({ playerCount, totalAvailable }: { playerCount: number; totalAvailable: number }) {
+function EmptyState({ playerCount, totalAvailable, onLoadSaved }: {
+  playerCount: number
+  totalAvailable: number
+  onLoadSaved: (comparisonId: string) => void
+}) {
   const { t } = useTranslation()
+  const { data: recentComparisons } = useRecentComparisons()
+  const deleteComparison = useDeleteComparison()
+  const deleteAllComparisons = useDeleteAllComparisons()
+
+  const VISIBLE_LIMIT = 5
+  const visibleComparisons = recentComparisons?.slice(0, VISIBLE_LIMIT) ?? []
+
+  function formatTimeAgo(timestamp: string): string {
+    const diffMs = Date.now() - new Date(timestamp).getTime()
+    const minutes = Math.floor(diffMs / 60_000)
+    if (minutes < 1) return t('searchHistory.justNow')
+    if (minutes < 60) return `${minutes}m ago`
+    const hours = Math.floor(minutes / 60)
+    if (hours < 24) return t('searchHistory.hoursAgo', { count: hours })
+    const days = Math.floor(hours / 24)
+    if (days === 1) return t('searchHistory.yesterday')
+    return t('searchHistory.daysAgo', { count: days })
+  }
 
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
+    <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center mb-4">
         <GitCompareArrows size={32} strokeWidth={1.5} className="text-on-surface-variant" />
       </div>
@@ -212,6 +249,48 @@ function EmptyState({ playerCount, totalAvailable }: { playerCount: number; tota
             {t('comparison.addOneMoreSub')}
           </p>
         </>
+      )}
+
+      {/* Comparison History */}
+      {recentComparisons && recentComparisons.length > 0 && (
+        <div className="w-full max-w-2xl mt-8">
+          <div className="flex items-center gap-2 mb-3 justify-center">
+            <Clock size={14} strokeWidth={1.5} className="text-primary" aria-hidden="true" />
+            <span className="text-[0.625rem] uppercase tracking-widest font-medium text-on-surface-variant">{t('comparison.historyHeading')}</span>
+            <span className="mx-1" />
+            <button
+              onClick={() => deleteAllComparisons.mutate()}
+              className="text-[0.625rem] font-data uppercase tracking-widest text-on-surface-variant hover:text-error transition-colors min-h-[44px] flex items-center gap-1"
+            >
+              <Trash2 size={10} strokeWidth={1.5} />
+              {t('comparison.clearHistory')}
+            </button>
+          </div>
+          <div className="space-y-1.5">
+            {visibleComparisons.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => onLoadSaved(c.id)}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left bg-surface-container border border-outline-variant rounded-md hover:bg-surface-container-high hover:border-primary/30 transition-colors min-h-[44px] group"
+              >
+                <GitCompareArrows size={14} strokeWidth={1.5} className="text-on-surface-variant/50 shrink-0" aria-hidden="true" />
+                <span className="text-sm text-on-surface truncate flex-1">{c.title}</span>
+                <span className="text-[0.625rem] font-data text-on-surface-variant/70 shrink-0">{c.player_ids.length} {t('comparison.historyPlayers')}</span>
+                <span className="text-[0.625rem] font-data text-on-surface-variant/50 shrink-0">{formatTimeAgo(c.created_at)}</span>
+                <span
+                  role="button"
+                  tabIndex={0}
+                  aria-label={t('comparison.deleteComparison')}
+                  className="opacity-50 group-hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 p-1 rounded-sm text-on-surface-variant/70 hover:text-error hover:bg-error/10 transition-all shrink-0"
+                  onClick={(e) => { e.stopPropagation(); deleteComparison.mutate(c.id) }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); e.preventDefault(); deleteComparison.mutate(c.id) } }}
+                >
+                  <X size={14} strokeWidth={1.5} />
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   )

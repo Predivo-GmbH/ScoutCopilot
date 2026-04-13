@@ -10,35 +10,17 @@ export function useDashboardStats() {
   return useQuery<DashboardStats>({
     queryKey: ['dashboard', 'stats'],
     queryFn: async () => {
-      const [searchCount, reportCount, watchlistCount, recentSearches] = await Promise.all([
+      const [searchCount, reportCount, watchlistCount, comparisonCount] = await Promise.all([
         supabase.from('search_queries').select('id', { count: 'exact', head: true }),
         supabase.from('player_reports').select('id', { count: 'exact', head: true }),
         supabase.from('watchlists').select('id', { count: 'exact', head: true }),
-        supabase.from('search_queries').select('created_at').order('created_at', { ascending: false }).limit(50),
+        supabase.from('player_comparisons').select('id', { count: 'exact', head: true }),
       ])
 
       const totalSearches = searchCount.count ?? 0
       const totalReports = reportCount.count ?? 0
       const totalWatchlists = watchlistCount.count ?? 0
-
-      // Calculate average time between searches as a proxy for query cadence
-      let avgQueryDisplay: string | number = '—'
-      const timestamps = (recentSearches.data ?? []).map((r) => new Date(r.created_at).getTime())
-      if (timestamps.length >= 2) {
-        const diffs: number[] = []
-        for (let i = 0; i < timestamps.length - 1; i++) {
-          diffs.push(timestamps[i] - timestamps[i + 1])
-        }
-        const avgMs = diffs.reduce((a, b) => a + b, 0) / diffs.length
-        const avgSec = avgMs / 1000
-        if (avgSec < 60) {
-          avgQueryDisplay = `${Math.round(avgSec)}s`
-        } else if (avgSec < 3600) {
-          avgQueryDisplay = `${Math.round(avgSec / 60)}m`
-        } else {
-          avgQueryDisplay = `${Math.round(avgSec / 3600)}h`
-        }
-      }
+      const totalComparisons = comparisonCount.count ?? 0
 
       return {
         totalSearches,
@@ -46,10 +28,10 @@ export function useDashboardStats() {
         playersTracked: totalWatchlists,
         apiCallsThisMonth: 0,
         items: [
-          { value: totalSearches, label: 'mockData.playersAnalyzed', change: 0, period: '' },
+          { value: totalSearches, label: 'mockData.searchesPerformed', change: 0, period: '' },
           { value: totalWatchlists, label: 'mockData.activeWatchlists', change: 0, period: '' },
           { value: totalReports, label: 'mockData.playersScouted', change: 0, period: '' },
-          { value: avgQueryDisplay, label: 'mockData.avgQueryTime', change: 0, period: '' },
+          { value: totalComparisons, label: 'mockData.comparisonsMade', change: 0, period: '' },
         ],
       }
     },
@@ -167,7 +149,8 @@ export function useWatchlistAlerts() {
               playerId: wp.player_external_id,
               playerName: wp.player_name,
               club,
-              change: `New scouting report available (${watchlistName})`,
+              changeKey: 'alerts.newReportAvailable',
+              changeParams: { watchlist: watchlistName },
               changeType: 'positive',
               timeAgo: formatTimeAgo(new Date(latestReport).getTime(), now),
               imageUrl: image,
@@ -185,7 +168,8 @@ export function useWatchlistAlerts() {
               playerId: wp.player_external_id,
               playerName: wp.player_name,
               club,
-              change: `Recently added to ${watchlistName}`,
+              changeKey: 'alerts.recentlyAdded',
+              changeParams: { watchlist: watchlistName },
               changeType: 'neutral',
               timeAgo: formatTimeAgo(addedAtMs, now),
               imageUrl: image,
@@ -210,7 +194,8 @@ export function useWatchlistAlerts() {
                 playerId: wp.player_external_id,
                 playerName: wp.player_name,
                 club,
-                change: `Transfer activity detected (${watchlistName})`,
+                changeKey: 'alerts.transferActivity',
+              changeParams: { watchlist: watchlistName },
                 changeType: 'warning',
                 timeAgo: formatTimeAgo(addedAtMs, now),
                 imageUrl: image,

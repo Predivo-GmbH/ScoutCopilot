@@ -15,7 +15,7 @@ import { SquadCard } from './components/SquadCard'
 export function SquadPage() {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
-  const { squads, isLoading, selectedSquad, selectSquad, clearSelection, createSquad, deleteSquad, removePlayer } = useSquad()
+  const { squads, isLoading, selectedSquad, selectSquad, clearSelection, createSquad, deleteSquad, removePlayer, updateFormation } = useSquad()
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [createName, setCreateName] = useState('')
   const [createDescription, setCreateDescription] = useState('')
@@ -37,7 +37,7 @@ export function SquadPage() {
   }
 
   if (selectedSquad) {
-    return <SquadDetail squad={selectedSquad} onBack={clearSelection} onDelete={deleteSquad} onRemovePlayer={removePlayer} />
+    return <SquadDetail squad={selectedSquad} onBack={clearSelection} onDelete={deleteSquad} onRemovePlayer={removePlayer} onUpdateFormation={updateFormation} />
   }
 
   return (
@@ -159,7 +159,7 @@ export function SquadPage() {
   )
 }
 
-function SquadDetail({ squad, onBack, onDelete, onRemovePlayer }: { squad: MockSquad; onBack: () => void; onDelete: (squadId: string) => void; onRemovePlayer: (squadId: string, playerId: string) => void }) {
+function SquadDetail({ squad, onBack, onDelete, onRemovePlayer, onUpdateFormation }: { squad: MockSquad; onBack: () => void; onDelete: (squadId: string) => void; onRemovePlayer: (squadId: string, playerId: string) => void; onUpdateFormation: (squadId: string, formation: FormationType) => void }) {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
   const gaps = useGapAnalysis(squad.players)
@@ -200,6 +200,13 @@ function SquadDetail({ squad, onBack, onDelete, onRemovePlayer }: { squad: MockS
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={() => navigate('/search')}
+            className="flex items-center gap-1.5 px-3 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-dark transition-colors min-h-[44px]"
+          >
+            <Search size={14} strokeWidth={2} />
+            {t('squad.searchAndAdd')}
+          </button>
+          <button
             onClick={handleDelete}
             onBlur={() => setConfirmDelete(false)}
             disabled={isDeleting}
@@ -216,7 +223,7 @@ function SquadDetail({ squad, onBack, onDelete, onRemovePlayer }: { squad: MockS
               <><Trash2 size={14} strokeWidth={1.5} /> {confirmDelete ? t('common.delete') : t('squad.deleteSquad')}</>
             )}
           </button>
-          <FormationSelector value={formation} onChange={setFormation} />
+          <FormationSelector value={formation} onChange={(f) => { setFormation(f); onUpdateFormation(squad.id, f) }} />
         </div>
       </div>
 

@@ -110,10 +110,10 @@ export function ProfileSettings({ profile, originalEmail, onUpdate, onSave, save
                 onChange={(e) => onUpdate({ role: e.target.value })}
                 className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors appearance-none min-h-[44px]"
               >
-                <option>{t('settings.profile.roles.scout')}</option>
-                <option>{t('settings.profile.roles.headOfRecruitment')}</option>
-                <option>{t('settings.profile.roles.technicalDirector')}</option>
-                <option>{t('settings.profile.roles.analyst')}</option>
+                <option value="scout">{t('settings.profile.roles.scout')}</option>
+                <option value="head_recruitment">{t('settings.profile.roles.headOfRecruitment')}</option>
+                <option value="technical_director">{t('settings.profile.roles.technicalDirector')}</option>
+                <option value="analyst">{t('settings.profile.roles.analyst')}</option>
               </select>
             </div>
             {onSave && (

@@ -72,7 +72,7 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
           return (
             <div
               key={player.id}
-              onClick={() => navigate(`/players/${player.id}`)}
+              onClick={() => navigate(`/players/${player.id}`, { state: { playerName: player.name } })}
               className="bg-surface-container rounded-md border border-outline-variant p-4 space-y-3 cursor-pointer active:bg-surface-container-high transition-colors min-h-[44px]"
             >
               <div className="flex items-center gap-3">
@@ -176,8 +176,8 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
                   key={player.id}
                   tabIndex={0}
                   role="link"
-                  onClick={() => navigate(`/players/${player.id}`)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/players/${player.id}`) } }}
+                  onClick={() => navigate(`/players/${player.id}`, { state: { playerName: player.name } })}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/players/${player.id}`, { state: { playerName: player.name } }) } }}
                   className={`${i % 2 === 0 ? 'bg-surface-container' : 'bg-surface-container-low'} hover:bg-surface-container-high transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1`}
                 >
                   <td className="px-6 py-4 font-data text-on-surface-variant text-xs">{player.shirtNumber}</td>

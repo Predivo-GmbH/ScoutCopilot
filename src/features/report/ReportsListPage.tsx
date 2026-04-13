@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Search as SearchIcon, FileText, Trash2, Flag } from 'lucide-react'
+import { Search as SearchIcon, FileText, Trash2, Flag, ChevronUp, ChevronDown } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
@@ -92,6 +92,19 @@ export function ReportsListPage() {
     pass: { label: t('reportsList.badgePass'), className: 'text-error bg-error/10 border-error/20' },
   }
 
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sortKey, setSortKey] = useState<'name' | 'age' | 'position' | 'fitScore' | 'recommendation'>('name')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+
+  const handleSort = useCallback((key: typeof sortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => d === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortKey(key)
+      setSortDir(key === 'fitScore' ? 'desc' : 'asc')
+    }
+  }, [sortKey])
+
   const { data: reports = [] } = useQuery({
     queryKey: ['player-reports'],
     queryFn: async () => {
@@ -103,6 +116,50 @@ export function ReportsListPage() {
       return (data ?? []).map(mapDbRowToListItem)
     },
   })
+
+  // Filtered and sorted reports
+  const filteredReports = useMemo(() => {
+    const term = searchQuery.toLowerCase().trim()
+    let result = reports
+    if (term) {
+      result = result.filter((r) =>
+        r.playerName.toLowerCase().includes(term) ||
+        r.club.toLowerCase().includes(term) ||
+        r.nationality.toLowerCase().includes(term) ||
+        r.position.toLowerCase().includes(term)
+      )
+    }
+
+    const recOrder = { sign: 0, monitor: 1, pass: 2 }
+    const dir = sortDir === 'asc' ? 1 : -1
+
+    return [...result].sort((a, b) => {
+      let cmp = 0
+      switch (sortKey) {
+        case 'name':
+          cmp = a.playerName.localeCompare(b.playerName)
+          break
+        case 'age': {
+          const ageA = a.birth_date ? formatAge(a.birth_date) : '\u2014'
+          const ageB = b.birth_date ? formatAge(b.birth_date) : '\u2014'
+          const numA = ageA === '\u2014' ? 999 : parseInt(ageA, 10)
+          const numB = ageB === '\u2014' ? 999 : parseInt(ageB, 10)
+          cmp = numA - numB
+          break
+        }
+        case 'position':
+          cmp = a.position.localeCompare(b.position)
+          break
+        case 'fitScore':
+          cmp = a.fitScore - b.fitScore
+          break
+        case 'recommendation':
+          cmp = (recOrder[a.recommendation] ?? 1) - (recOrder[b.recommendation] ?? 1)
+          break
+      }
+      return cmp * dir
+    })
+  }, [reports, searchQuery, sortKey, sortDir])
 
   // On-demand photo fetching for report players without images
   const photoFetchPlayers = useMemo(
@@ -133,6 +190,20 @@ export function ReportsListPage() {
         </p>
       </div>
 
+      {/* Search input */}
+      {reports.length > 0 && (
+        <div className="relative">
+          <SearchIcon size={16} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t('reportsList.searchPlaceholder', 'Search by name, club, nationality...')}
+            className="w-full pl-10 pr-4 py-2.5 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/40 min-h-[44px]"
+          />
+        </div>
+      )}
+
       {reports.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center mb-4">
@@ -153,7 +224,7 @@ export function ReportsListPage() {
         <>
         {/* Mobile card layout */}
         <div className="block sm:hidden space-y-3">
-          {reports.map((report) => {
+          {filteredReports.map((report) => {
             const rec = recommendation[report.recommendation]
             const resolvedPhoto = getPhoto({ id: report.playerId, image: report.image })
             return (
@@ -224,17 +295,17 @@ export function ReportsListPage() {
           <table className="w-full text-left">
             <thead>
               <tr className="bg-surface-container-low text-[0.625rem] font-medium text-on-surface-variant uppercase tracking-widest border-b border-outline-variant">
-                <th className="px-6 py-3">{t('common.player')}</th>
+                <SortableHeader label={t('common.player')} sortKey="name" currentKey={sortKey} direction={sortDir} onSort={handleSort} className="px-6 py-3" />
                 <th className="px-4 py-3 text-center">{t('common.club')}</th>
-                <th className="px-4 py-3 text-center">{t('common.position')}</th>
-                <th className="px-4 py-3 text-center">{t('common.age')}</th>
-                <th className="px-4 py-3 text-center">{t('reportsList.fitScore')}</th>
-                <th className="px-4 py-3 text-center">{t('reportsList.recommendation')}</th>
+                <SortableHeader label={t('common.position')} sortKey="position" currentKey={sortKey} direction={sortDir} onSort={handleSort} className="px-4 py-3 text-center" />
+                <SortableHeader label={t('common.age')} sortKey="age" currentKey={sortKey} direction={sortDir} onSort={handleSort} className="px-4 py-3 text-center" />
+                <SortableHeader label={t('reportsList.fitScore')} sortKey="fitScore" currentKey={sortKey} direction={sortDir} onSort={handleSort} className="px-4 py-3 text-center" />
+                <SortableHeader label={t('reportsList.recommendation')} sortKey="recommendation" currentKey={sortKey} direction={sortDir} onSort={handleSort} className="px-4 py-3 text-center" />
                 <th className="px-4 py-3 text-right">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody className="text-sm">
-              {reports.map((report, i) => {
+              {filteredReports.map((report, i) => {
                 const rec = recommendation[report.recommendation]
                 const resolvedPhoto = getPhoto({ id: report.playerId, image: report.image })
                 return (
@@ -302,6 +373,12 @@ export function ReportsListPage() {
           </table>
           </div>
         </div>
+        {/* No search results */}
+        {filteredReports.length === 0 && searchQuery.trim() !== '' && (
+          <div className="text-center py-12">
+            <p className="text-sm text-on-surface-variant">{t('reportsList.noSearchResults', 'No players match your search.')}</p>
+          </div>
+        )}
         </>
       )}
 
@@ -315,5 +392,34 @@ export function ReportsListPage() {
         onCancel={() => setDeleteTarget(null)}
       />
     </div>
+  )
+}
+
+type SortKey = 'name' | 'age' | 'position' | 'fitScore' | 'recommendation'
+
+function SortableHeader({ label, sortKey, currentKey, direction, onSort, className }: {
+  label: string
+  sortKey: SortKey
+  currentKey: SortKey
+  direction: 'asc' | 'desc'
+  onSort: (key: SortKey) => void
+  className?: string
+}) {
+  const active = sortKey === currentKey
+  return (
+    <th
+      className={`${className ?? ''} cursor-pointer select-none hover:text-on-surface transition-colors`}
+      onClick={() => onSort(sortKey)}
+      aria-sort={active ? (direction === 'asc' ? 'ascending' : 'descending') : 'none'}
+    >
+      <span className="inline-flex items-center gap-1">
+        {label}
+        {active ? (
+          direction === 'asc' ? <ChevronUp size={12} strokeWidth={2} /> : <ChevronDown size={12} strokeWidth={2} />
+        ) : (
+          <span className="w-3" />
+        )}
+      </span>
+    </th>
   )
 }

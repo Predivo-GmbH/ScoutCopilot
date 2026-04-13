@@ -85,7 +85,11 @@
     "codeExpired": "Ihr Bestätigungscode ist abgelaufen. Bitte fordern Sie einen neuen an.",
     "invalidCode": "Ungültiger Bestätigungscode. Bitte überprüfen und erneut versuchen.",
     "connectionError": "Verbindungsfehler. Bitte überprüfen Sie Ihre Internetverbindung.",
-    "incorrectAccessCode": "Falscher Zugangscode."
+    "incorrectAccessCode": "Falscher Zugangscode.",
+    "notFound": "Seite nicht gefunden",
+    "notFoundDescription": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
+    "goBack": "Zurück",
+    "goToDashboard": "Zum Dashboard"
   },
   "pdf": {
     "scoutAssessment": "SCOUT-BEWERTUNG",
@@ -590,7 +594,12 @@
     "verdictEfficiency": "Der Vergleich zeigt, dass {{player}} eine höhere Effizienz in Übergangsphasen aufweist (+12% progressive Ballführungen).",
     "verdictDefensive": "Allerdings bietet {{player}} deutlich mehr Mehrwert bei intensiven Defensivaktionen und direkter Torgefahr aus breiten Zonen.",
     "verdictFitContext": "Für den angegebenen taktischen Kontext zeigt {{player1}} {{score1}}% Kompatibilität gegenüber {{score2}}% für {{player2}}.",
-    "verdictFitDefault": "Für ein Hochpress-System (Gegenpressing) zeigt {{player1}} {{score1}}% Kompatibilität gegenüber {{score2}}% für {{player2}}."
+    "verdictFitDefault": "Für ein Hochpress-System (Gegenpressing) zeigt {{player1}} {{score1}}% Kompatibilität gegenüber {{score2}}% für {{player2}}.",
+    "newComparison": "Neuer Vergleich",
+    "historyHeading": "Vergleichsverlauf",
+    "clearHistory": "Gesamten Verlauf löschen",
+    "historyPlayers": "Spieler",
+    "deleteComparison": "Vergleich löschen"
   },
   "watchlists": {
     "heading": "Watchlists",
@@ -621,7 +630,9 @@
     "deleteConfirmMessage": "Möchten Sie \"{{name}}\" wirklich löschen? Alle Spieler in dieser Watchlist werden entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
     "deleteWatchlist": "Watchlist löschen",
     "noWatchlistsYet": "Noch keine Watchlists",
-    "noWatchlistsGuidance": "Erstelle eine, um Spieler zu verfolgen und Benachrichtigungen über ihre Leistung zu erhalten."
+    "noWatchlistsGuidance": "Erstelle eine, um Spieler zu verfolgen und Benachrichtigungen über ihre Leistung zu erhalten.",
+    "category": "Kategorie",
+    "editWatchlist": "Watchlist bearbeiten"
   },
   "squad": {
     "heading": "Meine Kader",
@@ -666,6 +677,7 @@
     "noPlayersYet": "Noch keine Spieler",
     "noPlayersSub": "Suchen Sie nach Spielern, um sie diesem Kader hinzuzufügen.",
     "searchPlayers": "Spieler suchen",
+    "searchAndAdd": "Spieler suchen & hinzufügen",
     "priority": {
       "critical": "Kritisch",
       "high": "Hoch",
@@ -948,7 +960,8 @@
   "addToWatchlist": {
     "heading": "Zur Watchlist hinzufügen",
     "createNew": "Neue Watchlist erstellen",
-    "done": "Fertig"
+    "done": "Fertig",
+    "notesPlaceholder": "Scouting-Notizen hinzufügen..."
   },
   "searchBar": {
     "placeholder": "Fragen Sie alles über Spieler...",
@@ -960,7 +973,10 @@
     "subtitle": "Alle aktuellen Benachrichtigungen Ihrer beobachteten Spieler.",
     "typeNewReport": "Neuer Bericht",
     "typeRecentlyAdded": "Kürzlich hinzugefügt",
-    "typeTransferRumor": "Transfergerücht"
+    "typeTransferRumor": "Transfergerücht",
+    "newReportAvailable": "Neuer Scouting-Bericht verfügbar ({{watchlist}})",
+    "recentlyAdded": "Kürzlich zu {{watchlist}} hinzugefügt",
+    "transferActivity": "Transferaktivität erkannt ({{watchlist}})"
   },
   "searchHistory": {
     "backToDashboard": "Zurück zum Dashboard",
@@ -1061,9 +1077,11 @@
   },
   "mockData": {
     "playersAnalyzed": "Analysierte Spieler",
+    "searchesPerformed": "Durchgeführte Suchen",
     "activeWatchlists": "Aktive Watchlists",
     "playersScouted": "Gescoutete Spieler",
     "avgQueryTime": "Ø Anfragezeit",
+    "comparisonsMade": "Durchgeführte Vergleiche",
     "vsLastMonth": "ggü. letztem Monat",
     "thisWeek": "diese Woche",
     "threeAlerts": "3 MELDUNGEN",

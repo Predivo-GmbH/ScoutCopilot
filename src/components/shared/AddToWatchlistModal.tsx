@@ -24,6 +24,8 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
   const [creatingNew, setCreatingNew] = useState(false)
   const [newName, setNewName] = useState('')
   const [newDesc, setNewDesc] = useState('')
+  const [notes, setNotes] = useState('')
+  const [toggledIds, setToggledIds] = useState<Set<string>>(new Set())
   const overlayRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const nameInputRef = useCallback((node: HTMLInputElement | null) => {
@@ -77,10 +79,14 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
   function handleToggle(watchlistId: string) {
     if (isPlayerInWatchlist(watchlistId)) {
       removePlayerFromWatchlist(watchlistId, player.id)
+      setToggledIds((prev) => { const next = new Set(prev); next.delete(watchlistId); return next })
     } else {
-      addPlayerToWatchlist(watchlistId, player)
+      addPlayerToWatchlist(watchlistId, player, notes.trim() || undefined)
+      setToggledIds((prev) => new Set(prev).add(watchlistId))
     }
   }
+
+  const hasToggledWatchlists = toggledIds.size > 0 || watchlists.some((w) => isPlayerInWatchlist(w.id))
 
   async function handleCreateAndAdd() {
     if (!newName.trim()) return
@@ -148,6 +154,20 @@ function AddToWatchlistModalInner({ player, onClose }: { player: MockWatchlistPl
             )
           })}
         </div>
+
+        {/* Notes field — visible when at least one watchlist is toggled on */}
+        {hasToggledWatchlists && (
+          <div className="px-6 py-3 border-t border-outline-variant">
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder={t('addToWatchlist.notesPlaceholder', 'Add scouting notes...')}
+              aria-label={t('addToWatchlist.notesPlaceholder', 'Add scouting notes...')}
+              rows={3}
+              className="w-full bg-surface-container-lowest border border-outline-variant rounded-md py-2 px-3 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors resize-none"
+            />
+          </div>
+        )}
 
         {/* Create New */}
         <div className="px-6 py-3 border-t border-outline-variant">

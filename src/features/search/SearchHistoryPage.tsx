@@ -130,7 +130,7 @@ export function SearchHistoryPage() {
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-lg font-data font-bold text-on-surface">{s.resultCount}</p>
-                    <p className="text-[0.625rem] font-data text-on-surface-variant">{t('searchHistory.results')}</p>
+                    <p className="text-[0.625rem] font-data text-on-surface-variant">{s.resultCount === 1 ? t('searchHistory.result', 'result') : t('searchHistory.results')}</p>
                   </div>
                   <button
                     aria-label={t('search.deleteQuery')}

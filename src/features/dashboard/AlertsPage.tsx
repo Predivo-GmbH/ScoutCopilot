@@ -79,7 +79,7 @@ export function AlertsPage() {
                         'text-on-surface-variant'
                       }`}>
                         <Zap size={12} strokeWidth={1.5} className="inline-block mr-1 -mt-0.5" />
-                        {alert.change}
+                        {t(alert.changeKey, alert.changeParams)}
                       </p>
                     </div>
                   </div>

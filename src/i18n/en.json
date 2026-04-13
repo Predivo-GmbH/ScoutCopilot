@@ -85,7 +85,11 @@
     "codeExpired": "Your verification code has expired. Please request a new one.",
     "invalidCode": "Invalid verification code. Please check and try again.",
     "connectionError": "Connection error. Please check your internet and try again.",
-    "incorrectAccessCode": "Incorrect access code."
+    "incorrectAccessCode": "Incorrect access code.",
+    "notFound": "Page not found",
+    "notFoundDescription": "The page you're looking for doesn't exist or has been moved.",
+    "goBack": "Go Back",
+    "goToDashboard": "Go to Dashboard"
   },
   "pdf": {
     "scoutAssessment": "SCOUT ASSESSMENT",
@@ -590,7 +594,12 @@
     "verdictEfficiency": "Comparison reveals {{player}} maintains a higher efficiency in transitional phases (+12% progressive carries).",
     "verdictDefensive": "However, {{player}} provides significantly more value in high-intensity defensive actions and direct goal threat from wider zones.",
     "verdictFitContext": "For the specified tactical context, {{player1}} shows {{score1}}% compatibility vs {{score2}}% for {{player2}}.",
-    "verdictFitDefault": "For a high-press system (Gegenpressing), {{player1}} shows {{score1}}% compatibility vs {{score2}}% for {{player2}}."
+    "verdictFitDefault": "For a high-press system (Gegenpressing), {{player1}} shows {{score1}}% compatibility vs {{score2}}% for {{player2}}.",
+    "newComparison": "New Comparison",
+    "historyHeading": "Comparison History",
+    "clearHistory": "Clear All History",
+    "historyPlayers": "players",
+    "deleteComparison": "Delete comparison"
   },
   "watchlists": {
     "heading": "Watchlists",
@@ -621,7 +630,9 @@
     "deleteConfirmMessage": "Are you sure you want to delete \"{{name}}\"? This will remove all players in this watchlist. This action cannot be undone.",
     "deleteWatchlist": "Delete watchlist",
     "noWatchlistsYet": "No watchlists yet",
-    "noWatchlistsGuidance": "Create one to start tracking players and receive alerts on their performance."
+    "noWatchlistsGuidance": "Create one to start tracking players and receive alerts on their performance.",
+    "category": "Category",
+    "editWatchlist": "Edit watchlist"
   },
   "squad": {
     "heading": "My Squads",
@@ -666,6 +677,7 @@
     "noPlayersYet": "No players yet",
     "noPlayersSub": "Search for players to add them to this squad.",
     "searchPlayers": "Search Players",
+    "searchAndAdd": "Search & Add Players",
     "priority": {
       "critical": "Critical",
       "high": "High",
@@ -948,7 +960,8 @@
   "addToWatchlist": {
     "heading": "Add to Watchlist",
     "createNew": "Create new watchlist",
-    "done": "Done"
+    "done": "Done",
+    "notesPlaceholder": "Add scouting notes..."
   },
   "searchBar": {
     "placeholder": "Ask anything about players...",
@@ -960,7 +973,10 @@
     "subtitle": "All recent alerts from your watched players.",
     "typeNewReport": "New Report",
     "typeRecentlyAdded": "Recently Added",
-    "typeTransferRumor": "Transfer Rumor"
+    "typeTransferRumor": "Transfer Rumor",
+    "newReportAvailable": "New scouting report available ({{watchlist}})",
+    "recentlyAdded": "Recently added to {{watchlist}}",
+    "transferActivity": "Transfer activity detected ({{watchlist}})"
   },
   "searchHistory": {
     "backToDashboard": "Back to Dashboard",
@@ -1061,9 +1077,11 @@
   },
   "mockData": {
     "playersAnalyzed": "Players Analyzed",
+    "searchesPerformed": "Searches Performed",
     "activeWatchlists": "Active Watchlists",
     "playersScouted": "Players Scouted",
     "avgQueryTime": "Avg Query Time",
+    "comparisonsMade": "Comparisons Made",
     "vsLastMonth": "vs last month",
     "thisWeek": "this week",
     "threeAlerts": "3 ALERTS",

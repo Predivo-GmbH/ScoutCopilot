@@ -81,7 +81,6 @@ export function LoginPage() {
       <Helmet>
         <title>{t('auth.signInTo')} — ScoutCopilot</title>
         <meta name="robots" content="noindex" />
-        <meta name="robots" content="noindex" />
       </Helmet>
       <h1 className="text-center text-2xl font-bold text-on-surface">
         {t('auth.signInTo')}
