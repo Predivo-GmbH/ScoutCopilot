@@ -108,17 +108,18 @@ export function OnboardingPage() {
     // Save league/position preferences to the user's scoring_weights (or a preferences field)
     if (user && (selectedLeagues.length > 0 || selectedPositions.length > 0)) {
       credentialPromises.push(
-        supabase
-          .from('profiles')
-          .update({
-            scoring_weights: {
-              preferred_leagues: selectedLeagues,
-              preferred_positions: selectedPositions,
-            } as unknown as Record<string, number>,
-          })
-          .eq('id', user.id)
-          .then(() => { /* saved */ })
-          .catch(() => { /* best-effort */ })
+        Promise.resolve(
+          supabase
+            .from('profiles')
+            .update({
+              scoring_weights: {
+                preferred_leagues: selectedLeagues,
+                preferred_positions: selectedPositions,
+              } as unknown as Record<string, number>,
+            })
+            .eq('id', user.id)
+        ).then(() => { /* saved */ })
+         .catch(() => { /* best-effort */ })
       )
     }
 

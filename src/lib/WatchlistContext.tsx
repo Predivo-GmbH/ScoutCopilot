@@ -74,7 +74,7 @@ async function fetchWatchlists(): Promise<MockWatchlist[]> {
       playerCount: players.length,
       lastUpdated: row.updated_at ?? row.created_at,
       alertCount: recentCount,
-      category: (row.category as MockWatchlist['category']) ?? undefined,
+      category: ((row as Record<string, unknown>).category as MockWatchlist['category']) ?? undefined,
       players,
     } satisfies MockWatchlist
   })
@@ -110,7 +110,7 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
 
       const { data, error } = await supabase
         .from('watchlists')
-        .insert(insertPayload)
+        .insert(insertPayload as { name: string; description: string; user_id: string; organization_id: string })
         .select('id')
         .single()
 

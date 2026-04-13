@@ -47,10 +47,10 @@ export function ReportPage() {
     queryKey: ['sb-player-info', id],
     queryFn: async () => {
       const { data } = await supabase
-        .from('sb_players')
+        .from('sb_players' as 'profiles')
         .select('player_name, player_nickname, nationality, primary_position, photo_url, birth_date')
         .eq('player_id', sbNumericId)
-        .maybeSingle()
+        .maybeSingle() as { data: { player_name: string; player_nickname: string | null; nationality: string | null; primary_position: string | null; photo_url: string | null; birth_date: string | null } | null }
       return data
     },
     enabled: isSbOpen && !isNaN(sbNumericId) && !report && !isLoading,
@@ -215,7 +215,7 @@ export function ReportPage() {
               alertContext.changeType === 'warning' ? 'text-warning' :
               alertContext.changeType === 'positive' ? 'text-secondary' : 'text-on-surface'
             }`}>
-              {alertContext.change}
+              {t(alertContext.changeKey, alertContext.changeParams)}
             </p>
             <p className="text-[0.625rem] font-data text-on-surface-variant mt-0.5">{alertContext.timeAgo}</p>
           </div>

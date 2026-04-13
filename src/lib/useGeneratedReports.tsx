@@ -39,10 +39,10 @@ export function GeneratedReportsProvider({ children }: { children: ReactNode }) 
       // Fallback: query sb_players directly if name is still unknown
       if (playerName === 'Unknown' && id.startsWith('sb-open-')) {
         const { data: sbPlayer } = await supabase
-          .from('sb_players')
+          .from('sb_players' as 'profiles')
           .select('player_name, player_nickname')
           .eq('player_id', parseInt(id.replace('sb-open-', ''), 10))
-          .maybeSingle()
+          .maybeSingle() as { data: { player_name: string; player_nickname: string | null } | null }
         if (sbPlayer) {
           playerName = sbPlayer.player_nickname || sbPlayer.player_name || 'Unknown'
         }

@@ -65,7 +65,7 @@ export function ComparisonPage() {
         </div>
         {generated && (
           <Button
-            variant="outlined"
+            variant="secondary"
             size="sm"
             rightIcon={RotateCcw}
             onClick={resetComparison}
