@@ -75,7 +75,7 @@ function analyzePosition(position: SquadPosition, players: SquadPlayer[], t: (ke
 
   const avgAge = available.length > 0 ? Math.round(available.reduce((s, p) => s + (calculateAge(p.birth_date) ?? 0), 0) / available.length * 10) / 10 : 0
   const searchTerm = t(POSITION_SEARCH_KEY_MAP[position])
-  const searchQuery = ageScore < 50 ? `${searchTerm} under 27` : `${searchTerm} under 25`
+  const searchQuery = searchTerm
 
   return {
     position,

@@ -40,6 +40,8 @@ interface PlayerAvatarProps {
   loading?: boolean
   /** Mark this image as AI-generated (shows badge) */
   aiGenerated?: boolean
+  /** Called when the image URL fails to load (e.g. stale/broken URL) */
+  onImageError?: () => void
 }
 
 function PhotoLightbox({ src, alt, aiGenerated, onClose }: { src: string; alt: string; aiGenerated?: boolean; onClose: () => void }) {
@@ -188,6 +190,7 @@ export function PlayerAvatar({
   clickable = false,
   loading = false,
   aiGenerated = false,
+  onImageError,
 }: PlayerAvatarProps) {
   const [imgError, setImgError] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
@@ -235,7 +238,7 @@ export function PlayerAvatar({
               height={size}
               loading="lazy"
               className="rounded-md shrink-0 object-cover"
-              onError={() => setImgError(true)}
+              onError={() => { setImgError(true); onImageError?.() }}
             />
           </button>
         ) : (
@@ -246,7 +249,7 @@ export function PlayerAvatar({
             height={size}
             loading="lazy"
             className="rounded-md shrink-0 object-cover"
-            onError={() => setImgError(true)}
+            onError={() => { setImgError(true); onImageError?.() }}
           />
         )}
         {aiGenerated && <AiBadge size={size} />}

@@ -58,7 +58,7 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
     () => sorted.map((p) => ({ id: p.id, image: p.image })),
     [sorted],
   )
-  const { getPhoto, loadingIds } = usePlayerPhotoFetch(photoFetchPlayers)
+  const { getPhoto, loadingIds, reportBrokenUrl } = usePlayerPhotoFetch(photoFetchPlayers)
 
   return (
     <>
@@ -77,7 +77,7 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
             >
               <div className="flex items-center gap-3">
                 <span className="font-data text-on-surface-variant text-xs w-6 text-center shrink-0">{player.shirtNumber}</span>
-                <PlayerAvatar name={player.name} size={36} imageUrl={resolvedPhoto} clickable loading={loadingIds.has(player.id)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} />
+                <PlayerAvatar name={player.name} size={36} imageUrl={resolvedPhoto} clickable loading={loadingIds.has(player.id)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} onImageError={() => reportBrokenUrl(player.id)} />
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-on-surface truncate">{player.name}</p>
                   <p className="text-[0.625rem] text-on-surface-variant font-data">{player.nationality}</p>
@@ -183,7 +183,7 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
                   <td className="px-6 py-4 font-data text-on-surface-variant text-xs">{player.shirtNumber}</td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
-                      <PlayerAvatar name={player.name} size={36} imageUrl={resolvedPhoto} clickable loading={loadingIds.has(player.id)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} />
+                      <PlayerAvatar name={player.name} size={36} imageUrl={resolvedPhoto} clickable loading={loadingIds.has(player.id)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} onImageError={() => reportBrokenUrl(player.id)} />
                       <div>
                         <p className="font-semibold text-on-surface">{player.name}</p>
                         <p className="text-[0.625rem] text-on-surface-variant font-data">{player.nationality}</p>

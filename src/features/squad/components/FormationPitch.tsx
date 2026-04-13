@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { FormationType, SquadPlayer } from '../../../lib/mock-data'
 import { formations } from '../../../lib/mock-data'
+import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
+import { usePlayerPhotoFetch, derivePhotoSource } from '../../../lib/usePlayerPhotoFetch'
 
 interface FormationPitchProps {
   formation: FormationType
@@ -12,6 +14,13 @@ export function FormationPitch({ formation, players }: FormationPitchProps) {
   const { t } = useTranslation()
   const slots = formations[formation]
   const [hoveredId, setHoveredId] = useState<string | null>(null)
+
+  // Photo fetching (same pattern as SquadTable)
+  const photoFetchPlayers = useMemo(
+    () => players.filter(p => p).map((p) => ({ id: p.id, image: p.image })),
+    [players],
+  )
+  const { getPhoto, loadingIds } = usePlayerPhotoFetch(photoFetchPlayers)
 
   // Map positions to best-rated available player
   const assigned = new Set<string>()
@@ -57,17 +66,38 @@ export function FormationPitch({ formation, players }: FormationPitchProps) {
               onMouseLeave={() => setHoveredId(null)}
               onClick={() => player && setHoveredId(hoveredId === player.id ? null : player.id)}
             >
-              <div
-                className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-[0.625rem] sm:text-xs font-bold border-2 transition-transform ${
-                  isEmpty
-                    ? 'bg-error/20 border-error/40 text-error'
-                    : isInjured
-                    ? 'bg-warning/20 border-warning/40 text-warning'
-                    : 'bg-secondary/20 border-secondary/40 text-secondary'
-                } ${isHovered ? 'scale-125' : ''}`}
-              >
-                {player ? player.shirtNumber : '?'}
-              </div>
+              {player ? (
+                <div className={`relative ${isHovered ? 'scale-125' : ''} transition-transform`}>
+                  <span className="sm:hidden">
+                    <PlayerAvatar
+                      name={player.name}
+                      size={28}
+                      imageUrl={getPhoto(player)}
+                      clickable
+                      loading={loadingIds.has(player.id)}
+                      aiGenerated={!!getPhoto(player) && derivePhotoSource(getPhoto(player)) === 'stitch'}
+                    />
+                  </span>
+                  <span className="hidden sm:inline-flex">
+                    <PlayerAvatar
+                      name={player.name}
+                      size={36}
+                      imageUrl={getPhoto(player)}
+                      clickable
+                      loading={loadingIds.has(player.id)}
+                      aiGenerated={!!getPhoto(player) && derivePhotoSource(getPhoto(player)) === 'stitch'}
+                    />
+                  </span>
+                  {/* Status indicator dot */}
+                  <span className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-surface-container ${
+                    isInjured ? 'bg-warning' : 'bg-secondary'
+                  }`} />
+                </div>
+              ) : (
+                <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-[0.625rem] sm:text-xs font-bold border-2 bg-error/20 border-error/40 text-error">
+                  ?
+                </div>
+              )}
               <span className={`text-[0.5rem] sm:text-[0.5625rem] font-data font-semibold tracking-tight text-center leading-tight max-w-[3.5rem] sm:max-w-[5rem] truncate ${
                 isEmpty ? 'text-error' : 'text-on-surface'
               }`}>

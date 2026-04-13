@@ -144,7 +144,7 @@ export function PlayerDatabaseSettings() {
     () => paged.map((p) => ({ id: `sb-open-${p.player_id}`, image: p.photo_url ?? undefined })),
     [paged],
   )
-  const { getPhoto, loadingIds } = usePlayerPhotoFetch(photoFetchPlayers)
+  const { getPhoto, loadingIds, reportBrokenUrl } = usePlayerPhotoFetch(photoFetchPlayers)
 
   const handleSort = useCallback((field: SortField) => {
     setSortField((prev) => {
@@ -220,7 +220,7 @@ export function PlayerDatabaseSettings() {
                         <td className="px-2 py-2.5 text-[0.625rem] font-data text-on-surface-variant text-right align-middle">{globalIndex + 1}</td>
                         <td className="px-2 py-2.5 align-middle">
                           <div className="flex items-center gap-2 min-w-0">
-                            <PlayerAvatar name={player.player_nickname ?? player.player_name} size={32} imageUrl={getPhoto({ id: `sb-open-${player.player_id}`, image: player.photo_url ?? undefined })} clickable loading={loadingIds.has(`sb-open-${player.player_id}`)} aiGenerated={!!(getPhoto({ id: `sb-open-${player.player_id}`, image: player.photo_url ?? undefined })) && derivePhotoSource(getPhoto({ id: `sb-open-${player.player_id}`, image: player.photo_url ?? undefined })) === 'stitch'} />
+                            <PlayerAvatar name={player.player_nickname ?? player.player_name} size={32} imageUrl={getPhoto({ id: `sb-open-${player.player_id}`, image: player.photo_url ?? undefined })} clickable loading={loadingIds.has(`sb-open-${player.player_id}`)} aiGenerated={!!(getPhoto({ id: `sb-open-${player.player_id}`, image: player.photo_url ?? undefined })) && derivePhotoSource(getPhoto({ id: `sb-open-${player.player_id}`, image: player.photo_url ?? undefined })) === 'stitch'} onImageError={() => reportBrokenUrl(`sb-open-${player.player_id}`)} />
                             <div className="min-w-0">
                               <span className="font-bold text-on-surface text-[0.8125rem] truncate block">{player.player_nickname ?? player.player_name}</span>
                               {player.player_nickname && player.player_nickname !== player.player_name && (
@@ -267,7 +267,7 @@ export function PlayerDatabaseSettings() {
                   <div key={player.id} className="bg-surface-container-low border border-outline-variant rounded-md p-4">
                     <div className="flex items-center gap-3 mb-2">
                       <span className="text-[0.625rem] font-data text-on-surface-variant">{globalIndex + 1}</span>
-                      <PlayerAvatar name={player.player_nickname ?? player.player_name} size={32} imageUrl={getPhoto({ id: `sb-open-${player.player_id}`, image: player.photo_url ?? undefined })} clickable loading={loadingIds.has(`sb-open-${player.player_id}`)} aiGenerated={!!(getPhoto({ id: `sb-open-${player.player_id}`, image: player.photo_url ?? undefined })) && derivePhotoSource(getPhoto({ id: `sb-open-${player.player_id}`, image: player.photo_url ?? undefined })) === 'stitch'} />
+                      <PlayerAvatar name={player.player_nickname ?? player.player_name} size={32} imageUrl={getPhoto({ id: `sb-open-${player.player_id}`, image: player.photo_url ?? undefined })} clickable loading={loadingIds.has(`sb-open-${player.player_id}`)} aiGenerated={!!(getPhoto({ id: `sb-open-${player.player_id}`, image: player.photo_url ?? undefined })) && derivePhotoSource(getPhoto({ id: `sb-open-${player.player_id}`, image: player.photo_url ?? undefined })) === 'stitch'} onImageError={() => reportBrokenUrl(`sb-open-${player.player_id}`)} />
                       <div className="flex-1 min-w-0">
                         <div className="font-bold text-on-surface text-sm truncate">{player.player_nickname ?? player.player_name}</div>
                         <div className="text-[0.625rem] text-on-surface-variant truncate">{player.nationality}</div>

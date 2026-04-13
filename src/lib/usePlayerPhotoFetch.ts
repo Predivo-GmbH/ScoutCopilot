@@ -50,6 +50,7 @@ function extractNumericId(playerId: string): number {
 export function usePlayerPhotoFetch(players: PhotoFetchablePlayer[]) {
   const [photoMap, setPhotoMap] = useState<Map<string, string>>(new Map())
   const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set())
+  const [brokenUrls, setBrokenUrls] = useState<Set<string>>(new Set())
   // Track which player IDs have already been requested to avoid duplicate calls
   const requestedRef = useRef<Set<string>>(new Set())
 
@@ -57,12 +58,12 @@ export function usePlayerPhotoFetch(players: PhotoFetchablePlayer[]) {
     if (!players || players.length === 0) return
 
     const needsPhoto = players.filter((p) => {
-      if (p.image) return false
       const numericId = extractNumericId(p.id)
       if (isNaN(numericId)) return false
-      // Skip if already requested or already resolved
       if (requestedRef.current.has(p.id)) return false
       if (photoMap.has(p.id)) return false
+      // Has image and not broken → skip
+      if (p.image && !brokenUrls.has(p.id)) return false
       return true
     })
 
@@ -117,7 +118,7 @@ export function usePlayerPhotoFetch(players: PhotoFetchablePlayer[]) {
           return next
         })
       })
-  }, [players, photoMap])
+  }, [players, photoMap, brokenUrls])
 
   /**
    * Returns the best available photo URL for a player:
@@ -130,5 +131,26 @@ export function usePlayerPhotoFetch(players: PhotoFetchablePlayer[]) {
     [photoMap],
   )
 
-  return { photoMap, loadingIds, getPhoto }
+  /**
+   * Report that a player's image URL is broken/stale so it can be re-fetched.
+   */
+  const reportBrokenUrl = useCallback((playerId: string) => {
+    setBrokenUrls((prev) => {
+      if (prev.has(playerId)) return prev
+      const next = new Set(prev)
+      next.add(playerId)
+      return next
+    })
+    // Clear from requested so it can be re-fetched
+    requestedRef.current.delete(playerId)
+    // Clear any stale photoMap entry
+    setPhotoMap((prev) => {
+      if (!prev.has(playerId)) return prev
+      const next = new Map(prev)
+      next.delete(playerId)
+      return next
+    })
+  }, [])
+
+  return { photoMap, loadingIds, getPhoto, reportBrokenUrl }
 }

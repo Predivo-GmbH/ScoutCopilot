@@ -660,6 +660,26 @@ async function searchStatsBombOpenData(
     query = query.ilike("sb_players.nationality", `%${params.nationality}%`);
   }
 
+  // Filter by age (via birth_date on sb_players)
+  if (params.age_max) {
+    // "under 25" means born after (today - 25 years)
+    const cutoff = new Date();
+    cutoff.setFullYear(cutoff.getFullYear() - params.age_max);
+    const cutoffStr = cutoff.toISOString().split("T")[0];
+    query = query.gte("sb_players.birth_date", cutoffStr);
+  }
+  if (params.age_min) {
+    // "over 30" means born before (today - 30 years)
+    const cutoff = new Date();
+    cutoff.setFullYear(cutoff.getFullYear() - params.age_min);
+    const cutoffStr = cutoff.toISOString().split("T")[0];
+    query = query.lte("sb_players.birth_date", cutoffStr);
+  }
+  // Exclude players with no birth_date when age filter is active
+  if (params.age_max || params.age_min) {
+    query = query.not("sb_players.birth_date", "is", null);
+  }
+
   const { data, error } = await query;
   if (error) {
     console.error("StatsBomb open data query error:", error.message);

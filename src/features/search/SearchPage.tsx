@@ -29,19 +29,18 @@ export function SearchPage() {
   const [queryInput, setQueryInput] = useState(initialQuery)
   const lastAutoQuery = useRef<string | null>(null)
 
-  // Auto-search: load saved results from DB, or run a fresh search when ?q= is present.
-  // Tracks the last auto-searched query so re-navigation with a different ?q= value works.
+  // When navigated with ?q=…&saved=1&sid=…, load saved results from DB.
+  // For regular ?q= navigation, only fill the input — let the user review and click Search.
   useEffect(() => {
     if (initialQuery && lastAutoQuery.current !== initialQuery) {
       lastAutoQuery.current = initialQuery
       // eslint-disable-next-line react-hooks/set-state-in-effect -- sync input with URL query param
       setQueryInput(initialQuery)
-      clearResults()
       if (isSavedSearch && savedSearchId) {
+        clearResults()
         loadSaved(savedSearchId, initialQuery)
-      } else {
-        search({ query: initialQuery })
       }
+      // Don't auto-search for regular queries — let user review and click Search
       setSearchParams({}, { replace: true })
     }
   }, [initialQuery]) // eslint-disable-line react-hooks/exhaustive-deps

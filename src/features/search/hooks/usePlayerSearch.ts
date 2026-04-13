@@ -231,6 +231,19 @@ export function usePlayerSearch() {
           p.position.toLowerCase().includes(params.position.split(' ')[0].toLowerCase()),
         )
       }
+      // Client-side age filtering (safety net for edge function)
+      if (params.ageRange && params.ageRange !== 'All Ages') {
+        const digits = params.ageRange.replace(/[^\d-]/g, '').split('-')
+        const minAge = parseInt(digits[0])
+        const maxAge = parseInt(digits[1])
+        if (!isNaN(minAge) && !isNaN(maxAge)) {
+          results = results.filter((p) => {
+            const age = p.birth_date ? calculateAge(p.birth_date) : (p.age || null)
+            if (age === null || age === 0) return false
+            return age >= minAge && age <= maxAge
+          })
+        }
+      }
       if (params.minFitScore > 0) {
         results = results.filter((p) => p.fitScore >= params.minFitScore)
       }

@@ -155,7 +155,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
   const showTo = Math.min(page * PAGE_SIZE, results.length)
 
   return (
-    <div className="bg-surface-container rounded-md border border-outline-variant overflow-hidden">
+    <div className="bg-surface-container rounded-md border border-outline-variant">
       {/* Header */}
       <div className="px-4 sm:px-6 py-4 flex flex-wrap justify-between items-center gap-3 border-b border-outline-variant/10">
         <h3 className="text-sm font-semibold flex items-center gap-2">

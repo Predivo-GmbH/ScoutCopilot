@@ -1,5 +1,8 @@
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { MockComparisonPlayer } from '../../../lib/mock-data'
+import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
+import { usePlayerPhotoFetch, derivePhotoSource } from '../../../lib/usePlayerPhotoFetch'
 
 interface ComparisonTableProps {
   players: MockComparisonPlayer[]
@@ -7,6 +10,12 @@ interface ComparisonTableProps {
 
 export function ComparisonTable({ players }: ComparisonTableProps) {
   const { t } = useTranslation()
+
+  const photoFetchPlayers = useMemo(
+    () => players.map((p) => ({ id: p.id, image: p.image })),
+    [players],
+  )
+  const { getPhoto, loadingIds } = usePlayerPhotoFetch(photoFetchPlayers)
 
   if (players.length < 2) return null
 
@@ -48,11 +57,17 @@ export function ComparisonTable({ players }: ComparisonTableProps) {
             <thead>
               <tr className="border-b border-outline-variant bg-surface-container-high">
                 <th className="px-4 sm:px-6 py-3 text-[0.625rem] font-medium uppercase tracking-widest text-on-surface-variant sticky left-0 bg-surface-container-high z-10 min-w-[120px]">{t('comparison.metric')}</th>
-              {players.map((p) => (
-                <th key={p.id} className="px-4 sm:px-6 py-3 text-[0.625rem] font-medium uppercase tracking-widest text-on-surface-variant text-right min-w-[80px]">
-                  {p.name.split(' ').pop()}
-                </th>
-              ))}
+              {players.map((p) => {
+                const resolvedPhoto = getPhoto(p)
+                return (
+                  <th key={p.id} className="px-4 sm:px-6 py-3 text-center min-w-[80px]">
+                    <div className="flex flex-col items-center gap-1">
+                      <PlayerAvatar name={p.name} size={32} imageUrl={resolvedPhoto} clickable loading={loadingIds.has(p.id)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} />
+                      <span className="text-[0.625rem] font-medium uppercase tracking-widest text-on-surface-variant">{p.name.split(' ').pop()}</span>
+                    </div>
+                  </th>
+                )
+              })}
             </tr>
           </thead>
           <tbody>
