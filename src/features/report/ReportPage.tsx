@@ -46,11 +46,11 @@ export function ReportPage() {
   const { data: sbPlayerInfo, isLoading: sbPlayerLoading } = useQuery({
     queryKey: ['sb-player-info', id],
     queryFn: async () => {
-      const { data } = await supabase
-        .from('sb_players' as 'profiles')
+      const { data } = await (supabase
+        .from('sb_players' as never)
         .select('player_name, player_nickname, nationality, primary_position, photo_url, birth_date')
         .eq('player_id', sbNumericId)
-        .maybeSingle() as { data: { player_name: string; player_nickname: string | null; nationality: string | null; primary_position: string | null; photo_url: string | null; birth_date: string | null } | null }
+        .maybeSingle() as unknown as Promise<{ data: { player_name: string; player_nickname: string | null; nationality: string | null; primary_position: string | null; photo_url: string | null; birth_date: string | null } | null }>)
       return data
     },
     enabled: isSbOpen && !isNaN(sbNumericId) && !report && !isLoading,
