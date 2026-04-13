@@ -126,7 +126,6 @@ serve(async (req: Request) => {
     for (const p of rawPlayers) {
       if (p.provider !== "statsbomb-open") continue;
       const league = (p.league as string) ?? "";
-      const team = (p.team as string) ?? "";
       // If league contains a season year like "(2022)" and team looks like a national team
       // (matches from international competitions where team_name = country name)
       const seasonMatch = league.match(/^(.+?)\s*\((\d{4}(?:\/\d{2,4})?)\)$/);
