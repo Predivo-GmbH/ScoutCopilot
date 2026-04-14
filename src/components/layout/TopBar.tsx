@@ -82,6 +82,8 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
       <form onSubmit={handleSearch} className="flex-1 max-w-xl relative hidden sm:block">
         <Search size={16} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
         <input
+          id="global-search"
+          name="global-search"
           type="text"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}

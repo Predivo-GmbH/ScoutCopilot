@@ -87,6 +87,8 @@ export function SearchPage() {
           <SearchIcon size={18} strokeWidth={1.5} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/70" aria-hidden="true" />
           <input
             ref={searchInputRef}
+            id="player-search"
+            name="player-search"
             type="text"
             value={queryInput}
             onChange={(e) => setQueryInput(e.target.value)}
@@ -139,7 +141,7 @@ export function SearchPage() {
           <SearchResultsTable results={results} isLoading={isLoading} photoLoadingIds={photoLoadingIds} />
           {/* Footer status */}
           {results.length > 0 && (
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-[0.625rem] uppercase tracking-[0.2em] text-on-surface-variant/70 mt-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-2 text-[0.625rem] uppercase tracking-[0.2em] text-on-surface-variant/70 mt-4 overflow-hidden">
               <span className="font-data">{t('search.dbLastUpdated')}</span>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-secondary" />
