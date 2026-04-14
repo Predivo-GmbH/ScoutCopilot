@@ -71,7 +71,7 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate }: Squad
     [sorted],
   )
   const { getPhoto, loadingIds, reportBrokenUrl } = usePlayerPhotoFetch(photoFetchPlayers)
-  const { upload: uploadPhoto, uploading: photoUploading } = usePlayerPhotoUpload()
+  const { upload: uploadPhoto } = usePlayerPhotoUpload()
   const [uploadingPlayerId, setUploadingPlayerId] = useState<string | null>(null)
   const [uploadedPhotos, setUploadedPhotos] = useState<Map<string, string>>(new Map())
 
