@@ -28,29 +28,31 @@ interface FormationPitchProps {
 interface SlotMenuProps {
   player: SquadPlayer
   slotLabel: string
-  anchorRef: React.RefObject<HTMLDivElement | null>
   onMoveToBench: () => void
   onSwap: () => void
   onClose: () => void
 }
 
-function SlotMenu({ player, slotLabel, anchorRef, onMoveToBench, onSwap, onClose }: SlotMenuProps) {
+function SlotMenu({ player, slotLabel, onMoveToBench, onSwap, onClose }: SlotMenuProps) {
   const { t } = useTranslation()
   const menuRef = useRef<HTMLDivElement>(null)
 
   // Close on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (
-        menuRef.current && !menuRef.current.contains(e.target as Node) &&
-        anchorRef.current && !anchorRef.current.contains(e.target as Node)
-      ) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         onClose()
       }
     }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [anchorRef, onClose])
+    // Use setTimeout to avoid the click that opened the menu from immediately closing it
+    const timer = setTimeout(() => {
+      document.addEventListener('mousedown', handleClick)
+    }, 0)
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener('mousedown', handleClick)
+    }
+  }, [onClose])
 
   // Close on Escape
   useEffect(() => {
@@ -182,7 +184,7 @@ export function FormationPitch({ formation, players, squadId, onAssignSlot, onRe
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [openSlotMenu, setOpenSlotMenu] = useState<string | null>(null) // slot key of the open context menu
   const [pickerMode, setPickerMode] = useState<{ slotKey: string; slotLabel: string } | null>(null)
-  const slotRefs = useRef<Map<string, HTMLDivElement>>(new Map())
+  // Slot refs removed — SlotMenu is rendered as a child of each slot div
 
   const isInteractive = !!squadId && !!onAssignSlot && !!onRemoveFromSlot
 
@@ -315,10 +317,6 @@ export function FormationPitch({ formation, players, squadId, onAssignSlot, onRe
             return (
               <div
                 key={`${slot.position}-${i}`}
-                ref={(el) => {
-                  if (el) slotRefs.current.set(key, el)
-                  else slotRefs.current.delete(key)
-                }}
                 className={`absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-0.5 sm:gap-1 z-10 ${
                   isInteractive ? 'cursor-pointer select-none' : ''
                 }`}
@@ -356,7 +354,6 @@ export function FormationPitch({ formation, players, squadId, onAssignSlot, onRe
                       <SlotMenu
                         player={player}
                         slotLabel={slot.label}
-                        anchorRef={{ current: slotRefs.current.get(key) ?? null }}
                         onMoveToBench={() => handleMoveToBench(player.id)}
                         onSwap={() => handleSwap(key, slot.label)}
                         onClose={() => setOpenSlotMenu(null)}
