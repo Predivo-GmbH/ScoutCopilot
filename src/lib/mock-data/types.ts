@@ -133,6 +133,8 @@ export interface SquadPlayer {
   stats: Record<string, number>
   radarData: { label: string; value: number; average: number }[]
   overallRating: number
+  /** Lineup slot key (e.g. 'GK-0', 'CB-1') when the player is assigned to a starting XI position */
+  lineupSlot?: string
 }
 
 export interface PositionGap {

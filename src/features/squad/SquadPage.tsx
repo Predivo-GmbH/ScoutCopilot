@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, Users, Heart, AlertTriangle, Plus, X, Loader2, Trash2, Search } from 'lucide-react'
+import { ArrowLeft, Users, Heart, AlertTriangle, Plus, X, Loader2, Trash2, Search, Download } from 'lucide-react'
 import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { calculateAge } from '../../lib/ageUtils'
 import type { FormationType, MockSquad } from '../../lib/mock-data'
@@ -11,6 +11,7 @@ import { FormationPitch, FormationSelector } from './components/FormationPitch'
 import { GapAnalysisSection } from './components/GapAnalysisSection'
 import { SquadTable } from './components/SquadTable'
 import { SquadCard } from './components/SquadCard'
+import { supabase } from '../../lib/supabase'
 
 export function SquadPage() {
   const { t } = useTranslation()
@@ -159,13 +160,249 @@ export function SquadPage() {
   )
 }
 
+// ── Import Team Modal ────────────────────────────────────────────────────────
+
+interface TeamResult {
+  team_name: string
+  count: number
+}
+
+type ImportStatus = 'idle' | 'importing' | 'success' | 'error'
+
+function ImportTeamModal({
+  squad,
+  onClose,
+  onImport,
+}: {
+  squad: MockSquad
+  onClose: () => void
+  onImport: (teamName: string, existingPlayerIds: Set<string>) => Promise<{ imported: number; skipped: number }>
+}) {
+  const { t } = useTranslation()
+  const [query, setQuery] = useState('')
+  const [teams, setTeams] = useState<TeamResult[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [selectedTeam, setSelectedTeam] = useState<TeamResult | null>(null)
+  const [importStatus, setImportStatus] = useState<ImportStatus>('idle')
+  const [importResult, setImportResult] = useState<{ imported: number; skipped: number } | null>(null)
+  const [importError, setImportError] = useState('')
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (!query.trim()) {
+      setTeams([])
+      return
+    }
+    debounceRef.current = setTimeout(async () => {
+      setIsSearching(true)
+      try {
+        const teamQuery = supabase
+          .from('sb_players' as never)
+          .select('team_name')
+          .ilike('team_name', `%${query.trim()}%`)
+          .limit(200)
+        const { data } = await (teamQuery as unknown as Promise<{ data: Array<{ team_name: string }> | null }>)
+
+        if (data) {
+          const counts = new Map<string, number>()
+          for (const row of data) {
+            if (row.team_name) {
+              counts.set(row.team_name, (counts.get(row.team_name) ?? 0) + 1)
+            }
+          }
+          const results: TeamResult[] = Array.from(counts.entries())
+            .map(([team_name, count]) => ({ team_name, count }))
+            .sort((a, b) => a.team_name.localeCompare(b.team_name))
+          setTeams(results)
+        }
+      } finally {
+        setIsSearching(false)
+      }
+    }, 300)
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [query])
+
+  async function handleConfirmImport() {
+    if (!selectedTeam) return
+    setImportStatus('importing')
+    setImportError('')
+    try {
+      const existingIds = new Set(squad.players.map((p) => p.id))
+      const result = await onImport(selectedTeam.team_name, existingIds)
+      setImportResult(result)
+      setImportStatus('success')
+    } catch {
+      setImportError(t('common.failedToSave', 'Failed to save. Please try again.'))
+      setImportStatus('error')
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim/60" onClick={onClose}>
+      <div
+        className="bg-surface-container border border-outline-variant rounded-md w-full max-w-md mx-4 p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Download size={16} strokeWidth={2} className="text-primary" />
+            <h3 className="text-sm font-semibold text-on-surface">
+              {t('squad.importTeam', 'Import Team')}
+            </h3>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label={t('common.close', 'Close')}
+            className="text-on-surface-variant hover:text-on-surface min-w-[44px] min-h-[44px] flex items-center justify-center"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {importStatus === 'success' && importResult ? (
+          /* Success state */
+          <div className="space-y-4">
+            <div className="flex flex-col items-center justify-center py-6 text-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Download size={22} strokeWidth={1.5} className="text-primary" />
+              </div>
+              <p className="text-sm font-medium text-on-surface">
+                {t('squad.importSuccess', {
+                  imported: importResult.imported,
+                  team: selectedTeam?.team_name,
+                  defaultValue: `Imported {{imported}} players from {{team}}`,
+                })}
+              </p>
+              {importResult.skipped > 0 && (
+                <p className="text-xs text-on-surface-variant">
+                  {t('squad.importSkipped', {
+                    count: importResult.skipped,
+                    defaultValue: `{{count}} already in squad — skipped`,
+                  })}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={onClose}
+              className="w-full px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-dark transition-colors min-h-[44px]"
+            >
+              {t('common.done', 'Done')}
+            </button>
+          </div>
+        ) : selectedTeam ? (
+          /* Confirmation state */
+          <div className="space-y-4">
+            <p className="text-sm text-on-surface">
+              {t('squad.importConfirm', {
+                count: selectedTeam.count,
+                team: selectedTeam.team_name,
+                defaultValue: `Import {{count}} players from {{team}}?`,
+              })}
+            </p>
+            {importError && (
+              <p className="text-xs text-error">{importError}</p>
+            )}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleConfirmImport}
+                disabled={importStatus === 'importing'}
+                className="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50 min-h-[44px] flex items-center gap-2"
+              >
+                {importStatus === 'importing' ? (
+                  <><Loader2 size={14} className="animate-spin" /> {t('squad.importing', 'Importing...')}</>
+                ) : (
+                  <><Download size={14} strokeWidth={2} /> {t('squad.importConfirmBtn', 'Import')}</>
+                )}
+              </button>
+              <button
+                onClick={() => setSelectedTeam(null)}
+                disabled={importStatus === 'importing'}
+                className="px-4 py-2 text-on-surface-variant hover:text-on-surface rounded-md text-sm font-medium transition-colors min-h-[44px] disabled:opacity-50"
+              >
+                {t('common.back', 'Back')}
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* Search state */
+          <div className="space-y-3">
+            <div>
+              <label htmlFor="import-team-search" className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">
+                {t('squad.clubName', 'Club Name')}
+              </label>
+              <div className="relative">
+                <Search size={14} strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" />
+                <input
+                  id="import-team-search"
+                  type="text"
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value)
+                    setSelectedTeam(null)
+                  }}
+                  placeholder={t('squad.searchClubPlaceholder', 'e.g. Barcelona, Arsenal...')}
+                  className="w-full bg-surface-container-lowest border border-outline-variant rounded-md pl-9 pr-4 py-2.5 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {/* Results */}
+            {isSearching ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 size={16} className="animate-spin text-on-surface-variant" />
+              </div>
+            ) : teams.length > 0 ? (
+              <ul className="max-h-56 overflow-y-auto border border-outline-variant rounded-md divide-y divide-outline-variant">
+                {teams.map((team) => (
+                  <li key={team.team_name}>
+                    <button
+                      onClick={() => setSelectedTeam(team)}
+                      className="w-full flex items-center justify-between px-4 py-3 text-sm text-on-surface hover:bg-surface-container-high transition-colors text-left min-h-[44px]"
+                    >
+                      <span className="font-medium truncate">{team.team_name}</span>
+                      <span className="ml-3 shrink-0 text-xs text-on-surface-variant bg-surface-container rounded px-2 py-0.5">
+                        {team.count} {t('squad.players', 'players')}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : query.trim().length > 0 && !isSearching ? (
+              <p className="text-sm text-on-surface-variant text-center py-4">
+                {t('squad.noTeamsFound', 'No teams found')}
+              </p>
+            ) : null}
+
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-on-surface-variant hover:text-on-surface rounded-md text-sm font-medium transition-colors min-h-[44px]"
+            >
+              {t('common.cancel')}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── Squad Detail ─────────────────────────────────────────────────────────────
+
 function SquadDetail({ squad, onBack, onDelete, onRemovePlayer, onUpdateFormation }: { squad: MockSquad; onBack: () => void; onDelete: (squadId: string) => void; onRemovePlayer: (squadId: string, playerId: string) => void; onUpdateFormation: (squadId: string, formation: FormationType) => void }) {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
+  const { importTeamPlayers } = useSquad()
   const gaps = useGapAnalysis(squad.players)
   const [formation, setFormation] = useState<FormationType>(squad.formation)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [showImportModal, setShowImportModal] = useState(false)
 
   const totalPlayers = squad.players.length
   const avgAge = totalPlayers > 0 ? (squad.players.reduce((s, p) => s + (calculateAge(p.birth_date) ?? 0), 0) / totalPlayers).toFixed(1) : '0'
@@ -183,6 +420,17 @@ function SquadDetail({ squad, onBack, onDelete, onRemovePlayer, onUpdateFormatio
 
   return (
     <div className="p-4 sm:p-6 space-y-8">
+      {/* Import Team Modal */}
+      {showImportModal && (
+        <ImportTeamModal
+          squad={squad}
+          onClose={() => setShowImportModal(false)}
+          onImport={(teamName, existingPlayerIds) =>
+            importTeamPlayers(squad.id, teamName, existingPlayerIds)
+          }
+        />
+      )}
+
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -198,13 +446,20 @@ function SquadDetail({ squad, onBack, onDelete, onRemovePlayer, onUpdateFormatio
             {squad.club} &middot; {squad.season}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => navigate('/search')}
             className="flex items-center gap-1.5 px-3 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-dark transition-colors min-h-[44px]"
           >
             <Search size={14} strokeWidth={2} />
             {t('squad.searchAndAdd')}
+          </button>
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="flex items-center gap-1.5 px-3 py-2 border border-outline-variant text-on-surface rounded-md text-sm font-medium hover:bg-surface-container-high transition-colors min-h-[44px]"
+          >
+            <Download size={14} strokeWidth={2} />
+            {t('squad.importTeam', 'Import Team')}
           </button>
           <button
             onClick={handleDelete}

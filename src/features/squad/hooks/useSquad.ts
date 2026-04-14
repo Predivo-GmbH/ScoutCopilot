@@ -3,7 +3,7 @@ import { calculateAge } from '../../../lib/ageUtils'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../../lib/supabase'
 import { useAuth } from '../../auth/useAuth'
-import type { MockSquad, SquadPlayer, FormationType } from '../../../lib/mock-data'
+import type { MockSquad, SquadPlayer, FormationType, SquadPosition } from '../../../lib/mock-data'
 
 const SQUADS_KEY = ['squads'] as const
 
@@ -25,13 +25,17 @@ function mapPlayerRow(row: {
   position_key: string | null
 }): SquadPlayer {
   const d = (row.player_data ?? {}) as Record<string, unknown>
+  // position_key stores either a plain position code (legacy) or a slot key like 'GK-0', 'CB-1'
+  // A slot key contains a dash followed by a digit — detect it so we don't use it as a position value
+  const isSlotKey = row.position_key ? /^[A-Z]+-\d+$/.test(row.position_key) : false
+  const lineupSlot = isSlotKey ? (row.position_key ?? undefined) : undefined
   return {
     id: row.player_external_id,
     name: row.player_name,
     age: calculateAge(d.birth_date as string) ?? (d.age as number) ?? 0,
     birth_date: (d.birth_date as string) ?? undefined,
     nationality: (d.nationality as string) ?? '',
-    position: ((d.position ?? row.position_key ?? 'CM') as SquadPlayer['position']),
+    position: ((d.position ?? (!isSlotKey ? row.position_key : null) ?? 'CM') as SquadPlayer['position']),
     altPositions: (d.altPositions as SquadPlayer['altPositions']) ?? undefined,
     shirtNumber: (d.shirtNumber as number) ?? 0,
     contractUntil: (d.contractUntil as string) ?? '',
@@ -42,7 +46,38 @@ function mapPlayerRow(row: {
     stats: (d.stats as Record<string, number>) ?? {},
     radarData: (d.radarData as SquadPlayer['radarData']) ?? [],
     overallRating: (d.overallRating as number) ?? 0,
+    lineupSlot,
   }
+}
+
+/** Map API-Football / sb_players position strings to SquadPosition codes */
+const POSITION_MAP: Record<string, SquadPosition> = {
+  'Goalkeeper': 'GK',
+  'Centre-Back': 'CB',
+  'Center Back': 'CB',
+  'Left-Back': 'LB',
+  'Left Back': 'LB',
+  'Right-Back': 'RB',
+  'Right Back': 'RB',
+  'Defensive Midfield': 'CDM',
+  'Defensive Midfielder': 'CDM',
+  'Central Midfield': 'CM',
+  'Central Midfielder': 'CM',
+  'Attacking Midfield': 'CAM',
+  'Attacking Midfielder': 'CAM',
+  'Left Winger': 'LW',
+  'Left Midfield': 'LW',
+  'Right Winger': 'RW',
+  'Right Midfield': 'RW',
+  'Centre-Forward': 'ST',
+  'Center Forward': 'ST',
+  'Attacker': 'ST',
+  'Second Striker': 'ST',
+}
+
+function mapPosition(rawPosition: string | null | undefined): SquadPosition {
+  if (!rawPosition) return 'CM'
+  return POSITION_MAP[rawPosition] ?? 'CM'
 }
 
 // ── Hook ─────────────────────────────────────────────────────────────────
@@ -301,6 +336,90 @@ export function useSquad() {
     [addPlayerMutation],
   )
 
+  // ── Import team players (bulk) ───────────────────────────────────────
+
+  const importTeamMutation = useMutation({
+    mutationFn: async ({
+      squadId,
+      teamName,
+      existingPlayerIds,
+    }: {
+      squadId: string
+      teamName: string
+      existingPlayerIds: Set<string>
+    }): Promise<{ imported: number; skipped: number }> => {
+      // Fetch all players for the selected team from sb_players
+      const teamPlayersQuery = supabase
+        .from('sb_players' as never)
+        .select('player_id, player_name, player_nickname, primary_position, nationality, birth_date, photo_url, season_stats')
+        .eq('team_name', teamName)
+      const { data: players } = await (teamPlayersQuery as unknown as Promise<{
+          data: Array<{
+            player_id: number
+            player_name: string
+            player_nickname: string | null
+            primary_position: string | null
+            nationality: string | null
+            birth_date: string | null
+            photo_url: string | null
+            season_stats: Record<string, unknown> | null
+          }> | null
+        }>)
+
+      if (!players || players.length === 0) return { imported: 0, skipped: 0 }
+
+      // Filter out players already in the squad
+      const toInsert = players.filter((p) => {
+        const normalizedId = `sb-open-${p.player_id}`
+        return !existingPlayerIds.has(normalizedId)
+      })
+
+      const skipped = players.length - toInsert.length
+
+      if (toInsert.length === 0) return { imported: 0, skipped }
+
+      // Batch insert all new players
+      const rows = toInsert.map((p) => {
+        const position = mapPosition(p.primary_position)
+        return {
+          squad_id: squadId,
+          player_external_id: `sb-open-${p.player_id}`,
+          player_name: p.player_name,
+          position_key: position,
+          player_data: {
+            birth_date: p.birth_date ?? undefined,
+            nationality: p.nationality ?? '',
+            position,
+            image: p.photo_url ?? undefined,
+            shirtNumber: 0,
+            contractUntil: '',
+            weeklyWage: '',
+            marketValue: '',
+            status: 'fit',
+            stats: {},
+            radarData: [],
+            overallRating: 0,
+          },
+        }
+      })
+
+      const { error } = await supabase.from('squad_players').insert(rows)
+      if (error) throw error
+
+      return { imported: toInsert.length, skipped }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SQUADS_KEY })
+    },
+  })
+
+  const importTeamPlayers = useCallback(
+    (squadId: string, teamName: string, existingPlayerIds: Set<string>) => {
+      return importTeamMutation.mutateAsync({ squadId, teamName, existingPlayerIds })
+    },
+    [importTeamMutation],
+  )
+
   // ── Remove player from squad ─────────────────────────────────────────
 
   const removePlayerMutation = useMutation({
@@ -323,6 +442,64 @@ export function useSquad() {
       removePlayerMutation.mutate({ squadId, playerId })
     },
     [removePlayerMutation],
+  )
+
+  // ── Assign player to lineup slot ─────────────────────────────────────
+
+  const assignToSlotMutation = useMutation({
+    mutationFn: async ({ squadId, playerId, slotKey }: { squadId: string; playerId: string; slotKey: string }) => {
+      // First, clear any other player already occupying this slot
+      const { error: clearError } = await supabase
+        .from('squad_players')
+        .update({ position_key: null })
+        .eq('squad_id', squadId)
+        .eq('position_key', slotKey)
+
+      if (clearError) throw clearError
+
+      // Assign this player to the slot
+      const { error } = await supabase
+        .from('squad_players')
+        .update({ position_key: slotKey })
+        .eq('squad_id', squadId)
+        .eq('player_external_id', playerId)
+
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SQUADS_KEY })
+    },
+  })
+
+  const assignToSlot = useCallback(
+    (squadId: string, playerId: string, slotKey: string) => {
+      assignToSlotMutation.mutate({ squadId, playerId, slotKey })
+    },
+    [assignToSlotMutation],
+  )
+
+  // ── Remove player from lineup slot ───────────────────────────────────
+
+  const removeFromSlotMutation = useMutation({
+    mutationFn: async ({ squadId, playerId }: { squadId: string; playerId: string }) => {
+      const { error } = await supabase
+        .from('squad_players')
+        .update({ position_key: null })
+        .eq('squad_id', squadId)
+        .eq('player_external_id', playerId)
+
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SQUADS_KEY })
+    },
+  })
+
+  const removeFromSlot = useCallback(
+    (squadId: string, playerId: string) => {
+      removeFromSlotMutation.mutate({ squadId, playerId })
+    },
+    [removeFromSlotMutation],
   )
 
   // ── Update formation ─────────────────────────────────────────────────
@@ -359,7 +536,10 @@ export function useSquad() {
     createSquad,
     deleteSquad,
     addPlayer,
+    importTeamPlayers,
     removePlayer,
+    assignToSlot,
+    removeFromSlot,
     updateFormation,
   }
 }
