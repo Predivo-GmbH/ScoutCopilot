@@ -520,6 +520,41 @@ export function useSquad() {
     [removeFromSlotMutation],
   )
 
+  // ── Update player birth date ────────────────────────────────────────
+
+  const updateBirthDateMutation = useMutation({
+    mutationFn: async ({ squadId, playerId, birthDate }: { squadId: string; playerId: string; birthDate: string }) => {
+      // First fetch current player_data to merge
+      const { data: row, error: fetchError } = await supabase
+        .from('squad_players')
+        .select('player_data')
+        .eq('squad_id', squadId)
+        .eq('player_external_id', playerId)
+        .single()
+
+      if (fetchError) throw fetchError
+
+      const currentData = (row?.player_data ?? {}) as Record<string, unknown>
+      const { error } = await supabase
+        .from('squad_players')
+        .update({ player_data: { ...currentData, birth_date: birthDate } })
+        .eq('squad_id', squadId)
+        .eq('player_external_id', playerId)
+
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SQUADS_KEY })
+    },
+  })
+
+  const updatePlayerBirthDate = useCallback(
+    (squadId: string, playerId: string, birthDate: string) => {
+      updateBirthDateMutation.mutate({ squadId, playerId, birthDate })
+    },
+    [updateBirthDateMutation],
+  )
+
   // ── Update formation ─────────────────────────────────────────────────
 
   const updateFormationMutation = useMutation({
@@ -559,5 +594,6 @@ export function useSquad() {
     assignToSlot,
     removeFromSlot,
     updateFormation,
+    updatePlayerBirthDate,
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useParams, useLocation, Navigate } from 'react-router-dom'
 import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
@@ -57,16 +57,8 @@ export function ReportPage() {
     staleTime: 5 * 60 * 1000,
   })
 
-  // If navigated here from a similar player link with a player name, auto-generate if needed
+  // Player name from navigation state (used as display fallback, NOT for auto-generation)
   const similarPlayerName = (location.state as { playerName?: string } | null)?.playerName
-  const autoGenerateTriggered = useRef(false)
-
-  useEffect(() => {
-    if (id && similarPlayerName && !autoGenerateTriggered.current && !hasReport(id) && !isGenerating(id)) {
-      autoGenerateTriggered.current = true
-      generateReport(id, similarPlayerName)
-    }
-  }, [id, similarPlayerName, hasReport, isGenerating, generateReport])
 
   // On-demand photo fetching for main player
   const mainPhotoPlayers = useMemo(

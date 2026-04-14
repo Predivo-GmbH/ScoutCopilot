@@ -16,7 +16,7 @@ import { supabase } from '../../lib/supabase'
 export function SquadPage() {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
-  const { squads, isLoading, selectedSquad, selectSquad, clearSelection, createSquad, deleteSquad, removePlayer, updateFormation } = useSquad()
+  const { squads, isLoading, selectedSquad, selectSquad, clearSelection, createSquad, deleteSquad, removePlayer, assignToSlot, removeFromSlot, updateFormation, updatePlayerBirthDate } = useSquad()
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [createName, setCreateName] = useState('')
   const [createDescription, setCreateDescription] = useState('')
@@ -38,7 +38,7 @@ export function SquadPage() {
   }
 
   if (selectedSquad) {
-    return <SquadDetail squad={selectedSquad} onBack={clearSelection} onDelete={deleteSquad} onRemovePlayer={removePlayer} onUpdateFormation={updateFormation} />
+    return <SquadDetail squad={selectedSquad} onBack={clearSelection} onDelete={deleteSquad} onRemovePlayer={removePlayer} onAssignSlot={assignToSlot} onRemoveFromSlot={removeFromSlot} onUpdateFormation={updateFormation} onUpdateBirthDate={updatePlayerBirthDate} />
   }
 
   return (
@@ -401,7 +401,7 @@ function ImportTeamModal({
 
 // ── Squad Detail ─────────────────────────────────────────────────────────────
 
-function SquadDetail({ squad, onBack, onDelete, onRemovePlayer, onUpdateFormation }: { squad: MockSquad; onBack: () => void; onDelete: (squadId: string) => void; onRemovePlayer: (squadId: string, playerId: string) => void; onUpdateFormation: (squadId: string, formation: FormationType) => void }) {
+function SquadDetail({ squad, onBack, onDelete, onRemovePlayer, onAssignSlot, onRemoveFromSlot, onUpdateFormation, onUpdateBirthDate }: { squad: MockSquad; onBack: () => void; onDelete: (squadId: string) => void; onRemovePlayer: (squadId: string, playerId: string) => void; onAssignSlot: (squadId: string, playerId: string, slotKey: string) => void; onRemoveFromSlot: (squadId: string, playerId: string) => void; onUpdateFormation: (squadId: string, formation: FormationType) => void; onUpdateBirthDate: (squadId: string, playerId: string, birthDate: string) => void }) {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
   const { importTeamPlayers } = useSquad()
@@ -412,7 +412,8 @@ function SquadDetail({ squad, onBack, onDelete, onRemovePlayer, onUpdateFormatio
   const [showImportModal, setShowImportModal] = useState(false)
 
   const totalPlayers = squad.players.length
-  const avgAge = totalPlayers > 0 ? (squad.players.reduce((s, p) => s + (calculateAge(p.birth_date) ?? 0), 0) / totalPlayers).toFixed(1) : '0'
+  const playersWithAge = squad.players.filter((p) => calculateAge(p.birth_date) !== null)
+  const avgAge = playersWithAge.length > 0 ? (playersWithAge.reduce((s, p) => s + calculateAge(p.birth_date)!, 0) / playersWithAge.length).toFixed(1) : '—'
   const injuredCount = squad.players.filter((p) => p.status === 'injured').length
   const onLoanCount = squad.players.filter((p) => p.status === 'on_loan').length
 
@@ -498,7 +499,7 @@ function SquadDetail({ squad, onBack, onDelete, onRemovePlayer, onUpdateFormatio
       </div>
 
       {/* Formation Pitch */}
-      <FormationPitch formation={formation} players={squad.players} />
+      <FormationPitch formation={formation} players={squad.players} squadId={squad.id} onAssignSlot={onAssignSlot} onRemoveFromSlot={onRemoveFromSlot} />
 
       {/* Gap Analysis */}
       <GapAnalysisSection gaps={gaps} />
@@ -522,7 +523,7 @@ function SquadDetail({ squad, onBack, onDelete, onRemovePlayer, onUpdateFormatio
             </button>
           </div>
         ) : (
-          <SquadTable players={squad.players} onRemovePlayer={(playerId) => onRemovePlayer(squad.id, playerId)} />
+          <SquadTable players={squad.players} onRemovePlayer={(playerId) => onRemovePlayer(squad.id, playerId)} onUpdateBirthDate={(playerId, birthDate) => onUpdateBirthDate(squad.id, playerId, birthDate)} />
         )}
       </section>
     </div>

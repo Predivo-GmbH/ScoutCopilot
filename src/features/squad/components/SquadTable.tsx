@@ -1,7 +1,7 @@
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, useRef } from 'react'
 import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Pencil } from 'lucide-react'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import { formatAge } from '../../../lib/ageUtils'
 import { usePlayerPhotoFetch, derivePhotoSource } from '../../../lib/usePlayerPhotoFetch'
@@ -10,6 +10,7 @@ import type { SquadPlayer } from '../../../lib/mock-data'
 interface SquadTableProps {
   players: SquadPlayer[]
   onRemovePlayer?: (playerId: string) => void
+  onUpdateBirthDate?: (playerId: string, birthDate: string) => void
 }
 
 const statusKeys: Record<string, string> = {
@@ -33,12 +34,22 @@ const statusTextStyles: Record<string, string> = {
   on_loan: 'text-tertiary',
 }
 
-export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
+export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate }: SquadTableProps) {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   const [removedName, setRemovedName] = useState<string | null>(null)
+  const [editingBirthDateId, setEditingBirthDateId] = useState<string | null>(null)
+  const birthDateInputRef = useRef<HTMLInputElement>(null)
   const sorted = [...players].sort((a, b) => a.shirtNumber - b.shirtNumber)
+
+  // Focus the date input when editing
+  useEffect(() => {
+    if (editingBirthDateId && birthDateInputRef.current) {
+      birthDateInputRef.current.focus()
+      birthDateInputRef.current.showPicker?.()
+    }
+  }, [editingBirthDateId])
 
   // Auto-clear removal feedback
   useEffect(() => {
@@ -83,8 +94,14 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
                   <p className="text-[0.625rem] text-on-surface-variant font-data">{player.nationality}</p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-                  <span className={`text-[0.6875rem] font-semibold ${textColor} uppercase tracking-tight`}>{t(statusKey)}</span>
+                  {player.overallRating > 0 || (player.stats && Object.values(player.stats).some((v) => typeof v === 'number' && v > 0)) ? (
+                    <>
+                      <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
+                      <span className={`text-[0.6875rem] font-semibold ${textColor} uppercase tracking-tight`}>{t(statusKey)}</span>
+                    </>
+                  ) : (
+                    <span className="text-[0.6875rem] font-data text-on-surface-variant/50">&mdash;</span>
+                  )}
                 </div>
               </div>
               <div className="flex flex-wrap gap-1">
@@ -100,7 +117,33 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div>
                   <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('common.age')}</p>
-                  <p className="font-data text-sm">{player.birth_date ? formatAge(player.birth_date) : (player.age > 0 ? String(player.age) : '—')}</p>
+                  {player.birth_date ? (
+                    <p className="font-data text-sm">{formatAge(player.birth_date)}</p>
+                  ) : player.age > 0 ? (
+                    <p className="font-data text-sm">{String(player.age)}</p>
+                  ) : editingBirthDateId === player.id ? (
+                    <input
+                      ref={birthDateInputRef}
+                      type="date"
+                      className="font-data text-xs bg-surface-container-high border border-outline-variant rounded px-1 py-0.5 w-[7rem]"
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => {
+                        if (e.target.value && onUpdateBirthDate) {
+                          onUpdateBirthDate(player.id, e.target.value)
+                          setEditingBirthDateId(null)
+                        }
+                      }}
+                      onBlur={() => setEditingBirthDateId(null)}
+                    />
+                  ) : (
+                    <button
+                      className="font-data text-sm text-on-surface-variant/50 inline-flex items-center gap-1 hover:text-primary transition-colors"
+                      onClick={(e) => { e.stopPropagation(); setEditingBirthDateId(player.id) }}
+                      title={t('squad.setBirthDate', 'Set birth date')}
+                    >
+                      — <Pencil size={10} />
+                    </button>
+                  )}
                 </div>
                 <div>
                   <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('squad.rating')}</p>
@@ -200,7 +243,35 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
                       </span>
                     ))}
                   </td>
-                  <td className="px-4 py-4 text-center font-data">{player.birth_date ? formatAge(player.birth_date) : (player.age > 0 ? String(player.age) : '—')}</td>
+                  <td className="px-4 py-4 text-center font-data">
+                    {player.birth_date ? (
+                      formatAge(player.birth_date)
+                    ) : player.age > 0 ? (
+                      String(player.age)
+                    ) : editingBirthDateId === player.id ? (
+                      <input
+                        ref={birthDateInputRef}
+                        type="date"
+                        className="font-data text-xs bg-surface-container-high border border-outline-variant rounded px-1 py-0.5 w-[7rem]"
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => {
+                          if (e.target.value && onUpdateBirthDate) {
+                            onUpdateBirthDate(player.id, e.target.value)
+                            setEditingBirthDateId(null)
+                          }
+                        }}
+                        onBlur={() => setEditingBirthDateId(null)}
+                      />
+                    ) : (
+                      <button
+                        className="text-on-surface-variant/50 inline-flex items-center gap-1 hover:text-primary transition-colors"
+                        onClick={(e) => { e.stopPropagation(); setEditingBirthDateId(player.id) }}
+                        title={t('squad.setBirthDate', 'Set birth date')}
+                      >
+                        — <Pencil size={10} />
+                      </button>
+                    )}
+                  </td>
                   <td className="px-4 py-4 text-center font-data text-on-surface-variant text-xs">
                     {player.contractUntil ? new Date(player.contractUntil).toLocaleDateString(t('common.locale', 'en-GB'), { month: 'short', year: 'numeric' }) : '\u2014'}
                   </td>
@@ -208,10 +279,14 @@ export function SquadTable({ players, onRemovePlayer }: SquadTableProps) {
                     <RatingBar rating={player.overallRating} hasStats={!!player.stats && Object.values(player.stats).some((v) => typeof v === 'number' && v > 0)} />
                   </td>
                   <td className="px-4 py-4">
-                    <div className="flex items-center gap-2">
-                      <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-                      <span className={`text-[0.6875rem] font-semibold ${textColor} uppercase tracking-tight`}>{t(statusKey)}</span>
-                    </div>
+                    {player.overallRating > 0 || (player.stats && Object.values(player.stats).some((v) => typeof v === 'number' && v > 0)) ? (
+                      <div className="flex items-center gap-2">
+                        <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
+                        <span className={`text-[0.6875rem] font-semibold ${textColor} uppercase tracking-tight`}>{t(statusKey)}</span>
+                      </div>
+                    ) : (
+                      <span className="text-[0.6875rem] font-data text-on-surface-variant/50">&mdash;</span>
+                    )}
                   </td>
                   <td className="px-4 py-4 text-right font-data text-on-surface-variant text-xs">{player.marketValue}</td>
                   {onRemovePlayer && (
