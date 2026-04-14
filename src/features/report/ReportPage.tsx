@@ -42,6 +42,7 @@ export function ReportPage() {
 
   // Check if the player exists in sb_players (for sb-open-* IDs without a report)
   const isSbOpen = id?.startsWith('sb-open-') ?? false
+  const isApiFb = id?.startsWith('apifb-') ?? false
   const sbNumericId = isSbOpen ? parseInt(id!.replace('sb-open-', ''), 10) : NaN
   const { data: sbPlayerInfo, isLoading: sbPlayerLoading } = useQuery({
     queryKey: ['sb-player-info', id],
@@ -56,6 +57,36 @@ export function ReportPage() {
     enabled: isSbOpen && !isNaN(sbNumericId) && !report && !isLoading,
     staleTime: 5 * 60 * 1000,
   })
+
+  // For apifb-* players, look up info from squad_players table
+  const { data: apiFbPlayerInfo, isLoading: apiFbPlayerLoading } = useQuery({
+    queryKey: ['apifb-player-info', id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('squad_players')
+        .select('player_name, position_key, player_data')
+        .eq('player_external_id', id!)
+        .limit(1)
+        .maybeSingle()
+      if (!data) return null
+      const pd = (data.player_data ?? {}) as Record<string, unknown>
+      return {
+        player_name: data.player_name as string,
+        player_nickname: null as string | null,
+        nationality: (pd.nationality as string) || null,
+        primary_position: (data.position_key as string) || (pd.position as string) || null,
+        photo_url: (pd.image as string) || null,
+        birth_date: null as string | null,
+        age: (pd.age as number) || null,
+      }
+    },
+    enabled: isApiFb && !report && !isLoading,
+    staleTime: 5 * 60 * 1000,
+  })
+
+  // Unified player info — sb-open or apifb
+  const playerInfo = sbPlayerInfo ?? apiFbPlayerInfo
+  const playerInfoLoading = sbPlayerLoading || apiFbPlayerLoading
 
   // Player name from navigation state (used as display fallback, NOT for auto-generation)
   const similarPlayerName = (location.state as { playerName?: string } | null)?.playerName
@@ -100,10 +131,10 @@ export function ReportPage() {
   if (error || !report) {
     const generating = isGenerating(id)
     // Determine if the player exists: for sb-open-* IDs, check sbPlayerInfo
-    const playerExists = isSbOpen ? sbPlayerInfo !== null && sbPlayerInfo !== undefined : true
-    const playerNotFound = isSbOpen && !sbPlayerLoading && !playerExists && !generating
-    // Resolve player display name from state or sb_players query
-    const playerDisplayName = similarPlayerName || (sbPlayerInfo ? (sbPlayerInfo.player_nickname || sbPlayerInfo.player_name) : null)
+    const playerExists = (isSbOpen || isApiFb) ? playerInfo !== null && playerInfo !== undefined : true
+    const playerNotFound = (isSbOpen || isApiFb) && !playerInfoLoading && !playerExists && !generating
+    // Resolve player display name from state or player info query
+    const playerDisplayName = similarPlayerName || (playerInfo ? (playerInfo.player_nickname || playerInfo.player_name) : null)
 
     return (
       <div className="p-4 sm:p-6">
@@ -119,27 +150,33 @@ export function ReportPage() {
         )}
 
         {/* Player info card when player exists but has no report yet */}
-        {!playerNotFound && !generating && sbPlayerInfo && (
+        {!playerNotFound && !generating && playerInfo && (
           <div className="bg-surface-container rounded-md p-4 sm:p-6 border border-outline-variant mb-6 flex items-center gap-4 sm:gap-6">
-            <PlayerAvatar name={playerDisplayName ?? ''} size={64} imageUrl={sbPlayerInfo.photo_url ?? undefined} />
+            <PlayerAvatar name={playerDisplayName ?? ''} size={64} imageUrl={playerInfo.photo_url ?? undefined} />
             <div>
               <h2 className="text-xl font-semibold tracking-tight text-on-surface uppercase">{playerDisplayName}</h2>
               <div className="flex items-center gap-3 mt-1 flex-wrap">
-                {sbPlayerInfo.primary_position && (
+                {playerInfo.primary_position && (
                   <span className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-2 py-0.5 rounded-sm">
-                    {sbPlayerInfo.primary_position}
+                    {playerInfo.primary_position}
                   </span>
                 )}
-                {sbPlayerInfo.nationality && (
+                {playerInfo.nationality && (
                   <>
                     <span className="w-1 h-1 rounded-full bg-outline-variant" />
-                    <span className="text-sm text-on-surface-variant">{sbPlayerInfo.nationality}</span>
+                    <span className="text-sm text-on-surface-variant">{playerInfo.nationality}</span>
                   </>
                 )}
-                {sbPlayerInfo.birth_date && (
+                {playerInfo.birth_date && (
                   <>
                     <span className="w-1 h-1 rounded-full bg-outline-variant" />
-                    <span className="text-sm text-on-surface-variant">{t('common.age')}: {formatAge(sbPlayerInfo.birth_date)}</span>
+                    <span className="text-sm text-on-surface-variant">{t('common.age')}: {formatAge(playerInfo.birth_date)}</span>
+                  </>
+                )}
+                {'age' in playerInfo && (playerInfo as { age?: number | null }).age && !playerInfo.birth_date && (
+                  <>
+                    <span className="w-1 h-1 rounded-full bg-outline-variant" />
+                    <span className="text-sm text-on-surface-variant">{t('common.age')}: {(playerInfo as { age: number }).age}</span>
                   </>
                 )}
               </div>

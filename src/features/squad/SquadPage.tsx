@@ -162,9 +162,24 @@ export function SquadPage() {
 
 // ── Import Team Modal ────────────────────────────────────────────────────────
 
-interface TeamResult {
-  team_name: string
-  count: number
+interface ApiTeamResult {
+  id: number
+  name: string
+  country: string
+  logo: string
+  founded: number | null
+  national: boolean
+  venue: string | null
+}
+
+interface ApiSquadPlayer {
+  id: number
+  name: string
+  age: number
+  number: number | null
+  position: string
+  positionRaw: string
+  photo: string
 }
 
 type ImportStatus = 'idle' | 'importing' | 'success' | 'error'
@@ -176,70 +191,70 @@ function ImportTeamModal({
 }: {
   squad: MockSquad
   onClose: () => void
-  onImport: (teamName: string, existingPlayerIds: Set<string>) => Promise<{ imported: number; skipped: number }>
+  onImport: (players: ApiSquadPlayer[], teamName: string, existingPlayerIds: Set<string>) => Promise<{ imported: number; skipped: number }>
 }) {
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
-  const [teams, setTeams] = useState<TeamResult[]>([])
+  const [teams, setTeams] = useState<ApiTeamResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
-  const [selectedTeam, setSelectedTeam] = useState<TeamResult | null>(null)
+  const [selectedTeam, setSelectedTeam] = useState<ApiTeamResult | null>(null)
+  const [squadPlayers, setSquadPlayers] = useState<ApiSquadPlayer[]>([])
+  const [isFetchingSquad, setIsFetchingSquad] = useState(false)
   const [importStatus, setImportStatus] = useState<ImportStatus>('idle')
   const [importResult, setImportResult] = useState<{ imported: number; skipped: number } | null>(null)
   const [importError, setImportError] = useState('')
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Search teams via API-Football edge function
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    if (!query.trim()) {
+    if (!query.trim() || query.trim().length < 2) {
       setTeams([])
       return
     }
     debounceRef.current = setTimeout(async () => {
       setIsSearching(true)
       try {
-        // team_name lives in sb_player_season_stats, not sb_players
-        const teamQuery = supabase
-          .from('sb_player_season_stats' as never)
-          .select('team_name, player_id')
-          .ilike('team_name', `%${query.trim()}%`)
-          .limit(500)
-        const { data } = await (teamQuery as unknown as Promise<{ data: Array<{ team_name: string; player_id: number }> | null }>)
-
-        if (data) {
-          // Count distinct players per team
-          const teamPlayers = new Map<string, Set<number>>()
-          for (const row of data) {
-            if (row.team_name) {
-              const set = teamPlayers.get(row.team_name)
-              if (set) {
-                set.add(row.player_id)
-              } else {
-                teamPlayers.set(row.team_name, new Set([row.player_id]))
-              }
-            }
-          }
-          const results: TeamResult[] = Array.from(teamPlayers.entries())
-            .map(([team_name, playerSet]) => ({ team_name, count: playerSet.size }))
-            .sort((a, b) => a.team_name.localeCompare(b.team_name))
-          setTeams(results)
+        const { data, error } = await supabase.functions.invoke('import-team', {
+          body: { action: 'search-teams', query: query.trim() },
+        })
+        if (!error && data?.teams) {
+          setTeams(data.teams as ApiTeamResult[])
         }
       } finally {
         setIsSearching(false)
       }
-    }, 300)
+    }, 400)
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
   }, [query])
 
+  // Fetch squad when team is selected
+  async function handleSelectTeam(team: ApiTeamResult) {
+    setSelectedTeam(team)
+    setIsFetchingSquad(true)
+    setSquadPlayers([])
+    try {
+      const { data, error } = await supabase.functions.invoke('import-team', {
+        body: { action: 'get-squad', team_id: team.id },
+      })
+      if (!error && data?.players) {
+        setSquadPlayers(data.players as ApiSquadPlayer[])
+      }
+    } finally {
+      setIsFetchingSquad(false)
+    }
+  }
+
   async function handleConfirmImport() {
-    if (!selectedTeam) return
+    if (!selectedTeam || squadPlayers.length === 0) return
     setImportStatus('importing')
     setImportError('')
     try {
       const existingIds = new Set(squad.players.map((p) => p.id))
-      const result = await onImport(selectedTeam.team_name, existingIds)
+      const result = await onImport(squadPlayers, selectedTeam.name, existingIds)
       setImportResult(result)
       setImportStatus('success')
     } catch {
@@ -275,13 +290,13 @@ function ImportTeamModal({
           /* Success state */
           <div className="space-y-4">
             <div className="flex flex-col items-center justify-center py-6 text-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <Download size={22} strokeWidth={1.5} className="text-primary" />
-              </div>
+              {selectedTeam?.logo && (
+                <img src={selectedTeam.logo} alt="" className="w-12 h-12 object-contain" />
+              )}
               <p className="text-sm font-medium text-on-surface">
                 {t('squad.importSuccess', {
                   imported: importResult.imported,
-                  team: selectedTeam?.team_name,
+                  team: selectedTeam?.name,
                   defaultValue: `Imported {{imported}} players from {{team}}`,
                 })}
               </p>
@@ -302,22 +317,57 @@ function ImportTeamModal({
             </button>
           </div>
         ) : selectedTeam ? (
-          /* Confirmation state */
+          /* Confirmation state — show team + player count */
           <div className="space-y-4">
-            <p className="text-sm text-on-surface">
-              {t('squad.importConfirm', {
-                count: selectedTeam.count,
-                team: selectedTeam.team_name,
-                defaultValue: `Import {{count}} players from {{team}}?`,
-              })}
-            </p>
+            <div className="flex items-center gap-3">
+              {selectedTeam.logo && (
+                <img src={selectedTeam.logo} alt="" className="w-10 h-10 object-contain" />
+              )}
+              <div>
+                <p className="text-sm font-semibold text-on-surface">{selectedTeam.name}</p>
+                <p className="text-xs text-on-surface-variant">{selectedTeam.country}{selectedTeam.venue ? ` · ${selectedTeam.venue}` : ''}</p>
+              </div>
+            </div>
+
+            {isFetchingSquad ? (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 size={16} className="animate-spin text-on-surface-variant" />
+                <span className="ml-2 text-xs text-on-surface-variant">{t('squad.fetchingSquad', 'Fetching squad...')}</span>
+              </div>
+            ) : squadPlayers.length > 0 ? (
+              <>
+                <div className="max-h-48 overflow-y-auto border border-outline-variant rounded-md divide-y divide-outline-variant">
+                  {squadPlayers.map((p) => (
+                    <div key={p.id} className="flex items-center gap-3 px-3 py-2">
+                      <img src={p.photo} alt="" className="w-7 h-7 rounded-full object-cover bg-surface-container-high" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-on-surface truncate">{p.name}</p>
+                        <p className="text-[0.625rem] text-on-surface-variant">{p.positionRaw} · {p.age}y{p.number ? ` · #${p.number}` : ''}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-on-surface-variant">
+                  {t('squad.importConfirm', {
+                    count: squadPlayers.length,
+                    team: selectedTeam.name,
+                    defaultValue: `Import {{count}} players from {{team}}?`,
+                  })}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-on-surface-variant text-center py-4">
+                {t('squad.noSquadData', 'No squad data available for this team')}
+              </p>
+            )}
+
             {importError && (
               <p className="text-xs text-error">{importError}</p>
             )}
             <div className="flex items-center gap-3">
               <button
                 onClick={handleConfirmImport}
-                disabled={importStatus === 'importing'}
+                disabled={importStatus === 'importing' || isFetchingSquad || squadPlayers.length === 0}
                 className="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50 min-h-[44px] flex items-center gap-2"
               >
                 {importStatus === 'importing' ? (
@@ -327,7 +377,7 @@ function ImportTeamModal({
                 )}
               </button>
               <button
-                onClick={() => setSelectedTeam(null)}
+                onClick={() => { setSelectedTeam(null); setSquadPlayers([]) }}
                 disabled={importStatus === 'importing'}
                 className="px-4 py-2 text-on-surface-variant hover:text-on-surface rounded-md text-sm font-medium transition-colors min-h-[44px] disabled:opacity-50"
               >
@@ -367,20 +417,21 @@ function ImportTeamModal({
             ) : teams.length > 0 ? (
               <ul className="max-h-56 overflow-y-auto border border-outline-variant rounded-md divide-y divide-outline-variant">
                 {teams.map((team) => (
-                  <li key={team.team_name}>
+                  <li key={team.id}>
                     <button
-                      onClick={() => setSelectedTeam(team)}
-                      className="w-full flex items-center justify-between px-4 py-3 text-sm text-on-surface hover:bg-surface-container-high transition-colors text-left min-h-[44px]"
+                      onClick={() => handleSelectTeam(team)}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container-high transition-colors text-left min-h-[44px]"
                     >
-                      <span className="font-medium truncate">{team.team_name}</span>
-                      <span className="ml-3 shrink-0 text-xs text-on-surface-variant bg-surface-container rounded px-2 py-0.5">
-                        {team.count} {t('squad.players', 'players')}
-                      </span>
+                      <img src={team.logo} alt="" className="w-7 h-7 object-contain shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <span className="font-medium truncate block">{team.name}</span>
+                        <span className="text-[0.625rem] text-on-surface-variant">{team.country}{team.founded ? ` · Est. ${team.founded}` : ''}</span>
+                      </div>
                     </button>
                   </li>
                 ))}
               </ul>
-            ) : query.trim().length > 0 && !isSearching ? (
+            ) : query.trim().length >= 2 && !isSearching ? (
               <p className="text-sm text-on-surface-variant text-center py-4">
                 {t('squad.noTeamsFound', 'No teams found')}
               </p>
@@ -433,8 +484,8 @@ function SquadDetail({ squad, onBack, onDelete, onRemovePlayer, onAssignSlot, on
         <ImportTeamModal
           squad={squad}
           onClose={() => setShowImportModal(false)}
-          onImport={(teamName, existingPlayerIds) =>
-            importTeamPlayers(squad.id, teamName, existingPlayerIds)
+          onImport={(players, teamName, existingPlayerIds) =>
+            importTeamPlayers(squad.id, players, teamName, existingPlayerIds)
           }
         />
       )}

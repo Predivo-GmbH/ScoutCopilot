@@ -341,54 +341,35 @@ export function useSquad() {
     [addPlayerMutation],
   )
 
-  // ── Import team players (bulk) ───────────────────────────────────────
+  // ── Import team players (bulk — from API-Football squad) ─────────────
+
+  interface ApiSquadPlayer {
+    id: number
+    name: string
+    age: number
+    number: number | null
+    position: string       // Mapped position code (GK, CB, CM, ST)
+    positionRaw: string    // Original API-Football string
+    photo: string
+  }
 
   const importTeamMutation = useMutation({
     mutationFn: async ({
       squadId,
+      players,
       teamName,
       existingPlayerIds,
     }: {
       squadId: string
+      players: ApiSquadPlayer[]
       teamName: string
       existingPlayerIds: Set<string>
     }): Promise<{ imported: number; skipped: number }> => {
-      // Step 1: Find distinct player_ids for this team from season stats
-      const statsQuery = supabase
-        .from('sb_player_season_stats' as never)
-        .select('player_id')
-        .eq('team_name', teamName)
-        .limit(500)
-      const { data: statsRows } = await (statsQuery as unknown as Promise<{
-          data: Array<{ player_id: number }> | null
-        }>)
-
-      if (!statsRows || statsRows.length === 0) return { imported: 0, skipped: 0 }
-
-      const playerIds = [...new Set(statsRows.map((r) => r.player_id))]
-
-      // Step 2: Fetch player details from sb_players
-      const playersQuery = supabase
-        .from('sb_players' as never)
-        .select('player_id, player_name, player_nickname, primary_position, nationality, birth_date, photo_url')
-        .in('player_id', playerIds)
-      const { data: players } = await (playersQuery as unknown as Promise<{
-          data: Array<{
-            player_id: number
-            player_name: string
-            player_nickname: string | null
-            primary_position: string | null
-            nationality: string | null
-            birth_date: string | null
-            photo_url: string | null
-          }> | null
-        }>)
-
       if (!players || players.length === 0) return { imported: 0, skipped: 0 }
 
       // Filter out players already in the squad
       const toInsert = players.filter((p) => {
-        const normalizedId = `sb-open-${p.player_id}`
+        const normalizedId = `apifb-${p.id}`
         return !existingPlayerIds.has(normalizedId)
       })
 
@@ -398,25 +379,27 @@ export function useSquad() {
 
       // Batch insert all new players
       const rows = toInsert.map((p) => {
-        const position = mapPosition(p.primary_position)
+        const position = mapPosition(p.position)
         return {
           squad_id: squadId,
-          player_external_id: `sb-open-${p.player_id}`,
-          player_name: p.player_name,
+          player_external_id: `apifb-${p.id}`,
+          player_name: p.name,
           position_key: position,
           player_data: {
-            birth_date: p.birth_date ?? undefined,
-            nationality: p.nationality ?? '',
+            age: p.age,
+            nationality: '',
             position,
-            image: p.photo_url ?? undefined,
-            shirtNumber: 0,
+            image: p.photo,
+            shirtNumber: p.number ?? 0,
             contractUntil: '',
             weeklyWage: '',
             marketValue: '',
-            status: 'fit',
+            status: 'fit' as const,
             stats: {},
             radarData: [],
             overallRating: 0,
+            importedFrom: teamName,
+            provider: 'api-football',
           },
         }
       })
@@ -432,8 +415,8 @@ export function useSquad() {
   })
 
   const importTeamPlayers = useCallback(
-    (squadId: string, teamName: string, existingPlayerIds: Set<string>) => {
-      return importTeamMutation.mutateAsync({ squadId, teamName, existingPlayerIds })
+    (squadId: string, players: ApiSquadPlayer[], teamName: string, existingPlayerIds: Set<string>) => {
+      return importTeamMutation.mutateAsync({ squadId, players, teamName, existingPlayerIds })
     },
     [importTeamMutation],
   )

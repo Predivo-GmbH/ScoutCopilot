@@ -27,12 +27,16 @@ export function derivePhotoSource(photoUrl: string | undefined): 'sportsdb' | 'a
 }
 
 /**
- * Extracts the numeric player ID from an sb-open- prefixed string.
- * Returns NaN for non-sb-open IDs.
+ * Extracts the numeric player ID from a prefixed string.
+ * Supports sb-open-{id}, apifb-{id}, and bare numeric IDs.
+ * Returns NaN for unrecognised formats.
  */
 function extractNumericId(playerId: string): number {
   if (playerId.startsWith('sb-open-')) {
     return parseInt(playerId.replace('sb-open-', ''), 10)
+  }
+  if (playerId.startsWith('apifb-')) {
+    return parseInt(playerId.replace('apifb-', ''), 10)
   }
   // Handle bare numeric IDs (e.g. "5545" from squad insertions)
   const parsed = parseInt(playerId, 10)

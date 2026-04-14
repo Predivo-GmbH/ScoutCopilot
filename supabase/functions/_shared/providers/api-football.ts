@@ -238,6 +238,38 @@ export async function getSidelined(
   return json.response ?? [];
 }
 
+// ── Team Search ──────────────────────────────────────────────────
+
+export interface ApiFootballTeam {
+  team: {
+    id: number;
+    name: string;
+    code: string | null;
+    country: string;
+    founded: number | null;
+    national: boolean;
+    logo: string;
+  };
+  venue: {
+    id: number | null;
+    name: string | null;
+    city: string | null;
+    capacity: number | null;
+  } | null;
+}
+
+export async function searchTeams(
+  name: string,
+  organizationId: string
+): Promise<ApiFootballTeam[]> {
+  const json = (await apiFootballFetch(
+    `/teams?search=${encodeURIComponent(name)}`,
+    organizationId
+  )) as { response: ApiFootballTeam[] };
+
+  return json.response ?? [];
+}
+
 // ── Team Squad ────────────────────────────────────────────────────
 
 export async function getTeamSquad(
