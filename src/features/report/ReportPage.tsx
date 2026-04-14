@@ -17,6 +17,7 @@ import {
   Loader2,
   ArrowLeft,
   AlertTriangle,
+  Pencil,
 } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
@@ -40,6 +41,33 @@ export function ReportPage() {
   const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
   const [showAlertBanner, setShowAlertBanner] = useState(true)
   const [showApiFbWarning, setShowApiFbWarning] = useState(false)
+  const [editingBirthDate, setEditingBirthDate] = useState(false)
+
+  const handleUpdateBirthDate = useCallback(async (newDate: string) => {
+    if (!id || !newDate) return
+    setEditingBirthDate(false)
+    // Update birth_date in the source table
+    if (id.startsWith('sb-open-')) {
+      const numId = parseInt(id.replace('sb-open-', ''), 10)
+      if (!isNaN(numId)) {
+        await (supabase.from('sb_players' as never).update({ birth_date: newDate } as never).eq('player_id', numId) as unknown as Promise<unknown>)
+      }
+    } else if (id.startsWith('apifb-') || id.startsWith('manual-')) {
+      // Update squad_players player_data
+      const { data: row } = await supabase.from('squad_players').select('player_data').eq('player_external_id', id).limit(1).maybeSingle()
+      if (row) {
+        const pd = (row.player_data ?? {}) as Record<string, unknown>
+        await supabase.from('squad_players').update({ player_data: { ...pd, birth_date: newDate } }).eq('player_external_id', id)
+      }
+    }
+    // Also update the report_data.birth_date for display
+    const { data: reportRows } = await supabase.from('player_reports').select('id, report_data').eq('player_external_id', id).order('created_at', { ascending: false }).limit(1)
+    if (reportRows && reportRows.length > 0) {
+      const rd = (reportRows[0].report_data ?? {}) as Record<string, unknown>
+      await supabase.from('player_reports').update({ report_data: { ...rd, birth_date: newDate } }).eq('id', reportRows[0].id)
+    }
+    window.location.reload()
+  }, [id])
   const alertContext = (location.state as { alert?: WatchlistAlert } | null)?.alert
 
   // Check if the player exists in sb_players (for sb-open-* IDs without a report)
@@ -307,7 +335,25 @@ export function ReportPage() {
                 </span>
               ))}
               <span className="w-1 h-1 rounded-full bg-outline-variant" />
-              <span className="text-sm text-on-surface-variant">{t('common.age')}: {formatAge(report.birth_date)}</span>
+              {editingBirthDate ? (
+                <input
+                  type="date"
+                  autoFocus
+                  defaultValue={report.birth_date ?? ''}
+                  className="text-sm bg-surface-container-high border border-outline-variant rounded px-1 py-0.5 w-[8rem]"
+                  onChange={(e) => { if (e.target.value) handleUpdateBirthDate(e.target.value) }}
+                  onBlur={() => setEditingBirthDate(false)}
+                />
+              ) : (
+                <button
+                  className="text-sm text-on-surface-variant inline-flex items-center gap-1 hover:text-primary transition-colors"
+                  onClick={() => setEditingBirthDate(true)}
+                  title={t('squad.setBirthDate')}
+                >
+                  {t('common.age')}: {formatAge(report.birth_date) || '—'}
+                  <Pencil size={10} className="text-on-surface-variant/50" />
+                </button>
+              )}
               <span className="w-1 h-1 rounded-full bg-outline-variant" />
               <span className="text-sm text-on-surface-variant">{report.nationality}</span>
             </div>

@@ -688,7 +688,11 @@
       "low": "Niedrig"
     },
     "changePosition": "Position ändern",
-    "setBirthDate": "Geburtsdatum setzen"
+    "setBirthDate": "Geburtsdatum",
+    "addManualPlayer": "Spieler hinzufügen",
+    "playerNamePlaceholder": "z.B. Max Mustermann",
+    "nationalityPlaceholder": "z.B. Schweiz",
+    "playerAdded": "{{name}} zum Kader hinzugefügt"
   },
   "settings": {
     "heading": "Systemeinstellungen",

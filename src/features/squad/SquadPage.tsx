@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, Users, Heart, AlertTriangle, Plus, X, Loader2, Trash2, Search, Download } from 'lucide-react'
+import { ArrowLeft, Users, Heart, AlertTriangle, Plus, X, Loader2, Trash2, Search, Download, UserPlus } from 'lucide-react'
 import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { calculateAge } from '../../lib/ageUtils'
 import type { FormationType, MockSquad, SquadPosition } from '../../lib/mock-data'
@@ -455,12 +455,13 @@ function ImportTeamModal({
 function SquadDetail({ squad, onBack, onDelete, onRemovePlayer, onAssignSlot, onRemoveFromSlot, onUpdateFormation, onUpdateBirthDate, onUpdatePosition }: { squad: MockSquad; onBack: () => void; onDelete: (squadId: string) => void; onRemovePlayer: (squadId: string, playerId: string) => void; onAssignSlot: (squadId: string, playerId: string, slotKey: string) => void; onRemoveFromSlot: (squadId: string, playerId: string) => void; onUpdateFormation: (squadId: string, formation: FormationType) => void; onUpdateBirthDate: (squadId: string, playerId: string, birthDate: string) => void; onUpdatePosition: (squadId: string, playerId: string, position: SquadPosition) => void }) {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
-  const { importTeamPlayers } = useSquad()
+  const { importTeamPlayers, addPlayer } = useSquad()
   const gaps = useGapAnalysis(squad.players)
   const [formation, setFormation] = useState<FormationType>(squad.formation)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
+  const [showAddPlayerModal, setShowAddPlayerModal] = useState(false)
 
   const totalPlayers = squad.players.length
   const playersWithAge = squad.players.filter((p) => calculateAge(p.birth_date) !== null)
@@ -521,6 +522,13 @@ function SquadDetail({ squad, onBack, onDelete, onRemovePlayer, onAssignSlot, on
             {t('squad.importTeam', 'Import Team')}
           </button>
           <button
+            onClick={() => setShowAddPlayerModal(true)}
+            className="flex items-center gap-1.5 px-3 py-2 border border-outline-variant text-on-surface rounded-md text-sm font-medium hover:bg-surface-container-high transition-colors min-h-[44px]"
+          >
+            <UserPlus size={14} strokeWidth={2} />
+            {t('squad.addManualPlayer', 'Add Player')}
+          </button>
+          <button
             onClick={handleDelete}
             onBlur={() => setConfirmDelete(false)}
             disabled={isDeleting}
@@ -577,6 +585,96 @@ function SquadDetail({ squad, onBack, onDelete, onRemovePlayer, onAssignSlot, on
           <SquadTable players={squad.players} onRemovePlayer={(playerId) => onRemovePlayer(squad.id, playerId)} onUpdateBirthDate={(playerId, birthDate) => onUpdateBirthDate(squad.id, playerId, birthDate)} onUpdatePosition={(playerId, position) => onUpdatePosition(squad.id, playerId, position)} />
         )}
       </section>
+
+      {/* Add Manual Player Modal */}
+      {showAddPlayerModal && (
+        <AddManualPlayerModal
+          onClose={() => setShowAddPlayerModal(false)}
+          onAdd={(player) => {
+            addPlayer(squad.id, player)
+            setShowAddPlayerModal(false)
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+function AddManualPlayerModal({ onClose, onAdd }: { onClose: () => void; onAdd: (player: import('../../lib/mock-data').SquadPlayer) => void }) {
+  const { t } = useTranslation()
+  const ALL_POSITIONS: SquadPosition[] = ['GK', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CAM', 'LW', 'RW', 'ST']
+
+  const [name, setName] = useState('')
+  const [position, setPosition] = useState<SquadPosition>('CM')
+  const [nationality, setNationality] = useState('')
+  const [birthDate, setBirthDate] = useState('')
+  const [shirtNumber, setShirtNumber] = useState('')
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!name.trim()) return
+
+    const playerId = `manual-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    const player: import('../../lib/mock-data').SquadPlayer = {
+      id: playerId,
+      name: name.trim(),
+      position,
+      age: birthDate ? calculateAge(birthDate) ?? 0 : 0,
+      birth_date: birthDate || undefined,
+      nationality: nationality.trim(),
+      shirtNumber: shirtNumber ? parseInt(shirtNumber, 10) : 0,
+      contractUntil: '',
+      weeklyWage: '',
+      marketValue: '',
+      status: 'fit',
+      image: undefined,
+      stats: {},
+      radarData: [],
+      overallRating: 0,
+    }
+    onAdd(player)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-scrim/50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-surface-container-low rounded-lg border border-outline-variant shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
+          <h3 className="text-base font-semibold text-on-surface">{t('squad.addManualPlayer', 'Add Player')}</h3>
+          <button onClick={onClose} className="p-1 hover:bg-surface-container-high rounded transition-colors">
+            <X size={18} />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-on-surface-variant uppercase tracking-wider mb-1">{t('common.player')} *</label>
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:ring-2 focus:ring-primary/40 focus:outline-none" placeholder={t('squad.playerNamePlaceholder', 'e.g. John Smith')} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-on-surface-variant uppercase tracking-wider mb-1">{t('common.position')}</label>
+              <select value={position} onChange={(e) => setPosition(e.target.value as SquadPosition)} className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:ring-2 focus:ring-primary/40 focus:outline-none">
+                {ALL_POSITIONS.map((pos) => <option key={pos} value={pos}>{pos}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-on-surface-variant uppercase tracking-wider mb-1">{t('squad.number')}</label>
+              <input type="number" value={shirtNumber} onChange={(e) => setShirtNumber(e.target.value)} min="0" max="99" className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:ring-2 focus:ring-primary/40 focus:outline-none" placeholder="0" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-on-surface-variant uppercase tracking-wider mb-1">{t('common.nationality', 'Nationality')}</label>
+            <input type="text" value={nationality} onChange={(e) => setNationality(e.target.value)} className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:ring-2 focus:ring-primary/40 focus:outline-none" placeholder={t('squad.nationalityPlaceholder', 'e.g. Switzerland')} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-on-surface-variant uppercase tracking-wider mb-1">{t('squad.setBirthDate', 'Date of Birth')}</label>
+            <input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:ring-2 focus:ring-primary/40 focus:outline-none" />
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-on-surface-variant hover:text-on-surface transition-colors min-h-[44px]">{t('common.cancel')}</button>
+            <button type="submit" disabled={!name.trim()} className="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50 min-h-[44px]">{t('squad.addManualPlayer', 'Add Player')}</button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

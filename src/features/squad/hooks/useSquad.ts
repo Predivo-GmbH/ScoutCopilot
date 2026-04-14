@@ -221,8 +221,10 @@ export function useSquad() {
       player: SquadPlayer
       positionKey?: string
     }) => {
-      // Normalize player ID to include sb-open- prefix for consistency
-      const normalizedId = player.id.startsWith('sb-open-') ? player.id : `sb-open-${player.id}`
+      // Normalize player ID — keep existing prefixes (sb-open-, apifb-, manual-), add sb-open- only for bare numeric IDs
+      const normalizedId = player.id.startsWith('sb-open-') || player.id.startsWith('apifb-') || player.id.startsWith('manual-')
+        ? player.id
+        : `sb-open-${player.id}`
 
       const { error } = await supabase
         .from('squad_players')

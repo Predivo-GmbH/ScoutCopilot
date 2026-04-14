@@ -688,7 +688,11 @@
       "low": "Low"
     },
     "changePosition": "Change position",
-    "setBirthDate": "Set birth date"
+    "setBirthDate": "Date of Birth",
+    "addManualPlayer": "Add Player",
+    "playerNamePlaceholder": "e.g. John Smith",
+    "nationalityPlaceholder": "e.g. Switzerland",
+    "playerAdded": "{{name}} added to squad"
   },
   "settings": {
     "heading": "System Settings",
