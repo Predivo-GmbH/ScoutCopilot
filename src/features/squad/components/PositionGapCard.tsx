@@ -1,6 +1,7 @@
 import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
 import { Search, Users } from 'lucide-react'
+import { calculateAge } from '../../../lib/ageUtils'
 import type { PositionGap } from '../../../lib/mock-data'
 
 const priorityStyles: Record<string, { bg: string; text: string; border: string }> = {
@@ -37,6 +38,30 @@ export function PositionGapCard({ gap }: { gap: PositionGap }) {
           {gap.avgAge > 0 && <span>{t('squad.avgAge')}: {gap.avgAge}</span>}
           {gap.avgRating > 0 && <span>{t('squad.rating')}: {gap.avgRating}</span>}
         </div>
+
+        {/* Current players in this position */}
+        {gap.currentPlayers.length > 0 && (
+          <div className="space-y-1">
+            {gap.currentPlayers
+              .sort((a, b) => b.overallRating - a.overallRating)
+              .map((player) => {
+                const age = calculateAge(player.birth_date)
+                return (
+                  <div key={player.id} className="flex items-center justify-between text-xs">
+                    <span className="text-on-surface font-medium truncate">{player.name}</span>
+                    <div className="flex items-center gap-2 shrink-0 text-on-surface-variant font-data text-[0.625rem]">
+                      {age !== null && <span>{age}y</span>}
+                      {player.overallRating > 0 && (
+                        <span className={player.overallRating >= 78 ? 'text-secondary' : player.overallRating >= 65 ? 'text-warning' : 'text-error'}>
+                          {player.overallRating}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+          </div>
+        )}
 
         {/* Reasons */}
         {gap.reasons.length > 0 && (
