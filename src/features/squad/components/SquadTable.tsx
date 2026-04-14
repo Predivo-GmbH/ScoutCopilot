@@ -1,10 +1,11 @@
-import { useMemo, useState, useEffect, useRef } from 'react'
+import { useMemo, useState, useEffect, useRef, useCallback } from 'react'
 import { useLocalizedNavigate } from '../../../components/shared/LocalizedLink'
 import { useTranslation } from 'react-i18next'
 import { Trash2, Pencil } from 'lucide-react'
 import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import { formatAge } from '../../../lib/ageUtils'
 import { usePlayerPhotoFetch, derivePhotoSource } from '../../../lib/usePlayerPhotoFetch'
+import { usePlayerPhotoUpload } from '../../../lib/usePlayerPhotoUpload'
 import type { SquadPlayer } from '../../../lib/mock-data'
 
 interface SquadTableProps {
@@ -70,6 +71,22 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate }: Squad
     [sorted],
   )
   const { getPhoto, loadingIds, reportBrokenUrl } = usePlayerPhotoFetch(photoFetchPlayers)
+  const { upload: uploadPhoto, uploading: photoUploading } = usePlayerPhotoUpload()
+  const [uploadingPlayerId, setUploadingPlayerId] = useState<string | null>(null)
+  const [uploadedPhotos, setUploadedPhotos] = useState<Map<string, string>>(new Map())
+
+  const handleUploadPhoto = useCallback(async (playerId: string, file: File) => {
+    setUploadingPlayerId(playerId)
+    const result = await uploadPhoto(playerId, file)
+    if (result.url) {
+      setUploadedPhotos((prev) => {
+        const next = new Map(prev)
+        next.set(playerId, result.url!)
+        return next
+      })
+    }
+    setUploadingPlayerId(null)
+  }, [uploadPhoto])
 
   return (
     <>
@@ -79,7 +96,7 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate }: Squad
           const dot = statusDotStyles[player.status]
           const textColor = statusTextStyles[player.status]
           const statusKey = statusKeys[player.status]
-          const resolvedPhoto = getPhoto(player)
+          const resolvedPhoto = uploadedPhotos.get(player.id) ?? getPhoto(player)
           return (
             <div
               key={player.id}
@@ -88,7 +105,7 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate }: Squad
             >
               <div className="flex items-center gap-3">
                 <span className="font-data text-on-surface-variant text-xs w-6 text-center shrink-0">{player.shirtNumber}</span>
-                <PlayerAvatar name={player.name} size={36} imageUrl={resolvedPhoto} clickable loading={loadingIds.has(player.id)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} onImageError={() => reportBrokenUrl(player.id)} />
+                <PlayerAvatar name={player.name} size={36} imageUrl={resolvedPhoto} clickable loading={loadingIds.has(player.id)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} onImageError={() => reportBrokenUrl(player.id)} onUploadPhoto={(file) => handleUploadPhoto(player.id, file)} uploadingPhoto={uploadingPlayerId === player.id} />
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-on-surface truncate">{player.name}</p>
                   <p className="text-[0.625rem] text-on-surface-variant font-data">{player.nationality}</p>
@@ -213,7 +230,7 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate }: Squad
               const dot = statusDotStyles[player.status]
               const textColor = statusTextStyles[player.status]
               const statusKey = statusKeys[player.status]
-              const resolvedPhoto = getPhoto(player)
+              const resolvedPhoto = uploadedPhotos.get(player.id) ?? getPhoto(player)
               return (
                 <tr
                   key={player.id}
@@ -226,7 +243,7 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate }: Squad
                   <td className="px-6 py-4 font-data text-on-surface-variant text-xs">{player.shirtNumber}</td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
-                      <PlayerAvatar name={player.name} size={36} imageUrl={resolvedPhoto} clickable loading={loadingIds.has(player.id)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} onImageError={() => reportBrokenUrl(player.id)} />
+                      <PlayerAvatar name={player.name} size={36} imageUrl={resolvedPhoto} clickable loading={loadingIds.has(player.id)} aiGenerated={!!resolvedPhoto && derivePhotoSource(resolvedPhoto) === 'stitch'} onImageError={() => reportBrokenUrl(player.id)} onUploadPhoto={(file) => handleUploadPhoto(player.id, file)} uploadingPhoto={uploadingPlayerId === player.id} />
                       <div>
                         <p className="font-semibold text-on-surface">{player.name}</p>
                         <p className="text-[0.625rem] text-on-surface-variant font-data">{player.nationality}</p>

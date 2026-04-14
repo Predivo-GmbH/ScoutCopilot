@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useParams, useLocation, Navigate } from 'react-router-dom'
 import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { Helmet } from 'react-helmet-async'
@@ -27,6 +27,7 @@ import { useGeneratedReports } from '../../lib/useGeneratedReportsHook'
 import { supabase } from '../../lib/supabase'
 import { formatAge } from '../../lib/ageUtils'
 import { usePlayerPhotoFetch, derivePhotoSource } from '../../lib/usePlayerPhotoFetch'
+import { usePlayerPhotoUpload } from '../../lib/usePlayerPhotoUpload'
 import type { MockWatchlistPlayer, WatchlistAlert } from '../../lib/mock-data'
 
 export function ReportPage() {
@@ -98,6 +99,15 @@ export function ReportPage() {
   )
   const { getPhoto: getMainPhoto, loadingIds: mainLoadingIds } = usePlayerPhotoFetch(mainPhotoPlayers)
 
+  // Photo upload
+  const { upload: uploadPlayerPhoto, uploading: playerPhotoUploading } = usePlayerPhotoUpload()
+  const [uploadedPhotoUrl, setUploadedPhotoUrl] = useState<string | null>(null)
+  const handleUploadPhoto = useCallback(async (file: File) => {
+    if (!id) return
+    const result = await uploadPlayerPhoto(id, file)
+    if (result.url) setUploadedPhotoUrl(result.url)
+  }, [id, uploadPlayerPhoto])
+
   // On-demand photo fetching for similar players without images
   const similarPhotoPlayers = useMemo(
     () => (report?.similarPlayers ?? []).map((sp) => ({
@@ -152,7 +162,7 @@ export function ReportPage() {
         {/* Player info card when player exists but has no report yet */}
         {!playerNotFound && !generating && playerInfo && (
           <div className="bg-surface-container rounded-md p-4 sm:p-6 border border-outline-variant mb-6 flex items-center gap-4 sm:gap-6">
-            <PlayerAvatar name={playerDisplayName ?? ''} size={64} imageUrl={playerInfo.photo_url ?? undefined} />
+            <PlayerAvatar name={playerDisplayName ?? ''} size={64} imageUrl={uploadedPhotoUrl ?? playerInfo.photo_url ?? undefined} onUploadPhoto={handleUploadPhoto} uploadingPhoto={playerPhotoUploading} />
             <div>
               <h2 className="text-xl font-semibold tracking-tight text-on-surface uppercase">{playerDisplayName}</h2>
               <div className="flex items-center gap-3 mt-1 flex-wrap">
@@ -257,7 +267,7 @@ export function ReportPage() {
       {/* Player Header */}
       <div className="bg-surface-container rounded-md p-4 sm:p-6 border border-outline-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-4 sm:gap-6">
-          <PlayerAvatar name={report.playerName} size={80} imageUrl={getMainPhoto({ id: id!, image: report.image })} clickable loading={mainLoadingIds.has(id!)} aiGenerated={!!getMainPhoto({ id: id!, image: report.image }) && derivePhotoSource(getMainPhoto({ id: id!, image: report.image })) === 'stitch'} />
+          <PlayerAvatar name={report.playerName} size={80} imageUrl={uploadedPhotoUrl ?? getMainPhoto({ id: id!, image: report.image })} clickable loading={mainLoadingIds.has(id!)} aiGenerated={!!getMainPhoto({ id: id!, image: report.image }) && derivePhotoSource(getMainPhoto({ id: id!, image: report.image })) === 'stitch'} onUploadPhoto={handleUploadPhoto} uploadingPhoto={playerPhotoUploading} />
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-on-surface uppercase">{report.playerName}</h1>
             <div className="flex items-center gap-3 mt-1 flex-wrap">

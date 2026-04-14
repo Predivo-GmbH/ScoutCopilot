@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { X } from 'lucide-react'
+import { X, Camera } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 const JERSEY_COLORS = [
@@ -42,6 +42,10 @@ interface PlayerAvatarProps {
   aiGenerated?: boolean
   /** Called when the image URL fails to load (e.g. stale/broken URL) */
   onImageError?: () => void
+  /** When provided, shows a camera overlay for uploading a custom photo */
+  onUploadPhoto?: (file: File) => void
+  /** True while a photo upload is in progress */
+  uploadingPhoto?: boolean
 }
 
 function PhotoLightbox({ src, alt, aiGenerated, onClose }: { src: string; alt: string; aiGenerated?: boolean; onClose: () => void }) {
@@ -191,10 +195,14 @@ export function PlayerAvatar({
   loading = false,
   aiGenerated = false,
   onImageError,
+  onUploadPhoto,
+  uploadingPhoto = false,
 }: PlayerAvatarProps) {
+  const { t } = useTranslation()
   const [imgError, setImgError] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Fix #18: Return focus to trigger on close
   const handleLightboxClose = useCallback(() => {
@@ -202,20 +210,56 @@ export function PlayerAvatar({
     triggerRef.current?.focus()
   }, [])
 
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file && onUploadPhoto) onUploadPhoto(file)
+    // Reset input so re-uploading the same file triggers onChange again
+    if (e.target) e.target.value = ''
+  }, [onUploadPhoto])
+
+  const uploadOverlay = onUploadPhoto && !uploadingPhoto ? (
+    <>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+      <button
+        type="button"
+        className="absolute inset-0 flex items-center justify-center bg-surface/60 opacity-0 hover:opacity-100 transition-opacity rounded-md cursor-pointer"
+        onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click() }}
+        aria-label={t('player.uploadPhoto', 'Upload photo')}
+        title={t('player.uploadPhoto', 'Upload photo')}
+      >
+        <Camera size={Math.max(14, Math.round(size * 0.35))} strokeWidth={1.5} className="text-on-surface" />
+      </button>
+    </>
+  ) : null
+
+  const uploadingSpinner = uploadingPhoto ? (
+    <div className="absolute inset-0 flex items-center justify-center bg-surface/60 rounded-md">
+      <div className="w-1/3 h-1/3 rounded-full border-2 border-on-surface/40 border-t-primary animate-spin" />
+    </div>
+  ) : null
+
   // Loading state: show spinner animation
   if (loading && (!imageUrl || imgError)) {
     return (
-      <div className={className}>
+      <div className={`relative ${className}`}>
         <LoadingAvatar name={name} size={size} />
       </div>
     )
   }
 
-  // No image: show silhouette fallback
+  // No image: show silhouette fallback with optional upload overlay
   if (!imageUrl || imgError) {
     return (
-      <div className={className}>
+      <div className={`relative inline-block shrink-0 ${className}`}>
         <SilhouetteFallback name={name} size={size} />
+        {uploadOverlay}
+        {uploadingSpinner}
       </div>
     )
   }
@@ -253,6 +297,8 @@ export function PlayerAvatar({
           />
         )}
         {aiGenerated && <AiBadge size={size} />}
+        {uploadOverlay}
+        {uploadingSpinner}
       </div>
       {clickable && lightboxOpen && (
         <PhotoLightbox src={imageUrl} alt={name} aiGenerated={aiGenerated} onClose={handleLightboxClose} />
