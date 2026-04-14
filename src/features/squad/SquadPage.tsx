@@ -197,22 +197,29 @@ function ImportTeamModal({
     debounceRef.current = setTimeout(async () => {
       setIsSearching(true)
       try {
+        // team_name lives in sb_player_season_stats, not sb_players
         const teamQuery = supabase
-          .from('sb_players' as never)
-          .select('team_name')
+          .from('sb_player_season_stats' as never)
+          .select('team_name, player_id')
           .ilike('team_name', `%${query.trim()}%`)
-          .limit(200)
-        const { data } = await (teamQuery as unknown as Promise<{ data: Array<{ team_name: string }> | null }>)
+          .limit(500)
+        const { data } = await (teamQuery as unknown as Promise<{ data: Array<{ team_name: string; player_id: number }> | null }>)
 
         if (data) {
-          const counts = new Map<string, number>()
+          // Count distinct players per team
+          const teamPlayers = new Map<string, Set<number>>()
           for (const row of data) {
             if (row.team_name) {
-              counts.set(row.team_name, (counts.get(row.team_name) ?? 0) + 1)
+              const set = teamPlayers.get(row.team_name)
+              if (set) {
+                set.add(row.player_id)
+              } else {
+                teamPlayers.set(row.team_name, new Set([row.player_id]))
+              }
             }
           }
-          const results: TeamResult[] = Array.from(counts.entries())
-            .map(([team_name, count]) => ({ team_name, count }))
+          const results: TeamResult[] = Array.from(teamPlayers.entries())
+            .map(([team_name, playerSet]) => ({ team_name, count: playerSet.size }))
             .sort((a, b) => a.team_name.localeCompare(b.team_name))
           setTeams(results)
         }

@@ -348,12 +348,26 @@ export function useSquad() {
       teamName: string
       existingPlayerIds: Set<string>
     }): Promise<{ imported: number; skipped: number }> => {
-      // Fetch all players for the selected team from sb_players
-      const teamPlayersQuery = supabase
-        .from('sb_players' as never)
-        .select('player_id, player_name, player_nickname, primary_position, nationality, birth_date, photo_url, season_stats')
+      // Step 1: Find distinct player_ids for this team from season stats
+      const statsQuery = supabase
+        .from('sb_player_season_stats' as never)
+        .select('player_id')
         .eq('team_name', teamName)
-      const { data: players } = await (teamPlayersQuery as unknown as Promise<{
+        .limit(500)
+      const { data: statsRows } = await (statsQuery as unknown as Promise<{
+          data: Array<{ player_id: number }> | null
+        }>)
+
+      if (!statsRows || statsRows.length === 0) return { imported: 0, skipped: 0 }
+
+      const playerIds = [...new Set(statsRows.map((r) => r.player_id))]
+
+      // Step 2: Fetch player details from sb_players
+      const playersQuery = supabase
+        .from('sb_players' as never)
+        .select('player_id, player_name, player_nickname, primary_position, nationality, birth_date, photo_url')
+        .in('player_id', playerIds)
+      const { data: players } = await (playersQuery as unknown as Promise<{
           data: Array<{
             player_id: number
             player_name: string
@@ -362,7 +376,6 @@ export function useSquad() {
             nationality: string | null
             birth_date: string | null
             photo_url: string | null
-            season_stats: Record<string, unknown> | null
           }> | null
         }>)
 
