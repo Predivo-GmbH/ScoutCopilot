@@ -686,7 +686,9 @@
       "high": "High",
       "medium": "Medium",
       "low": "Low"
-    }
+    },
+    "changePosition": "Change position",
+    "setBirthDate": "Set birth date"
   },
   "settings": {
     "heading": "System Settings",

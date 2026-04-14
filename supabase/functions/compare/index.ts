@@ -222,6 +222,33 @@ async function fetchApiFootballPlayer(
   playerExternalId: string,
   organizationId: string
 ): Promise<Record<string, unknown> | null> {
+  // First check squad_players for stored data (avoids burning API calls)
+  const supabase = getServiceClient();
+  const { data: squadRow } = await supabase
+    .from("squad_players")
+    .select("player_name, position_key, player_data")
+    .eq("player_external_id", playerExternalId)
+    .limit(1)
+    .maybeSingle();
+
+  if (squadRow) {
+    const pd = (squadRow.player_data ?? {}) as Record<string, unknown>;
+    return {
+      player_external_id: playerExternalId,
+      player_name: squadRow.player_name,
+      age: pd.age ?? null,
+      birth_date: pd.birth_date ?? null,
+      nationality: (pd.nationality as string) ?? "Unknown",
+      position: squadRow.position_key ?? (pd.position as string) ?? "Unknown",
+      team: (pd.importedFrom as string) ?? "Unknown",
+      league: "Unknown",
+      photo_url: pd.image ?? undefined,
+      stats: pd.stats ?? {},
+      provider: "api-football",
+    };
+  }
+
+  // Fallback: fetch from live API
   const apiKey = Deno.env.get("API_FOOTBALL_KEY");
   if (!apiKey) {
     console.error("API_FOOTBALL_KEY not configured — cannot fetch player");
@@ -231,15 +258,16 @@ async function fetchApiFootballPlayer(
   const numericId = parseInt(playerExternalId.replace("apifb-", ""), 10);
   if (isNaN(numericId)) return null;
 
-  const currentYear = new Date().getFullYear();
+  // European football seasons span two years; API-Football uses the start year
+  const now = new Date();
+  const season = now.getMonth() < 7 ? now.getFullYear() - 1 : now.getFullYear();
 
   try {
-    const result = await apiFootballGetPlayer(numericId, currentYear, organizationId);
+    let result = await apiFootballGetPlayer(numericId, season, organizationId);
     if (!result) {
       // Try previous season as fallback
-      const prevResult = await apiFootballGetPlayer(numericId, currentYear - 1, organizationId);
-      if (!prevResult) return null;
-      return mapToGenericPlayer(prevResult as unknown as ApiFootballSearchResult);
+      result = await apiFootballGetPlayer(numericId, season - 1, organizationId);
+      if (!result) return null;
     }
     return mapToGenericPlayer(result as unknown as ApiFootballSearchResult);
   } catch (err) {

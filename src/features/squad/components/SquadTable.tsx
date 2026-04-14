@@ -6,12 +6,15 @@ import { PlayerAvatar } from '../../../components/shared/PlayerAvatar'
 import { formatAge } from '../../../lib/ageUtils'
 import { usePlayerPhotoFetch, derivePhotoSource } from '../../../lib/usePlayerPhotoFetch'
 import { usePlayerPhotoUpload } from '../../../lib/usePlayerPhotoUpload'
-import type { SquadPlayer } from '../../../lib/mock-data'
+import type { SquadPlayer, SquadPosition } from '../../../lib/mock-data'
+
+const ALL_POSITIONS: SquadPosition[] = ['GK', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CAM', 'LW', 'RW', 'ST']
 
 interface SquadTableProps {
   players: SquadPlayer[]
   onRemovePlayer?: (playerId: string) => void
   onUpdateBirthDate?: (playerId: string, birthDate: string) => void
+  onUpdatePosition?: (playerId: string, position: SquadPosition) => void
 }
 
 const statusKeys: Record<string, string> = {
@@ -35,12 +38,13 @@ const statusTextStyles: Record<string, string> = {
   on_loan: 'text-tertiary',
 }
 
-export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate }: SquadTableProps) {
+export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate, onUpdatePosition }: SquadTableProps) {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   const [removedName, setRemovedName] = useState<string | null>(null)
   const [editingBirthDateId, setEditingBirthDateId] = useState<string | null>(null)
+  const [editingPositionId, setEditingPositionId] = useState<string | null>(null)
   const birthDateInputRef = useRef<HTMLInputElement>(null)
   const sorted = [...players].sort((a, b) => a.shirtNumber - b.shirtNumber)
 
@@ -134,9 +138,27 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate }: Squad
                 </div>
               </div>
               <div className="flex flex-wrap gap-1">
-                <span className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm">
-                  {player.position}
-                </span>
+                {onUpdatePosition && editingPositionId === player.id ? (
+                  <select
+                    className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm border border-outline-variant"
+                    value={player.position}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => { onUpdatePosition(player.id, e.target.value as SquadPosition); setEditingPositionId(null) }}
+                    onBlur={() => setEditingPositionId(null)}
+                    autoFocus
+                  >
+                    {ALL_POSITIONS.map((pos) => <option key={pos} value={pos}>{pos}</option>)}
+                  </select>
+                ) : (
+                  <button
+                    className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm inline-flex items-center gap-1 hover:ring-1 hover:ring-primary/40 transition-all"
+                    onClick={(e) => { e.stopPropagation(); if (onUpdatePosition) setEditingPositionId(player.id) }}
+                    title={t('squad.changePosition', 'Change position')}
+                  >
+                    {player.position}
+                    {onUpdatePosition && <Pencil size={8} className="text-on-surface-variant/50" />}
+                  </button>
+                )}
                 {player.altPositions?.map((alt) => (
                   <span key={alt} className="text-[0.625rem] font-data bg-surface-container-high text-on-surface-variant px-1.5 py-0.5 rounded-sm">
                     {alt}
@@ -263,9 +285,27 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate }: Squad
                     </div>
                   </td>
                   <td className="px-4 py-4 text-center">
-                    <span className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm">
-                      {player.position}
-                    </span>
+                    {onUpdatePosition && editingPositionId === player.id ? (
+                      <select
+                        className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm border border-outline-variant"
+                        value={player.position}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => { onUpdatePosition(player.id, e.target.value as SquadPosition); setEditingPositionId(null) }}
+                        onBlur={() => setEditingPositionId(null)}
+                        autoFocus
+                      >
+                        {ALL_POSITIONS.map((pos) => <option key={pos} value={pos}>{pos}</option>)}
+                      </select>
+                    ) : (
+                      <button
+                        className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm inline-flex items-center gap-1 hover:ring-1 hover:ring-primary/40 transition-all"
+                        onClick={(e) => { e.stopPropagation(); if (onUpdatePosition) setEditingPositionId(player.id) }}
+                        title={t('squad.changePosition', 'Change position')}
+                      >
+                        {player.position}
+                        {onUpdatePosition && <Pencil size={8} className="text-on-surface-variant/50" />}
+                      </button>
+                    )}
                     {player.altPositions?.map((alt) => (
                       <span key={alt} className="text-[0.625rem] font-data bg-surface-container-high text-on-surface-variant px-1.5 py-0.5 rounded-sm ml-1">
                         {alt}

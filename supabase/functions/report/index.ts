@@ -245,6 +245,10 @@ serve(async (req: Request) => {
     // The frontend reads report_data.image, .age, .nationality, .position, .team, .league
     const enrichedReport: Record<string, unknown> = { ...report as unknown as Record<string, unknown> };
 
+    // Store raw stats so the comparison feature can compute per-90 metrics
+    // without depending on Claude's generated text
+    enrichedReport.rawStats = playerStats;
+
     // Inject photo_url as "image" (matching frontend field name in ReportsListPage)
     if (playerPhotoUrl) {
       // StatsBomb: photo_url fetched from sb_players during stats lookup

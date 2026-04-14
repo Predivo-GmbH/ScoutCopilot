@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Users, Heart, AlertTriangle, Plus, X, Loader2, Trash2, Search, Download } from 'lucide-react'
 import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
 import { calculateAge } from '../../lib/ageUtils'
-import type { FormationType, MockSquad } from '../../lib/mock-data'
+import type { FormationType, MockSquad, SquadPosition } from '../../lib/mock-data'
 import { useSquad } from './hooks/useSquad'
 import { useGapAnalysis } from './hooks/useGapAnalysis'
 import { FormationPitch, FormationSelector } from './components/FormationPitch'
@@ -16,7 +16,7 @@ import { supabase } from '../../lib/supabase'
 export function SquadPage() {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
-  const { squads, isLoading, selectedSquad, selectSquad, clearSelection, createSquad, deleteSquad, removePlayer, assignToSlot, removeFromSlot, updateFormation, updatePlayerBirthDate } = useSquad()
+  const { squads, isLoading, selectedSquad, selectSquad, clearSelection, createSquad, deleteSquad, removePlayer, assignToSlot, removeFromSlot, updateFormation, updatePlayerBirthDate, updatePlayerPosition } = useSquad()
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [createName, setCreateName] = useState('')
   const [createDescription, setCreateDescription] = useState('')
@@ -38,7 +38,7 @@ export function SquadPage() {
   }
 
   if (selectedSquad) {
-    return <SquadDetail squad={selectedSquad} onBack={clearSelection} onDelete={deleteSquad} onRemovePlayer={removePlayer} onAssignSlot={assignToSlot} onRemoveFromSlot={removeFromSlot} onUpdateFormation={updateFormation} onUpdateBirthDate={updatePlayerBirthDate} />
+    return <SquadDetail squad={selectedSquad} onBack={clearSelection} onDelete={deleteSquad} onRemovePlayer={removePlayer} onAssignSlot={assignToSlot} onRemoveFromSlot={removeFromSlot} onUpdateFormation={updateFormation} onUpdateBirthDate={updatePlayerBirthDate} onUpdatePosition={updatePlayerPosition} />
   }
 
   return (
@@ -452,7 +452,7 @@ function ImportTeamModal({
 
 // ── Squad Detail ─────────────────────────────────────────────────────────────
 
-function SquadDetail({ squad, onBack, onDelete, onRemovePlayer, onAssignSlot, onRemoveFromSlot, onUpdateFormation, onUpdateBirthDate }: { squad: MockSquad; onBack: () => void; onDelete: (squadId: string) => void; onRemovePlayer: (squadId: string, playerId: string) => void; onAssignSlot: (squadId: string, playerId: string, slotKey: string) => void; onRemoveFromSlot: (squadId: string, playerId: string) => void; onUpdateFormation: (squadId: string, formation: FormationType) => void; onUpdateBirthDate: (squadId: string, playerId: string, birthDate: string) => void }) {
+function SquadDetail({ squad, onBack, onDelete, onRemovePlayer, onAssignSlot, onRemoveFromSlot, onUpdateFormation, onUpdateBirthDate, onUpdatePosition }: { squad: MockSquad; onBack: () => void; onDelete: (squadId: string) => void; onRemovePlayer: (squadId: string, playerId: string) => void; onAssignSlot: (squadId: string, playerId: string, slotKey: string) => void; onRemoveFromSlot: (squadId: string, playerId: string) => void; onUpdateFormation: (squadId: string, formation: FormationType) => void; onUpdateBirthDate: (squadId: string, playerId: string, birthDate: string) => void; onUpdatePosition: (squadId: string, playerId: string, position: SquadPosition) => void }) {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
   const { importTeamPlayers } = useSquad()
@@ -574,7 +574,7 @@ function SquadDetail({ squad, onBack, onDelete, onRemovePlayer, onAssignSlot, on
             </button>
           </div>
         ) : (
-          <SquadTable players={squad.players} onRemovePlayer={(playerId) => onRemovePlayer(squad.id, playerId)} onUpdateBirthDate={(playerId, birthDate) => onUpdateBirthDate(squad.id, playerId, birthDate)} />
+          <SquadTable players={squad.players} onRemovePlayer={(playerId) => onRemovePlayer(squad.id, playerId)} onUpdateBirthDate={(playerId, birthDate) => onUpdateBirthDate(squad.id, playerId, birthDate)} onUpdatePosition={(playerId, position) => onUpdatePosition(squad.id, playerId, position)} />
         )}
       </section>
     </div>
