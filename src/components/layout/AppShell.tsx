@@ -93,7 +93,7 @@ export function AppShell() {
       )}
 
       <div
-        className="flex-1 flex flex-col h-screen min-w-0"
+        className="flex-1 flex flex-col min-w-0 overflow-hidden"
         style={{
           marginLeft: 0,
           transition: 'margin-left var(--duration-slow) ease-in-out',
@@ -107,7 +107,7 @@ export function AppShell() {
             }
           }
         `}</style>
-        <div className="app-shell-content flex-1 flex flex-col h-screen min-w-0" style={{ transition: 'margin-left var(--duration-slow) ease-in-out' }}>
+        <div className="app-shell-content flex-1 flex flex-col min-w-0 overflow-hidden" style={{ transition: 'margin-left var(--duration-slow) ease-in-out' }}>
           <TopBar onMenuToggle={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
           <main id="main-content" aria-label={t('nav.mainContent')} className="flex-1 overflow-y-auto flex flex-col">
             <div className="mx-auto max-w-[1280px] flex-1">
