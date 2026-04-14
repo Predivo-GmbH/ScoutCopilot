@@ -91,7 +91,7 @@ serve(async (req: Request) => {
       const nameToSearch = parsedParams.player_name ?? query.trim();
       rawPlayers = await searchStatsBombByName(getServiceClient(), escapePostgREST(nameToSearch));
     } else {
-      rawPlayers = await fetchFromProviders(auth.organizationId, parsedParams, query.trim());
+      rawPlayers = await fetchFromProviders(auth.organizationId, parsedParams);
     }
 
     if (rawPlayers.length === 0 && isNameSearch) {
@@ -570,7 +570,6 @@ async function searchStatsBombByName(
 async function fetchFromProviders(
   organizationId: string,
   params: ParsedSearchParams,
-  rawQuery: string
 ): Promise<Record<string, unknown>[]> {
   const supabase = getServiceClient();
   const results: Record<string, unknown>[] = [];
