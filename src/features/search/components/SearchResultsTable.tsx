@@ -294,7 +294,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                           ))}
                         </div>
                       </td>
-                      <td className="px-1 py-2.5 text-center align-middle font-data text-xs text-on-surface">
+                      <td className="px-1 py-2.5 text-center align-middle font-data text-xs text-on-surface" title={player.birth_date ?? ''}>
                         {formatAge(player.birth_date)}
                       </td>
                       <td className="px-2 py-2.5 align-middle text-xs text-on-surface">

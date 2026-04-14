@@ -102,7 +102,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
                   </div>
                   <div>
                     <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('common.age')}</p>
-                    <p className="font-data text-sm">{formatAge(player.birth_date)}</p>
+                    <p className="font-data text-sm" title={player.birth_date ?? ''}>{formatAge(player.birth_date)}</p>
                   </div>
                   <div>
                     <p className="text-[0.5625rem] text-on-surface-variant uppercase">{player.keyMetric.label}</p>
@@ -182,7 +182,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
                       </span>
                     </td>
                     <td className="px-4 py-4 text-center font-data text-on-surface-variant">{player.position}</td>
-                    <td className="px-4 py-4 text-center font-data">{formatAge(player.birth_date)}</td>
+                    <td className="px-4 py-4 text-center font-data" title={player.birth_date ?? ''}>{formatAge(player.birth_date)}</td>
                     <td className="px-4 py-4 text-center">
                       <div className="flex flex-col">
                         <span className="text-primary font-data font-semibold">{player.keyMetric.value}</span>

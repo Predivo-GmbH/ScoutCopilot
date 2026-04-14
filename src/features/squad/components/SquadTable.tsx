@@ -168,14 +168,11 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate, onUpdat
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div>
                   <p className="text-[0.5625rem] text-on-surface-variant uppercase">{t('common.age')}</p>
-                  {player.birth_date ? (
-                    <p className="font-data text-sm">{formatAge(player.birth_date)}</p>
-                  ) : player.age > 0 ? (
-                    <p className="font-data text-sm">{String(player.age)}</p>
-                  ) : editingBirthDateId === player.id ? (
+                  {editingBirthDateId === player.id ? (
                     <input
                       ref={birthDateInputRef}
                       type="date"
+                      defaultValue={player.birth_date ?? ''}
                       className="font-data text-xs bg-surface-container-high border border-outline-variant rounded px-1 py-0.5 w-[7rem]"
                       onClick={(e) => e.stopPropagation()}
                       onChange={(e) => {
@@ -186,10 +183,28 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate, onUpdat
                       }}
                       onBlur={() => setEditingBirthDateId(null)}
                     />
+                  ) : player.birth_date ? (
+                    <button
+                      className="font-data text-sm inline-flex items-center gap-1 hover:text-primary transition-colors"
+                      onClick={(e) => { e.stopPropagation(); if (onUpdateBirthDate) setEditingBirthDateId(player.id) }}
+                      title={player.birth_date}
+                    >
+                      {formatAge(player.birth_date)}
+                      {onUpdateBirthDate && <Pencil size={8} className="text-on-surface-variant/50" />}
+                    </button>
+                  ) : player.age > 0 ? (
+                    <button
+                      className="font-data text-sm inline-flex items-center gap-1 hover:text-primary transition-colors"
+                      onClick={(e) => { e.stopPropagation(); if (onUpdateBirthDate) setEditingBirthDateId(player.id) }}
+                      title={t('squad.setBirthDate', 'Set birth date')}
+                    >
+                      {String(player.age)}
+                      {onUpdateBirthDate && <Pencil size={8} className="text-on-surface-variant/50" />}
+                    </button>
                   ) : (
                     <button
                       className="font-data text-sm text-on-surface-variant/50 inline-flex items-center gap-1 hover:text-primary transition-colors"
-                      onClick={(e) => { e.stopPropagation(); setEditingBirthDateId(player.id) }}
+                      onClick={(e) => { e.stopPropagation(); if (onUpdateBirthDate) setEditingBirthDateId(player.id) }}
                       title={t('squad.setBirthDate', 'Set birth date')}
                     >
                       — <Pencil size={10} />
@@ -313,14 +328,11 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate, onUpdat
                     ))}
                   </td>
                   <td className="px-4 py-4 text-center font-data">
-                    {player.birth_date ? (
-                      formatAge(player.birth_date)
-                    ) : player.age > 0 ? (
-                      String(player.age)
-                    ) : editingBirthDateId === player.id ? (
+                    {editingBirthDateId === player.id ? (
                       <input
                         ref={birthDateInputRef}
                         type="date"
+                        defaultValue={player.birth_date ?? ''}
                         className="font-data text-xs bg-surface-container-high border border-outline-variant rounded px-1 py-0.5 w-[7rem]"
                         onClick={(e) => e.stopPropagation()}
                         onChange={(e) => {
@@ -331,10 +343,28 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate, onUpdat
                         }}
                         onBlur={() => setEditingBirthDateId(null)}
                       />
+                    ) : player.birth_date ? (
+                      <button
+                        className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+                        onClick={(e) => { e.stopPropagation(); if (onUpdateBirthDate) setEditingBirthDateId(player.id) }}
+                        title={player.birth_date}
+                      >
+                        {formatAge(player.birth_date)}
+                        {onUpdateBirthDate && <Pencil size={8} className="text-on-surface-variant/50" />}
+                      </button>
+                    ) : player.age > 0 ? (
+                      <button
+                        className="inline-flex items-center gap-1 hover:text-primary transition-colors"
+                        onClick={(e) => { e.stopPropagation(); if (onUpdateBirthDate) setEditingBirthDateId(player.id) }}
+                        title={t('squad.setBirthDate', 'Set birth date')}
+                      >
+                        {String(player.age)}
+                        {onUpdateBirthDate && <Pencil size={8} className="text-on-surface-variant/50" />}
+                      </button>
                     ) : (
                       <button
                         className="text-on-surface-variant/50 inline-flex items-center gap-1 hover:text-primary transition-colors"
-                        onClick={(e) => { e.stopPropagation(); setEditingBirthDateId(player.id) }}
+                        onClick={(e) => { e.stopPropagation(); if (onUpdateBirthDate) setEditingBirthDateId(player.id) }}
                         title={t('squad.setBirthDate', 'Set birth date')}
                       >
                         — <Pencil size={10} />

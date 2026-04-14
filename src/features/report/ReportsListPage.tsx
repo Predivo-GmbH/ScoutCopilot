@@ -14,7 +14,6 @@ import { usePlayerPhotoFetch, derivePhotoSource } from '../../lib/usePlayerPhoto
 interface ReportListItem {
   playerId: string
   playerName: string
-  age: number | null
   birth_date?: string
   nationality: string
   position: string
@@ -48,7 +47,6 @@ function mapDbRowToListItem(row: {
   return {
     playerId: row.player_external_id,
     playerName: row.player_name,
-    age: typeof playerData.age === 'number' ? playerData.age : null,
     birth_date: (playerData.birth_date as string) ?? undefined,
     nationality: (playerData.nationality as string) ?? '',
     position: (playerData.position as string) ?? '',
@@ -254,7 +252,7 @@ export function ReportsListPage() {
                   </div>
                   <div>
                     <p className="text-[0.625rem] text-on-surface-variant uppercase">{t('common.age')}</p>
-                    <p className="font-data text-sm">{formatAge(report.birth_date)}</p>
+                    <p className="font-data text-sm" title={report.birth_date ?? ''}>{formatAge(report.birth_date)}</p>
                   </div>
                   <div>
                     <p className="text-[0.625rem] text-on-surface-variant uppercase">{t('reportsList.fitScore')}</p>
@@ -332,7 +330,7 @@ export function ReportsListPage() {
                       <ClubDisplay club={report.club} isNationalTeam={report.isNationalTeam} />
                     </td>
                     <td className="px-4 py-4 text-center font-data text-on-surface-variant">{report.position}</td>
-                    <td className="px-4 py-4 text-center font-data">{formatAge(report.birth_date)}</td>
+                    <td className="px-4 py-4 text-center font-data" title={report.birth_date ?? ''}>{formatAge(report.birth_date)}</td>
                     <td className="px-4 py-4 text-center">
                       <span className="text-primary font-data font-semibold">{report.fitScore}</span>
                     </td>
