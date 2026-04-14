@@ -106,8 +106,9 @@ serve(async (req: Request) => {
       rawPlayers = await fetchFromProviders(auth.organizationId, parsedParams, query.trim());
     }
 
-    if (rawPlayers.length === 0) {
-      // Last resort: text search on player names in StatsBomb data
+    if (rawPlayers.length === 0 && isNameSearch) {
+      // Last resort for name-based queries: text search on player names in StatsBomb data.
+      // Skip this for filter-based queries where the raw text is an NL sentence, not a name.
       rawPlayers = await searchStatsBombByName(getServiceClient(), escapePostgREST(query.trim()));
     }
 
@@ -594,13 +595,13 @@ async function fetchFromProviders(
     console.error("Error fetching StatsBomb open data:", (err as Error).message);
   }
 
-  // Always include API-Football if API key is configured (global key, not per-org)
-  if (Deno.env.get("API_FOOTBALL_KEY")) {
+  // Only call API-Football when Claude extracted an actual player name from the query.
+  // Sending raw NL filter queries (e.g. "Strikers with xG/90 > 0.45") to API-Football's
+  // name search is nonsensical and wastes the free-tier quota (100 req/day).
+  if (Deno.env.get("API_FOOTBALL_KEY") && params.player_name) {
     try {
-      // Use raw query as name search — works best for player name queries
-      // For filter-based queries, StatsBomb open data handles it via DB
       const apiFootballResults = await apiFootballSearch(
-        rawQuery,
+        params.player_name,
         organizationId,
         undefined, // leagueId
         undefined  // season
