@@ -358,8 +358,9 @@ serve(async (req: Request) => {
         const pd = (row.player_data ?? {}) as Record<string, unknown>;
         const existingImage = pd.image as string | undefined;
 
-        // Skip if already has a non-API-Football photo (i.e. already generated)
-        if (existingImage && !existingImage.includes("api-sports.io")) {
+        // Skip if already has ANY image (API-Football CDN, TheSportsDB, Stitch, or user-uploaded)
+        // Only generate for players with NO image at all
+        if (existingImage) {
           results.push({
             player_id: externalId as unknown as number, // Will be string in results
             status: "already_has_photo",
