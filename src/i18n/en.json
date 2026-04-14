@@ -547,6 +547,9 @@
     "noReportYet": "No report yet",
     "noReportDesc": "Generate an AI scouting report for this player to see their full profile, stats, and tactical analysis.",
     "generateReport": "Generate Report",
+    "generateAnyway": "Generate Anyway",
+    "limitedDataTitle": "Limited Data Available",
+    "limitedDataDesc": "This player only has basic stats from API-Football (goals, assists, appearances). Advanced analytics (xG, progressive actions, pressing stats) are not available. The report will be less comprehensive than reports based on StatsBomb or Wyscout data.",
     "generating": "Generating report...",
     "generatingDesc": "Our AI is analysing this player's stats and building a comprehensive scouting report. This may take a moment."
   },

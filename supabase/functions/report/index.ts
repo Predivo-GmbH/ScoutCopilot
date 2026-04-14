@@ -100,10 +100,10 @@ serve(async (req: Request) => {
         ...mock.stats,
       };
     } else if (player_external_id.startsWith("apifb-")) {
-      // API-Football player — fetch stats from squad_players + live API
+      // API-Football player — use stored squad_players data first, live API only if sparse
       const rawApifbId = parseInt(player_external_id.replace("apifb-", ""), 10);
 
-      // Get stored data from squad_players
+      // Get stored data from squad_players (populated during team import)
       const { data: squadRow } = await supabase
         .from("squad_players")
         .select("player_name, position_key, player_data")
@@ -112,47 +112,61 @@ serve(async (req: Request) => {
         .maybeSingle();
 
       const pd = (squadRow?.player_data ?? {}) as Record<string, unknown>;
+      const storedStats = (pd.stats ?? {}) as Record<string, unknown>;
 
-      // Try fetching fresh stats from API-Football (current season)
-      let apifbStats: Record<string, unknown> = {};
-      try {
-        const currentSeason = new Date().getFullYear();
-        const apifbPlayer = await apiFootballGetPlayer(
-          rawApifbId,
-          currentSeason,
-          auth.organizationId
-        );
-        if (apifbPlayer) {
-          const mapped = apiFootballMap(
-            apifbPlayer as unknown as ApiFootballSearchResult
-          );
-          apifbStats = (mapped.stats ?? {}) as Record<string, unknown>;
-          // Fill in metadata from live API if squad_players is sparse
-          if (!pd.nationality && mapped.nationality) pd.nationality = mapped.nationality;
-          if (!pd.age && mapped.age) pd.age = mapped.age;
-          if (mapped.height) apifbStats.height = mapped.height;
-          if (mapped.weight) apifbStats.weight = mapped.weight;
-          if (mapped.team) apifbStats.team = mapped.team;
-          if (mapped.league) apifbStats.league = mapped.league;
-          if (mapped.birth_date) apifbStats.birth_date = mapped.birth_date;
-          if (mapped.photo_url) playerPhotoUrl = mapped.photo_url as string;
+      // Use stored stats from import as primary source (avoids burning rate-limited API calls)
+      let finalStats: Record<string, unknown> = { ...storedStats };
+
+      // Only call live API if stored stats are empty (no matches_played = never imported properly)
+      const hasStoredStats = storedStats.matches_played && Number(storedStats.matches_played) > 0;
+      if (!hasStoredStats) {
+        try {
+          // European football seasons span two years; API-Football uses the start year
+          // e.g. 2025/2026 season = season param "2025"
+          const now = new Date();
+          const season = now.getMonth() < 7 ? now.getFullYear() - 1 : now.getFullYear();
+          console.log(`[Report] No stored stats for apifb-${rawApifbId}, fetching live (season ${season})…`);
+
+          let apifbPlayer = await apiFootballGetPlayer(rawApifbId, season, auth.organizationId);
+
+          // If current season returns nothing, try previous season
+          if (!apifbPlayer) {
+            console.log(`[Report] No data for season ${season}, trying ${season - 1}…`);
+            apifbPlayer = await apiFootballGetPlayer(rawApifbId, season - 1, auth.organizationId);
+          }
+
+          if (apifbPlayer) {
+            const mapped = apiFootballMap(apifbPlayer as unknown as ApiFootballSearchResult);
+            finalStats = (mapped.stats ?? {}) as Record<string, unknown>;
+            // Fill in metadata from live API if squad_players is sparse
+            if (!pd.nationality && mapped.nationality) pd.nationality = mapped.nationality;
+            if (!pd.age && mapped.age) pd.age = mapped.age;
+            if (mapped.height) finalStats.height = mapped.height;
+            if (mapped.weight) finalStats.weight = mapped.weight;
+            if (mapped.team) finalStats.team = mapped.team;
+            if (mapped.league) finalStats.league = mapped.league;
+            if (mapped.birth_date) finalStats.birth_date = mapped.birth_date;
+            if (mapped.photo_url) playerPhotoUrl = mapped.photo_url as string;
+          }
+        } catch (apifbErr) {
+          console.error("[Report] API-Football live fetch failed:", (apifbErr as Error).message);
+          // Continue with whatever data we have from squad_players
         }
-      } catch (apifbErr) {
-        console.error("[Report] API-Football stats fetch failed:", (apifbErr as Error).message);
-        // Continue with whatever data we have from squad_players
       }
 
       playerStats = {
         player_name: squadRow?.player_name ?? player_name,
         age: (pd.age as number) || undefined,
-        birth_date: (apifbStats.birth_date as string) || undefined,
+        birth_date: (pd.birth_date as string) || (finalStats.birth_date as string) || undefined,
         nationality: (pd.nationality as string) || "Unknown",
         position: squadRow?.position_key || (pd.position as string) || "Unknown",
-        positions: squadRow?.position_key ? [squadRow.position_key] : [],
-        team: (apifbStats.team as string) || "Unknown",
-        league: (apifbStats.league as string) || "Unknown",
+        positions: pd.altPositions
+          ? [squadRow?.position_key || pd.position, ...(pd.altPositions as string[])].filter(Boolean)
+          : squadRow?.position_key ? [squadRow.position_key] : [],
+        team: (finalStats.team as string) || "Unknown",
+        league: (finalStats.league as string) || "Unknown",
         photo_url: (pd.image as string) || playerPhotoUrl || undefined,
-        ...apifbStats,
+        ...finalStats,
       };
       sourceProvider = "statsbomb"; // Closest match for DB schema; provider field is informational
       if (pd.image) playerPhotoUrl = pd.image as string;

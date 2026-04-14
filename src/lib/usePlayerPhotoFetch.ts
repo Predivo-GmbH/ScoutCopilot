@@ -19,10 +19,11 @@ interface PhotoResult {
  * Derives a photo source label from a photo URL.
  * Shared utility used across the app.
  */
-export function derivePhotoSource(photoUrl: string | undefined): 'sportsdb' | 'api-football' | 'stitch' | undefined {
+export function derivePhotoSource(photoUrl: string | undefined): 'sportsdb' | 'api-football' | 'stitch' | 'upload' | undefined {
   if (!photoUrl) return undefined
   if (photoUrl.includes('thesportsdb.com')) return 'sportsdb'
   if (photoUrl.includes('api-sports.io')) return 'api-football'
+  if (photoUrl.includes('supabase.co/storage')) return 'upload'
   return 'stitch'
 }
 

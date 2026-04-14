@@ -75,8 +75,11 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate }: Squad
   const [uploadingPlayerId, setUploadingPlayerId] = useState<string | null>(null)
   const [uploadedPhotos, setUploadedPhotos] = useState<Map<string, string>>(new Map())
 
+  const [uploadError, setUploadError] = useState<string | null>(null)
+
   const handleUploadPhoto = useCallback(async (playerId: string, file: File) => {
     setUploadingPlayerId(playerId)
+    setUploadError(null)
     const result = await uploadPhoto(playerId, file)
     if (result.url) {
       setUploadedPhotos((prev) => {
@@ -84,12 +87,21 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate }: Squad
         next.set(playerId, result.url!)
         return next
       })
+    } else if (result.error) {
+      setUploadError(result.error)
+      setTimeout(() => setUploadError(null), 5000)
     }
     setUploadingPlayerId(null)
   }, [uploadPhoto])
 
   return (
     <>
+      {/* Upload error toast */}
+      {uploadError && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-error text-on-error px-4 py-2 rounded-md text-sm font-medium shadow-lg animate-[fadeIn_200ms_ease-out]">
+          {uploadError}
+        </div>
+      )}
       {/* Mobile card layout */}
       <div className="block md:hidden space-y-3">
         {sorted.map((player) => {

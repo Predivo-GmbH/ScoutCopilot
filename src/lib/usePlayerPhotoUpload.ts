@@ -2,7 +2,8 @@ import { useState, useCallback, useRef } from 'react'
 import { supabase } from './supabase'
 import { cropFaceFromImage } from './cropFace'
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2 MB
+const MAX_RAW_FILE_SIZE = 10 * 1024 * 1024 // 10 MB — raw file before cropping (phone photos can be large)
+const MAX_CROPPED_SIZE = 2 * 1024 * 1024 // 2 MB — after cropping (should be well under this)
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
 interface UploadResult {
@@ -22,8 +23,8 @@ export function usePlayerPhotoUpload() {
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const upload = useCallback(async (playerId: string, file: File): Promise<UploadResult> => {
-    if (file.size > MAX_FILE_SIZE) {
-      return { url: null, error: 'File too large (max 2 MB)' }
+    if (file.size > MAX_RAW_FILE_SIZE) {
+      return { url: null, error: 'File too large (max 10 MB)' }
     }
     if (!ALLOWED_TYPES.includes(file.type)) {
       return { url: null, error: 'Only JPEG, PNG, and WebP allowed' }
@@ -31,8 +32,13 @@ export function usePlayerPhotoUpload() {
 
     setUploading(true)
     try {
-      // Auto-crop to head/face before uploading
+      // Auto-crop to head/face before uploading (reduces large photos to ~400x400 JPEG)
       const croppedFile = await cropFaceFromImage(file)
+
+      // Validate cropped size (safety check — should always pass after cropping)
+      if (croppedFile.size > MAX_CROPPED_SIZE) {
+        return { url: null, error: 'Cropped image still too large. Try a smaller photo.' }
+      }
 
       const ext = croppedFile.type === 'image/png' ? 'png' : croppedFile.type === 'image/webp' ? 'webp' : 'jpg'
       const storagePath = `${playerId}/photo.${ext}`
@@ -76,6 +82,7 @@ export function usePlayerPhotoUpload() {
 
       return { url: publicUrl, error: null }
     } catch (err) {
+      console.error('[PhotoUpload] Failed:', (err as Error).message)
       return { url: null, error: (err as Error).message || 'Upload failed' }
     } finally {
       setUploading(false)

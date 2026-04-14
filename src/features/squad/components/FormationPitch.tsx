@@ -228,16 +228,36 @@ export function FormationPitch({ formation, players, squadId, onAssignSlot, onRe
     })
   }, [slots, players])
 
-  // Final slot array — manual takes priority, falls back to auto
+  // Final slot array — manual takes priority, auto-assign fills remaining slots
   const slotPlayers = useMemo(() => {
     if (hasManualAssignments) {
+      // Players already manually assigned (in the DB with a slot key)
+      const manuallyAssignedIds = new Set<string>()
+      for (const p of manualSlotMap.values()) manuallyAssignedIds.add(p.id)
+
+      // For unoccupied slots, fall back to auto-assignment from remaining players
+      const autoAssigned = new Set<string>()
       return slots.map((slot, i) => {
         const key = slotKey(slot.position, i)
-        return { slot, player: manualSlotMap.get(key) ?? null, key }
+        const manualPick = manualSlotMap.get(key)
+        if (manualPick) return { slot, player: manualPick, key }
+
+        // Auto-fill: pick highest-rated unassigned player matching this position
+        const candidates = players
+          .filter((p) =>
+            p.position === slot.position &&
+            p.status !== 'on_loan' &&
+            !manuallyAssignedIds.has(p.id) &&
+            !autoAssigned.has(p.id)
+          )
+          .sort((a, b) => b.overallRating - a.overallRating)
+        const pick = candidates[0] ?? null
+        if (pick) autoAssigned.add(pick.id)
+        return { slot, player: pick, key }
       })
     }
     return autoSlotPlayers
-  }, [hasManualAssignments, slots, manualSlotMap, autoSlotPlayers])
+  }, [hasManualAssignments, slots, manualSlotMap, autoSlotPlayers, players])
 
   // Bench players: not in any slot
   const pitchPlayerIds = useMemo(() => {

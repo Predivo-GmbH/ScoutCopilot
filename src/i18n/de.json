@@ -547,6 +547,9 @@
     "noReportYet": "Noch kein Bericht",
     "noReportDesc": "Erstellen Sie einen KI-Scouting-Bericht für diesen Spieler, um sein vollständiges Profil, Statistiken und taktische Analyse zu sehen.",
     "generateReport": "Bericht erstellen",
+    "generateAnyway": "Trotzdem erstellen",
+    "limitedDataTitle": "Begrenzte Daten verfügbar",
+    "limitedDataDesc": "Für diesen Spieler sind nur Basisstatistiken von API-Football verfügbar (Tore, Assists, Einsätze). Erweiterte Analysen (xG, progressive Aktionen, Pressing-Statistiken) sind nicht verfügbar. Der Bericht wird weniger umfassend sein als Berichte auf Basis von StatsBomb- oder Wyscout-Daten.",
     "generating": "Bericht wird erstellt...",
     "generatingDesc": "Unsere KI analysiert die Statistiken dieses Spielers und erstellt einen umfassenden Scouting-Bericht. Dies kann einen Moment dauern."
   },

@@ -39,6 +39,7 @@ export function ReportPage() {
   const { generateReport, isGenerating, hasReport, generationError, clearGenerationError } = useGeneratedReports()
   const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
   const [showAlertBanner, setShowAlertBanner] = useState(true)
+  const [showApiFbWarning, setShowApiFbWarning] = useState(false)
   const alertContext = (location.state as { alert?: WatchlistAlert } | null)?.alert
 
   // Check if the player exists in sb_players (for sb-open-* IDs without a report)
@@ -215,9 +216,36 @@ export function ReportPage() {
               {t('common.back')}
             </Button>
             {!generating && !hasReport(id) && !playerNotFound && (
-              <Button variant="primary" size="sm" leftIcon={FileText} onClick={() => generateReport(id, playerDisplayName ?? undefined)}>
+              <Button variant="primary" size="sm" leftIcon={FileText} onClick={() => {
+                if (isApiFb) {
+                  setShowApiFbWarning(true)
+                } else {
+                  generateReport(id, playerDisplayName ?? undefined)
+                }
+              }}>
                 {t('report.generateReport')}
               </Button>
+            )}
+            {showApiFbWarning && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim/60" onClick={() => setShowApiFbWarning(false)}>
+                <div className="bg-surface-container border border-outline-variant rounded-md max-w-md mx-4 p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle size={20} strokeWidth={1.5} className="text-tertiary shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="text-sm font-semibold text-on-surface mb-1">{t('report.limitedDataTitle', 'Limited Data Available')}</h3>
+                      <p className="text-sm text-on-surface-variant">{t('report.limitedDataDesc', 'This player only has basic stats from API-Football (goals, assists, appearances). Advanced analytics (xG, progressive actions, pressing stats) are not available. The report will be less comprehensive than reports based on StatsBomb or Wyscout data.')}</p>
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-3">
+                    <button onClick={() => setShowApiFbWarning(false)} className="px-4 py-2 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors rounded-md min-h-[44px]">
+                      {t('common.cancel', 'Cancel')}
+                    </button>
+                    <Button variant="primary" size="sm" leftIcon={FileText} onClick={() => { setShowApiFbWarning(false); generateReport(id, playerDisplayName ?? undefined) }}>
+                      {t('report.generateAnyway', 'Generate Anyway')}
+                    </Button>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
