@@ -11,7 +11,6 @@ import { searchPlayers as wyscoutSearch } from "../_shared/providers/wyscout.ts"
 import { searchPlayers as statsbombSearch } from "../_shared/providers/statsbomb.ts";
 import {
   searchPlayersByName as apiFootballSearch,
-  mapToGenericPlayer,
 } from "../_shared/providers/api-football.ts";
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
 
@@ -87,21 +86,10 @@ serve(async (req: Request) => {
       const mockResults = searchMockPlayers(parsedParams);
       rawPlayers = mockResults.map(mockToGeneric);
     } else if (isNameSearch) {
-      // Name-based search: use parsed player_name if available, otherwise raw query
+      // Name-based search: use parsed player_name if available, otherwise raw query.
+      // StatsBomb is the single source of truth — API-Football is enrichment only.
       const nameToSearch = parsedParams.player_name ?? query.trim();
       rawPlayers = await searchStatsBombByName(getServiceClient(), escapePostgREST(nameToSearch));
-
-      // Also search API-Football by name
-      if (Deno.env.get("API_FOOTBALL_KEY")) {
-        try {
-          const apiFootballResults = await apiFootballSearch(
-            nameToSearch, auth.organizationId
-          );
-          rawPlayers.push(...apiFootballResults.map(mapToGenericPlayer));
-        } catch (err) {
-          console.error("API-Football name search error:", (err as Error).message);
-        }
-      }
     } else {
       rawPlayers = await fetchFromProviders(auth.organizationId, parsedParams, query.trim());
     }
@@ -595,22 +583,8 @@ async function fetchFromProviders(
     console.error("Error fetching StatsBomb open data:", (err as Error).message);
   }
 
-  // Only call API-Football when Claude extracted an actual player name from the query.
-  // Sending raw NL filter queries (e.g. "Strikers with xG/90 > 0.45") to API-Football's
-  // name search is nonsensical and wastes the free-tier quota (100 req/day).
-  if (Deno.env.get("API_FOOTBALL_KEY") && params.player_name) {
-    try {
-      const apiFootballResults = await apiFootballSearch(
-        params.player_name,
-        organizationId,
-        undefined, // leagueId
-        undefined  // season
-      );
-      results.push(...apiFootballResults.map(mapToGenericPlayer));
-    } catch (err) {
-      console.error("Error fetching API-Football data:", (err as Error).message);
-    }
-  }
+  // API-Football is NOT used for search — enrichment only (enrichWithCurrentData).
+  // StatsBomb (open + paid) and Wyscout are the search providers.
 
   // Also check org's paid API credentials
   const { data: credentials } = await supabase
