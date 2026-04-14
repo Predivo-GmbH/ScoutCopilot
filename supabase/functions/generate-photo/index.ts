@@ -1,6 +1,8 @@
 // Fetch real player photos from TheSportsDB, fall back to Stitch AI generation
 // Called internally by the search function for players without photos
-// POST /generate-photo { player_ids: number[] }
+// POST /generate-photo { player_ids?: number[], apifb_external_ids?: string[] }
+// player_ids: numeric IDs for sb_players table
+// apifb_external_ids: "apifb-{id}" strings for squad_players table
 // Also supports being called directly with service_role key
 
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
@@ -185,10 +187,11 @@ serve(async (req: Request) => {
     const stitchProjectId = Deno.env.get("STITCH_PROJECT_ID");
     const body = await req.json().catch(() => ({}));
     const playerIds: number[] = body.player_ids ?? [];
+    const apifbExternalIds: string[] = body.apifb_external_ids ?? [];
 
-    if (playerIds.length === 0) {
+    if (playerIds.length === 0 && apifbExternalIds.length === 0) {
       return new Response(
-        JSON.stringify({ error: "Missing player_ids" }),
+        JSON.stringify({ error: "Missing player_ids or apifb_external_ids" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -211,7 +214,7 @@ serve(async (req: Request) => {
     }
 
     const results: Array<{
-      player_id: number;
+      player_id: number | string;
       status: string;
       source?: string;
       photo_url?: string;
@@ -325,6 +328,96 @@ serve(async (req: Request) => {
           height: sportsDbResult.strHeight,
           weight: sportsDbResult.strWeight,
         });
+      }
+    }
+
+    // ── API-Football players (looked up by external ID in squad_players) ──
+    if (apifbExternalIds.length > 0) {
+      const apifbBatch = apifbExternalIds.slice(0, 10);
+      const { data: squadRows } = await supabase
+        .from("squad_players")
+        .select("player_external_id, player_name, player_data")
+        .in("player_external_id", apifbBatch);
+
+      // Deduplicate: one row per external_id (a player can appear in multiple squads)
+      const uniqueByExternalId = new Map<string, typeof squadRows extends (infer T)[] | null ? T : never>();
+      for (const row of squadRows ?? []) {
+        if (!uniqueByExternalId.has(row.player_external_id)) {
+          uniqueByExternalId.set(row.player_external_id, row);
+        }
+      }
+
+      // Fetch TheSportsDB in parallel for all apifb players
+      const apifbEntries = [...uniqueByExternalId.entries()];
+      const apifbSportsDbResults = await Promise.allSettled(
+        apifbEntries.map(([, row]) => fetchFromSportsDb(row.player_name))
+      );
+
+      for (let i = 0; i < apifbEntries.length; i++) {
+        const [externalId, row] = apifbEntries[i];
+        const pd = (row.player_data ?? {}) as Record<string, unknown>;
+        const existingImage = pd.image as string | undefined;
+
+        // Skip if already has a non-API-Football photo (i.e. already generated)
+        if (existingImage && !existingImage.includes("api-sports.io")) {
+          results.push({
+            player_id: externalId as unknown as number, // Will be string in results
+            status: "already_has_photo",
+            photo_url: existingImage,
+          });
+          continue;
+        }
+
+        const settled = apifbSportsDbResults[i];
+        const sportsDbResult = settled.status === "fulfilled"
+          ? settled.value
+          : { photoUrl: null, dateBorn: null, strHeight: null, strWeight: null };
+
+        const nationality = (pd.nationality as string) || "Unknown";
+        let photoUrl = sportsDbResult.photoUrl;
+
+        // Fallback: Stitch AI generation
+        if (!photoUrl && stitchApiKey && stitchProjectId) {
+          console.log(`[Fallback] No SportsDB photo for apifb "${row.player_name}", trying Stitch…`);
+          photoUrl = await generateWithStitch(row.player_name, nationality, stitchProjectId, stitchApiKey);
+        }
+
+        if (photoUrl && !photoUrl.startsWith("https://")) {
+          console.warn(`[Validation] Rejecting non-HTTPS photo URL: ${photoUrl.slice(0, 80)}`);
+          photoUrl = null;
+        }
+
+        if (photoUrl) {
+          // Save generated photo back to squad_players.player_data.image
+          const updatedPd = { ...pd, image: photoUrl };
+          await supabase
+            .from("squad_players")
+            .update({ player_data: updatedPd })
+            .eq("player_external_id", externalId);
+
+          const source = photoUrl.includes("thesportsdb.com") ? "sportsdb" : "stitch";
+          results.push({
+            player_id: externalId as unknown as number,
+            status: "found",
+            source,
+            photo_url: photoUrl,
+          });
+        } else {
+          results.push({
+            player_id: externalId as unknown as number,
+            status: "not_found",
+          });
+        }
+      }
+
+      // Handle external IDs not found in squad_players at all
+      for (const extId of apifbBatch) {
+        if (!uniqueByExternalId.has(extId)) {
+          results.push({
+            player_id: extId as unknown as number,
+            status: "not_found",
+          });
+        }
       }
     }
 

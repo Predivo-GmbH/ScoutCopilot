@@ -9,7 +9,7 @@ export interface PhotoFetchablePlayer {
 
 /** Result of the generate-photo edge function for a single player */
 interface PhotoResult {
-  player_id: number
+  player_id: number | string
   status: string
   photo_url?: string
   birth_date?: string | null
@@ -82,11 +82,16 @@ export function usePlayerPhotoFetch(players: PhotoFetchablePlayer[]) {
       requestedRef.current.add(p.id)
     }
 
-    const playerIds = needsPhoto
+    // Separate sb-open / bare numeric IDs from apifb- IDs
+    const sbPlayers = needsPhoto.filter((p) => !p.id.startsWith('apifb-'))
+    const apiFbPlayers = needsPhoto.filter((p) => p.id.startsWith('apifb-'))
+
+    const playerIds = sbPlayers
       .map((p) => extractNumericId(p.id))
       .filter((id) => !isNaN(id))
+    const apiFbExternalIds = apiFbPlayers.map((p) => p.id)
 
-    if (playerIds.length === 0) return
+    if (playerIds.length === 0 && apiFbExternalIds.length === 0) return
 
     // Mark as loading
     setLoadingIds((prev) => {
@@ -98,7 +103,7 @@ export function usePlayerPhotoFetch(players: PhotoFetchablePlayer[]) {
     // Build reverse lookup: numeric ID → original player ID string
     // so we can map generate-photo results back to the correct key
     const numericToOriginalId = new Map<number, string>()
-    for (const p of needsPhoto) {
+    for (const p of sbPlayers) {
       const numId = extractNumericId(p.id)
       if (!isNaN(numId)) {
         numericToOriginalId.set(numId, p.id)
@@ -106,15 +111,22 @@ export function usePlayerPhotoFetch(players: PhotoFetchablePlayer[]) {
     }
 
     supabase.functions
-      .invoke('generate-photo', { body: { player_ids: playerIds } })
+      .invoke('generate-photo', {
+        body: {
+          player_ids: playerIds.length > 0 ? playerIds : undefined,
+          apifb_external_ids: apiFbExternalIds.length > 0 ? apiFbExternalIds : undefined,
+        },
+      })
       .then(({ data: photoData }) => {
         if (!photoData?.results) return
 
         const newPhotos = new Map<string, string>()
         for (const result of photoData.results as PhotoResult[]) {
           if (result.photo_url) {
-            // Use the original player ID (could be "sb-open-123" or bare "123")
-            const playerId = numericToOriginalId.get(result.player_id) ?? `sb-open-${result.player_id}`
+            // For apifb- results, player_id is the external ID string; for sb-open, it's numeric
+            const playerId = typeof result.player_id === 'string'
+              ? result.player_id
+              : (numericToOriginalId.get(result.player_id) ?? `sb-open-${result.player_id}`)
             newPhotos.set(playerId, result.photo_url)
           }
         }
