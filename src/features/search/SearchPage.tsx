@@ -69,7 +69,8 @@ export function SearchPage() {
 
   function handleSuggestion(query: string) {
     setQueryInput(query)
-    search({ query })
+    // Only fill the input — let the user review and click Search manually
+    searchInputRef.current?.focus()
   }
 
   return (

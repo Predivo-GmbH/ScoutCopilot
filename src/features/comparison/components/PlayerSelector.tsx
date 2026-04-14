@@ -88,7 +88,7 @@ export function PlayerSelector({ selectedPlayers, availablePlayers, maxPlayers, 
           </button>
 
           {dropdownOpen && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-surface-container border border-outline-variant rounded-md shadow-lg z-50 overflow-hidden">
+            <div className="absolute top-full left-0 mt-2 min-w-[320px] bg-surface-container border border-outline-variant rounded-md shadow-lg z-50 overflow-hidden">
               <div className="p-2 border-b border-outline-variant">
                 <div className="relative">
                   <Search size={14} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/70" />

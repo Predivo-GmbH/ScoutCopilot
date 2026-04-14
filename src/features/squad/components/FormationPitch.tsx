@@ -75,7 +75,7 @@ function SlotMenu({ player, slotLabel, onMoveToBench, onSwap, onClose }: SlotMen
       </p>
       <button
         role="menuitem"
-        onClick={onMoveToBench}
+        onClick={(e) => { e.stopPropagation(); onMoveToBench() }}
         className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs text-on-surface hover:bg-surface-container-high transition-colors min-h-[44px]"
       >
         <UserMinus size={13} strokeWidth={1.5} className="shrink-0 text-on-surface-variant" />
@@ -83,7 +83,7 @@ function SlotMenu({ player, slotLabel, onMoveToBench, onSwap, onClose }: SlotMen
       </button>
       <button
         role="menuitem"
-        onClick={onSwap}
+        onClick={(e) => { e.stopPropagation(); onSwap() }}
         className="flex items-center gap-2 w-full text-left px-3 py-2 text-xs text-on-surface hover:bg-surface-container-high transition-colors min-h-[44px]"
       >
         <ArrowLeftRight size={13} strokeWidth={1.5} className="shrink-0 text-on-surface-variant" />
@@ -394,11 +394,11 @@ export function FormationPitch({ formation, players, squadId, onAssignSlot, onRe
             <p className="text-[0.5rem] uppercase tracking-widest text-on-surface-variant font-medium mb-2">
               {t('squad.bench', 'Bench')} ({benchPlayers.length})
             </p>
-            <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-thin">
+            <div className="flex flex-wrap gap-3">
               {benchPlayers.map((player) => (
                 <div
                   key={player.id}
-                  className="flex flex-col items-center gap-1 shrink-0 min-w-[3rem]"
+                  className="flex flex-col items-center gap-1 min-w-[3rem]"
                   title={player.name}
                 >
                   <div className="relative">
