@@ -75,8 +75,13 @@ const POSITION_MAP: Record<string, SquadPosition> = {
   'Second Striker': 'ST',
 }
 
+/** Valid short position codes that can pass through directly */
+const VALID_POSITIONS = new Set<string>(['GK', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CAM', 'LW', 'RW', 'ST'])
+
 function mapPosition(rawPosition: string | null | undefined): SquadPosition {
-  if (!rawPosition) return 'CM'
+  if (!rawPosition || rawPosition === 'Unknown') return 'CM'
+  // Already a valid short code? Pass through.
+  if (VALID_POSITIONS.has(rawPosition)) return rawPosition as SquadPosition
   return POSITION_MAP[rawPosition] ?? 'CM'
 }
 
