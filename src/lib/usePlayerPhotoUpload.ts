@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 import { supabase } from './supabase'
+import { cropFaceFromImage } from './cropFace'
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2 MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
@@ -30,12 +31,15 @@ export function usePlayerPhotoUpload() {
 
     setUploading(true)
     try {
-      const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg'
+      // Auto-crop to head/face before uploading
+      const croppedFile = await cropFaceFromImage(file)
+
+      const ext = croppedFile.type === 'image/png' ? 'png' : croppedFile.type === 'image/webp' ? 'webp' : 'jpg'
       const storagePath = `${playerId}/photo.${ext}`
 
       const { error: uploadError } = await supabase.storage
         .from('player-photos')
-        .upload(storagePath, file, { upsert: true, contentType: file.type })
+        .upload(storagePath, croppedFile, { upsert: true, contentType: croppedFile.type })
 
       if (uploadError) throw uploadError
 

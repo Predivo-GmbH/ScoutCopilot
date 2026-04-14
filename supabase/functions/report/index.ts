@@ -8,7 +8,8 @@ import { generateScoutingReport, TransferHistoryEntry, ContractInfo } from "../_
 import { getMockPlayer } from "../_shared/mock-data.ts";
 import { getPlayerStats as wyscoutStats, getPlayerDetails as wyscoutDetails } from "../_shared/providers/wyscout.ts";
 import { getPlayerSeasonStats as statsbombStats } from "../_shared/providers/statsbomb.ts";
-import { searchPlayersByName as apiFootballSearch, getTransfers as apiFootballTransfers } from "../_shared/providers/api-football.ts";
+import { searchPlayersByName as apiFootballSearch, getTransfers as apiFootballTransfers, getPlayer as apiFootballGetPlayer, mapToGenericPlayer as apiFootballMap } from "../_shared/providers/api-football.ts";
+import type { ApiFootballSearchResult } from "../_shared/providers/api-football.ts";
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
 
 serve(async (req: Request) => {
@@ -98,6 +99,63 @@ serve(async (req: Request) => {
         market_value: mock.market_value,
         ...mock.stats,
       };
+    } else if (player_external_id.startsWith("apifb-")) {
+      // API-Football player — fetch stats from squad_players + live API
+      const rawApifbId = parseInt(player_external_id.replace("apifb-", ""), 10);
+
+      // Get stored data from squad_players
+      const { data: squadRow } = await supabase
+        .from("squad_players")
+        .select("player_name, position_key, player_data")
+        .eq("player_external_id", player_external_id)
+        .limit(1)
+        .maybeSingle();
+
+      const pd = (squadRow?.player_data ?? {}) as Record<string, unknown>;
+
+      // Try fetching fresh stats from API-Football (current season)
+      let apifbStats: Record<string, unknown> = {};
+      try {
+        const currentSeason = new Date().getFullYear();
+        const apifbPlayer = await apiFootballGetPlayer(
+          rawApifbId,
+          currentSeason,
+          auth.organizationId
+        );
+        if (apifbPlayer) {
+          const mapped = apiFootballMap(
+            apifbPlayer as unknown as ApiFootballSearchResult
+          );
+          apifbStats = (mapped.stats ?? {}) as Record<string, unknown>;
+          // Fill in metadata from live API if squad_players is sparse
+          if (!pd.nationality && mapped.nationality) pd.nationality = mapped.nationality;
+          if (!pd.age && mapped.age) pd.age = mapped.age;
+          if (mapped.height) apifbStats.height = mapped.height;
+          if (mapped.weight) apifbStats.weight = mapped.weight;
+          if (mapped.team) apifbStats.team = mapped.team;
+          if (mapped.league) apifbStats.league = mapped.league;
+          if (mapped.birth_date) apifbStats.birth_date = mapped.birth_date;
+          if (mapped.photo_url) playerPhotoUrl = mapped.photo_url as string;
+        }
+      } catch (apifbErr) {
+        console.error("[Report] API-Football stats fetch failed:", (apifbErr as Error).message);
+        // Continue with whatever data we have from squad_players
+      }
+
+      playerStats = {
+        player_name: squadRow?.player_name ?? player_name,
+        age: (pd.age as number) || undefined,
+        birth_date: (apifbStats.birth_date as string) || undefined,
+        nationality: (pd.nationality as string) || "Unknown",
+        position: squadRow?.position_key || (pd.position as string) || "Unknown",
+        positions: squadRow?.position_key ? [squadRow.position_key] : [],
+        team: (apifbStats.team as string) || "Unknown",
+        league: (apifbStats.league as string) || "Unknown",
+        photo_url: (pd.image as string) || playerPhotoUrl || undefined,
+        ...apifbStats,
+      };
+      sourceProvider = "statsbomb"; // Closest match for DB schema; provider field is informational
+      if (pd.image) playerPhotoUrl = pd.image as string;
     } else if (player_external_id.startsWith("sb-open-")) {
       // StatsBomb open data — fetch from our own DB
       const rawId = parseInt(player_external_id.replace("sb-open-", ""), 10);
