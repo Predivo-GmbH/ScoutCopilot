@@ -82,7 +82,6 @@ export function usePlayerPhotoUpload() {
 
       return { url: publicUrl, error: null }
     } catch (err) {
-      console.error('[PhotoUpload] Failed:', (err as Error).message)
       return { url: null, error: (err as Error).message || 'Upload failed' }
     } finally {
       setUploading(false)

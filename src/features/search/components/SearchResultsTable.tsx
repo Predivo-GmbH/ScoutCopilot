@@ -724,7 +724,7 @@ function PlayerAvatarWithFlag({ name, nationality, imageUrl, photoSource, loadin
   name: string
   nationality: string
   imageUrl?: string
-  photoSource?: 'sportsdb' | 'api-football' | 'stitch'
+  photoSource?: 'sportsdb' | 'api-football' | 'stitch' | 'upload'
   loading?: boolean
 }) {
   const flagEmoji = countryToFlag(nationality)
