@@ -15,8 +15,12 @@
   RewriteCond %{HTTPS} off
   RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+  # Redirect www to non-www (canonical domain)
+  RewriteCond %{HTTP_HOST} ^www\.scoutcopilot\.com [NC]
+  RewriteRule ^(.*)$ https://scoutcopilot.com/$1 [L,R=301]
+
   # Redirect bare root "/" to default language "/en/"
-  RewriteRule ^$ /en/ [R=302,L]
+  RewriteRule ^$ /en/ [R=301,L]
 
   # 301 redirect old non-prefixed URLs to /en/ (preserves SEO equity)
   RewriteCond %{REQUEST_URI} !^/(en|de)/

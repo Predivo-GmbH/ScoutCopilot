@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, Users, Heart, AlertTriangle, Plus, X, Loader2, Trash2, Search, Download, UserPlus } from 'lucide-react'
+import { ArrowLeft, Users, Heart, AlertTriangle, Plus, Loader2, Trash2, Search, Download, UserPlus } from 'lucide-react'
 import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
+import { Modal } from '../../components/ui/Modal'
+import { Input } from '../../components/ui/Input'
+import { Button } from '../../components/ui/Button'
 import { calculateAge } from '../../lib/ageUtils'
 import type { FormationType, MockSquad, SquadPosition } from '../../lib/mock-data'
 import { useSquad } from './hooks/useSquad'
@@ -31,7 +34,8 @@ export function SquadPage() {
       setCreateName('')
       setCreateDescription('')
       setCreateStatus('idle')
-    } catch {
+    } catch (err) {
+      console.error('Create squad failed:', err)
       setCreateStatus('error')
       setTimeout(() => setCreateStatus('idle'), 3000)
     }
@@ -60,65 +64,60 @@ export function SquadPage() {
       </div>
 
       {/* Create Squad Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim/60" onClick={() => setShowCreateModal(false)}>
-          <div className="bg-surface-container border border-outline-variant rounded-md w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-on-surface">{t('squad.createSquad')}</h3>
-              <button onClick={() => setShowCreateModal(false)} aria-label={t('common.close', 'Close')} className="text-on-surface-variant hover:text-on-surface min-w-[44px] min-h-[44px] flex items-center justify-center">
-                <X size={16} />
-              </button>
-            </div>
-            <div className="space-y-3">
-              <div>
-                <label htmlFor="squad-name" className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">{t('squad.squadName')}</label>
-                <input
-                  id="squad-name"
-                  type="text"
-                  value={createName}
-                  onChange={(e) => setCreateName(e.target.value)}
-                  placeholder={t('squad.squadNamePlaceholder')}
-                  className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
-                  autoFocus
-                />
-              </div>
-              <div>
-                <label htmlFor="squad-description" className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">{t('squad.description')}</label>
-                <textarea
-                  id="squad-description"
-                  value={createDescription}
-                  onChange={(e) => setCreateDescription(e.target.value)}
-                  placeholder={t('squad.descriptionPlaceholder')}
-                  rows={3}
-                  className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors resize-none"
-                />
-              </div>
-              <div className="flex items-center gap-3 pt-2">
-                <button
-                  onClick={handleCreateSquad}
-                  disabled={createStatus === 'creating' || !createName.trim()}
-                  className="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-light transition-colors disabled:opacity-50 min-h-[44px] flex items-center gap-2"
-                >
-                  {createStatus === 'creating' ? (
-                    <><Loader2 size={14} className="animate-spin" /> {t('squad.creating')}</>
-                  ) : (
-                    t('common.create')
-                  )}
-                </button>
-                <button
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 text-on-surface-variant hover:text-on-surface rounded-md text-sm font-medium transition-colors min-h-[44px]"
-                >
-                  {t('common.cancel')}
-                </button>
-                {createStatus === 'error' && (
-                  <span className="text-xs text-error">{t('common.failedToSave')}</span>
-                )}
-              </div>
-            </div>
+      <Modal
+        open={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title={t('squad.createSquad')}
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowCreateModal(false)}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleCreateSquad}
+              disabled={createStatus === 'creating' || !createName.trim()}
+              loading={createStatus === 'creating'}
+            >
+              {createStatus === 'creating' ? t('squad.creating') : t('common.create')}
+            </Button>
+            {createStatus === 'error' && (
+              <span className="text-xs text-error">{t('common.failedToSave')}</span>
+            )}
+          </>
+        }
+      >
+        <div className="space-y-3 max-h-[90vh] overflow-y-auto">
+          <div>
+            <label htmlFor="squad-name" className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">{t('squad.squadName')}</label>
+            <input
+              id="squad-name"
+              type="text"
+              value={createName}
+              onChange={(e) => setCreateName(e.target.value)}
+              placeholder={t('squad.squadNamePlaceholder')}
+              className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
+              autoFocus
+            />
+          </div>
+          <div>
+            <label htmlFor="squad-description" className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">{t('squad.description')}</label>
+            <textarea
+              id="squad-description"
+              value={createDescription}
+              onChange={(e) => setCreateDescription(e.target.value)}
+              placeholder={t('squad.descriptionPlaceholder')}
+              rows={3}
+              className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors resize-none"
+            />
           </div>
         </div>
-      )}
+      </Modal>
 
       {/* Squad Grid */}
       {isLoading ? (
@@ -257,41 +256,26 @@ function ImportTeamModal({
       const result = await onImport(squadPlayers, selectedTeam.name, existingIds)
       setImportResult(result)
       setImportStatus('success')
-    } catch {
+    } catch (err) {
+      console.error('Import team failed:', err)
       setImportError(t('common.failedToSave', 'Failed to save. Please try again.'))
       setImportStatus('error')
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim/60" onClick={onClose}>
-      <div
-        className="bg-surface-container border border-outline-variant rounded-md w-full max-w-md mx-4 p-6"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Download size={16} strokeWidth={2} className="text-primary" />
-            <h3 className="text-sm font-semibold text-on-surface">
-              {t('squad.importTeam', 'Import Team')}
-            </h3>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label={t('common.close', 'Close')}
-            className="text-on-surface-variant hover:text-on-surface min-w-[44px] min-h-[44px] flex items-center justify-center"
-          >
-            <X size={16} />
-          </button>
-        </div>
-
+    <Modal
+      open={true}
+      onClose={onClose}
+      title={t('squad.importTeam', 'Import Team')}
+    >
+      <div className="max-h-[90vh] overflow-y-auto">
         {importStatus === 'success' && importResult ? (
           /* Success state */
           <div className="space-y-4">
             <div className="flex flex-col items-center justify-center py-6 text-center gap-3">
               {selectedTeam?.logo && (
-                <img src={selectedTeam.logo} alt="" className="w-12 h-12 object-contain" />
+                <img src={selectedTeam.logo} alt="" className="w-12 h-12 object-contain" width={48} height={48} loading="lazy" />
               )}
               <p className="text-sm font-medium text-on-surface">
                 {t('squad.importSuccess', {
@@ -309,19 +293,16 @@ function ImportTeamModal({
                 </p>
               )}
             </div>
-            <button
-              onClick={onClose}
-              className="w-full px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-dark transition-colors min-h-[44px]"
-            >
+            <Button variant="primary" className="w-full" onClick={onClose}>
               {t('common.done', 'Done')}
-            </button>
+            </Button>
           </div>
         ) : selectedTeam ? (
           /* Confirmation state — show team + player count */
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               {selectedTeam.logo && (
-                <img src={selectedTeam.logo} alt="" className="w-10 h-10 object-contain" />
+                <img src={selectedTeam.logo} alt="" className="w-10 h-10 object-contain" width={40} height={40} loading="lazy" />
               )}
               <div>
                 <p className="text-sm font-semibold text-on-surface">{selectedTeam.name}</p>
@@ -339,7 +320,7 @@ function ImportTeamModal({
                 <div className="max-h-48 overflow-y-auto border border-outline-variant rounded-md divide-y divide-outline-variant">
                   {squadPlayers.map((p) => (
                     <div key={p.id} className="flex items-center gap-3 px-3 py-2">
-                      <img src={p.photo} alt="" className="w-7 h-7 rounded-full object-cover bg-surface-container-high" />
+                      <img src={p.photo} alt="" className="w-7 h-7 rounded-full object-cover bg-surface-container-high" width={28} height={28} loading="lazy" />
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium text-on-surface truncate">{p.name}</p>
                         <p className="text-[0.625rem] text-on-surface-variant">{p.positionRaw} · {p.age}y{p.number ? ` · #${p.number}` : ''}</p>
@@ -365,24 +346,24 @@ function ImportTeamModal({
               <p className="text-xs text-error">{importError}</p>
             )}
             <div className="flex items-center gap-3">
-              <button
+              <Button
+                variant="primary"
+                size="sm"
                 onClick={handleConfirmImport}
                 disabled={importStatus === 'importing' || isFetchingSquad || squadPlayers.length === 0}
-                className="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50 min-h-[44px] flex items-center gap-2"
+                loading={importStatus === 'importing'}
+                leftIcon={Download}
               >
-                {importStatus === 'importing' ? (
-                  <><Loader2 size={14} className="animate-spin" /> {t('squad.importing', 'Importing...')}</>
-                ) : (
-                  <><Download size={14} strokeWidth={2} /> {t('squad.importConfirmBtn', 'Import')}</>
-                )}
-              </button>
-              <button
+                {importStatus === 'importing' ? t('squad.importing', 'Importing...') : t('squad.importConfirmBtn', 'Import')}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => { setSelectedTeam(null); setSquadPlayers([]) }}
                 disabled={importStatus === 'importing'}
-                className="px-4 py-2 text-on-surface-variant hover:text-on-surface rounded-md text-sm font-medium transition-colors min-h-[44px] disabled:opacity-50"
               >
                 {t('common.back', 'Back')}
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
@@ -422,7 +403,7 @@ function ImportTeamModal({
                       onClick={() => handleSelectTeam(team)}
                       className="w-full flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container-high transition-colors text-left min-h-[44px]"
                     >
-                      <img src={team.logo} alt="" className="w-7 h-7 object-contain shrink-0" />
+                      <img src={team.logo} alt="" className="w-7 h-7 object-contain shrink-0" width={28} height={28} loading="lazy" />
                       <div className="flex-1 min-w-0">
                         <span className="font-medium truncate block">{team.name}</span>
                         <span className="text-[0.625rem] text-on-surface-variant">{team.country}{team.founded ? ` · Est. ${team.founded}` : ''}</span>
@@ -437,16 +418,13 @@ function ImportTeamModal({
               </p>
             ) : null}
 
-            <button
-              onClick={onClose}
-              className="px-4 py-2 text-on-surface-variant hover:text-on-surface rounded-md text-sm font-medium transition-colors min-h-[44px]"
-            >
+            <Button variant="ghost" size="sm" onClick={onClose}>
               {t('common.cancel')}
-            </button>
+            </Button>
           </div>
         )}
       </div>
-    </div>
+    </Modal>
   )
 }
 
@@ -636,46 +614,76 @@ function AddManualPlayerModal({ onClose, onAdd }: { onClose: () => void; onAdd: 
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-scrim/50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-surface-container-low rounded-lg border border-outline-variant shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
-          <h3 className="text-base font-semibold text-on-surface">{t('squad.addManualPlayer', 'Add Player')}</h3>
-          <button onClick={onClose} className="p-1 hover:bg-surface-container-high rounded transition-colors">
-            <X size={18} />
-          </button>
+    <Modal
+      open={true}
+      onClose={onClose}
+      title={t('squad.addManualPlayer', 'Add Player')}
+      footer={
+        <>
+          <Button variant="secondary" size="sm" onClick={onClose}>
+            {t('common.cancel')}
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleSubmit as unknown as () => void}
+            disabled={!name.trim()}
+          >
+            {t('squad.addManualPlayer', 'Add Player')}
+          </Button>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-4 max-h-[90vh] overflow-y-auto">
+        <Input
+          id="manual-player-name"
+          label={`${t('common.player')} *`}
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          placeholder={t('squad.playerNamePlaceholder', 'e.g. John Smith')}
+        />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="manual-player-position" className="text-[0.8125rem] font-medium tracking-[0.02em] text-on-surface-variant block mb-1.5">{t('common.position')}</label>
+            <select
+              id="manual-player-position"
+              value={position}
+              onChange={(e) => setPosition(e.target.value as SquadPosition)}
+              className="w-full h-11 min-h-[44px] px-3 bg-surface-container border border-outline-variant rounded-md text-base md:text-[0.875rem] text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors"
+            >
+              {ALL_POSITIONS.map((pos) => <option key={pos} value={pos}>{pos}</option>)}
+            </select>
+          </div>
+          <Input
+            id="manual-player-number"
+            label={t('squad.number')}
+            type="number"
+            value={shirtNumber}
+            onChange={(e) => setShirtNumber(e.target.value)}
+            min={0}
+            max={99}
+            placeholder="0"
+          />
         </div>
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-on-surface-variant uppercase tracking-wider mb-1">{t('common.player')} *</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:ring-2 focus:ring-primary/40 focus:outline-none" placeholder={t('squad.playerNamePlaceholder', 'e.g. John Smith')} />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-on-surface-variant uppercase tracking-wider mb-1">{t('common.position')}</label>
-              <select value={position} onChange={(e) => setPosition(e.target.value as SquadPosition)} className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:ring-2 focus:ring-primary/40 focus:outline-none">
-                {ALL_POSITIONS.map((pos) => <option key={pos} value={pos}>{pos}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-on-surface-variant uppercase tracking-wider mb-1">{t('squad.number')}</label>
-              <input type="number" value={shirtNumber} onChange={(e) => setShirtNumber(e.target.value)} min="0" max="99" className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:ring-2 focus:ring-primary/40 focus:outline-none" placeholder="0" />
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-on-surface-variant uppercase tracking-wider mb-1">{t('common.nationality', 'Nationality')}</label>
-            <input type="text" value={nationality} onChange={(e) => setNationality(e.target.value)} className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:ring-2 focus:ring-primary/40 focus:outline-none" placeholder={t('squad.nationalityPlaceholder', 'e.g. Switzerland')} />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-on-surface-variant uppercase tracking-wider mb-1">{t('squad.setBirthDate', 'Date of Birth')}</label>
-            <input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-md text-sm text-on-surface focus:ring-2 focus:ring-primary/40 focus:outline-none" />
-          </div>
-          <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-on-surface-variant hover:text-on-surface transition-colors min-h-[44px]">{t('common.cancel')}</button>
-            <button type="submit" disabled={!name.trim()} className="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50 min-h-[44px]">{t('squad.addManualPlayer', 'Add Player')}</button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <Input
+          id="manual-player-nationality"
+          label={t('common.nationality', 'Nationality')}
+          type="text"
+          value={nationality}
+          onChange={(e) => setNationality(e.target.value)}
+          placeholder={t('squad.nationalityPlaceholder', 'e.g. Switzerland')}
+        />
+        <Input
+          id="manual-player-birthdate"
+          label={t('squad.setBirthDate', 'Date of Birth')}
+          type="date"
+          value={birthDate}
+          onChange={(e) => setBirthDate(e.target.value)}
+        />
+      </form>
+    </Modal>
   )
 }
 

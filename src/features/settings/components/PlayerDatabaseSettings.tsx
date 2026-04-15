@@ -171,6 +171,7 @@ export function PlayerDatabaseSettings() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={t('settings.playerDatabase.searchPlaceholder')}
+            aria-label={t('settings.playerDatabase.searchPlaceholder')}
             className="w-full bg-surface-container-lowest border border-outline-variant rounded-md pl-10 pr-4 py-2.5 text-base md:text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary transition-colors min-h-[44px]"
           />
         </div>

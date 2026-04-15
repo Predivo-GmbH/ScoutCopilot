@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, type ReactNode } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { GeneratedReportsContext } from './GeneratedReportsContext'
+import { sbPlayersTable } from './sbPlayersQuery'
 import { supabase } from './supabase'
 
 export function GeneratedReportsProvider({ children }: { children: ReactNode }) {
@@ -38,8 +39,7 @@ export function GeneratedReportsProvider({ children }: { children: ReactNode }) 
 
       // Fallback: query sb_players directly if name is still unknown
       if (playerName === 'Unknown' && id.startsWith('sb-open-')) {
-        const { data: sbPlayer } = await (supabase
-          .from('sb_players' as never)
+        const { data: sbPlayer } = await (sbPlayersTable()
           .select('player_name, player_nickname')
           .eq('player_id', parseInt(id.replace('sb-open-', ''), 10))
           .maybeSingle() as unknown as Promise<{ data: { player_name: string; player_nickname: string | null } | null }>)

@@ -1,6 +1,6 @@
 import { getServiceClient } from "../_shared/auth.ts";
 
-const STRIPE_WEBHOOK_SECRET = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
+const STRIPE_WEBHOOK_SECRET = Deno.env.get("STRIPE_WEBHOOK_SECRET");
 
 // Map Stripe price IDs to tiers — update after creating Stripe products
 const PRICE_TO_TIER: Record<string, { tier: string; seats: number }> = {
@@ -76,6 +76,13 @@ Deno.serve(async (req) => {
       status: 405,
       headers: { "Content-Type": "application/json" },
     });
+  }
+
+  if (!STRIPE_WEBHOOK_SECRET) {
+    return new Response(
+      JSON.stringify({ error: "STRIPE_WEBHOOK_SECRET not configured" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 
   try {

@@ -49,6 +49,7 @@ function SearchBar({
           size={20}
           strokeWidth={1.5}
           className="absolute left-4 text-on-surface-variant pointer-events-none"
+          aria-hidden="true"
         />
         <input
           type="search"

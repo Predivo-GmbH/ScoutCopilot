@@ -238,7 +238,7 @@ export function WatchlistDetail({ watchlist, onBack, onRemovePlayer }: Watchlist
       )}
 
       {removedName && (
-        <div role="status" className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-secondary text-on-secondary px-4 py-2.5 rounded-md shadow-lg text-sm font-medium animate-[fadeIn_0.2s_ease-in]">
+        <div role="status" aria-live="polite" className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-secondary text-on-secondary px-4 py-2.5 rounded-md shadow-lg text-sm font-medium animate-[fadeIn_0.2s_ease-in]">
           {t('watchlists.playerRemoved', { name: removedName, defaultValue: `${removedName} removed` })}
         </div>
       )}

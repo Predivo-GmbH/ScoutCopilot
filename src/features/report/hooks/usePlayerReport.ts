@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { sbPlayersTable } from '../../../lib/sbPlayersQuery'
 import { supabase } from '../../../lib/supabase'
 import { calculateAge } from '../../../lib/ageUtils'
 import type { MockPlayerReport } from '../../../lib/mock-data'
@@ -133,8 +134,7 @@ export function usePlayerReport(playerId?: string) {
       if (playerId?.startsWith('sb-open-')) {
         const rawId = parseInt(playerId.replace('sb-open-', ''), 10)
         if (!isNaN(rawId)) {
-          const { data: player } = await supabase
-            .from('sb_players')
+          const { data: player } = await sbPlayersTable()
             .select('photo_url')
             .eq('player_id', rawId)
             .single() as { data: { photo_url: string | null } | null }
@@ -168,6 +168,7 @@ export function usePlayerReport(playerId?: string) {
 
     fetchedRef.current = playerId
     const playerIds = needsPhoto
+      .filter((sp) => sp.playerId)
       .map((sp) => parseInt(sp.playerId!.replace('sb-open-', ''), 10))
       .filter((id) => !isNaN(id))
 

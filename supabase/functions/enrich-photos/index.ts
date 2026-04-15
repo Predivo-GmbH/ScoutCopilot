@@ -64,6 +64,17 @@ serve(async (req: Request) => {
     });
   }
 
+  // Auth: require service_role key
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const authHeader = req.headers.get("Authorization") ?? "";
+  const token = authHeader.replace("Bearer ", "");
+  if (!serviceRoleKey || token !== serviceRoleKey) {
+    return new Response(
+      JSON.stringify({ error: "This endpoint requires service_role key" }),
+      { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
   const apiKey = Deno.env.get("API_FOOTBALL_KEY");
   if (!apiKey) {
     return new Response(

@@ -2,7 +2,7 @@ import { handleCors } from "../_shared/cors.ts";
 import { getAuthContext, AuthError, getServiceClient } from "../_shared/auth.ts";
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
 
-const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY")!;
+const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY");
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://scoutcopilot.com";
 
 // Price ID mapping — replace with real Stripe price IDs
@@ -51,6 +51,13 @@ Deno.serve(async (req) => {
       status: 405,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+  }
+
+  if (!STRIPE_SECRET_KEY) {
+    return new Response(
+      JSON.stringify({ error: "STRIPE_SECRET_KEY not configured" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 
   try {

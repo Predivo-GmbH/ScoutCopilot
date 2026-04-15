@@ -85,10 +85,11 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate, onUpdat
     setUploadingPlayerId(playerId)
     setUploadError(null)
     const result = await uploadPhoto(playerId, file)
-    if (result.url) {
+    const url = result.url
+    if (url) {
       setUploadedPhotos((prev) => {
         const next = new Map(prev)
-        next.set(playerId, result.url!)
+        next.set(playerId, url)
         return next
       })
     } else if (result.error) {
@@ -140,7 +141,7 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate, onUpdat
               <div className="flex flex-wrap gap-1">
                 {onUpdatePosition && editingPositionId === player.id ? (
                   <select
-                    className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm border border-outline-variant"
+                    className="text-base md:text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm border border-outline-variant"
                     value={player.position}
                     onClick={(e) => e.stopPropagation()}
                     onChange={(e) => { onUpdatePosition(player.id, e.target.value as SquadPosition); setEditingPositionId(null) }}
@@ -151,7 +152,7 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate, onUpdat
                   </select>
                 ) : (
                   <button
-                    className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm inline-flex items-center gap-1 hover:ring-1 hover:ring-primary/40 transition-all"
+                    className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm inline-flex items-center gap-1 hover:ring-1 hover:ring-primary/40 transition-all min-h-[44px]"
                     onClick={(e) => { e.stopPropagation(); if (onUpdatePosition) setEditingPositionId(player.id) }}
                     title={t('squad.changePosition', 'Change position')}
                   >
@@ -173,7 +174,8 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate, onUpdat
                       ref={birthDateInputRef}
                       type="date"
                       defaultValue={player.birth_date ?? ''}
-                      className="font-data text-xs bg-surface-container-high border border-outline-variant rounded px-1 py-0.5 w-[7rem]"
+                      aria-label={t('squad.setBirthDate', 'Set birth date')}
+                      className="font-data text-base md:text-xs bg-surface-container-high border border-outline-variant rounded px-1 py-0.5 w-[7rem]"
                       onClick={(e) => e.stopPropagation()}
                       onChange={(e) => {
                         if (e.target.value && onUpdateBirthDate) {
@@ -227,13 +229,13 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate, onUpdat
                     <div className="flex gap-2">
                       <button
                         onClick={(e) => { e.stopPropagation(); setConfirmingId(null) }}
-                        className="px-2 py-1 text-xs text-on-surface-variant hover:text-on-surface transition-colors min-h-[32px]"
+                        className="px-2 py-1 text-xs text-on-surface-variant hover:text-on-surface transition-colors min-h-[44px]"
                       >
                         {t('common.cancel')}
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleRemove(player) }}
-                        className="px-2 py-1 text-xs text-error font-medium hover:bg-error/10 rounded transition-colors min-h-[32px]"
+                        className="px-2 py-1 text-xs text-error font-medium hover:bg-error/10 rounded transition-colors min-h-[44px]"
                       >
                         {t('common.remove')}
                       </button>
@@ -243,7 +245,7 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate, onUpdat
                   <div className="flex justify-end pt-1">
                     <button
                       onClick={(e) => { e.stopPropagation(); setConfirmingId(player.id) }}
-                      className="p-1.5 text-on-surface-variant hover:text-error transition-colors rounded min-h-[32px] min-w-[32px] flex items-center justify-center"
+                      className="p-1.5 text-on-surface-variant hover:text-error transition-colors rounded min-h-[44px] min-w-[44px] flex items-center justify-center"
                       aria-label={t('squad.removePlayer')}
                       title={t('squad.removePlayer')}
                     >
@@ -302,7 +304,7 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate, onUpdat
                   <td className="px-4 py-4 text-center">
                     {onUpdatePosition && editingPositionId === player.id ? (
                       <select
-                        className="text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm border border-outline-variant"
+                        className="text-base md:text-[0.625rem] font-data bg-surface-container-highest text-on-surface px-1.5 py-0.5 rounded-sm border border-outline-variant"
                         value={player.position}
                         onClick={(e) => e.stopPropagation()}
                         onChange={(e) => { onUpdatePosition(player.id, e.target.value as SquadPosition); setEditingPositionId(null) }}
@@ -333,7 +335,8 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate, onUpdat
                         ref={birthDateInputRef}
                         type="date"
                         defaultValue={player.birth_date ?? ''}
-                        className="font-data text-xs bg-surface-container-high border border-outline-variant rounded px-1 py-0.5 w-[7rem]"
+                        aria-label={t('squad.setBirthDate', 'Set birth date')}
+                        className="font-data text-base md:text-xs bg-surface-container-high border border-outline-variant rounded px-1 py-0.5 w-[7rem]"
                         onClick={(e) => e.stopPropagation()}
                         onChange={(e) => {
                           if (e.target.value && onUpdateBirthDate) {
@@ -394,13 +397,13 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate, onUpdat
                         <div className="flex items-center gap-1">
                           <button
                             onClick={(e) => { e.stopPropagation(); handleRemove(player) }}
-                            className="px-2 py-1 text-xs text-error font-medium hover:bg-error/10 rounded transition-colors min-h-[32px]"
+                            className="px-2 py-1 text-xs text-error font-medium hover:bg-error/10 rounded transition-colors min-h-[44px]"
                           >
                             {t('common.remove')}
                           </button>
                           <button
                             onClick={(e) => { e.stopPropagation(); setConfirmingId(null) }}
-                            className="px-2 py-1 text-xs text-on-surface-variant hover:text-on-surface transition-colors min-h-[32px]"
+                            className="px-2 py-1 text-xs text-on-surface-variant hover:text-on-surface transition-colors min-h-[44px]"
                           >
                             {t('common.cancel')}
                           </button>
@@ -408,7 +411,7 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate, onUpdat
                       ) : (
                         <button
                           onClick={(e) => { e.stopPropagation(); setConfirmingId(player.id) }}
-                          className="p-1.5 text-on-surface-variant hover:text-error transition-colors rounded min-h-[32px] min-w-[32px] inline-flex items-center justify-center"
+                          className="p-1.5 text-on-surface-variant hover:text-error transition-colors rounded min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
                           aria-label={t('squad.removePlayer')}
                           title={t('squad.removePlayer')}
                         >
@@ -425,7 +428,7 @@ export function SquadTable({ players, onRemovePlayer, onUpdateBirthDate, onUpdat
         </div>
       </div>
       {removedName && (
-        <div role="status" className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-secondary text-on-secondary px-4 py-2.5 rounded-md shadow-lg text-sm font-medium animate-[fadeIn_0.2s_ease-in]">
+        <div role="status" aria-live="polite" className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-secondary text-on-secondary px-4 py-2.5 rounded-md shadow-lg text-sm font-medium animate-[fadeIn_0.2s_ease-in]">
           {t('squad.playerRemoved', { name: removedName, defaultValue: `${removedName} removed` })}
         </div>
       )}

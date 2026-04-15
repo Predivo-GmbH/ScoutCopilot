@@ -233,7 +233,8 @@ function WeightSlider({ label, value, onChange }: { label: string; value: number
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         className="w-full h-2 bg-surface-container-high rounded-sm appearance-none cursor-pointer accent-primary [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
-        style={{ background: `linear-gradient(to right, var(--md-sys-color-primary, #6750A4) ${value}%, var(--md-sys-color-surface-container-high, #e6e0ec) ${value}%)` }}
+        aria-label={label}
+        style={{ background: `linear-gradient(to right, var(--color-primary) ${value}%, var(--color-surface-container-high) ${value}%)` }}
       />
     </div>
   )

@@ -242,7 +242,8 @@ export function useSettings() {
       setAvatarUploadStatus('idle')
       await refreshProfile()
       return { error: null }
-    } catch {
+    } catch (err) {
+      console.error('Avatar upload failed:', err)
       setAvatarUploadStatus('error')
       setAvatarError('settings.profile.avatarUploadError')
       setTimeout(() => {
@@ -265,7 +266,8 @@ export function useSettings() {
       await refreshProfile()
       setSaveStatus('saved')
       setTimeout(() => setSaveStatus('idle'), 2000)
-    } catch {
+    } catch (err) {
+      console.error('Save profile failed:', err)
       setSaveStatus('error')
       setTimeout(() => setSaveStatus('idle'), 3000)
     }
@@ -279,7 +281,8 @@ export function useSettings() {
       if (error) throw error
       setEmailChangeStatus('sent')
       setTimeout(() => setEmailChangeStatus('idle'), 5000)
-    } catch {
+    } catch (err) {
+      console.error('Change email failed:', err)
       setEmailChangeStatus('error')
       setTimeout(() => setEmailChangeStatus('idle'), 3000)
     }
@@ -311,7 +314,8 @@ export function useSettings() {
       await refreshProfile()
       setSaveStatus('saved')
       setTimeout(() => setSaveStatus('idle'), 2000)
-    } catch {
+    } catch (err) {
+      console.error('Save organization failed:', err)
       setSaveStatus('error')
       setTimeout(() => setSaveStatus('idle'), 3000)
     }
@@ -336,7 +340,8 @@ export function useSettings() {
       if (error) throw error
       setScoringWeightsSaveStatus('saved')
       setTimeout(() => setScoringWeightsSaveStatus('idle'), 2000)
-    } catch {
+    } catch (err) {
+      console.error('Save scoring weights failed:', err)
       setScoringWeightsSaveStatus('error')
       setTimeout(() => setScoringWeightsSaveStatus('idle'), 3000)
     }
@@ -353,7 +358,8 @@ export function useSettings() {
       if (error) throw error
       setPreferencesSaveStatus('saved')
       setTimeout(() => setPreferencesSaveStatus('idle'), 2000)
-    } catch {
+    } catch (err) {
+      console.error('Save preferences failed:', err)
       setPreferencesSaveStatus('error')
       setTimeout(() => setPreferencesSaveStatus('idle'), 3000)
     }

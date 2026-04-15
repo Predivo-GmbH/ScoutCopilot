@@ -63,11 +63,12 @@ function TabList({ className, children }: TabListProps) {
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
+    const scrollEl = el
 
     function checkOverflow() {
       setShowFade(
-        el!.scrollWidth > el!.clientWidth &&
-          el!.scrollLeft + el!.clientWidth < el!.scrollWidth - 2
+        scrollEl.scrollWidth > scrollEl.clientWidth &&
+          scrollEl.scrollLeft + scrollEl.clientWidth < scrollEl.scrollWidth - 2
       )
     }
 

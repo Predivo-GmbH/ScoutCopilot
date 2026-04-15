@@ -13,8 +13,8 @@ export function LanguageRootLayout() {
   const isValid = SUPPORTED_LOCALES.includes(lang as Locale)
 
   useEffect(() => {
-    if (isValid && i18n.language !== lang) {
-      loadLanguage(lang!).then(() => i18n.changeLanguage(lang!))
+    if (isValid && lang && i18n.language !== lang) {
+      loadLanguage(lang).then(() => i18n.changeLanguage(lang))
     }
   }, [lang, isValid, i18n])
 

@@ -261,7 +261,7 @@ export function FormationPitch({ formation, players, squadId, onAssignSlot, onRe
 
   // Bench players: not in any slot
   const pitchPlayerIds = useMemo(() => {
-    return new Set(slotPlayers.filter(sp => sp.player).map(sp => sp.player!.id))
+    return new Set(slotPlayers.filter((sp): sp is typeof sp & { player: NonNullable<typeof sp.player> } => !!sp.player).map(sp => sp.player.id))
   }, [slotPlayers])
 
   const benchPlayers = useMemo(() => {

@@ -25,6 +25,7 @@ import { PlayerAvatar } from '../../components/shared/PlayerAvatar'
 import { AddToWatchlistModal } from '../../components/shared/AddToWatchlistModal'
 import { usePlayerReport } from './hooks/usePlayerReport'
 import { useGeneratedReports } from '../../lib/useGeneratedReportsHook'
+import { sbPlayersTable } from '../../lib/sbPlayersQuery'
 import { supabase } from '../../lib/supabase'
 import { formatAge } from '../../lib/ageUtils'
 import { usePlayerPhotoFetch, derivePhotoSource } from '../../lib/usePlayerPhotoFetch'
@@ -50,7 +51,7 @@ export function ReportPage() {
     if (id.startsWith('sb-open-')) {
       const numId = parseInt(id.replace('sb-open-', ''), 10)
       if (!isNaN(numId)) {
-        await (supabase.from('sb_players' as never).update({ birth_date: newDate } as never).eq('player_id', numId) as unknown as Promise<unknown>)
+        await (sbPlayersTable().update({ birth_date: newDate } as never).eq('player_id', numId) as unknown as Promise<unknown>)
       }
     } else if (id.startsWith('apifb-') || id.startsWith('manual-')) {
       // Update squad_players player_data
@@ -73,12 +74,11 @@ export function ReportPage() {
   // Check if the player exists in sb_players (for sb-open-* IDs without a report)
   const isSbOpen = id?.startsWith('sb-open-') ?? false
   const isApiFb = id?.startsWith('apifb-') ?? false
-  const sbNumericId = isSbOpen ? parseInt(id!.replace('sb-open-', ''), 10) : NaN
+  const sbNumericId = isSbOpen && id ? parseInt(id.replace('sb-open-', ''), 10) : NaN
   const { data: sbPlayerInfo, isLoading: sbPlayerLoading } = useQuery({
     queryKey: ['sb-player-info', id],
     queryFn: async () => {
-      const { data } = await (supabase
-        .from('sb_players' as never)
+      const { data } = await (sbPlayersTable()
         .select('player_name, player_nickname, nationality, primary_position, photo_url, birth_date')
         .eq('player_id', sbNumericId)
         .maybeSingle() as unknown as Promise<{ data: { player_name: string; player_nickname: string | null; nationality: string | null; primary_position: string | null; photo_url: string | null; birth_date: string | null } | null }>)
@@ -95,7 +95,7 @@ export function ReportPage() {
       const { data } = await supabase
         .from('squad_players')
         .select('player_name, position_key, player_data')
-        .eq('player_external_id', id!)
+        .eq('player_external_id', id!) // Safe: query is only enabled when id is defined
         .limit(1)
         .maybeSingle()
       if (!data) return null
@@ -256,7 +256,7 @@ export function ReportPage() {
             )}
             {showApiFbWarning && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim/60" onClick={() => setShowApiFbWarning(false)}>
-                <div className="bg-surface-container border border-outline-variant rounded-md max-w-md mx-4 p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+                <div className="bg-surface-container border border-outline-variant rounded-md max-w-md mx-4 p-6 space-y-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-start gap-3">
                     <AlertTriangle size={20} strokeWidth={1.5} className="text-tertiary shrink-0 mt-0.5" />
                     <div>
@@ -323,7 +323,7 @@ export function ReportPage() {
       {/* Player Header */}
       <div className="bg-surface-container rounded-md p-4 sm:p-6 border border-outline-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-4 sm:gap-6">
-          <PlayerAvatar name={report.playerName} size={80} imageUrl={uploadedPhotoUrl ?? getMainPhoto({ id: id!, image: report.image })} clickable loading={mainLoadingIds.has(id!)} aiGenerated={!!getMainPhoto({ id: id!, image: report.image }) && derivePhotoSource(getMainPhoto({ id: id!, image: report.image })) === 'stitch'} onUploadPhoto={handleUploadPhoto} uploadingPhoto={playerPhotoUploading} />
+          <PlayerAvatar name={report.playerName} size={80} imageUrl={uploadedPhotoUrl ?? getMainPhoto({ id, image: report.image })} clickable loading={mainLoadingIds.has(id)} aiGenerated={!!getMainPhoto({ id, image: report.image }) && derivePhotoSource(getMainPhoto({ id, image: report.image })) === 'stitch'} onUploadPhoto={handleUploadPhoto} uploadingPhoto={playerPhotoUploading} />
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-on-surface uppercase">{report.playerName}</h1>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
@@ -340,6 +340,7 @@ export function ReportPage() {
                   type="date"
                   autoFocus
                   defaultValue={report.birth_date ?? ''}
+                  aria-label={t('squad.setBirthDate')}
                   className="text-sm bg-surface-container-high border border-outline-variant rounded px-1 py-0.5 w-[8rem]"
                   onChange={(e) => { if (e.target.value) handleUpdateBirthDate(e.target.value) }}
                   onBlur={() => setEditingBirthDate(false)}

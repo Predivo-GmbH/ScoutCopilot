@@ -240,12 +240,9 @@ serve(async (req: Request) => {
 
     let orgFilter: string | null = null;
 
-    // Decode JWT payload to check role
-    let isServiceRole = false;
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      isServiceRole = payload.role === "service_role";
-    } catch { /* not a valid JWT */ }
+    // Auth: compare token directly — JWT payload decode is forgeable
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const isServiceRole = !!serviceRoleKey && token === serviceRoleKey;
 
     if (isServiceRole) {
       console.log("[backfill] Called with service_role key — processing all orgs");

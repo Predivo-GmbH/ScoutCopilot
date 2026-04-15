@@ -53,7 +53,7 @@ export default function App() {
       <WatchlistProvider>
       <AuthProvider>
         <BrowserRouter>
-          <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center" role="status"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /><span className="sr-only">Loading...</span></div>}>
+          <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center" role="status" aria-live="polite"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /><span className="sr-only">Loading...</span></div>}>
           <Routes>
             {/* Bare root → default language */}
             <Route path="/" element={<Navigate to="/en" replace />} />

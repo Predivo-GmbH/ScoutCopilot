@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from 'react'
+import { sbPlayersTable } from './sbPlayersQuery'
 import { supabase } from './supabase'
 import { cropFaceFromImage } from './cropFace'
 
@@ -73,8 +74,7 @@ export function usePlayerPhotoUpload() {
       } else if (playerId.startsWith('sb-open-')) {
         const numericId = parseInt(playerId.replace('sb-open-', ''), 10)
         if (!isNaN(numericId)) {
-          await (supabase
-            .from('sb_players' as never)
+          await (sbPlayersTable()
             .update({ photo_url: publicUrl } as never)
             .eq('player_id', numericId) as unknown as Promise<unknown>)
         }

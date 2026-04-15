@@ -6,6 +6,7 @@ import { Button } from '../../../components/ui/Button'
 import { Badge } from '../../../components/ui/Badge'
 import { useSubscription } from '../../../hooks/useSubscription'
 import { TIER_PRICES, TIER_LABELS, openBillingPortal } from '../../../lib/stripe'
+import { redirectToStripeUrl } from '../../../lib/stripeRedirect'
 
 export function BillingSettings() {
   const { t } = useTranslation()
@@ -21,17 +22,9 @@ export function BillingSettings() {
     setPortalLoading(true)
     try {
       const url = await openBillingPortal()
-      try {
-        const parsed = new URL(url)
-        if (parsed.hostname === 'billing.stripe.com' || parsed.hostname === 'checkout.stripe.com') {
-          window.location.href = url
-        } else {
-          window.location.reload()
-        }
-      } catch {
-        window.location.reload()
-      }
-    } catch {
+      redirectToStripeUrl(url, window.location.href)
+    } catch (err) {
+      console.error('Open billing portal failed:', err)
       // If no subscription, redirect to pricing
       navigate('/pricing')
     } finally {

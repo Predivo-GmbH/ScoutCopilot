@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { ChevronRight, X, Loader2, Clock } from 'lucide-react'
+import { ChevronRight, Loader2, Clock } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '../../components/ui/Button'
+import { Modal } from '../../components/ui/Modal'
 import { ScrollableTabBar } from '../../components/ui/ScrollableTabBar'
 import { useSettings, type SettingsTab, type PendingInvitation, type OrgMember } from './hooks/useSettings'
 import { ProfileSettings } from './components/ProfileSettings'
@@ -162,7 +163,7 @@ export function SettingsPage() {
                   <button
                     onClick={savePreferences}
                     disabled={preferencesSaveStatus === 'saving'}
-                    className="px-4 py-2 rounded-sm text-sm font-semibold bg-primary text-on-primary hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                    className="px-4 py-2 rounded-sm text-sm font-semibold bg-primary text-on-primary hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed transition-colors min-h-[44px]"
                   >
                     {preferencesSaveStatus === 'saving' ? t('common.saving') : preferencesSaveStatus === 'saved' ? t('common.saved') : t('settings.notifications.savePreferences')}
                   </button>
@@ -289,64 +290,60 @@ function OrganizationTab({ orgMembers, membersLoading, pendingInvitations, maxSe
       </section>
 
       {/* Invite Modal */}
-      {showInviteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim/60" onClick={() => setShowInviteModal(false)}>
-          <div className="bg-surface-container border border-outline-variant rounded-md w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-on-surface">{t('settings.team.inviteTitle')}</h3>
-              <button onClick={() => setShowInviteModal(false)} className="text-on-surface-variant hover:text-on-surface min-w-[44px] min-h-[44px] flex items-center justify-center">
-                <X size={16} />
-              </button>
-            </div>
-            <p className="text-xs text-on-surface-variant mb-4">{t('settings.team.inviteDescription')}</p>
-            <div className="space-y-3">
-              <div>
-                <label htmlFor="invite-email" className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">{t('settings.team.emailLabel')}</label>
-                <input
-                  id="invite-email"
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder={t('settings.team.emailPlaceholder')}
-                  className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
-                />
-              </div>
-              <div>
-                <label htmlFor="invite-role" className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">{t('settings.team.roleLabel')}</label>
-                <select
-                  id="invite-role"
-                  value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value)}
-                  className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors appearance-none min-h-[44px]"
-                >
-                  <option value="scout">{t('settings.team.roleScout')}</option>
-                  <option value="head_of_recruitment">{t('settings.team.roleHeadOfRecruitment')}</option>
-                  <option value="technical_director">{t('settings.team.roleTechnicalDirector')}</option>
-                  <option value="analyst">{t('settings.team.roleAnalyst')}</option>
-                </select>
-              </div>
-              <div className="flex items-center gap-3 pt-2">
-                <button
-                  onClick={handleSendInvite}
-                  disabled={inviteStatus === 'sending' || !inviteEmail.includes('@')}
-                  className="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-light transition-colors disabled:opacity-50 min-h-[44px] flex items-center gap-2"
-                >
-                  {inviteStatus === 'sending' ? (
-                    <><Loader2 size={14} className="animate-spin" /> {t('settings.team.sending')}</>
-                  ) : inviteStatus === 'sent' ? (
-                    t('settings.team.inviteSent')
-                  ) : (
-                    t('settings.team.sendInvite')
-                  )}
-                </button>
-                {inviteStatus === 'error' && (
-                  <span className="text-xs text-error">{t('settings.team.inviteError')}</span>
-                )}
-              </div>
-            </div>
+      <Modal
+        open={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        title={t('settings.team.inviteTitle')}
+        footer={
+          <>
+            {inviteStatus === 'error' && (
+              <span className="text-xs text-error mr-auto">{t('settings.team.inviteError')}</span>
+            )}
+            <button
+              onClick={handleSendInvite}
+              disabled={inviteStatus === 'sending' || !inviteEmail.includes('@')}
+              className="px-4 py-2 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-light transition-colors disabled:opacity-50 min-h-[44px] flex items-center gap-2"
+            >
+              {inviteStatus === 'sending' ? (
+                <><Loader2 size={14} className="animate-spin" /> {t('settings.team.sending')}</>
+              ) : inviteStatus === 'sent' ? (
+                t('settings.team.inviteSent')
+              ) : (
+                t('settings.team.sendInvite')
+              )}
+            </button>
+          </>
+        }
+      >
+        <p className="text-xs text-on-surface-variant mb-4">{t('settings.team.inviteDescription')}</p>
+        <div className="space-y-3">
+          <div>
+            <label htmlFor="invite-email" className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">{t('settings.team.emailLabel')}</label>
+            <input
+              id="invite-email"
+              type="email"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              placeholder={t('settings.team.emailPlaceholder')}
+              className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors min-h-[44px]"
+            />
+          </div>
+          <div>
+            <label htmlFor="invite-role" className="text-[0.625rem] uppercase tracking-widest text-on-surface-variant font-medium block mb-1.5">{t('settings.team.roleLabel')}</label>
+            <select
+              id="invite-role"
+              value={inviteRole}
+              onChange={(e) => setInviteRole(e.target.value)}
+              className="w-full bg-surface-container-lowest border border-outline-variant rounded-md px-4 py-2.5 text-base md:text-sm text-on-surface focus:outline-none focus:border-primary transition-colors appearance-none min-h-[44px]"
+            >
+              <option value="scout">{t('settings.team.roleScout')}</option>
+              <option value="head_of_recruitment">{t('settings.team.roleHeadOfRecruitment')}</option>
+              <option value="technical_director">{t('settings.team.roleTechnicalDirector')}</option>
+              <option value="analyst">{t('settings.team.roleAnalyst')}</option>
+            </select>
           </div>
         </div>
-      )}
+      </Modal>
     </>
   )
 }

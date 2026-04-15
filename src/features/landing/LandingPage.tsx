@@ -174,6 +174,8 @@ export function LandingPage() {
         <meta property="og:description" content={t('landing.meta.description')} />
         <meta property="og:url" content={`https://scoutcopilot.com/${lang}`} />
         <meta property="og:locale" content={lang === 'de' ? 'de_DE' : 'en_US'} />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://scoutcopilot.com/og-image.png" />
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',
@@ -242,7 +244,7 @@ export function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Natural Language Search */}
-            <div className="bg-surface-container-low border border-outline-variant rounded-md p-6">
+            <div className="bg-surface-container-low border border-outline-variant rounded-md p-4 sm:p-6">
               <div className="flex items-start justify-between mb-2">
                 <h3 className="text-sm font-bold uppercase tracking-widest">{t('landing.features.nlSearch.title')}</h3>
                 <Search size={20} strokeWidth={1.5} className="text-primary-light shrink-0" />
@@ -261,7 +263,7 @@ export function LandingPage() {
             </div>
 
             {/* AI Scouting Reports */}
-            <div className="bg-surface-container-low border border-outline-variant rounded-md p-6">
+            <div className="bg-surface-container-low border border-outline-variant rounded-md p-4 sm:p-6">
               <div className="flex items-start justify-between mb-2">
                 <h3 className="text-sm font-bold uppercase tracking-widest">{t('landing.features.aiReports.title')}</h3>
                 <FileText size={20} strokeWidth={1.5} className="text-primary-light shrink-0" />
@@ -287,7 +289,7 @@ export function LandingPage() {
             </div>
 
             {/* Player Comparison */}
-            <div className="bg-surface-container-low border border-outline-variant rounded-md p-6">
+            <div className="bg-surface-container-low border border-outline-variant rounded-md p-4 sm:p-6">
               <div className="flex items-start justify-between mb-2">
                 <h3 className="text-sm font-bold uppercase tracking-widest">{t('landing.features.comparison.title')}</h3>
                 <ArrowLeftRight size={20} strokeWidth={1.5} className="text-primary-light shrink-0" />
@@ -319,7 +321,7 @@ export function LandingPage() {
             </div>
 
             {/* Watchlist Alerts */}
-            <div className="bg-surface-container-low border border-outline-variant rounded-md p-6">
+            <div className="bg-surface-container-low border border-outline-variant rounded-md p-4 sm:p-6">
               <div className="flex items-start justify-between mb-2">
                 <h3 className="text-sm font-bold uppercase tracking-widest">{t('landing.features.watchlist.title')}</h3>
                 <Bell size={20} strokeWidth={1.5} className="text-primary-light shrink-0" />
@@ -443,7 +445,7 @@ export function LandingPage() {
               return (
                 <div
                   key={tier.key}
-                  className={`p-8 rounded-md flex flex-col relative ${
+                  className={`p-4 sm:p-8 rounded-md flex flex-col relative ${
                     tier.highlighted
                       ? 'bg-surface-container border-2 border-primary'
                       : 'bg-surface-container-low border border-outline-variant'
@@ -498,6 +500,7 @@ export function LandingPage() {
           </div>
 
           {/* Comparison table */}
+          <div className="relative">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[600px] text-left border-collapse bg-surface-container-low rounded-md overflow-hidden border border-outline-variant">
               <thead>
@@ -527,6 +530,8 @@ export function LandingPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface-container-lowest to-transparent" />
           </div>
         </div>
       </section>

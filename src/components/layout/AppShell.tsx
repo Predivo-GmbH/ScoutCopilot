@@ -114,9 +114,9 @@ export function AppShell() {
               <Outlet />
             </div>
             <footer className="mt-auto px-6 py-3 border-t border-outline-variant/10 flex gap-4 text-xs text-on-surface-variant">
-              <Link to="/privacy">{t('common.privacy')}</Link>
-              <Link to="/terms">{t('common.terms')}</Link>
-              <Link to="/imprint">{t('common.imprint')}</Link>
+              <Link to="/privacy" className="min-h-[44px] flex items-center">{t('common.privacy')}</Link>
+              <Link to="/terms" className="min-h-[44px] flex items-center">{t('common.terms')}</Link>
+              <Link to="/imprint" className="min-h-[44px] flex items-center">{t('common.imprint')}</Link>
             </footer>
           </main>
         </div>

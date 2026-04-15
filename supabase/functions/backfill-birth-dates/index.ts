@@ -30,17 +30,11 @@ serve(async (req: Request) => {
   }
 
   try {
-    // Auth: require service_role
+    // Auth: require service_role key (compare directly — JWT payload decode is forgeable)
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const authHeader = req.headers.get("Authorization") ?? "";
     const token = authHeader.replace("Bearer ", "");
-
-    let isServiceRole = false;
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      isServiceRole = payload.role === "service_role";
-    } catch { /* not a valid JWT */ }
-
-    if (!isServiceRole) {
+    if (!serviceRoleKey || token !== serviceRoleKey) {
       return new Response(
         JSON.stringify({ error: "This endpoint requires service_role key" }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }

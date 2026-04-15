@@ -48,7 +48,7 @@ export function ProfileSettings({ profile, originalEmail, onUpdate, onSave, save
               {avatarUploadStatus === 'uploading' ? (
                 <Loader2 size={24} className="animate-spin text-on-surface-variant" />
               ) : avatarUrl ? (
-                <img src={avatarUrl} alt="Profile avatar" className="w-full h-full object-cover" />
+                <img src={avatarUrl} alt="Profile avatar" width={80} height={80} loading="lazy" className="w-full h-full object-cover" />
               ) : (
                 <User size={32} strokeWidth={1.5} className="text-on-surface-variant" />
               )}

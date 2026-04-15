@@ -8,6 +8,7 @@ import { PublicNav } from '../../components/layout/PublicNav'
 import { PublicFooter } from '../../components/layout/PublicFooter'
 import { FaqItem } from '../../components/shared/FaqItem'
 import { TIER_PRICES, TIER_ANNUAL_TOTAL, createCheckoutSession, type BillingInterval } from '../../lib/stripe'
+import { redirectToStripeUrl } from '../../lib/stripeRedirect'
 import type { SubscriptionTier } from '../../types/database'
 
 const TIER_KEYS = ['scout', 'pro', 'club'] as const
@@ -56,17 +57,9 @@ export function PricingPage() {
     setLoadingTier(tier)
     try {
       const url = await createCheckoutSession(tier, interval)
-      try {
-        const parsed = new URL(url)
-        if (parsed.hostname === 'checkout.stripe.com') {
-          window.location.href = url
-        } else {
-          navigate('/pricing')
-        }
-      } catch {
-        navigate('/pricing')
-      }
-    } catch {
+      redirectToStripeUrl(url, `${window.location.origin}/pricing`)
+    } catch (err) {
+      console.error('Checkout session failed:', err)
       // If not authenticated, redirect to signup
       navigate('/signup')
     } finally {
@@ -87,6 +80,8 @@ export function PricingPage() {
         <meta property="og:description" content={t('pricing.meta.description')} />
         <meta property="og:url" content={`https://scoutcopilot.com/${lang}/pricing`} />
         <meta property="og:locale" content={lang === 'de' ? 'de_DE' : 'en_US'} />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://scoutcopilot.com/og-image.png" />
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',
@@ -160,7 +155,7 @@ export function PricingPage() {
               return (
                 <div
                   key={meta.key}
-                  className={`p-8 rounded-md flex flex-col h-full relative ${
+                  className={`p-4 sm:p-8 rounded-md flex flex-col h-full relative ${
                     meta.highlighted
                       ? 'bg-surface-container border-2 border-primary'
                       : 'bg-surface-container-low border border-outline-variant'
@@ -214,6 +209,7 @@ export function PricingPage() {
           {/* Comparison Table */}
           <div className="max-w-7xl mx-auto">
             <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-12 text-center">{t('pricing.featureComparison')}</h2>
+            <div className="relative">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[600px] text-left border-collapse bg-surface-container-low rounded-md overflow-hidden border border-outline-variant">
                 <thead>
@@ -235,6 +231,8 @@ export function PricingPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface-container-low to-transparent" />
             </div>
           </div>
         </section>

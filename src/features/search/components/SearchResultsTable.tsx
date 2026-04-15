@@ -206,7 +206,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
 
       {/* Content */}
       {viewMode === 'table' ? (
-        <div>
+        <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="sticky top-0 z-10 bg-surface-container-highest border-b border-outline-variant/30">
@@ -328,7 +328,7 @@ export function SearchResultsTable({ results, isLoading, photoLoadingIds }: Sear
                               return next
                             })
                           }}
-                          className="p-1 rounded-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+                          className="p-1 rounded-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                           aria-label={isExpanded ? t('search.collapseDetails') : t('search.expandDetails')}
                         >
                           {isExpanded ? <ChevronUp size={14} strokeWidth={1.5} /> : <ChevronDown size={14} strokeWidth={1.5} />}
@@ -677,7 +677,7 @@ function AddToSquadButton({ player, squads, addPlayer, createSquad }: {
               <button
                 key={squad.id}
                 onClick={() => handleSquadSelect(squad.id)}
-                className="w-full text-left px-3 py-2 text-xs text-on-surface hover:bg-surface-variant/50 transition-colors truncate"
+                className="w-full text-left px-3 py-2 text-xs text-on-surface hover:bg-surface-variant/50 transition-colors truncate min-h-[44px]"
               >
                 {squad.name}
               </button>
@@ -686,7 +686,7 @@ function AddToSquadButton({ player, squads, addPlayer, createSquad }: {
           <div className="border-t border-outline-variant/30 mt-1 pt-1">
             <button
               onClick={handleCreateNew}
-              className="w-full text-left px-3 py-2 text-xs text-primary hover:bg-primary/10 transition-colors flex items-center gap-1.5"
+              className="w-full text-left px-3 py-2 text-xs text-primary hover:bg-primary/10 transition-colors flex items-center gap-1.5 min-h-[44px]"
             >
               <Plus size={12} strokeWidth={1.5} />
               {t('search.createNewSquad')}

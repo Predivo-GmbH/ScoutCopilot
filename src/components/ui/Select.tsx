@@ -61,6 +61,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
             size={18}
             strokeWidth={1.5}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
+            aria-hidden="true"
           />
         </div>
         {error && (
