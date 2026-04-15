@@ -374,7 +374,7 @@ No chunks exceed the 500KB warning threshold. PDF and html2canvas vendors are la
 
 ---
 
-## Overall Health Score: 99/100 + 12 bonus
+## Overall Health Score (Round 6): 99/100 + 12 bonus
 
 | Category | Max | Previous | Score | Notes |
 |----------|-----|----------|-------|-------|
@@ -387,3 +387,128 @@ No chunks exceed the 500KB warning threshold. PDF and html2canvas vendors are la
 | Responsiveness | - | 3 | 3 (bonus) | Table w-full, AI badge minimum size |
 | Mobile Visual | - | 3 | 3 (bonus) | Clean |
 | **Total** | **100** | **98+10** | **111** (capped) | **99/100 + 12 bonus** |
+
+---
+
+## Fixes Applied — Round 7 (2026-04-15 Full 8-Domain Re-Audit)
+
+Full 8-domain parallel audit with all fixes applied, edge functions deployed, and production visual verification.
+
+**Pre-audit score:** 80/100 + 13 bonus → **Post-fix score: 99/100 + 23 bonus**
+
+### Security (4 fixes — 21→25)
+
+| # | Severity | Finding | Fix |
+|---|----------|---------|-----|
+| 1 | Critical | `enrich-photos/index.ts` had NO authentication | Added service_role key auth check (direct token comparison) |
+| 2 | Critical | `backfill-birth-dates/index.ts` used forgeable `atob()` JWT decode | Replaced with direct service_role key comparison |
+| 3 | Critical | `backfill-reports/index.ts` same forgeable JWT decode | Replaced with direct service_role key comparison (kept dual-mode: service_role=all orgs, user JWT=own org) |
+| 4 | High | 9 non-null assertions on `Deno.env.get()` across 5 edge functions | Added explicit guards returning 500 with error message |
+
+**Edge functions deployed:** enrich-photos, backfill-birth-dates, backfill-reports, stripe-webhook, checkout, billing-portal, delete-account, send-welcome (all 8 via `supabase functions deploy`)
+
+### Technical SEO (4 fixes — 16→20)
+
+| # | Severity | Finding | Fix |
+|---|----------|---------|-----|
+| 1 | Medium | Stale `public/sitemap.xml` | Deleted static file; build-generated sitemap is authoritative |
+| 2 | Medium | No www→non-www redirect | Added 301 redirect in `.htaccess` |
+| 3 | Medium | Root `/` redirect uses 302 instead of 301 | Changed to 301 in `.htaccess` |
+| 4 | Low | Missing `og:image`/`og:type` on public pages | Added meta tags to LandingPage and PricingPage |
+
+### Performance (2 fixes — 17→20)
+
+| # | Severity | Finding | Fix |
+|---|----------|---------|-----|
+| 1 | Medium | Missing width/height on ~8 img tags | Added explicit width/height to SquadPage, TopBar, ProfileSettings |
+| 2 | Low | Missing loading="lazy" on below-fold images | Added loading="lazy" to ProfileSettings avatar, squad player images |
+
+### Code Quality (5 fixes — 15→19)
+
+| # | Severity | Finding | Fix |
+|---|----------|---------|-----|
+| 1 | High | 18 silent catch blocks | Added console.error logging in useSettings, SquadPage |
+| 2 | Medium | 12 non-null assertions | Replaced with explicit guards in Tabs, LanguageRootLayout, ReportPage, usePlayerReport |
+| 3 | Medium | DRY: Stripe URL validation duplicated | Extracted `src/lib/stripeRedirect.ts` shared utility |
+| 4 | Medium | DRY: `sb_players as never` type escapes | Created `src/lib/sbPlayersQuery.ts` typed helper |
+| 5 | Low | 10 `as unknown as` double-casts | Reduced where possible; remaining are Supabase SDK type gaps (-1pt) |
+
+### Accessibility (4 fixes — 11→15)
+
+| # | Severity | Finding | Fix |
+|---|----------|---------|-----|
+| 1 | High | 4 raw modals without role="dialog", focus trap, Escape | Replaced with shared `<Modal>` component (SquadPage ×3, SettingsPage ×1, DeleteAccountSettings ×1) |
+| 2 | Medium | Multiple inputs missing aria-label | Added to ReportsListPage search, ReportPage DOB, AiMethodologySettings sliders, SquadTable DOB inputs |
+| 3 | Medium | Loading states missing aria-live="polite" | Added to AuthGuard, App.tsx Suspense, WatchlistDetail toast, SquadTable toast |
+| 4 | Low | Decorative icons missing aria-hidden | Added aria-hidden="true" to Select ChevronDown, SearchBar Search icon |
+
+### UI Quality (3 fixes — +8→+10)
+
+| # | Severity | Finding | Fix |
+|---|----------|---------|-----|
+| 1 | Medium | AiMethodologySettings: stale MD3 CSS vars | Updated to `var(--color-primary)` (Tailwind v4 format) |
+| 2 | Medium | DeleteAccountSettings: raw Tailwind palette colors | Replaced with design tokens (bg-secondary/10, text-secondary) |
+| 3 | Low | SquadPage: raw buttons/inputs bypass shared components | Replaced with shared `<Button>`, `<Input>` components |
+
+### Responsiveness (4 fixes — +5→+10)
+
+| # | Severity | Finding | Fix |
+|---|----------|---------|-----|
+| 1 | High | SearchResultsTable: no overflow-x-auto on table | Added overflow-x-auto wrapper |
+| 2 | Medium | Modals missing max-h-[90vh] | Added to ReportPage API-Football warning modal |
+| 3 | Medium | 15+ touch targets < 44px | Fixed in AppShell footer, SearchResultsTable, SettingsPage, SquadTable |
+| 4 | Medium | iOS zoom on inputs with text-sm | Added text-base md:text-sm pattern to SquadPage, SquadTable |
+
+### Mobile Visual (2 fixes — +0→+3)
+
+| # | Severity | Finding | Fix |
+|---|----------|---------|-----|
+| 1 | Medium | Missing scroll affordance on comparison tables | Added gradient fade overlay on LandingPage and PricingPage |
+| 2 | Low | Fixed padding on cards (p-6/p-8) | Changed to responsive p-4 sm:p-6 / p-4 sm:p-8 |
+
+### New Files Created
+
+| File | Purpose |
+|------|---------|
+| `src/lib/sbPlayersQuery.ts` | Typed helper for sb_players table access (eliminates `as never`) |
+| `src/lib/stripeRedirect.ts` | Shared Stripe URL validation + redirect utility (DRY fix) |
+
+### Files Deleted
+
+| File | Reason |
+|------|--------|
+| `public/sitemap.xml` | Stale; build generates correct sitemap |
+
+### Production Verification (2026-04-15)
+
+| Check | Result |
+|-------|--------|
+| GitHub Actions deploy | Succeeded (run #24452279277, 2m31s) |
+| Edge functions deploy | All 8 deployed via Supabase CLI |
+| www→non-www 301 | Verified (`curl -sI https://www.scoutcopilot.com/` → 301) |
+| Root / → /en/ 301 | Verified (`curl -sI https://scoutcopilot.com/` → 301) |
+| Desktop landing (1440px) | Clean — no console errors |
+| Desktop pricing (1440px) | 3-column layout balanced |
+| Desktop login (1440px) | Centered form, clean |
+| Mobile landing (390px) | Responsive — hero stacked, radar chart below |
+| Mobile pricing (390px) | Cards stacked, readable |
+| Mobile login (390px) | Full-width form, touch-friendly |
+| Console errors | Zero errors/warnings on all tested pages |
+
+### Total files modified: 25+ source files + 8 edge functions
+
+---
+
+## Overall Health Score (Round 7): 99/100 + 23 bonus
+
+| Category | Max | Round 6 | Round 7 | Notes |
+|----------|-----|---------|---------|-------|
+| Security | 25 | 25 | 25 | 3 critical edge function auth fixes, env var guards |
+| Technical SEO | 20 | 20 | 20 | www redirect, 301 fix, og tags, sitemap cleanup |
+| Performance | 20 | 19 | 20 | Image dimensions + lazy loading |
+| Code Quality | 20 | 20 | 19 | Silent catches fixed, DRY utilities extracted. -1 for remaining Supabase SDK type casts |
+| Accessibility | 15 | 15 | 15 | All modals use shared Modal, aria-labels, aria-live, aria-hidden |
+| UI Quality | bonus | +6 | +10 | Design token consistency, shared component usage |
+| Responsiveness | bonus | +3 | +10 | overflow-x-auto, touch targets, iOS zoom prevention |
+| Mobile Visual | bonus | +3 | +3 | Scroll affordances, responsive padding |
+| **Total** | **100** | **99+12** | **99+23** | **122 total** |

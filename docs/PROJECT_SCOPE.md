@@ -1,6 +1,6 @@
 # ScoutCopilot — Project Scope
 
-> Last updated: 2026-04-14
+> Last updated: 2026-04-15
 
 ## What This Project Is
 
@@ -120,7 +120,11 @@ ScoutCopilot is an AI-powered football scouting platform that connects to profes
 ### 12. Landing Page
 - Public marketing page with features, pricing, FAQ
 - Interactive radar chart demo
-- SEO-optimized with sitemap generation
+- SEO-optimized with build-time sitemap generation (no static `public/sitemap.xml`)
+- Open Graph meta tags (`og:image`, `og:type`) on public pages
+- www → non-www 301 redirect (`.htaccess`)
+- Root `/` → `/{lang}/` 301 redirect
+- Scroll affordance gradients on comparison/pricing tables
 
 ---
 
@@ -199,7 +203,7 @@ ScoutCopilot is an AI-powered football scouting platform that connects to profes
 | `usage_tracking` | Monthly billing metrics | organization_id, month, api_calls_count, reports_generated, searches_count |
 | `player_enrichment_cache` | API-Football data cache (30-day TTL) | player_external_id, current_club, birth_date, photo_url, raw_data |
 
-### Reference Tables (Public Data, No RLS)
+### Reference Tables (RLS-Protected — Authenticated Read-Only)
 
 | Table | Purpose | Records |
 |-------|---------|---------|
@@ -208,11 +212,15 @@ ScoutCopilot is an AI-powered football scouting platform that connects to profes
 | `sb_players` | Player registry with positions, birth dates, photos | ~10,000 |
 | `sb_player_season_stats` | Pre-aggregated per-90 stats (30+ metrics) | ~15,000 |
 
+> **Note:** All 4 reference tables have RLS enabled with authenticated read-only policies (fixed 2026-04-08). Accessed via `sbPlayersTable()` helper in `src/lib/sbPlayersQuery.ts` for type safety.
+
 ### Security Model
 - **Organization isolation:** `get_user_organization_id()` SQL function scopes all queries
 - **Role-based access:** `api_credentials` restricted to owner/admin
 - **Service role bypass:** `usage_tracking` writes, `player_enrichment_cache` writes
 - **All edge functions:** `verify_jwt = false` (ES256 JWTs incompatible with Supabase HS256 middleware; auth handled in function code)
+- **Admin-only edge functions:** `enrich-photos`, `backfill-birth-dates`, `backfill-reports` require `Authorization: Bearer {SUPABASE_SERVICE_ROLE_KEY}` — direct token comparison, no JWT decode
+- **Env var safety:** All edge functions use explicit guards on `Deno.env.get()` with 500 response on missing vars (no non-null assertions)
 
 ---
 
@@ -292,16 +300,32 @@ ScoutCopilot is an AI-powered football scouting platform that connects to profes
 ### Shared Components
 | Component | Purpose |
 |-----------|---------|
+| `Modal` | Accessible modal with focus trap, Escape key, `aria-modal`, backdrop click dismiss, `max-h-[90vh]`, full-screen on mobile. Used by Squad, Settings, and Delete Account pages |
 | `PlayerAvatar` | Player photo with fallback silhouette, loading spinner, AI badge, clickable lightbox, upload overlay |
 | `ComparisonRadar` | SVG radar chart for multi-player stat overlay |
 | `PasswordGate` | Private beta access gate (SHA-256 hash check) |
 | `ConfirmDialog` | Accessible modal confirmation dialog |
 | `ScrollableTabBar` | Horizontal scrollable tab navigation |
+| `Button` | Shared button with variants, min touch target 44px |
+| `Input` | Shared input with `text-base md:text-sm` (iOS zoom prevention) |
+| `Select` | Shared select with `aria-hidden` chevron icon |
+| `SearchBar` | Search input with `aria-hidden` search icon |
+
+### Shared Utilities
+| Utility | Purpose |
+|---------|---------|
+| `sbPlayersQuery.ts` | Typed helper for `sb_players` table access (not in generated Supabase types) |
+| `stripeRedirect.ts` | Validates Stripe URLs (hostname check) before redirect, with local fallback |
+| `ageUtils.ts` | `formatAge(birth_date)` — shared age calculation across all views |
 
 ### Design System
-- Material Design 3 color tokens (surface, primary, secondary, tertiary, error, etc.)
+- Material Design 3 color tokens via CSS custom properties: `var(--color-primary)`, `var(--color-surface)`, etc.
+- Never use raw Tailwind palette colors (`blue-500`, `red-600`) or stale MD3 CSS vars (`--md-sys-color-*`)
+- Design token classes: `bg-surface`, `text-on-surface`, `bg-primary`, `text-on-primary`, `bg-secondary/10`, etc.
 - `font-data` class for statistical/numerical display (tabular numerals)
 - Responsive: mobile card layouts, desktop table layouts (breakpoint: `md` = 768px)
+- Touch targets: all interactive elements ≥ 44×44px (`min-h-[44px]`)
+- iOS zoom prevention: inputs use `text-base md:text-sm` (font-size < 16px causes iOS zoom)
 - Dark mode with theme toggle
 
 ---
@@ -334,3 +358,14 @@ ScoutCopilot is an AI-powered football scouting platform that connects to profes
 4. **StatsBomb open data** covers limited competitions/seasons — not all players have stats
 5. **TheSportsDB** search is name-based and may return wrong player for common names
 6. **API-Football season** uses start year — `month < 7 ? year - 1 : year` logic required
+7. **API-Football is enrichment only** — never used for player search. StatsBomb is the single source of truth for search
+8. **npm basic-ftp** has 1 high-severity vulnerability (dev dependency only, deploy tooling) — no user impact
+
+---
+
+## Audit History
+
+| Date | Score | Bonus | Key Changes |
+|------|-------|-------|-------------|
+| 2026-04-08 | 99/100 | +12 | XSS fixed, generate-photo secured, lightbox accessible |
+| 2026-04-15 | 99/100 | +23 | 3 critical edge function auth fixes, 5 raw modals → shared Modal, 18 silent catches → logging, DRY utilities, SEO hardening, 44px touch targets |
