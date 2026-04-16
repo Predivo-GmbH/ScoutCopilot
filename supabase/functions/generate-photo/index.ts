@@ -13,6 +13,64 @@ import { checkRateLimit } from "../_shared/rate-limiter.ts";
 const SPORTSDB_BASE = "https://www.thesportsdb.com/api/v1/json/3";
 const STITCH_MCP_URL = "https://stitch.googleapis.com/mcp";
 
+// ── Image proxy (API-Football CDN → Supabase Storage) ────────────
+
+/**
+ * Downloads an image from an external URL (server-side, bypassing hotlink
+ * protection) and uploads it to the `player-photos` Supabase Storage bucket.
+ * Returns the public Supabase Storage URL, or null on failure.
+ */
+async function proxyImageToStorage(
+  imageUrl: string,
+  playerId: string,
+  supabaseClient: ReturnType<typeof getServiceClient>,
+): Promise<string | null> {
+  try {
+    const res = await fetch(imageUrl);
+    if (!res.ok) {
+      console.error(`[Proxy] Failed to download ${imageUrl}: HTTP ${res.status}`);
+      return null;
+    }
+
+    const contentType = res.headers.get("content-type") ?? "image/png";
+    const blob = await res.blob();
+    if (blob.size === 0) {
+      console.error(`[Proxy] Empty response from ${imageUrl}`);
+      return null;
+    }
+
+    const ext = contentType.includes("jpeg") || contentType.includes("jpg") ? "jpg"
+      : contentType.includes("webp") ? "webp"
+      : "png";
+    const storagePath = `${playerId}/photo.${ext}`;
+
+    const { error: uploadError } = await supabaseClient.storage
+      .from("player-photos")
+      .upload(storagePath, blob, { upsert: true, contentType });
+
+    if (uploadError) {
+      console.error(`[Proxy] Upload failed for ${playerId}: ${uploadError.message}`);
+      return null;
+    }
+
+    const { data: urlData } = supabaseClient.storage
+      .from("player-photos")
+      .getPublicUrl(storagePath);
+
+    const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+    console.log(`[Proxy] Stored ${playerId}: ${publicUrl.slice(0, 80)}…`);
+    return publicUrl;
+  } catch (err) {
+    console.error(`[Proxy] Error for ${playerId}: ${(err as Error).message}`);
+    return null;
+  }
+}
+
+/** Returns true if the URL is from API-Football CDN (known to block hotlinking). */
+function isApiFootballCdnUrl(url: string): boolean {
+  return url.includes("api-sports.io") || url.includes("media.api-football.com");
+}
+
 /** Strip diacritics so search queries stay ASCII-safe. */
 function stripAccents(s: string): string {
   return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -360,11 +418,32 @@ serve(async (req: Request) => {
         const pd = (row.player_data ?? {}) as Record<string, unknown>;
         const existingImage = pd.image as string | undefined;
 
-        // Skip if already has ANY image (API-Football CDN, TheSportsDB, Stitch, or user-uploaded)
-        // Only generate for players with NO image at all
-        if (existingImage) {
+        // If existing image is from API-Football CDN (blocks hotlinking → 403 in browsers),
+        // proxy it through Supabase Storage so it actually loads in <img> tags.
+        if (existingImage && isApiFootballCdnUrl(existingImage)) {
+          console.log(`[Proxy] API-Football CDN URL detected for ${externalId}, proxying…`);
+          const proxiedUrl = await proxyImageToStorage(existingImage, externalId, supabase);
+          if (proxiedUrl) {
+            const updatedPd = { ...pd, image: proxiedUrl };
+            await supabase
+              .from("squad_players")
+              .update({ player_data: updatedPd })
+              .eq("player_external_id", externalId);
+
+            results.push({
+              player_id: externalId as unknown as number,
+              status: "found",
+              source: "upload",
+              photo_url: proxiedUrl,
+            });
+            continue;
+          }
+          // Proxy failed — fall through to TheSportsDB / Stitch fallback chain
+          console.log(`[Proxy] Failed for ${externalId}, falling back to TheSportsDB…`);
+        } else if (existingImage) {
+          // Non-API-Football image (Supabase Storage, TheSportsDB, Stitch) — already works
           results.push({
-            player_id: externalId as unknown as number, // Will be string in results
+            player_id: externalId as unknown as number,
             status: "already_has_photo",
             photo_url: existingImage,
           });
