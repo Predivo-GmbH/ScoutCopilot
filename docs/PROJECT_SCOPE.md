@@ -1,6 +1,6 @@
 # ScoutCopilot — Project Scope
 
-> Last updated: 2026-04-15
+> Last updated: 2026-04-16
 
 ## What This Project Is
 
@@ -63,8 +63,8 @@ ScoutCopilot is an AI-powered football scouting platform that connects to profes
 - Manually add players (name, position, shirt number, nationality, birth date)
 - Inline position editing (10 positions: GK, CB, LB, RB, CDM, CM, CAM, LW, RW, ST)
 - Inline birth date editing (set or correct existing DOB)
-- Photo upload per player (JPEG/PNG/WebP → Supabase Storage)
-- On-demand photo fetching (TheSportsDB primary, AI-generated fallback)
+- Photo upload per player (JPEG/PNG/WebP, auto-cropped to 400×400 JPEG via face detection → Supabase Storage `player-photos` bucket)
+- On-demand photo fetching with server-side proxy for blocked CDNs (see Photo Architecture below)
 - Squad overview with formation gap analysis (identifies position gaps by depth, avg age, avg rating)
 - Rate players via Claude AI (1-99 rating with reasoning)
 - Add players to squads directly from search results
@@ -145,12 +145,13 @@ ScoutCopilot is an AI-powered football scouting platform that connects to profes
 - **Limitations:** No xG, xA, progressive stats, aerial data, market value
 - **Squad import:** Returns only 4 generic positions (Goalkeeper, Defender, Midfielder, Attacker) — users reassign via inline position editor
 - **Player ID format:** `apifb-{numeric_id}`
+- **Photo CDN:** `media.api-sports.io` blocks browser hotlinking (403 Forbidden) — photos are proxied server-side to Supabase Storage on first access (see Photo Architecture)
 
 ### TheSportsDB (Free)
 - **What:** Player photos, metadata, team logos
-- **Usage:** Primary photo source for player images, birth date enrichment, transfer/contract history
+- **Usage:** Fallback photo source (searched by player name), birth date enrichment, transfer/contract history
 - **Endpoint:** `/searchplayers.php?p={name}`
-- **Photo CDN:** Direct URLs from TheSportsDB
+- **Photo CDN:** Migrated from `www.thesportsdb.com` to `r2.thesportsdb.com` — URLs are normalized in `generate-photo` edge function
 
 ### Wyscout API (BYOK — User's Own Credentials)
 - **What:** Professional scouting data with advanced stats
@@ -174,9 +175,30 @@ ScoutCopilot is an AI-powered football scouting platform that connects to profes
   4. **Player comparison:** Head-to-head analysis with per-metric ranks
   5. **Player rating:** 1-99 rating with reasoning (formula fallback)
 
-### Stitch API (AI Photo Generation — Fallback)
-- **What:** Generates AI player photos when TheSportsDB has no result
-- **Usage:** Only as fallback; photos marked with "AI" badge in UI
+### Stitch API (AI Photo Generation — Last Resort)
+- **What:** Generates AI player portraits when no real photo exists anywhere
+- **Usage:** Only as last resort; photos marked with "AI" badge in UI
+- **Note:** STITCH_API_KEY and STITCH_PROJECT_ID not yet configured in production
+
+### Photo Architecture
+
+Player photos follow a priority chain with server-side proxying:
+
+| Priority | Source | When Used | Storage |
+|----------|--------|-----------|---------|
+| 1 | **API-Football** | Squad imports (`apifb-` players) | Proxied to Supabase Storage (`player-photos` bucket) — CDN blocks browser hotlinking |
+| 2 | **TheSportsDB** | Fallback for players without API-Football photo | Direct URL stored in DB (TheSportsDB allows hotlinking) |
+| 3 | **Stitch AI** | Last resort when no real photo exists | Direct URL stored in DB |
+| 4 | **Manual upload** | User uploads custom photo | Supabase Storage (`player-photos` bucket), auto-cropped to 400×400 JPEG |
+| — | **Silhouette** | No photo available | SVG fallback in `PlayerAvatar` component |
+
+**Key files:**
+- `supabase/functions/generate-photo/index.ts` — Server-side photo resolution: detects api-sports.io URLs → downloads → uploads to Supabase Storage. Falls back to TheSportsDB → Stitch.
+- `src/lib/usePlayerPhotoFetch.ts` — Client-side hook: identifies players needing photos, calls `generate-photo`, maps results back. `reportBrokenUrl` triggers re-fetch for failed images.
+- `src/lib/usePlayerPhotoUpload.ts` — Manual photo upload with face detection + auto-crop to 400×400.
+- `src/components/shared/PlayerAvatar.tsx` — Renders photo with silhouette fallback, loading spinner, AI badge, lightbox, upload overlay.
+
+**Storage:** Supabase Storage `player-photos` bucket (public). Free plan: 1 GB (~10K+ photos at ~80 KB avg). Upload size: max 10 MB raw → auto-cropped to ~50-100 KB.
 
 ### Stripe
 - **What:** Payment processing for subscriptions
@@ -360,6 +382,8 @@ ScoutCopilot is an AI-powered football scouting platform that connects to profes
 6. **API-Football season** uses start year — `month < 7 ? year - 1 : year` logic required
 7. **API-Football is enrichment only** — never used for player search. StatsBomb is the single source of truth for search
 8. **npm basic-ftp** has 1 high-severity vulnerability (dev dependency only, deploy tooling) — no user impact
+9. **API-Football CDN hotlink protection** — `media.api-sports.io` returns 403 in browser `<img>` tags. Resolved: `generate-photo` edge function proxies images server-side to Supabase Storage on first access (2026-04-16)
+10. **TheSportsDB CDN migration** — Images moved from `www.thesportsdb.com` to `r2.thesportsdb.com`. Resolved: URL normalization in `generate-photo` + `backfill-reports` edge functions (2026-04-15)
 
 ---
 
@@ -369,3 +393,4 @@ ScoutCopilot is an AI-powered football scouting platform that connects to profes
 |------|-------|-------|-------------|
 | 2026-04-08 | 99/100 | +12 | XSS fixed, generate-photo secured, lightbox accessible |
 | 2026-04-15 | 99/100 | +23 | 3 critical edge function auth fixes, 5 raw modals → shared Modal, 18 silent catches → logging, DRY utilities, SEO hardening, 44px touch targets |
+| 2026-04-16 | — | — | API-Football CDN image proxy (47 squad players fixed), TheSportsDB CDN normalization, Photo Architecture documented |
