@@ -39,6 +39,13 @@ async function proxyImageToStorage(
       return null;
     }
 
+    // API-Football returns a ~5 KB generic silhouette for players without real photos.
+    // Reject these so the fallback chain (TheSportsDB → Stitch) can provide a better image.
+    if (blob.size <= 6000) {
+      console.log(`[Proxy] Rejecting placeholder image for ${playerId} (${blob.size} bytes)`);
+      return null;
+    }
+
     const ext = contentType.includes("jpeg") || contentType.includes("jpg") ? "jpg"
       : contentType.includes("webp") ? "webp"
       : "png";
@@ -245,6 +252,12 @@ serve(async (req: Request) => {
 
     const stitchApiKey = Deno.env.get("STITCH_API_KEY");
     const stitchProjectId = Deno.env.get("STITCH_PROJECT_ID");
+
+    // Stitch AI generation is slow (~30-60s each). Cap attempts per request to stay
+    // under the 150s edge function timeout. Players that don't get Stitch in this
+    // request will be retried on the next page visit via usePlayerPhotoFetch.
+    const MAX_STITCH_PER_REQUEST = 2;
+    let stitchAttemptsUsed = 0;
     const body = await req.json().catch(() => ({}));
     const playerIds: number[] = body.player_ids ?? [];
     const apifbExternalIds: string[] = body.apifb_external_ids ?? [];
@@ -342,9 +355,10 @@ serve(async (req: Request) => {
 
       let photoUrl = sportsDbResult.photoUrl;
 
-      // Fallback: Stitch AI generation (slower, kept sequential)
-      if (!photoUrl && stitchApiKey && stitchProjectId) {
-        console.log(`[Fallback] No SportsDB photo for "${displayName}", trying Stitch…`);
+      // Fallback: Stitch AI generation (slower, kept sequential; capped per request)
+      if (!photoUrl && stitchApiKey && stitchProjectId && stitchAttemptsUsed < MAX_STITCH_PER_REQUEST) {
+        console.log(`[Fallback] No SportsDB photo for "${displayName}", trying Stitch (${stitchAttemptsUsed + 1}/${MAX_STITCH_PER_REQUEST})…`);
+        stitchAttemptsUsed++;
         photoUrl = await generateWithStitch(displayName, nationality, stitchProjectId, stitchApiKey);
       }
 
@@ -458,9 +472,10 @@ serve(async (req: Request) => {
         const nationality = (pd.nationality as string) || "Unknown";
         let photoUrl = sportsDbResult.photoUrl;
 
-        // Fallback: Stitch AI generation
-        if (!photoUrl && stitchApiKey && stitchProjectId) {
-          console.log(`[Fallback] No SportsDB photo for apifb "${row.player_name}", trying Stitch…`);
+        // Fallback: Stitch AI generation (capped per request to avoid timeout)
+        if (!photoUrl && stitchApiKey && stitchProjectId && stitchAttemptsUsed < MAX_STITCH_PER_REQUEST) {
+          console.log(`[Fallback] No SportsDB photo for apifb "${row.player_name}", trying Stitch (${stitchAttemptsUsed + 1}/${MAX_STITCH_PER_REQUEST})…`);
+          stitchAttemptsUsed++;
           photoUrl = await generateWithStitch(row.player_name, nationality, stitchProjectId, stitchApiKey);
         }
 
