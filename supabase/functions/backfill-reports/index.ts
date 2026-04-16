@@ -35,7 +35,8 @@ async function fetchFromSportsDb(playerName: string): Promise<SportsDbResult> {
     if (players.length === 0) return empty;
 
     const match = players[0];
-    const photo = match.strCutout || match.strThumb || null;
+    const rawPhoto = match.strCutout || match.strThumb || null;
+    const photo = rawPhoto?.replace("https://www.thesportsdb.com/images/", "https://r2.thesportsdb.com/images/") ?? null;
     return {
       photoUrl: photo,
       dateBorn: match.dateBorn ?? null,

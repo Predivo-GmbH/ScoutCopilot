@@ -57,7 +57,9 @@ async function fetchFromSportsDb(playerName: string): Promise<SportsDbResult> {
   }
 
   const match = players[0];
-  const photo = match.strCutout || match.strThumb || null;
+  // TheSportsDB migrated images from www. to r2. CDN — normalize URLs
+  const rawPhoto = match.strCutout || match.strThumb || null;
+  const photo = rawPhoto?.replace("https://www.thesportsdb.com/images/", "https://r2.thesportsdb.com/images/") ?? null;
   if (photo) {
     console.log(`[SportsDB] Found photo for ${playerName}: ${photo.slice(0, 80)}…`);
   } else {
