@@ -1,4 +1,4 @@
-// Fetch real player photos from TheSportsDB, fall back to Stitch AI generation
+// Fetch real player photos from TheSportsDB
 // Called internally by the search function for players without photos
 // POST /generate-photo { player_ids?: number[], apifb_external_ids?: string[] }
 // player_ids: numeric IDs for sb_players table
@@ -11,7 +11,6 @@ import { AuthError, getAuthContext, getServiceClient } from "../_shared/auth.ts"
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
 
 const SPORTSDB_BASE = "https://www.thesportsdb.com/api/v1/json/3";
-const STITCH_MCP_URL = "https://stitch.googleapis.com/mcp";
 
 // ── Image proxy (API-Football CDN → Supabase Storage) ────────────
 
@@ -40,7 +39,7 @@ async function proxyImageToStorage(
     }
 
     // API-Football returns a ~5 KB generic silhouette for players without real photos.
-    // Reject these so the fallback chain (TheSportsDB → Stitch) can provide a better image.
+    // Reject these so the fallback chain (TheSportsDB) can try to find a real photo.
     if (blob.size <= 6000) {
       console.log(`[Proxy] Rejecting placeholder image for ${playerId} (${blob.size} bytes)`);
       return null;
@@ -138,85 +137,6 @@ async function fetchFromSportsDb(playerName: string): Promise<SportsDbResult> {
   };
 }
 
-// ── Stitch AI (fallback) ───────────────────────────────────────────
-
-interface StitchScreen {
-  screenshot?: { downloadUrl?: string };
-}
-
-interface StitchOutputComponent {
-  design?: { screens?: StitchScreen[] };
-  text?: string;
-}
-
-interface StitchResult {
-  outputComponents?: StitchOutputComponent[];
-}
-
-async function generateWithStitch(
-  playerName: string,
-  nationality: string,
-  projectId: string,
-  apiKey: string,
-): Promise<string | null> {
-  const safeName = stripAccents(playerName);
-  const safeNat = stripAccents(nationality);
-  const prompt = `A high-quality, professional studio headshot of ${safeName}, ${safeNat} football player, wearing a plain neutral-colored football jersey with no logos, no emblems, no brands, no text. Looking directly at the camera with a confident expression, neutral grey background, professional studio lighting, high resolution, photorealistic.`;
-  console.log(`[Stitch] Generating portrait for ${safeName} (${safeNat})…`);
-
-  const res = await fetch(STITCH_MCP_URL, {
-    method: "POST",
-    headers: {
-      "X-Goog-Api-Key": apiKey,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: 1,
-      method: "tools/call",
-      params: {
-        name: "generate_screen_from_text",
-        arguments: { projectId, prompt },
-      },
-    }),
-  });
-
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    console.error(`[Stitch] HTTP ${res.status} — ${body}`);
-    return null;
-  }
-
-  const json = await res.json();
-
-  // Try structuredContent first, then fall back to content text
-  let parsed: StitchResult | null = null;
-  const structured = json?.result?.structuredContent;
-  if (structured?.outputComponents) {
-    parsed = structured as StitchResult;
-  } else {
-    const contentText = json?.result?.content?.[0]?.text;
-    if (!contentText) {
-      console.error("[Stitch] No content in response:", JSON.stringify(json).slice(0, 500));
-      return null;
-    }
-    try {
-      parsed = JSON.parse(contentText) as StitchResult;
-    } catch (e) {
-      console.error("[Stitch] JSON parse error:", (e as Error).message);
-      return null;
-    }
-  }
-
-  const screen = parsed?.outputComponents?.find((c) => c.design)?.design?.screens?.[0];
-  if (screen?.screenshot?.downloadUrl) {
-    console.log(`[Stitch] Generated photo for ${playerName}: ${screen.screenshot.downloadUrl.slice(0, 80)}…`);
-    return screen.screenshot.downloadUrl;
-  }
-  console.error("[Stitch] No downloadUrl in response");
-  return null;
-}
-
 // ── Main handler ───────────────────────────────────────────────────
 
 serve(async (req: Request) => {
@@ -250,14 +170,6 @@ serve(async (req: Request) => {
       );
     }
 
-    const stitchApiKey = Deno.env.get("STITCH_API_KEY");
-    const stitchProjectId = Deno.env.get("STITCH_PROJECT_ID");
-
-    // Stitch AI generation is slow (~30-60s each). Cap attempts per request to stay
-    // under the 150s edge function timeout. Players that don't get Stitch in this
-    // request will be retried on the next page visit via usePlayerPhotoFetch.
-    const MAX_STITCH_PER_REQUEST = 2;
-    let stitchAttemptsUsed = 0;
     const body = await req.json().catch(() => ({}));
     const playerIds: number[] = body.player_ids ?? [];
     const apifbExternalIds: string[] = body.apifb_external_ids ?? [];
@@ -269,14 +181,13 @@ serve(async (req: Request) => {
       );
     }
 
-    // TheSportsDB is fast; Stitch fallback is slow (30-60s each), so limit batch
     const batch = playerIds.slice(0, 10);
 
     const supabase = getServiceClient();
 
     const { data: players, error } = await supabase
       .from("sb_players")
-      .select("player_id, player_name, player_nickname, nationality, photo_url")
+      .select("player_id, player_name, player_nickname, photo_url")
       .in("player_id", batch);
 
     if (error) {
@@ -320,7 +231,7 @@ serve(async (req: Request) => {
       })
     );
 
-    // Process results, using Stitch fallback sequentially where needed
+    // Process results
     for (let i = 0; i < lookupPlayers.length; i++) {
       const p = lookupPlayers[i];
       const settled = sportsDbResults[i];
@@ -350,17 +261,7 @@ serve(async (req: Request) => {
         continue;
       }
 
-      const displayName = p.player_nickname ?? p.player_name;
-      const nationality = p.nationality ?? "Unknown";
-
       let photoUrl = sportsDbResult.photoUrl;
-
-      // Fallback: Stitch AI generation (slower, kept sequential; capped per request)
-      if (!photoUrl && stitchApiKey && stitchProjectId && stitchAttemptsUsed < MAX_STITCH_PER_REQUEST) {
-        console.log(`[Fallback] No SportsDB photo for "${displayName}", trying Stitch (${stitchAttemptsUsed + 1}/${MAX_STITCH_PER_REQUEST})…`);
-        stitchAttemptsUsed++;
-        photoUrl = await generateWithStitch(displayName, nationality, stitchProjectId, stitchApiKey);
-      }
 
       if (photoUrl && !photoUrl.startsWith("https://")) {
         console.warn(`[Validation] Rejecting non-HTTPS photo URL: ${photoUrl.slice(0, 80)}`);
@@ -384,7 +285,7 @@ serve(async (req: Request) => {
           .update({ photo_url: photoUrl })
           .eq("player_id", p.player_id);
 
-        const source = photoUrl.includes("thesportsdb.com") ? "sportsdb" : "stitch";
+        const source = photoUrl.includes("thesportsdb.com") ? "sportsdb" : "proxy";
         results.push({
           player_id: p.player_id,
           status: "found",
@@ -452,10 +353,10 @@ serve(async (req: Request) => {
             });
             continue;
           }
-          // Proxy failed — fall through to TheSportsDB / Stitch fallback chain
+          // Proxy failed — fall through to TheSportsDB lookup
           console.log(`[Proxy] Failed for ${externalId}, falling back to TheSportsDB…`);
         } else if (existingImage) {
-          // Non-API-Football image (Supabase Storage, TheSportsDB, Stitch) — already works
+          // Non-API-Football image (Supabase Storage, TheSportsDB) — already works
           results.push({
             player_id: externalId as unknown as number,
             status: "already_has_photo",
@@ -469,15 +370,7 @@ serve(async (req: Request) => {
           ? settled.value
           : { photoUrl: null, dateBorn: null, strHeight: null, strWeight: null };
 
-        const nationality = (pd.nationality as string) || "Unknown";
         let photoUrl = sportsDbResult.photoUrl;
-
-        // Fallback: Stitch AI generation (capped per request to avoid timeout)
-        if (!photoUrl && stitchApiKey && stitchProjectId && stitchAttemptsUsed < MAX_STITCH_PER_REQUEST) {
-          console.log(`[Fallback] No SportsDB photo for apifb "${row.player_name}", trying Stitch (${stitchAttemptsUsed + 1}/${MAX_STITCH_PER_REQUEST})…`);
-          stitchAttemptsUsed++;
-          photoUrl = await generateWithStitch(row.player_name, nationality, stitchProjectId, stitchApiKey);
-        }
 
         if (photoUrl && !photoUrl.startsWith("https://")) {
           console.warn(`[Validation] Rejecting non-HTTPS photo URL: ${photoUrl.slice(0, 80)}`);
@@ -492,7 +385,7 @@ serve(async (req: Request) => {
             .update({ player_data: updatedPd })
             .eq("player_external_id", externalId);
 
-          const source = photoUrl.includes("thesportsdb.com") ? "sportsdb" : "stitch";
+          const source = photoUrl.includes("thesportsdb.com") ? "sportsdb" : "proxy";
           results.push({
             player_id: externalId as unknown as number,
             status: "found",

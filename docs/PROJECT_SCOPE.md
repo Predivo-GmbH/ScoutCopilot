@@ -175,11 +175,6 @@ ScoutCopilot is an AI-powered football scouting platform that connects to profes
   4. **Player comparison:** Head-to-head analysis with per-metric ranks
   5. **Player rating:** 1-99 rating with reasoning (formula fallback)
 
-### Stitch API (AI Photo Generation — Last Resort)
-- **What:** Generates AI player portraits when no real photo exists anywhere
-- **Usage:** Only as last resort; photos marked with "AI" badge in UI
-- **Note:** STITCH_API_KEY and STITCH_PROJECT_ID not yet configured in production
-
 ### Photo Architecture
 
 Player photos follow a priority chain with server-side proxying:
@@ -188,12 +183,11 @@ Player photos follow a priority chain with server-side proxying:
 |----------|--------|-----------|---------|
 | 1 | **API-Football** | Squad imports (`apifb-` players) | Proxied to Supabase Storage (`player-photos` bucket) — CDN blocks browser hotlinking |
 | 2 | **TheSportsDB** | Fallback for players without API-Football photo | Direct URL stored in DB (TheSportsDB allows hotlinking) |
-| 3 | **Stitch AI** | Last resort when no real photo exists (max 2 per request to avoid timeout) | Direct URL stored in DB |
-| 4 | **Manual upload** | User uploads custom photo | Supabase Storage (`player-photos` bucket), auto-cropped to 400×400 JPEG |
+| 3 | **Manual upload** | User uploads custom photo | Supabase Storage (`player-photos` bucket), auto-cropped to 400×400 JPEG |
 | — | **Silhouette** | No photo available | SVG fallback in `PlayerAvatar` component |
 
 **Key files:**
-- `supabase/functions/generate-photo/index.ts` — Server-side photo resolution: detects api-sports.io URLs → downloads → uploads to Supabase Storage. Falls back to TheSportsDB → Stitch.
+- `supabase/functions/generate-photo/index.ts` — Server-side photo resolution: detects api-sports.io URLs → downloads → uploads to Supabase Storage. Falls back to TheSportsDB.
 - `src/lib/usePlayerPhotoFetch.ts` — Client-side hook: identifies players needing photos, calls `generate-photo`, maps results back. `reportBrokenUrl` triggers re-fetch for failed images.
 - `src/lib/usePlayerPhotoUpload.ts` — Manual photo upload with face detection + auto-crop to 400×400.
 - `src/components/shared/PlayerAvatar.tsx` — Renders photo with silhouette fallback, loading spinner, AI badge, lightbox, upload overlay.
@@ -384,7 +378,7 @@ Player photos follow a priority chain with server-side proxying:
 8. **npm basic-ftp** has 1 high-severity vulnerability (dev dependency only, deploy tooling) — no user impact
 9. **API-Football CDN hotlink protection** — `media.api-sports.io` returns 403 in browser `<img>` tags. Resolved: `generate-photo` edge function proxies images server-side to Supabase Storage on first access (2026-04-16)
 10. **TheSportsDB CDN migration** — Images moved from `www.thesportsdb.com` to `r2.thesportsdb.com`. Resolved: URL normalization in `generate-photo` + `backfill-reports` edge functions (2026-04-15)
-11. **Stitch AI timeout** — Each Stitch generation takes ~30-60s. `MAX_STITCH_PER_REQUEST = 2` caps AI generation attempts per edge function invocation to stay under the 150s timeout. Remaining players are retried automatically on next page visit via `usePlayerPhotoFetch` (2026-04-16)
+11. **No AI photo generation** — Stitch AI was removed (2026-04-16) because it produces fake faces for lesser-known players. If no real photo exists (API-Football or TheSportsDB), players show a silhouette fallback. Users can upload custom photos manually.
 
 ---
 
@@ -394,4 +388,4 @@ Player photos follow a priority chain with server-side proxying:
 |------|-------|-------|-------------|
 | 2026-04-08 | 99/100 | +12 | XSS fixed, generate-photo secured, lightbox accessible |
 | 2026-04-15 | 99/100 | +23 | 3 critical edge function auth fixes, 5 raw modals → shared Modal, 18 silent catches → logging, DRY utilities, SEO hardening, 44px touch targets |
-| 2026-04-16 | — | — | API-Football CDN image proxy (47 squad players fixed), TheSportsDB CDN normalization, Photo Architecture documented, Stitch AI timeout cap (MAX_STITCH_PER_REQUEST=2) |
+| 2026-04-16 | — | — | API-Football CDN image proxy (47 squad players fixed), TheSportsDB CDN normalization, Photo Architecture documented. Stitch AI removed — produces fake faces for lesser-known players. |
