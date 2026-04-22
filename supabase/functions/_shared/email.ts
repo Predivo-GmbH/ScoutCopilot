@@ -98,60 +98,65 @@ const APP_URL = Deno.env.get('APP_URL') ?? 'https://scoutcopilot.com'
 
 /** Wraps email body in a consistent branded layout — matches the OTP verification email design */
 function layout(body: string): string {
-  return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ScoutCopilot</title>
-</head>
-<body style="margin:0;padding:0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#f4f4f5;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
-  <!--[if mso | IE]><table role="presentation" width="100%" bgcolor="#f4f4f5"><tr><td align="center"><![endif]-->
-  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f4f4f5;">
-    <tr>
-      <td align="center" style="padding:40px 16px;">
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="480" style="max-width:480px;width:100%;">
-          <!-- Logo -->
-          <tr>
-            <td align="center" style="padding-bottom:28px;">
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">
-                <tr>
-                  <td style="font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:20px;font-weight:700;color:#2563EB;letter-spacing:-0.02em;vertical-align:middle;">ScoutCopilot</td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-          <!-- Card -->
-          <tr>
-            <td style="background-color:#ffffff;border:1px solid #e4e4e7;border-radius:12px;padding:36px 32px;" bgcolor="#ffffff">
-              ${body}
-            </td>
-          </tr>
-          <!-- Footer -->
-          <tr>
-            <td align="center" style="padding-top:24px;">
-              <p style="margin:0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:12px;color:#a1a1aa;line-height:1.5;">&copy; ${new Date().getFullYear()} Predivo GmbH &middot; Bahnhofstrasse 55 &middot; 6403 K&uuml;ssnacht am Rigi</p>
-              <p style="margin:8px 0 0;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:12px;"><a href="https://scoutcopilot.com" style="color:#2563EB;text-decoration:none;">scoutcopilot.com</a></p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-  <!--[if mso | IE]></td></tr></table><![endif]-->
-</body>
-</html>`
+  return [
+    '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
+    '<html xmlns="http://www.w3.org/1999/xhtml">',
+    '<head>',
+    '  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />',
+    '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />',
+    '  <title>ScoutCopilot</title>',
+    '</head>',
+    '<body style="margin:0;padding:0;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;background-color:#f4f4f5;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">',
+    '  <!--[if mso | IE]><table role="presentation" width="100%" bgcolor="#f4f4f5"><tr><td align="center"><![endif]-->',
+    '  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f4f4f5;">',
+    '    <tr>',
+    '      <td align="center" style="padding:40px 16px;">',
+    '        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="480" style="max-width:480px;width:100%;">',
+    '          <!-- Logo — icon + text, centered above the card -->',
+    '          <tr>',
+    '          <td align="center" style="padding-bottom:28px;">',
+    '          <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">',
+    '          <tr>',
+    '          <td style="vertical-align:middle;padding-right:10px;"><img src="https://scoutcopilot.com/apple-touch-icon.png" alt="ScoutCopilot" width="28" height="28" style="display:block;border:0;border-radius:6px;" /></td>',
+    '          <td style="font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:20px;font-weight:700;color:#2563EB;letter-spacing:-0.02em;vertical-align:middle;">ScoutCopilot</td>',
+    '          </tr>',
+    '          </table>',
+    '          </td>',
+    '          </tr>',
+    '          <!-- Card -->',
+    '          <tr>',
+    '            <td style="background-color:#ffffff;border:1px solid #e4e4e7;border-radius:12px;padding:36px 32px;" bgcolor="#ffffff">',
+    '              ' + body,
+    '            </td>',
+    '          </tr>',
+    '          <!-- Footer -->',
+    '          <tr>',
+    '            <td align="center" style="padding-top:24px;">',
+    '              <p style="margin:0;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:12px;color:#a1a1aa;line-height:1.5;">&copy; ' + new Date().getFullYear() + ' Predivo GmbH &middot; Bahnhofstrasse 55 &middot; 6403 K&uuml;ssnacht am Rigi</p>',
+    '              <p style="margin:8px 0 0;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:12px;"><a href="https://scoutcopilot.com" style="color:#2563EB;text-decoration:none;">scoutcopilot.com</a></p>',
+    '            </td>',
+    '          </tr>',
+    '        </table>',
+    '      </td>',
+    '    </tr>',
+    '  </table>',
+    '  <!--[if mso | IE]></td></tr></table><![endif]-->',
+    '</body>',
+    '</html>',
+  ].join('\n')
 }
 
 /** Styled CTA button — centered, matches OTP verification email */
 function button(text: string, href: string): string {
-  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:24px auto 0;">
-  <tr>
-    <td align="center" bgcolor="#2563EB" style="background-color:#2563EB;border-radius:8px;mso-padding-alt:14px 40px;">
-      <a href="${href}" target="_blank" style="display:inline-block;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,'Helvetica Neue',Arial,sans-serif;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;padding:14px 40px;mso-line-height-rule:exactly;line-height:normal;"><!--[if mso]>&nbsp;&nbsp;&nbsp;<![endif]-->${text}<!--[if mso]>&nbsp;&nbsp;&nbsp;<![endif]--></a>
-    </td>
-  </tr>
-</table>`
+  return [
+    '<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:24px auto 0;">',
+    '  <tr>',
+    '    <td align="center" bgcolor="#2563EB" style="background-color:#2563EB;border-radius:8px;mso-padding-alt:14px 40px;">',
+    '      <a href="' + href + '" target="_blank" style="display:inline-block;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;padding:14px 40px;mso-line-height-rule:exactly;line-height:normal;"><!--[if mso]>&nbsp;&nbsp;&nbsp;<![endif]-->' + text + '<!--[if mso]>&nbsp;&nbsp;&nbsp;<![endif]--></a>',
+    '    </td>',
+    '  </tr>',
+    '</table>',
+  ].join('')
 }
 
 // ─── Shared inline styles (avoids duplication) ──────────────────────────────

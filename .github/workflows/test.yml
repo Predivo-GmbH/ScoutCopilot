@@ -1,0 +1,36 @@
+name: Test & Coverage
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit Tests
+        run: npm run test:ci
+
+      - name: Coverage
+        run: npm run test:coverage
+
+      - name: E2E Tests
+        run: npm run test:e2e
+
+      - name: Accessibility Tests
+        run: npm run test:a11y
+
+      - name: Feature Coverage Check
+        run: node scripts/check-feature-coverage.mjs
