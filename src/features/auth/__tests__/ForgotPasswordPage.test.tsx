@@ -18,7 +18,7 @@ vi.mock('../useAuth', () => ({
 }))
 
 vi.mock('../../../components/shared/LocalizedLink', () => ({
-  Link: ({ to, children, ...props }: any) => <a href={to} {...props}>{children}</a>,
+  Link: ({ to, children, ...props }: { to: string; children: React.ReactNode } & Record<string, unknown>) => <a href={to} {...props}>{children}</a>,
   useLocalizedNavigate: vi.fn(() => vi.fn()),
 }))
 

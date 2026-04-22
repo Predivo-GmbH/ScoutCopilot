@@ -111,7 +111,7 @@ test.describe('Language Support', () => {
     await page.waitForLoadState('networkidle')
 
     // Look for language toggle (if present in UI)
-    const hasLanguageUI = await page.locator('text=/DE|en/i').count()
+    await page.locator('text=/DE|en/i').count()
     // Basic check: page loaded
     expect(await page.innerText('body')).toBeTruthy()
   })

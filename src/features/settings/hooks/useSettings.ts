@@ -96,16 +96,20 @@ export function useSettings() {
 
   // Sync from auth context when it loads
   useEffect(() => {
-    setProfile({
-      fullName: authProfile?.full_name ?? '',
-      email: user?.email ?? '',
-      role: authProfile?.role ?? '',
+    requestAnimationFrame(() => {
+      setProfile({
+        fullName: authProfile?.full_name ?? '',
+        email: user?.email ?? '',
+        role: authProfile?.role ?? '',
+      })
     })
   }, [authProfile, user])
 
   useEffect(() => {
-    setOrg({
-      name: authOrg?.name ?? '',
+    requestAnimationFrame(() => {
+      setOrg({
+        name: authOrg?.name ?? '',
+      })
     })
   }, [authOrg])
 
@@ -148,7 +152,7 @@ export function useSettings() {
 
   // Sync avatar URL from auth profile
   useEffect(() => {
-    setAvatarUrl(authProfile?.avatar_url ?? null)
+    requestAnimationFrame(() => setAvatarUrl(authProfile?.avatar_url ?? null))
   }, [authProfile])
 
   // Load notification preferences from profiles table

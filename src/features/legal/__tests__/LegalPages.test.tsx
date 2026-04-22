@@ -10,7 +10,7 @@ import { I18nextProvider } from 'react-i18next'
 import i18n from '../../../i18n'
 
 vi.mock('../../../components/shared/LocalizedLink', () => ({
-  Link: ({ to, children, ...props }: any) => <a href={to} {...props}>{children}</a>,
+  Link: ({ to, children, ...props }: { to: string; children: React.ReactNode } & Record<string, unknown>) => <a href={to} {...props}>{children}</a>,
   useLocalizedNavigate: vi.fn(() => vi.fn()),
 }))
 

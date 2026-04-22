@@ -208,7 +208,7 @@ function ImportTeamModal({
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current)
     if (!query.trim() || query.trim().length < 2) {
-      setTeams([])
+      requestAnimationFrame(() => setTeams([]))
       return
     }
     debounceRef.current = setTimeout(async () => {

@@ -9,7 +9,7 @@
  * Protected routes — authentication required.
  */
 
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 
 // ── Setup & Utilities ──────────────────────────────────────────
 
@@ -17,7 +17,7 @@ import { test, expect } from '@playwright/test'
  * Helper to navigate to authenticated route
  * In a real scenario, you'd set up auth state or use test user fixtures
  */
-const navigateToProtectedRoute = async (page: any, path: string) => {
+const navigateToProtectedRoute = async (page: Page, path: string) => {
   await page.goto(path)
   await page.waitForLoadState('networkidle')
 

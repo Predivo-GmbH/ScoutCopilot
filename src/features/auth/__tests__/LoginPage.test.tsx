@@ -3,7 +3,7 @@
  * Tests rendering, tab switching, form elements, links
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import { I18nextProvider } from 'react-i18next'
@@ -21,7 +21,7 @@ vi.mock('../useAuth', () => ({
 }))
 
 vi.mock('../../../components/shared/LocalizedLink', () => ({
-  Link: ({ to, children, ...props }: any) => <a href={to} {...props}>{children}</a>,
+  Link: ({ to, children, ...props }: { to: string; children: React.ReactNode } & Record<string, unknown>) => <a href={to} {...props}>{children}</a>,
   useLocalizedNavigate: vi.fn(() => vi.fn()),
 }))
 
@@ -30,7 +30,7 @@ vi.mock('../../../components/auth/AuthLayout', () => ({
 }))
 
 vi.mock('../../../components/auth/OtpInput', () => ({
-  default: ({ onComplete }: any) => <input data-testid="otp-input" onChange={(e) => onComplete(e.target.value)} />,
+  default: ({ onComplete }: { onComplete: (value: string) => void }) => <input data-testid="otp-input" onChange={(e) => onComplete(e.target.value)} />,
 }))
 
 vi.mock('../../../components/auth/ResendTimer', () => ({

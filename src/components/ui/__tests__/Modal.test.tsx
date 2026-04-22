@@ -2,7 +2,7 @@
  * Modal Component — Unit Tests
  * Tests open/close, title, footer, overlay click, escape key, focus trap, accessibility
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { I18nextProvider } from 'react-i18next'
 import i18n from '../../../i18n'

@@ -13,11 +13,6 @@ export function AuthCallbackPage() {
   const navigate = useLocalizedNavigate()
   const [status] = useState(t('auth.processing'))
 
-  useEffect(() => {
-    handleAuthCallback()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   async function handleAuthCallback() {
     const { data: { session }, error } = await supabase.auth.getSession()
 
@@ -39,6 +34,11 @@ export function AuthCallbackPage() {
       navigate('/login')
     }
   }
+
+  useEffect(() => {
+    handleAuthCallback()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="flex h-screen items-center justify-center bg-background">

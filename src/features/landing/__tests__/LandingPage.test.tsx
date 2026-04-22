@@ -11,7 +11,7 @@ import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import i18n from '../../../i18n'
 
 vi.mock('../../../components/shared/LocalizedLink', () => ({
-  Link: ({ to, children, ...props }: any) => <a href={to} {...props}>{children}</a>,
+  Link: ({ to, children, ...props }: { to: string; children: React.ReactNode } & Record<string, unknown>) => <a href={to} {...props}>{children}</a>,
   useLocalizedNavigate: vi.fn(() => vi.fn()),
 }))
 
@@ -24,7 +24,7 @@ vi.mock('../../../components/layout/PublicFooter', () => ({
 }))
 
 vi.mock('../../../components/shared/FaqItem', () => ({
-  FaqItem: ({ question }: any) => <div data-testid="faq-item">{question}</div>,
+  FaqItem: ({ question }: { question: string }) => <div data-testid="faq-item">{question}</div>,
 }))
 
 import { LandingPage } from '../LandingPage'

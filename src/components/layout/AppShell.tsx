@@ -14,9 +14,13 @@ export function AppShell() {
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
   // Close mobile sidebar on route change
+  const prevPathnameRef = useRef(location.pathname)
   useEffect(() => {
-    if (mobileSidebarOpen) setMobileSidebarOpen(false)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (prevPathnameRef.current !== location.pathname) {
+      prevPathnameRef.current = location.pathname
+      // Use requestAnimationFrame to avoid synchronous setState in effect
+      requestAnimationFrame(() => setMobileSidebarOpen(false))
+    }
   }, [location.pathname])
 
   // Focus trap + Escape handler for mobile sidebar

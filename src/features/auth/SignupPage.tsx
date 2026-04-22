@@ -33,7 +33,7 @@ export function SignupPage() {
         navigate('/dashboard')
         return
       }
-      setStep('profile')
+      requestAnimationFrame(() => setStep('profile'))
     }
   }, [searchParams, hasCompletedProfile, navigate])
 
