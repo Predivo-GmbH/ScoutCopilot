@@ -21,8 +21,7 @@ import { AuthGuard, AuthOnlyGuard } from '../AuthGuard'
 
 const createWrapper = (initialRoute: string) => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  return function Wrapper({ children }: { children: React.ReactNode }) {
+  return function Wrapper({ children: _children }: { children: React.ReactNode }) {
     return (
       <QueryClientProvider client={queryClient}>
         <MemoryRouter initialEntries={[initialRoute]}>

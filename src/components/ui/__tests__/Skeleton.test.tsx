@@ -43,7 +43,7 @@ describe('Skeleton', () => {
 
   it('accepts custom className', () => {
     const { container } = render(<Skeleton className="my-class" />)
-    expect(container.firstChild?.className).toContain('my-class')
+    expect((container.firstChild as HTMLElement)?.className).toContain('my-class')
   })
 
   it('forwards ref', () => {
