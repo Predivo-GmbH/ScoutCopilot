@@ -11,6 +11,14 @@
 
 import { test, expect } from '@playwright/test'
 
+// Bypass the password gate on every page navigation
+test.beforeEach(async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => {
+    sessionStorage.setItem('scoutcopilot-unlocked', 'true')
+  })
+})
+
 // ── Public routes (no auth required) ───────────────────────────
 const publicRoutes = [
   { path: '/en/', name: 'Landing Page' },

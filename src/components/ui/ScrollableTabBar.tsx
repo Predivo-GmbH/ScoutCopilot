@@ -41,6 +41,7 @@ export function ScrollableTabBar({
     <div className={cn('relative border-b border-outline-variant', className)}>
       <div
         ref={scrollRef}
+        role="tablist"
         className="flex overflow-x-auto scrollbar-hide"
         style={{
           scrollSnapType: 'x mandatory',
