@@ -26,6 +26,14 @@ jobs:
       - name: Coverage
         run: npm run test:coverage
 
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Critical Path Tests (MUST PASS)
+        run: npx playwright test critical-path --project=chromium
+        env:
+          BASE_URL: https://scoutcopilot.com
+
       - name: E2E Tests
         run: npm run test:e2e
         continue-on-error: true
