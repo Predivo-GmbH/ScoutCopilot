@@ -30,6 +30,22 @@ jobs:
       - name: Install lftp
         run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
 
+      - name: Write site-id marker
+        run: echo "scoutcopilot" > dist/.site-id
+
+      - name: Verify deploy target (site-id guard)
+        run: |
+          REMOTE_ID=$(lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" -e "set ftp:ssl-allow no; cat /httpdocs/.site-id; quit" 2>/dev/null || echo "")
+          if [ -n "$REMOTE_ID" ] && [ "$REMOTE_ID" != "scoutcopilot" ]; then
+            echo "::error::DEPLOY ABORTED — remote .site-id is '$REMOTE_ID', expected 'scoutcopilot'. Wrong FTP target!"
+            exit 1
+          fi
+          echo "Site-id guard passed (remote='${REMOTE_ID:-<none>}')"
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+
       - name: Deploy assets (no deletion — zero-downtime overlap)
         run: |
           lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT
@@ -51,6 +67,7 @@ jobs:
             ./dist/fonts/ /httpdocs/fonts/
           mirror --reverse --verbose --no-perms \
             ./dist/avatars/ /httpdocs/avatars/
+          put ./dist/.site-id -o /httpdocs/.site-id
           put ./dist/index.html -o /httpdocs/index.html
           put ./dist/.htaccess -o /httpdocs/.htaccess
           put ./dist/favicon.svg -o /httpdocs/favicon.svg
