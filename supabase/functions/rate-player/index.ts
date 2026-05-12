@@ -5,6 +5,7 @@
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { handleCors } from "../_shared/cors.ts";
 import { AuthError, getAuthContext } from "../_shared/auth.ts";
+import { logAnthropicUsage } from "../_shared/log-usage.ts";
 
 const CLAUDE_MODEL = "claude-3-haiku-20240307";
 
@@ -212,7 +213,10 @@ No markdown, no extra text.`;
 
   const data = (await response.json()) as {
     content: Array<{ type: string; text: string }>;
+    model?: string;
+    usage?: { input_tokens?: number; output_tokens?: number };
   };
+  await logAnthropicUsage('ScoutCopilot', 'rate-player', data);
 
   const text = data.content?.[0]?.text ?? "[]";
   const parsed = JSON.parse(text) as Array<{

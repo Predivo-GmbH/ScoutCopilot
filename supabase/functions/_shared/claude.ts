@@ -1,5 +1,7 @@
 // Claude API client for NL parsing and report generation
 
+import { logAnthropicUsage } from "./log-usage.ts";
+
 const CLAUDE_MODEL = "claude-3-haiku-20240307";
 
 interface ClaudeMessage {
@@ -43,7 +45,8 @@ async function callClaude(
     throw new Error(`Claude API error (${response.status}): ${err}`);
   }
 
-  const data: ClaudeResponse = await response.json();
+  const data: ClaudeResponse & { model?: string; usage?: { input_tokens?: number; output_tokens?: number } } = await response.json();
+  await logAnthropicUsage('ScoutCopilot', 'claude-shared', data);
   return data.content[0]?.text ?? "";
 }
 
