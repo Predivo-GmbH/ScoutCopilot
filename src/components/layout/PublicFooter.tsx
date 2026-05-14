@@ -40,7 +40,10 @@ export function PublicFooter({ onLandingPage }: PublicFooterProps) {
           <Link to="/privacy" className="hover:text-on-surface transition-colors py-2 min-h-[44px] flex items-center justify-center">{t('common.privacy')}</Link>
           <Link to="/imprint" className="hover:text-on-surface transition-colors py-2 min-h-[44px] flex items-center justify-center">{t('common.imprint')}</Link>
         </nav>
-        <p className="text-on-surface-variant text-xs">{t('common.copyright')}</p>
+        <div className="text-center md:text-right">
+          <p className="text-on-surface-variant text-xs">{t('common.copyright')}</p>
+          <p className="text-on-surface-variant text-[10px] mt-1">Swiss-made &middot; Software that Thinks Ahead</p>
+        </div>
       </div>
     </footer>
   )
