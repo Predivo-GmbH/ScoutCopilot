@@ -3,7 +3,7 @@
   Header set X-Content-Type-Options "nosniff"
   Header set Referrer-Policy "strict-origin-when-cross-origin"
   Header set Permissions-Policy "camera=(), microphone=(), geolocation=()"
-  Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+  Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
   Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-G9SM0lBhv0poELF/0BMjMAeCexCDay+pwxZiCw9cZLg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://api.stripe.com; font-src 'self'; frame-src 'self'; object-src 'none'; manifest-src 'self'; frame-ancestors 'self';"
 </IfModule>
 
