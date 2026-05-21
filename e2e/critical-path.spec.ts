@@ -13,7 +13,6 @@
 
 import { test, expect } from '@playwright/test'
 
-const BASE_URL = process.env.BASE_URL || 'https://scoutcopilot.com'
 const SUPABASE_URL = 'https://rlcsuqwqzoqjykdiqjye.supabase.co'
 
 // Bypass the password gate on every page navigation
