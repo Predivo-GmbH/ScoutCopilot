@@ -24,11 +24,11 @@
   RewriteCond %{REQUEST_URI} (.+)/$
   RewriteRule ^ %1 [R=301,L]
 
-  # Redirect bare root "/" to default language "/en/"
-  RewriteRule ^$ /en/ [R=301,L]
+  # Redirect bare root "/" to default language "/en"
+  RewriteRule ^$ /en [R=301,L]
 
   # 301 redirect old non-prefixed URLs to /en/ (preserves SEO equity)
-  RewriteCond %{REQUEST_URI} !^/(en|de)/
+  RewriteCond %{REQUEST_URI} !^/(en|de)(/|$)
   RewriteCond %{REQUEST_URI} !^/assets/
   RewriteCond %{REQUEST_URI} !^/fonts/
   RewriteCond %{REQUEST_URI} !^/auth/
