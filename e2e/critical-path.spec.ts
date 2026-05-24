@@ -82,11 +82,22 @@ test.describe('Critical: Protected Routes Redirect', () => {
 
 test.describe('Critical: Edge Functions Respond', () => {
   const edgeFunctions = [
-    'generate-photo',
-    'search-players',
-    'send-auth-email',
-    'enrich-player',
+    'backfill-birth-dates',
+    'backfill-reports',
+    'billing-portal',
+    'checkout',
+    'compare',
+    'credentials',
     'delete-account',
+    'enrich-photos',
+    'generate-photo',
+    'import-team',
+    'invite-member',
+    'rate-player',
+    'report',
+    'search',
+    'send-welcome',
+    'stripe-webhook',
   ]
 
   for (const fn of edgeFunctions) {
