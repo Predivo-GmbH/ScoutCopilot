@@ -54,10 +54,15 @@ async function verifyStripeSignature(
     expectedSigBytes[i / 2] = parseInt(expectedSig.substring(i, i + 2), 16);
   }
 
-  if (
-    computedSigBytes.length !== expectedSigBytes.length ||
-    !crypto.subtle.timingSafeEqual(computedSigBytes, expectedSigBytes)
-  ) {
+  // Timing-safe comparison (crypto.subtle.timingSafeEqual does not exist in Deno)
+  if (computedSigBytes.length !== expectedSigBytes.length) {
+    throw new Error("Signature verification failed");
+  }
+  let mismatch = 0;
+  for (let i = 0; i < computedSigBytes.length; i++) {
+    mismatch |= computedSigBytes[i] ^ expectedSigBytes[i];
+  }
+  if (mismatch !== 0) {
     throw new Error("Signature verification failed");
   }
 
