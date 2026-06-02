@@ -18,7 +18,7 @@ export function ResetPasswordPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
-  const { user, isLoading: authLoading, updatePassword } = useAuth()
+  const { user, isLoading: authLoading, updatePassword, signOut } = useAuth()
   const navigate = useLocalizedNavigate()
 
   useEffect(() => {
@@ -44,6 +44,7 @@ export function ResetPasswordPage() {
     setLoading(true)
     try {
       await updatePassword(password)
+      await signOut()
       setDone(true)
     } catch (err) {
       setError(t(friendlyAuthError(err, 'Failed to update password')))
