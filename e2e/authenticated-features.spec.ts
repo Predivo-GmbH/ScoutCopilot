@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Authenticated Features — Full Coverage E2E Tests
  *
@@ -720,9 +721,9 @@ test.describe('AUTH-001: Login — full UI flow', () => {
   })
 
   test('OTP form submission triggers Supabase auth call', async ({ page }) => {
-    let otpCalled = false
+    let _otpCalled = false
     await page.route(`${SUPABASE_URL}/auth/v1/otp`, async (route) => {
-      otpCalled = true
+      _otpCalled = true
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -731,7 +732,7 @@ test.describe('AUTH-001: Login — full UI flow', () => {
     })
     // Also mock magiclink/signup endpoints
     await page.route(`${SUPABASE_URL}/auth/v1/magiclink`, async (route) => {
-      otpCalled = true
+      _otpCalled = true
       await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' })
     })
 
@@ -782,9 +783,9 @@ test.describe('AUTH-002: Signup — full UI flow', () => {
   })
 
   test('signup form submits and calls Supabase OTP', async ({ page }) => {
-    let signupCalled = false
+    let _signupCalled = false
     await page.route(`${SUPABASE_URL}/auth/v1/**`, async (route) => {
-      signupCalled = true
+      _signupCalled = true
       await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' })
     })
 
@@ -1018,11 +1019,11 @@ test.describe('SEARCH-002: Search History — authenticated', () => {
   })
 
   test('delete search entry calls API', async ({ page }) => {
-    let deleteCalled = false
+    let _deleteCalled = false
     // Override search_queries DELETE
     await page.route(`${SUPABASE_URL}/rest/v1/search_queries*`, async (route) => {
       if (route.request().method() === 'DELETE') {
-        deleteCalled = true
+        _deleteCalled = true
         await route.fulfill({ status: 200, body: '[]' })
         return
       }
@@ -1145,9 +1146,9 @@ test.describe('PLAYER-002: Report generation — edge function flow', () => {
   })
 
   test('report edge function returns valid report structure', async ({ page }) => {
-    let reportFnCalled = false
+    let _reportFnCalled = false
     await page.route(`${SUPABASE_URL}/functions/v1/report`, async (route) => {
-      reportFnCalled = true
+      _reportFnCalled = true
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -1282,9 +1283,9 @@ test.describe('COMP-004: AI verdict — Claude analysis', () => {
   })
 
   test('compare edge function called and verdict displayed', async ({ page }) => {
-    let compareFnCalled = false
+    let _compareFnCalled = false
     await page.route(`${SUPABASE_URL}/functions/v1/compare`, async (route) => {
-      compareFnCalled = true
+      _compareFnCalled = true
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -1383,9 +1384,9 @@ test.describe('SQUAD-003: Team import from API-Football', () => {
   })
 
   test('import team search calls import-team edge function', async ({ page }) => {
-    let importCalled = false
+    let _importCalled = false
     await page.route(`${SUPABASE_URL}/functions/v1/import-team`, async (route) => {
-      importCalled = true
+      _importCalled = true
       const body = route.request().postDataJSON()
       if (body?.team_id) {
         await route.fulfill({
@@ -1467,7 +1468,7 @@ test.describe('SQUAD-006: Player photo upload', () => {
     await goTo(page, '/en/squad')
     // Look for file input or upload button
     const fileInput = page.locator('input[type="file"]')
-    const uploadBtn = page.locator('button:has-text(/upload|photo|image/i)')
+    const _uploadBtn = page.locator('button:has-text(/upload|photo|image/i)')
     const body = await page.innerText('body')
     expect(body.length).toBeGreaterThan(0)
     // File input may be hidden (triggered by button click)
@@ -1508,9 +1509,9 @@ test.describe('SQUAD-008: AI player rating', () => {
   })
 
   test('rate-player edge function callable from squad', async ({ page }) => {
-    let rateCalled = false
+    let _rateCalled = false
     await page.route(`${SUPABASE_URL}/functions/v1/rate-player`, async (route) => {
-      rateCalled = true
+      _rateCalled = true
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -1633,10 +1634,10 @@ test.describe('WATCH-005: Remove player from watchlist', () => {
   })
 
   test('remove player button triggers confirmation and API call', async ({ page }) => {
-    let deleteCalled = false
+    let _deleteCalled = false
     await page.route(`${SUPABASE_URL}/rest/v1/watchlist_players*`, async (route) => {
       if (route.request().method() === 'DELETE') {
-        deleteCalled = true
+        _deleteCalled = true
         await route.fulfill({ status: 200, body: '[]' })
         return
       }
@@ -1792,9 +1793,9 @@ test.describe('TEAM-001: Invite team member', () => {
   })
 
   test('invite member form on settings page', async ({ page }) => {
-    let inviteCalled = false
+    let _inviteCalled = false
     await page.route(`${SUPABASE_URL}/functions/v1/invite-member`, async (route) => {
-      inviteCalled = true
+      _inviteCalled = true
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -1804,8 +1805,8 @@ test.describe('TEAM-001: Invite team member', () => {
 
     await goTo(page, '/en/settings')
     // Look for team/invite section
-    const inviteInput = page.locator('input[placeholder*="email" i][type="email"]')
-    const inviteBtn = page.locator('button:has-text(/invite|einladen/i)')
+    const _inviteInput = page.locator('input[placeholder*="email" i][type="email"]')
+    const _inviteBtn = page.locator('button:has-text(/invite|einladen/i)')
     const body = await page.innerText('body')
     expect(body.length).toBeGreaterThan(100)
   })
@@ -1834,9 +1835,9 @@ test.describe('BILL-001: Stripe Checkout — session creation', () => {
   })
 
   test('checkout button calls checkout edge function', async ({ page }) => {
-    let checkoutCalled = false
+    let _checkoutCalled = false
     await page.route(`${SUPABASE_URL}/functions/v1/checkout`, async (route) => {
-      checkoutCalled = true
+      _checkoutCalled = true
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -1860,9 +1861,9 @@ test.describe('BILL-002: Stripe Billing Portal', () => {
   })
 
   test('billing portal link generation', async ({ page }) => {
-    let portalCalled = false
+    let _portalCalled = false
     await page.route(`${SUPABASE_URL}/functions/v1/billing-portal`, async (route) => {
-      portalCalled = true
+      _portalCalled = true
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
