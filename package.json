@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && npx tsx scripts/generate-sitemap.ts",
+    "build": "tsc -b && vite build && npx tsx scripts/generate-sitemap.ts && node scripts/write-monitor-manifest.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
