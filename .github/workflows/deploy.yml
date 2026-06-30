@@ -94,6 +94,7 @@ jobs:
           put ./dist/site.webmanifest -o /httpdocs/site.webmanifest
           put ./dist/robots.txt -o /httpdocs/robots.txt
           put ./dist/sitemap.xml -o /httpdocs/sitemap.xml
+          put ./dist/monitor-routes.json -o /httpdocs/monitor-routes.json
           put ./dist/og-image.png -o /httpdocs/og-image.png
           put ./dist/logo.png -o /httpdocs/logo.png
           bye
