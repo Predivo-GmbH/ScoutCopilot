@@ -1,0 +1,107 @@
+name: Deploy to Staging
+
+# Staging environment for staging.scoutcopilot.com — hosts work-in-progress
+# (footer redesign, SEO pages, etc.) for review BEFORE it reaches production.
+# Triggered by pushing to the `staging` branch (or manually). Production is a
+# SEPARATE workflow (deploy.yml, on `master`) and is never touched by this one.
+#
+# Protection: the deployed .htaccess adds HTTP Basic auth (creds live in the
+# server-side .htpasswd at the docroot, placed once and excluded from deploy)
+# plus X-Robots-Tag noindex, and robots.txt disallows all — so staging is never
+# publicly reachable or indexed.
+
+on:
+  push:
+    branches: [staging]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.gitignore'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build for staging
+        run: npm run build
+        env:
+          # Staging reuses the production Supabase backend (anon key only — public).
+          # The footer + SEO marketing pages under review are fully static and need
+          # no backend; auth flows would hit prod Supabase. Swap to a dedicated
+          # STAGING_SUPABASE_* project here if full data isolation is ever needed.
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Prepare staging .htaccess (basic-auth + noindex)
+        run: |
+          # Reuse the REAL production .htaccess (from the build) so staging catches
+          # the same Apache/rewrite behaviour, then prepend Basic auth and append a
+          # noindex header.
+          mv dist/.htaccess /tmp/prod.htaccess
+          {
+            echo 'AuthType Basic'
+            echo 'AuthName "ScoutCopilot Staging"'
+            echo 'AuthUserFile /var/www/vhosts/scoutcopilot.com/staging.scoutcopilot.com/.htpasswd'
+            echo 'Require valid-user'
+            echo ''
+            cat /tmp/prod.htaccess
+            echo ''
+            echo '# --- Staging overrides ---'
+            echo '<IfModule mod_headers.c>'
+            echo '  Header always set X-Robots-Tag "noindex, nofollow"'
+            echo '</IfModule>'
+          } > dist/.htaccess
+
+      - name: Staging robots.txt (disallow all)
+        run: printf 'User-agent: *\nDisallow: /\n' > dist/robots.txt
+
+      - name: Deploy staging via FTPS
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+        run: |
+          sudo apt-get install -y lftp
+          echo "scoutcopilot-staging" > ./dist/.site-id
+          # ssl-protect-data no = login/control stays TLS-encrypted (creds safe), data
+          # channel goes clear (PROT C, which Metanet accepts). Fixes the intermittent
+          # "max-retries exceeded" hang (encrypted passive data channel vs GitHub-runner
+          # NAT — see standards/deploy-standard.md). Excludes .htpasswd (server-managed)
+          # and cgi-bin/ from the --delete mirror so they survive.
+          SETTINGS="set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no; set ftp:passive-mode yes; set ftp:prefer-epsv no; set net:timeout 30; set net:max-retries 4; set net:persist-retries 4; set net:reconnect-interval-base 8; set net:reconnect-interval-multiplier 1; set mirror:parallel-transfer-count 4;"
+          CMDS="$SETTINGS mirror --reverse --delete --no-perms --verbose --exclude .htpasswd --exclude cgi-bin/ ./dist/ staging.scoutcopilot.com/; bye"
+          n=0
+          until [ $n -ge 4 ]; do
+            if lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" -e "$CMDS"; then
+              echo "Staging FTP deploy succeeded (attempt $((n+1)))"; exit 0
+            fi
+            n=$((n + 1)); echo "::warning::Staging FTP attempt $n failed (transient FTPS data-channel blip — runner-side); retrying in 25s..."; sleep 25
+          done
+          echo "::error::Staging FTP deploy failed after 4 attempts"; exit 1
+
+      - name: Verify staging is alive (catches .htaccess errors + confirms auth)
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -u "${{ secrets.STAGING_HTPASSWD_USER }}:${{ secrets.STAGING_HTPASSWD_PASS }}" https://staging.scoutcopilot.com/en --retry 4 --retry-all-errors --retry-delay 8 --max-time 30)
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::Staging returned HTTP $STATUS — likely .htaccess error or auth misconfig."
+            exit 1
+          fi
+          echo "Staging health check passed (HTTP $STATUS)"

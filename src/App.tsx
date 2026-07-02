@@ -31,6 +31,7 @@ const PricingPage = lazy(() => import('./features/pricing/PricingPage').then(m =
 const PrivacyPage = lazy(() => import('./features/legal/PrivacyPage').then(m => ({ default: m.PrivacyPage })))
 const TermsPage = lazy(() => import('./features/legal/TermsPage').then(m => ({ default: m.TermsPage })))
 const ImprintPage = lazy(() => import('./features/legal/ImprintPage').then(m => ({ default: m.ImprintPage })))
+const MarketingPage = lazy(() => import('./features/marketing/MarketingPage').then(m => ({ default: m.MarketingPage })))
 
 const NotFoundPage = lazy(() => import('./features/errors/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
 
@@ -74,6 +75,8 @@ export default function App() {
               <Route path="privacy" element={<PrivacyPage />} />
               <Route path="terms" element={<TermsPage />} />
               <Route path="imprint" element={<ImprintPage />} />
+              <Route path="for/:slug" element={<MarketingPage section="for" />} />
+              <Route path="guides/:slug" element={<MarketingPage section="guides" />} />
 
               {/* Onboarding: needs auth but no org check */}
               <Route element={<AuthOnlyGuard />}>
