@@ -51,7 +51,7 @@ jobs:
 
       - name: Verify deploy target (site-id guard)
         run: |
-          REMOTE_ID=$(lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" -e "set ftp:ssl-allow no; cat /httpdocs/.site-id; quit" 2>/dev/null || echo "")
+          REMOTE_ID=$(lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" -e "set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no; cat /httpdocs/.site-id; quit" 2>/dev/null || echo "")
           if [ -n "$REMOTE_ID" ] && [ "$REMOTE_ID" != "scoutcopilot" ]; then
             echo "::error::DEPLOY ABORTED — remote .site-id is '$REMOTE_ID', expected 'scoutcopilot'. Wrong FTP target!"
             exit 1
@@ -65,7 +65,7 @@ jobs:
       - name: Deploy assets (no deletion — zero-downtime overlap)
         run: |
           lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT
-          set ftp:ssl-allow no
+          set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no
           mirror --reverse --verbose --no-perms \
             ./dist/assets/ /httpdocs/assets/
           bye
@@ -78,7 +78,7 @@ jobs:
       - name: Deploy root files and static directories
         run: |
           lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT
-          set ftp:ssl-allow no
+          set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no
           mirror --reverse --verbose --no-perms \
             ./dist/fonts/ /httpdocs/fonts/
           mirror --reverse --verbose --no-perms \
@@ -107,7 +107,7 @@ jobs:
       - name: Clean up stale assets
         run: |
           lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT
-          set ftp:ssl-allow no
+          set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no
           mirror --reverse --verbose --no-perms --delete \
             ./dist/assets/ /httpdocs/assets/
           bye
