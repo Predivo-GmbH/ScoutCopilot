@@ -8,13 +8,18 @@ import { AppShell } from './components/layout/AppShell'
 import { LanguageRootLayout } from './components/layout/LanguageRootLayout'
 import { GeneratedReportsProvider } from './lib/useGeneratedReports'
 import { WatchlistProvider } from './lib/WatchlistContext'
-// Public SEO marketing pages are eager-imported (not lazy): under slow chunk
-// loads, React 19's Suspense reveal momentarily renders the route detached from
-// context providers, crashing PublicNav's useTheme. Eager import renders them
-// synchronously inside the provider tree.
+// Public content/SEO pages are eager-imported (not lazy). Under slow chunk loads
+// React 19's Suspense reveal misbehaves on these routes — momentarily rendering
+// detached from context providers (crashing PublicNav's useTheme) or double-
+// mounting the route. Eager import renders them synchronously inside the provider
+// tree. Authenticated app pages below stay lazy (heavy, gated).
+import { LandingPage } from './features/landing/LandingPage'
+import { PricingPage } from './features/pricing/PricingPage'
+import { PrivacyPage } from './features/legal/PrivacyPage'
+import { TermsPage } from './features/legal/TermsPage'
+import { ImprintPage } from './features/legal/ImprintPage'
 import { MarketingPage } from './features/marketing/MarketingPage'
 
-const LandingPage = lazy(() => import('./features/landing/LandingPage').then(m => ({ default: m.LandingPage })))
 const LoginPage = lazy(() => import('./features/auth/LoginPage').then(m => ({ default: m.LoginPage })))
 const SignupPage = lazy(() => import('./features/auth/SignupPage').then(m => ({ default: m.SignupPage })))
 const ForgotPasswordPage = lazy(() => import('./features/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })))
@@ -32,10 +37,6 @@ const ComparisonPage = lazy(() => import('./features/comparison/ComparisonPage')
 const WatchlistsPage = lazy(() => import('./features/watchlists/WatchlistsPage').then(m => ({ default: m.WatchlistsPage })))
 const SquadPage = lazy(() => import('./features/squad/SquadPage').then(m => ({ default: m.SquadPage })))
 const SettingsPage = lazy(() => import('./features/settings/SettingsPage').then(m => ({ default: m.SettingsPage })))
-const PricingPage = lazy(() => import('./features/pricing/PricingPage').then(m => ({ default: m.PricingPage })))
-const PrivacyPage = lazy(() => import('./features/legal/PrivacyPage').then(m => ({ default: m.PrivacyPage })))
-const TermsPage = lazy(() => import('./features/legal/TermsPage').then(m => ({ default: m.TermsPage })))
-const ImprintPage = lazy(() => import('./features/legal/ImprintPage').then(m => ({ default: m.ImprintPage })))
 
 const NotFoundPage = lazy(() => import('./features/errors/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
 
