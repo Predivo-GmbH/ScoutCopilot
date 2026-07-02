@@ -151,7 +151,7 @@ function layout(body: string): string {
     '          <tr>',
     '            <td align="center" style="padding-top:24px;">',
     '              <p style="margin:0;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:12px;color:#a1a1aa;line-height:1.5;">&copy; ' + new Date().getFullYear() + ' ScoutCopilot by Predivo GmbH. All rights reserved.</p>',
-    '              <p style="margin:6px 0 0;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:11px;color:#a1a1aa;">Swiss-made &middot; Software that Thinks Ahead</p>',
+    '              <p style="margin:6px 0 0;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:11px;color:#a1a1aa;">Swiss-made</p>',
     '              <p style="margin:8px 0 0;font-family:\'Segoe UI\',-apple-system,BlinkMacSystemFont,Roboto,\'Helvetica Neue\',Arial,sans-serif;font-size:12px;color:#a1a1aa;">You&rsquo;re receiving this because you have a ScoutCopilot account.</p>',
     '            </td>',
     '          </tr>',

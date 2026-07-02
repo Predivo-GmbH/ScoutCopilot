@@ -42,7 +42,7 @@ export function PublicFooter({ onLandingPage }: PublicFooterProps) {
         </nav>
         <div className="text-center md:text-right">
           <p className="text-on-surface-variant text-xs">{t('common.copyright')}</p>
-          <p className="text-on-surface-variant text-[10px] mt-1">Swiss-made &middot; Software that Thinks Ahead</p>
+          <p className="text-on-surface-variant text-[10px] mt-1">Swiss-made</p>
         </div>
       </div>
     </footer>
