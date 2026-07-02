@@ -71,7 +71,8 @@ jobs:
           } > dist/.htaccess
 
       - name: Staging robots.txt (disallow all)
-        run: printf 'User-agent: *\nDisallow: /\n' > dist/robots.txt
+        run: |
+          printf 'User-agent: *\nDisallow: /\n' > dist/robots.txt
 
       - name: Deploy staging via FTPS
         env:
