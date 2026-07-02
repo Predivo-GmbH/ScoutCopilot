@@ -9,7 +9,7 @@ export function ImprintPage() {
   return (
     <div className="min-h-screen bg-surface text-on-surface">
       {/* React 19 native document metadata (hoisted to <head>) — not react-helmet-async */}
-      <title>{t('legal.imprint.title')} — ScoutCopilot</title>
+      <title>{`${t('legal.imprint.title')} — ScoutCopilot`}</title>
       <meta name="description" content={t('legal.imprint.metaDescription')} />
       <link rel="canonical" href={`https://scoutcopilot.com/${lang}/imprint`} />
       <link rel="alternate" hrefLang="en" href="https://scoutcopilot.com/en/imprint" />

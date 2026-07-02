@@ -9,7 +9,7 @@ export function PrivacyPage() {
   return (
     <div className="min-h-screen bg-surface text-on-surface">
       {/* React 19 native document metadata (hoisted to <head>) — not react-helmet-async */}
-      <title>{t('legal.privacy.title')} — ScoutCopilot</title>
+      <title>{`${t('legal.privacy.title')} — ScoutCopilot`}</title>
       <meta name="description" content={t('legal.privacy.metaDescription')} />
       <link rel="canonical" href={`https://scoutcopilot.com/${lang}/privacy`} />
       <link rel="alternate" hrefLang="en" href="https://scoutcopilot.com/en/privacy" />
