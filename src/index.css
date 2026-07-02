@@ -185,9 +185,11 @@
   box-sizing: border-box;
 }
 
+/* No overflow:hidden here — public pages (landing, pricing, legal) scroll on the
+   body. AppShell clips itself (h-screen overflow-hidden) so the app keeps a
+   single scrollbar in <main>. */
 html, body, #root {
   height: 100%;
-  overflow: hidden;
 }
 
 html {
