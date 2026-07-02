@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useParams } from 'react-router-dom'
 import { PublicNav } from '../../components/layout/PublicNav'
@@ -26,17 +25,19 @@ export function MarketingPage({ section }: MarketingPageProps) {
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">
-      <Helmet>
-        <title>{page.title}</title>
-        <meta name="description" content={page.metaDescription} />
-        <link rel="canonical" href={canonical} />
-        <link rel="alternate" hrefLang="en" href={canonical} />
-        <link rel="alternate" hrefLang="x-default" href={canonical} />
-        <meta property="og:title" content={page.title} />
-        <meta property="og:description" content={page.metaDescription} />
-        <meta property="og:url" content={canonical} />
-        <meta property="og:locale" content="en_US" />
-      </Helmet>
+      {/* React 19 native document metadata — hoisted to <head> automatically.
+          Deliberately NOT react-helmet-async: helmet's imperative head mutation
+          conflicts with React 19's own head reconciliation (NotFoundError:
+          removeChild), which crashed these pages on staging. */}
+      <title>{page.title}</title>
+      <meta name="description" content={page.metaDescription} />
+      <link rel="canonical" href={canonical} />
+      <link rel="alternate" hrefLang="en" href={canonical} />
+      <link rel="alternate" hrefLang="x-default" href={canonical} />
+      <meta property="og:title" content={page.title} />
+      <meta property="og:description" content={page.metaDescription} />
+      <meta property="og:url" content={canonical} />
+      <meta property="og:locale" content="en_US" />
 
       <PublicNav />
 

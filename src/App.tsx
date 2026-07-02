@@ -8,6 +8,11 @@ import { AppShell } from './components/layout/AppShell'
 import { LanguageRootLayout } from './components/layout/LanguageRootLayout'
 import { GeneratedReportsProvider } from './lib/useGeneratedReports'
 import { WatchlistProvider } from './lib/WatchlistContext'
+// Public SEO marketing pages are eager-imported (not lazy): under slow chunk
+// loads, React 19's Suspense reveal momentarily renders the route detached from
+// context providers, crashing PublicNav's useTheme. Eager import renders them
+// synchronously inside the provider tree.
+import { MarketingPage } from './features/marketing/MarketingPage'
 
 const LandingPage = lazy(() => import('./features/landing/LandingPage').then(m => ({ default: m.LandingPage })))
 const LoginPage = lazy(() => import('./features/auth/LoginPage').then(m => ({ default: m.LoginPage })))
@@ -31,7 +36,6 @@ const PricingPage = lazy(() => import('./features/pricing/PricingPage').then(m =
 const PrivacyPage = lazy(() => import('./features/legal/PrivacyPage').then(m => ({ default: m.PrivacyPage })))
 const TermsPage = lazy(() => import('./features/legal/TermsPage').then(m => ({ default: m.TermsPage })))
 const ImprintPage = lazy(() => import('./features/legal/ImprintPage').then(m => ({ default: m.ImprintPage })))
-const MarketingPage = lazy(() => import('./features/marketing/MarketingPage').then(m => ({ default: m.MarketingPage })))
 
 const NotFoundPage = lazy(() => import('./features/errors/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
 
@@ -54,7 +58,7 @@ export default function App() {
       <WatchlistProvider>
       <AuthProvider>
         <BrowserRouter>
-          <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center" role="status" aria-live="polite"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /><span className="sr-only">Loading...</span></div>}>
+          <Suspense fallback={null}>
           <Routes>
             {/* Bare root → default language */}
             <Route path="/" element={<Navigate to="/en" replace />} />
