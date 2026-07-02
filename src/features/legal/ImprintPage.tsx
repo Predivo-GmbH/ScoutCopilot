@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { PublicNav } from '../../components/layout/PublicNav'
 import { PublicFooter } from '../../components/layout/PublicFooter'
@@ -9,18 +8,17 @@ export function ImprintPage() {
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">
-      <Helmet>
-        <title>{t('legal.imprint.title')} — ScoutCopilot</title>
-        <meta name="description" content={t('legal.imprint.metaDescription')} />
-        <link rel="canonical" href={`https://scoutcopilot.com/${lang}/imprint`} />
-        <link rel="alternate" hrefLang="en" href="https://scoutcopilot.com/en/imprint" />
-        <link rel="alternate" hrefLang="de" href="https://scoutcopilot.com/de/imprint" />
-        <link rel="alternate" hrefLang="x-default" href="https://scoutcopilot.com/en/imprint" />
-        <meta property="og:title" content={`${t('legal.imprint.title')} — ScoutCopilot`} />
-        <meta property="og:description" content={t('legal.imprint.metaDescription')} />
-        <meta property="og:url" content={`https://scoutcopilot.com/${lang}/imprint`} />
-        <meta property="og:locale" content={lang === 'de' ? 'de_DE' : 'en_US'} />
-      </Helmet>
+      {/* React 19 native document metadata (hoisted to <head>) — not react-helmet-async */}
+      <title>{t('legal.imprint.title')} — ScoutCopilot</title>
+      <meta name="description" content={t('legal.imprint.metaDescription')} />
+      <link rel="canonical" href={`https://scoutcopilot.com/${lang}/imprint`} />
+      <link rel="alternate" hrefLang="en" href="https://scoutcopilot.com/en/imprint" />
+      <link rel="alternate" hrefLang="de" href="https://scoutcopilot.com/de/imprint" />
+      <link rel="alternate" hrefLang="x-default" href="https://scoutcopilot.com/en/imprint" />
+      <meta property="og:title" content={`${t('legal.imprint.title')} — ScoutCopilot`} />
+      <meta property="og:description" content={t('legal.imprint.metaDescription')} />
+      <meta property="og:url" content={`https://scoutcopilot.com/${lang}/imprint`} />
+      <meta property="og:locale" content={lang === 'de' ? 'de_DE' : 'en_US'} />
 
       <PublicNav />
 
