@@ -1,37 +1,46 @@
-import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './features/auth/AuthContext'
+import { WaitlistProvider } from './features/waitlist/WaitlistProvider'
 import { AuthGuard, AuthOnlyGuard } from './features/auth/AuthGuard'
 import { AppShell } from './components/layout/AppShell'
 import { LanguageRootLayout } from './components/layout/LanguageRootLayout'
 import { GeneratedReportsProvider } from './lib/useGeneratedReports'
 import { WatchlistProvider } from './lib/WatchlistContext'
-
-const LandingPage = lazy(() => import('./features/landing/LandingPage').then(m => ({ default: m.LandingPage })))
-const LoginPage = lazy(() => import('./features/auth/LoginPage').then(m => ({ default: m.LoginPage })))
-const SignupPage = lazy(() => import('./features/auth/SignupPage').then(m => ({ default: m.SignupPage })))
-const ForgotPasswordPage = lazy(() => import('./features/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })))
-const ResetPasswordPage = lazy(() => import('./features/auth/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })))
-const AuthVerifyPage = lazy(() => import('./features/auth/AuthVerifyPage').then(m => ({ default: m.AuthVerifyPage })))
-const AuthCallbackPage = lazy(() => import('./features/auth/AuthCallbackPage').then(m => ({ default: m.AuthCallbackPage })))
-const OnboardingPage = lazy(() => import('./features/auth/OnboardingPage').then(m => ({ default: m.OnboardingPage })))
-const DashboardPage = lazy(() => import('./features/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })))
-const AlertsPage = lazy(() => import('./features/dashboard/AlertsPage').then(m => ({ default: m.AlertsPage })))
-const SearchPage = lazy(() => import('./features/search/SearchPage').then(m => ({ default: m.SearchPage })))
-const SearchHistoryPage = lazy(() => import('./features/search/SearchHistoryPage').then(m => ({ default: m.SearchHistoryPage })))
-const PlayersListPage = lazy(() => import('./features/report/ReportsListPage').then(m => ({ default: m.ReportsListPage })))
-const PlayerDetailPage = lazy(() => import('./features/report/ReportPage').then(m => ({ default: m.ReportPage })))
-const ComparisonPage = lazy(() => import('./features/comparison/ComparisonPage').then(m => ({ default: m.ComparisonPage })))
-const WatchlistsPage = lazy(() => import('./features/watchlists/WatchlistsPage').then(m => ({ default: m.WatchlistsPage })))
-const SquadPage = lazy(() => import('./features/squad/SquadPage').then(m => ({ default: m.SquadPage })))
-const SettingsPage = lazy(() => import('./features/settings/SettingsPage').then(m => ({ default: m.SettingsPage })))
-const PricingPage = lazy(() => import('./features/pricing/PricingPage').then(m => ({ default: m.PricingPage })))
-const PrivacyPage = lazy(() => import('./features/legal/PrivacyPage').then(m => ({ default: m.PrivacyPage })))
-const TermsPage = lazy(() => import('./features/legal/TermsPage').then(m => ({ default: m.TermsPage })))
-const ImprintPage = lazy(() => import('./features/legal/ImprintPage').then(m => ({ default: m.ImprintPage })))
-
-const NotFoundPage = lazy(() => import('./features/errors/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
+// ALL routes are eager-imported (no React.lazy). React 19.2's lazy + Suspense
+// reveal is broken on slow chunk loads (staging / real networks): the revealed
+// route renders DETACHED from its context providers → "useAuth/useTheme must be
+// used within Provider" → the app error boundary ("Something went wrong"). It only
+// reproduces once the Suspense fallback actually paints (slow load), NEVER on
+// instant localhost — which is why it kept slipping past local testing. The heavy
+// vendors (jspdf/html2canvas) are dynamically imported inside the PDF-export
+// handler, so eager routes do NOT pull them into the initial bundle. If code-
+// splitting is reintroduced, EVERY route must be E2E-tested on staging, not just
+// localhost.
+import { LandingPage } from './features/landing/LandingPage'
+import { LoginPage } from './features/auth/LoginPage'
+import { SignupPage } from './features/auth/SignupPage'
+import { ForgotPasswordPage } from './features/auth/ForgotPasswordPage'
+import { ResetPasswordPage } from './features/auth/ResetPasswordPage'
+import { AuthVerifyPage } from './features/auth/AuthVerifyPage'
+import { AuthCallbackPage } from './features/auth/AuthCallbackPage'
+import { OnboardingPage } from './features/auth/OnboardingPage'
+import { PricingPage } from './features/pricing/PricingPage'
+import { PrivacyPage } from './features/legal/PrivacyPage'
+import { TermsPage } from './features/legal/TermsPage'
+import { ImprintPage } from './features/legal/ImprintPage'
+import { MarketingPage } from './features/marketing/MarketingPage'
+import { DashboardPage } from './features/dashboard/DashboardPage'
+import { AlertsPage } from './features/dashboard/AlertsPage'
+import { SearchPage } from './features/search/SearchPage'
+import { SearchHistoryPage } from './features/search/SearchHistoryPage'
+import { ReportsListPage as PlayersListPage } from './features/report/ReportsListPage'
+import { ReportPage as PlayerDetailPage } from './features/report/ReportPage'
+import { ComparisonPage } from './features/comparison/ComparisonPage'
+import { WatchlistsPage } from './features/watchlists/WatchlistsPage'
+import { SquadPage } from './features/squad/SquadPage'
+import { SettingsPage } from './features/settings/SettingsPage'
+import { NotFoundPage } from './features/errors/NotFoundPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,7 +60,7 @@ export default function App() {
       <WatchlistProvider>
       <AuthProvider>
         <BrowserRouter>
-          <Suspense fallback={<div className="min-h-screen bg-surface flex items-center justify-center" role="status" aria-live="polite"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /><span className="sr-only">Loading...</span></div>}>
+          <WaitlistProvider>
           <Routes>
             {/* Bare root → default language */}
             <Route path="/" element={<Navigate to="/en" replace />} />
@@ -72,6 +81,8 @@ export default function App() {
               <Route path="privacy" element={<PrivacyPage />} />
               <Route path="terms" element={<TermsPage />} />
               <Route path="imprint" element={<ImprintPage />} />
+              <Route path="for/:slug" element={<MarketingPage section="for" />} />
+              <Route path="guides/:slug" element={<MarketingPage section="guides" />} />
 
               {/* Onboarding: needs auth but no org check */}
               <Route element={<AuthOnlyGuard />}>
@@ -98,7 +109,7 @@ export default function App() {
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
-          </Suspense>
+          </WaitlistProvider>
         </BrowserRouter>
       </AuthProvider>
       </WatchlistProvider>

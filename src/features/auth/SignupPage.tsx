@@ -7,6 +7,8 @@ import { useAuth } from './useAuth'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import AuthLayout from '../../components/auth/AuthLayout'
+import { WaitlistForm } from '../waitlist/WaitlistForm'
+import { REGISTRATIONS_OPEN } from '../waitlist/config'
 import OtpInput from '../../components/auth/OtpInput'
 import ResendTimer from '../../components/auth/ResendTimer'
 import PasswordStrength from '../../components/auth/PasswordStrength'
@@ -88,6 +90,21 @@ export function SignupPage() {
 
   async function handleResend() {
     await sendOtp(email)
+  }
+
+  // Public registration is paused — show the waitlist instead of the signup form.
+  // The form below is preserved; flip REGISTRATIONS_OPEN to true to bring it back.
+  if (!REGISTRATIONS_OPEN) {
+    return (
+      <AuthLayout>
+        <title>Registrations paused — ScoutCopilot</title>
+        <meta name="robots" content="noindex" />
+        <h1 className="text-center text-2xl font-bold text-on-surface">Free trials are paused</h1>
+        <div className="mt-6">
+          <WaitlistForm source="signup-page" />
+        </div>
+      </AuthLayout>
+    )
   }
 
   return (

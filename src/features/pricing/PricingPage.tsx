@@ -1,14 +1,13 @@
 import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
-import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
+import { useWaitlist } from '../waitlist/useWaitlist'
 import { Check, X, ArrowRight, Shield } from 'lucide-react'
 import { Button } from '../../components/ui/Button'
 import { PublicNav } from '../../components/layout/PublicNav'
 import { PublicFooter } from '../../components/layout/PublicFooter'
 import { FaqItem } from '../../components/shared/FaqItem'
-import { TIER_PRICES, TIER_ANNUAL_TOTAL, createCheckoutSession, type BillingInterval } from '../../lib/stripe'
-import { redirectToStripeUrl } from '../../lib/stripeRedirect'
+import { TIER_PRICES, TIER_ANNUAL_TOTAL, type BillingInterval } from '../../lib/stripe'
 import type { SubscriptionTier } from '../../types/database'
 
 const TIER_KEYS = ['scout', 'pro', 'club'] as const
@@ -48,24 +47,9 @@ export function PricingPage() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language || 'en'
   const [interval, setInterval] = useState<BillingInterval>('year')
-  const [loadingTier, setLoadingTier] = useState<SubscriptionTier | null>(null)
-  const navigate = useLocalizedNavigate()
+  const { openWaitlist } = useWaitlist()
 
   const faqItems = t('landing.faqItems', { returnObjects: true }) as Array<{ question: string; answer: string }>
-
-  async function handleSelectTier(tier: SubscriptionTier) {
-    setLoadingTier(tier)
-    try {
-      const url = await createCheckoutSession(tier, interval)
-      redirectToStripeUrl(url, `${window.location.origin}/pricing`)
-    } catch (err) {
-      console.error('Checkout session failed:', err)
-      // If not authenticated, redirect to signup
-      navigate('/signup')
-    } finally {
-      setLoadingTier(null)
-    }
-  }
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">
@@ -195,9 +179,8 @@ export function PricingPage() {
                   <Button
                     variant={meta.highlighted ? 'primary' : 'secondary'}
                     className="w-full"
-                    loading={loadingTier === meta.key}
                     rightIcon={ArrowRight}
-                    onClick={() => handleSelectTier(meta.key)}
+                    onClick={() => openWaitlist('pricing')}
                   >
                     {t('common.getStarted')}
                   </Button>
@@ -260,7 +243,7 @@ export function PricingPage() {
             </p>
             <div className="flex flex-wrap gap-3 justify-center mb-6">
               <Button variant="secondary" onClick={() => window.location.href = 'mailto:hello@predivo.ch'}>{t('pricing.contactSupport')}</Button>
-              <Button size="lg" rightIcon={ArrowRight} onClick={() => navigate('/signup')}>
+              <Button size="lg" rightIcon={ArrowRight} onClick={() => openWaitlist('pricing')}>
                 {t('common.startFreeTrial')}
               </Button>
             </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation, Trans } from 'react-i18next'
-import { useLocalizedNavigate } from '../../components/shared/LocalizedLink'
+import { useWaitlist } from '../waitlist/useWaitlist'
 import {
   Search,
   FileText,
@@ -123,7 +123,7 @@ function radarPoints(cx: number, cy: number, values: number[], maxR: number) {
 
 export function LandingPage() {
   const { t, i18n } = useTranslation()
-  const navigate = useLocalizedNavigate()
+  const { openWaitlist } = useWaitlist()
   const lang = i18n.language || 'en'
   const [interval, setInterval] = useState<BillingInterval>('year')
 
@@ -207,7 +207,7 @@ export function LandingPage() {
               {t('landing.hero.subheading')}
             </p>
             <div className="flex flex-wrap gap-3">
-              <Button size="lg" rightIcon={ArrowRight} onClick={() => navigate('/signup')}>
+              <Button size="lg" rightIcon={ArrowRight} onClick={() => openWaitlist('landing')}>
                 {t('common.startFreeTrial')}
               </Button>
               <Button variant="secondary" size="lg" onClick={() => scrollTo('pricing')}>
@@ -490,7 +490,7 @@ export function LandingPage() {
                     variant={tier.highlighted ? 'primary' : 'secondary'}
                     className="w-full"
                     rightIcon={ArrowRight}
-                    onClick={() => navigate('/signup')}
+                    onClick={() => openWaitlist('landing')}
                   >
                     {t('common.getStarted')}
                   </Button>
@@ -560,7 +560,7 @@ export function LandingPage() {
             {t('landing.cta.subheading')}
           </p>
           <div className="flex flex-wrap gap-3 justify-center mb-6">
-            <Button size="lg" rightIcon={ArrowRight} onClick={() => navigate('/signup')}>
+            <Button size="lg" rightIcon={ArrowRight} onClick={() => openWaitlist('landing')}>
               {t('common.startFreeTrial')}
             </Button>
           </div>

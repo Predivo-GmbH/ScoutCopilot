@@ -6,8 +6,7 @@ import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { handleCors } from "../_shared/cors.ts";
 import { AuthError, getAuthContext } from "../_shared/auth.ts";
 import { logAnthropicUsage } from "../_shared/log-usage.ts";
-
-const CLAUDE_MODEL = "claude-3-haiku-20240307";
+import { anthropicMessages } from "../_shared/anthropic-model.ts";
 
 interface PlayerInput {
   player_external_id: string;
@@ -187,24 +186,17 @@ Evaluate per-90-minute rates, not raw totals. Consider matches played for sample
 Return ONLY a JSON array with objects: { "id": "player_external_id", "rating": number, "reasoning": "1-2 sentence explanation" }
 No markdown, no extra text.`;
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: CLAUDE_MODEL,
-      max_tokens: 2048,
-      system: systemPrompt,
-      messages: [
-        {
-          role: "user",
-          content: `Rate these players:\n${JSON.stringify(playersJson, null, 2)}`,
-        },
-      ],
-    }),
+  // Model is resolved dynamically (AI_MODEL_FAST secret, with retirement fallback)
+  // per fleet standard: standards/ai-model-resolution.md
+  const response = await anthropicMessages(apiKey, "fast", {
+    max_tokens: 2048,
+    system: systemPrompt,
+    messages: [
+      {
+        role: "user",
+        content: `Rate these players:\n${JSON.stringify(playersJson, null, 2)}`,
+      },
+    ],
   });
 
   if (!response.ok) {
@@ -219,7 +211,10 @@ No markdown, no extra text.`;
   await logAnthropicUsage('ScoutCopilot', 'rate-player', data);
 
   const text = data.content?.[0]?.text ?? "[]";
-  const parsed = JSON.parse(text) as Array<{
+  // Newer models may wrap JSON in markdown code fences — strip them (same as _shared/claude.ts)
+  const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/) ||
+    text.match(/(\[[\s\S]*\])/);
+  const parsed = JSON.parse((jsonMatch ? jsonMatch[1] : text).trim()) as Array<{
     id: string;
     rating: number;
     reasoning: string;

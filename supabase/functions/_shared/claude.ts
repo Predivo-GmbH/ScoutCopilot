@@ -1,8 +1,7 @@
 // Claude API client for NL parsing and report generation
 
 import { logAnthropicUsage } from "./log-usage.ts";
-
-const CLAUDE_MODEL = "claude-3-haiku-20240307";
+import { anthropicMessages } from "./anthropic-model.ts";
 
 interface ClaudeMessage {
   role: "user" | "assistant";
@@ -24,19 +23,12 @@ async function callClaude(
     throw new Error("ANTHROPIC_API_KEY not configured");
   }
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: CLAUDE_MODEL,
-      max_tokens: maxTokens,
-      system: systemPrompt,
-      messages,
-    }),
+  // Model is resolved dynamically (AI_MODEL_FAST secret, with retirement fallback)
+  // per fleet standard: standards/ai-model-resolution.md
+  const response = await anthropicMessages(apiKey, "fast", {
+    max_tokens: maxTokens,
+    system: systemPrompt,
+    messages,
   });
 
   if (!response.ok) {
