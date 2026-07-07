@@ -20,9 +20,11 @@ import { PrivacyPage } from './features/legal/PrivacyPage'
 import { TermsPage } from './features/legal/TermsPage'
 import { ImprintPage } from './features/legal/ImprintPage'
 import { MarketingPage } from './features/marketing/MarketingPage'
+// SignupPage is eager too: while registration is paused it renders the waitlist
+// (a public page), so it must avoid the lazy-reveal bug like the others.
+import { SignupPage } from './features/auth/SignupPage'
 
 const LoginPage = lazy(() => import('./features/auth/LoginPage').then(m => ({ default: m.LoginPage })))
-const SignupPage = lazy(() => import('./features/auth/SignupPage').then(m => ({ default: m.SignupPage })))
 const ForgotPasswordPage = lazy(() => import('./features/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })))
 const ResetPasswordPage = lazy(() => import('./features/auth/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })))
 const AuthVerifyPage = lazy(() => import('./features/auth/AuthVerifyPage').then(m => ({ default: m.AuthVerifyPage })))
