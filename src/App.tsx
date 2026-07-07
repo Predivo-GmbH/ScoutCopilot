@@ -1,4 +1,3 @@
-import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './features/auth/AuthContext'
@@ -8,40 +7,40 @@ import { AppShell } from './components/layout/AppShell'
 import { LanguageRootLayout } from './components/layout/LanguageRootLayout'
 import { GeneratedReportsProvider } from './lib/useGeneratedReports'
 import { WatchlistProvider } from './lib/WatchlistContext'
-// Public content/SEO pages are eager-imported (not lazy). Under slow chunk loads
-// React 19's Suspense reveal misbehaves on these routes — rendering detached from
-// context providers (crashing PublicNav's useTheme) or double-mounting the route
-// (duplicate footer/landmarks). Eager import renders them synchronously inside the
-// provider tree. Safe now that i18n's default language (en) loads synchronously.
-// Authenticated app pages below stay lazy (heavy, gated).
+// ALL routes are eager-imported (no React.lazy). React 19.2's lazy + Suspense
+// reveal is broken on slow chunk loads (staging / real networks): the revealed
+// route renders DETACHED from its context providers → "useAuth/useTheme must be
+// used within Provider" → the app error boundary ("Something went wrong"). It only
+// reproduces once the Suspense fallback actually paints (slow load), NEVER on
+// instant localhost — which is why it kept slipping past local testing. The heavy
+// vendors (jspdf/html2canvas) are dynamically imported inside the PDF-export
+// handler, so eager routes do NOT pull them into the initial bundle. If code-
+// splitting is reintroduced, EVERY route must be E2E-tested on staging, not just
+// localhost.
 import { LandingPage } from './features/landing/LandingPage'
+import { LoginPage } from './features/auth/LoginPage'
+import { SignupPage } from './features/auth/SignupPage'
+import { ForgotPasswordPage } from './features/auth/ForgotPasswordPage'
+import { ResetPasswordPage } from './features/auth/ResetPasswordPage'
+import { AuthVerifyPage } from './features/auth/AuthVerifyPage'
+import { AuthCallbackPage } from './features/auth/AuthCallbackPage'
+import { OnboardingPage } from './features/auth/OnboardingPage'
 import { PricingPage } from './features/pricing/PricingPage'
 import { PrivacyPage } from './features/legal/PrivacyPage'
 import { TermsPage } from './features/legal/TermsPage'
 import { ImprintPage } from './features/legal/ImprintPage'
 import { MarketingPage } from './features/marketing/MarketingPage'
-// SignupPage is eager too: while registration is paused it renders the waitlist
-// (a public page), so it must avoid the lazy-reveal bug like the others.
-import { SignupPage } from './features/auth/SignupPage'
-
-const LoginPage = lazy(() => import('./features/auth/LoginPage').then(m => ({ default: m.LoginPage })))
-const ForgotPasswordPage = lazy(() => import('./features/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })))
-const ResetPasswordPage = lazy(() => import('./features/auth/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })))
-const AuthVerifyPage = lazy(() => import('./features/auth/AuthVerifyPage').then(m => ({ default: m.AuthVerifyPage })))
-const AuthCallbackPage = lazy(() => import('./features/auth/AuthCallbackPage').then(m => ({ default: m.AuthCallbackPage })))
-const OnboardingPage = lazy(() => import('./features/auth/OnboardingPage').then(m => ({ default: m.OnboardingPage })))
-const DashboardPage = lazy(() => import('./features/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })))
-const AlertsPage = lazy(() => import('./features/dashboard/AlertsPage').then(m => ({ default: m.AlertsPage })))
-const SearchPage = lazy(() => import('./features/search/SearchPage').then(m => ({ default: m.SearchPage })))
-const SearchHistoryPage = lazy(() => import('./features/search/SearchHistoryPage').then(m => ({ default: m.SearchHistoryPage })))
-const PlayersListPage = lazy(() => import('./features/report/ReportsListPage').then(m => ({ default: m.ReportsListPage })))
-const PlayerDetailPage = lazy(() => import('./features/report/ReportPage').then(m => ({ default: m.ReportPage })))
-const ComparisonPage = lazy(() => import('./features/comparison/ComparisonPage').then(m => ({ default: m.ComparisonPage })))
-const WatchlistsPage = lazy(() => import('./features/watchlists/WatchlistsPage').then(m => ({ default: m.WatchlistsPage })))
-const SquadPage = lazy(() => import('./features/squad/SquadPage').then(m => ({ default: m.SquadPage })))
-const SettingsPage = lazy(() => import('./features/settings/SettingsPage').then(m => ({ default: m.SettingsPage })))
-
-const NotFoundPage = lazy(() => import('./features/errors/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
+import { DashboardPage } from './features/dashboard/DashboardPage'
+import { AlertsPage } from './features/dashboard/AlertsPage'
+import { SearchPage } from './features/search/SearchPage'
+import { SearchHistoryPage } from './features/search/SearchHistoryPage'
+import { ReportsListPage as PlayersListPage } from './features/report/ReportsListPage'
+import { ReportPage as PlayerDetailPage } from './features/report/ReportPage'
+import { ComparisonPage } from './features/comparison/ComparisonPage'
+import { WatchlistsPage } from './features/watchlists/WatchlistsPage'
+import { SquadPage } from './features/squad/SquadPage'
+import { SettingsPage } from './features/settings/SettingsPage'
+import { NotFoundPage } from './features/errors/NotFoundPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -62,7 +61,6 @@ export default function App() {
       <AuthProvider>
         <BrowserRouter>
           <WaitlistProvider>
-          <Suspense fallback={null}>
           <Routes>
             {/* Bare root → default language */}
             <Route path="/" element={<Navigate to="/en" replace />} />
@@ -111,7 +109,6 @@ export default function App() {
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
-          </Suspense>
           </WaitlistProvider>
         </BrowserRouter>
       </AuthProvider>
