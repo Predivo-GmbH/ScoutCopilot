@@ -21,12 +21,15 @@ export function ResetPasswordPage() {
   const { user, isLoading: authLoading, updatePassword, signOut } = useAuth()
   const navigate = useLocalizedNavigate()
 
+  // Skip once `done` is set: a successful reset intentionally signs the user
+  // out, which nulls `user` — without this guard that sign-out would bounce
+  // them back to /forgot-password instead of showing the success screen.
   useEffect(() => {
     if (authLoading) return
-    if (!user) {
+    if (!user && !done) {
       navigate('/forgot-password')
     }
-  }, [user, authLoading, navigate])
+  }, [user, authLoading, done, navigate])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
