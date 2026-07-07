@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { PasswordGate } from './components/shared/PasswordGate'
 import { AuthProvider } from './features/auth/AuthContext'
 import { AuthGuard, AuthOnlyGuard } from './features/auth/AuthGuard'
 import { AppShell } from './components/layout/AppShell'
@@ -47,7 +46,6 @@ const queryClient = new QueryClient({
 
 export default function App() {
   return (
-    <PasswordGate>
     <QueryClientProvider client={queryClient}>
       <GeneratedReportsProvider>
       <WatchlistProvider>
@@ -106,6 +104,5 @@ export default function App() {
       </WatchlistProvider>
       </GeneratedReportsProvider>
     </QueryClientProvider>
-    </PasswordGate>
   )
 }
