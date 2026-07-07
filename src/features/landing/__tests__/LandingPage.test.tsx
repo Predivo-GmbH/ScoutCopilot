@@ -27,6 +27,10 @@ vi.mock('../../../components/shared/FaqItem', () => ({
   FaqItem: ({ question }: { question: string }) => <div data-testid="faq-item">{question}</div>,
 }))
 
+vi.mock('../../waitlist/useWaitlist', () => ({
+  useWaitlist: () => ({ openWaitlist: vi.fn() }),
+}))
+
 import { LandingPage } from '../LandingPage'
 
 const createWrapper = () => {

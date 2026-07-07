@@ -31,6 +31,10 @@ vi.mock('../../../lib/stripeRedirect', () => ({
   redirectToStripeUrl: vi.fn(),
 }))
 
+vi.mock('../../waitlist/useWaitlist', () => ({
+  useWaitlist: () => ({ openWaitlist: vi.fn() }),
+}))
+
 import { PricingPage } from '../PricingPage'
 
 const createWrapper = () => {

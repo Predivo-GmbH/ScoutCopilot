@@ -11,6 +11,10 @@ import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import i18n from '../../../i18n'
 import { SignupPage } from '../SignupPage'
 
+// Registrations are closed in prod (waitlist). Test the preserved free-trial
+// form by mocking the flag open — the form comes back when REGISTRATIONS_OPEN=true.
+vi.mock('../../waitlist/config', () => ({ REGISTRATIONS_OPEN: true }))
+
 vi.mock('../useAuth', () => ({
   useAuth: vi.fn(() => ({
     sendOtp: vi.fn(),
