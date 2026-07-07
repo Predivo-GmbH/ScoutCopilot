@@ -6,6 +6,7 @@ import { Logo } from '../shared/Logo'
 import { ThemeToggle } from '../shared/ThemeToggle'
 import { LanguageSelector } from '../shared/LanguageSelector'
 import { Button } from '../ui/Button'
+import { useWaitlist } from '../../features/waitlist/useWaitlist'
 
 interface PublicNavProps {
   /** When true, Features/Pricing/FAQ links scroll to sections on the current page */
@@ -17,6 +18,7 @@ interface PublicNavProps {
 export function PublicNav({ onLandingPage, activeItem }: PublicNavProps) {
   const { t } = useTranslation()
   const navigate = useLocalizedNavigate()
+  const { openWaitlist } = useWaitlist()
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -71,7 +73,7 @@ export function PublicNav({ onLandingPage, activeItem }: PublicNavProps) {
             <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
               {t('common.logIn')}
             </Button>
-            <Button size="sm" onClick={() => navigate('/signup')}>
+            <Button size="sm" onClick={() => openWaitlist('nav')}>
               {t('common.getStarted')}
             </Button>
           </div>
@@ -100,7 +102,7 @@ export function PublicNav({ onLandingPage, activeItem }: PublicNavProps) {
               </div>
               <div className="flex flex-wrap gap-3 pt-2">
                 <Button variant="secondary" size="sm" onClick={() => navigate('/login')}>{t('common.logIn')}</Button>
-                <Button size="sm" onClick={() => navigate('/signup')}>{t('common.getStarted')}</Button>
+                <Button size="sm" onClick={() => { setMobileMenuOpen(false); openWaitlist('nav') }}>{t('common.getStarted')}</Button>
               </div>
             </div>
           </div>

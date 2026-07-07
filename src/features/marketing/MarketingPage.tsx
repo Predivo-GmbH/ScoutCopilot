@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { Navigate, useParams } from 'react-router-dom'
 import { PublicNav } from '../../components/layout/PublicNav'
 import { PublicFooter } from '../../components/layout/PublicFooter'
-import { Link } from '../../components/shared/LocalizedLink'
+import { useWaitlist } from '../waitlist/useWaitlist'
 import { MARKETING_PAGES } from './pages'
 
 interface MarketingPageProps {
@@ -12,6 +12,7 @@ interface MarketingPageProps {
 /** SEO use-case / guide page — data-driven from pages.ts. */
 export function MarketingPage({ section }: MarketingPageProps) {
   const { i18n } = useTranslation()
+  const { openWaitlist } = useWaitlist()
   const lang = i18n.language || 'en'
   const { slug } = useParams<{ slug: string }>()
   const page = slug ? MARKETING_PAGES[`${section}/${slug}`] : undefined
@@ -62,12 +63,12 @@ export function MarketingPage({ section }: MarketingPageProps) {
 
         <div className="mt-12 rounded-xl border border-outline-variant/30 bg-surface-container p-6 text-center">
           <p className="mb-4 text-sm text-on-surface-variant">See what ScoutCopilot surfaces for your next signing.</p>
-          <Link
-            to="/signup"
-            className="inline-flex items-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-on-primary transition-opacity hover:opacity-90"
+          <button
+            onClick={() => openWaitlist('marketing')}
+            className="inline-flex cursor-pointer items-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-on-primary transition-opacity hover:opacity-90"
           >
             Start free trial
-          </Link>
+          </button>
         </div>
       </main>
 

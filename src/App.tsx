@@ -1,8 +1,8 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { PasswordGate } from './components/shared/PasswordGate'
 import { AuthProvider } from './features/auth/AuthContext'
+import { WaitlistProvider } from './features/waitlist/WaitlistProvider'
 import { AuthGuard, AuthOnlyGuard } from './features/auth/AuthGuard'
 import { AppShell } from './components/layout/AppShell'
 import { LanguageRootLayout } from './components/layout/LanguageRootLayout'
@@ -54,12 +54,12 @@ const queryClient = new QueryClient({
 
 export default function App() {
   return (
-    <PasswordGate>
     <QueryClientProvider client={queryClient}>
       <GeneratedReportsProvider>
       <WatchlistProvider>
       <AuthProvider>
         <BrowserRouter>
+          <WaitlistProvider>
           <Suspense fallback={null}>
           <Routes>
             {/* Bare root → default language */}
@@ -110,11 +110,11 @@ export default function App() {
             </Route>
           </Routes>
           </Suspense>
+          </WaitlistProvider>
         </BrowserRouter>
       </AuthProvider>
       </WatchlistProvider>
       </GeneratedReportsProvider>
     </QueryClientProvider>
-    </PasswordGate>
   )
 }
