@@ -39,3 +39,5 @@ e2e/screenshots/
 
 # Working outputs
 outputs/
+
+coverage/
