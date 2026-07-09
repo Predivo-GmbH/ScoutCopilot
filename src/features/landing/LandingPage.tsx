@@ -354,7 +354,7 @@ export function LandingPage() {
         <div className="max-w-4xl mx-auto">
           <h2 className="text-[1.75rem] md:text-[2.25rem] font-bold tracking-[-0.01em] mb-4 text-center">
             <Trans i18nKey="landing.roi.heading" components={{ mono: <span className="font-mono" /> }}>
-              A junior analyst costs <span className="font-mono">$50K</span>/year. ScoutCopilot starts at <span className="font-mono">$X</span>/month.
+              A junior analyst costs <span className="font-mono">$50K</span>/year. ScoutCopilot starts at <span className="font-mono">$149</span>/month.
             </Trans>
           </h2>
           <p className="text-on-surface-variant text-center max-w-2xl mx-auto mb-12">

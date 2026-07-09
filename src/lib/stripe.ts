@@ -21,15 +21,15 @@ export const PRICE_IDS: Record<SubscriptionTier, { month: string; year: string }
 export type BillingInterval = 'month' | 'year'
 
 export const TIER_PRICES: Record<SubscriptionTier, { month: string; year: string }> = {
-  scout: { month: 'X', year: 'X' },
-  pro: { month: 'Y', year: 'Y' },
-  club: { month: 'Z', year: 'Z' },
+  scout: { month: '149', year: '129' },
+  pro: { month: '299', year: '249' },
+  club: { month: '599', year: '499' },
 }
 
 export const TIER_ANNUAL_TOTAL: Record<SubscriptionTier, string> = {
-  scout: 'X',
-  pro: 'Y',
-  club: 'Z',
+  scout: '1548',
+  pro: '2988',
+  club: '5988',
 }
 
 export const TIER_LABELS: Record<SubscriptionTier, string> = {
