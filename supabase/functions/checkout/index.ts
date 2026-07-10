@@ -6,18 +6,21 @@ const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY");
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://scoutcopilot.com";
 
 // Price ID mapping — replace with real Stripe price IDs
+// Predivo GmbH SANDBOX (test-mode) price IDs — created 2026-07-10 from src/lib/stripe.ts
+// pricing (USD): Scout 149/1548, Pro 299/2988, Club 599/5988. Replace with LIVE price IDs at
+// launch (create the same products in the live account + set the live STRIPE_SECRET_KEY).
 const PRICE_IDS: Record<string, Record<string, string>> = {
   scout: {
-    month: "price_scout_monthly_placeholder",
-    year: "price_scout_annual_placeholder",
+    month: "price_1TrYHs40NtcgN34RiuZy0My5",
+    year: "price_1TrYHs40NtcgN34RnWyNcrxm",
   },
   pro: {
-    month: "price_pro_monthly_placeholder",
-    year: "price_pro_annual_placeholder",
+    month: "price_1TrYHt40NtcgN34RtONfdkB1",
+    year: "price_1TrYHt40NtcgN34RyKKCrguQ",
   },
   club: {
-    month: "price_club_monthly_placeholder",
-    year: "price_club_annual_placeholder",
+    month: "price_1TrYHu40NtcgN34RMyWNTbkD",
+    year: "price_1TrYHv40NtcgN34RcS3GjpIc",
   },
 };
 
