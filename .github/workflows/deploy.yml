@@ -192,7 +192,10 @@ jobs:
 
       - name: Verify production is alive (post-deploy smoke test)
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://scoutcopilot.com/ --retry 4 --retry-all-errors --retry-delay 8 --max-time 30)
+          # -L: the apex "/" does a 301 language redirect to /en (i18n). Without
+          # following it the smoke test saw the 301, failed the != 200 check, and
+          # reddened every deploy though the site was healthy.
+          STATUS=$(curl -s -L -o /dev/null -w "%{http_code}" https://scoutcopilot.com/ --retry 4 --retry-all-errors --retry-delay 8 --max-time 30)
           if [ "$STATUS" != "200" ]; then
             echo "::error::Production returned HTTP $STATUS after deploy — investigate immediately."
             exit 1
