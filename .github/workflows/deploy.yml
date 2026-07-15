@@ -63,6 +63,8 @@ jobs:
 
       - name: Verify deploy target (site-id guard)
         run: |
+          # set +e: bash -e aborts OUTPUT=$(lftp…) before this retry loop can iterate (deploy-standard §3f).
+          set +e
           n=0
           REMOTE_ID=""
           until [ $n -ge 4 ]; do
@@ -92,6 +94,9 @@ jobs:
 
       - name: Deploy assets (no deletion — zero-downtime overlap)
         run: |
+          # set +e: GitHub runs steps with bash -e, which aborts OUTPUT=$(lftp…) on the
+          # first failure BEFORE this retry loop can iterate (dead-retry, deploy-standard §3f).
+          set +e
           n=0
           until [ $n -ge 4 ]; do
           OUTPUT=$(lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
@@ -120,6 +125,9 @@ jobs:
 
       - name: Deploy root files and static directories
         run: |
+          # set +e: GitHub runs steps with bash -e, which aborts OUTPUT=$(lftp…) on the
+          # first failure BEFORE this retry loop can iterate (dead-retry, deploy-standard §3f).
+          set +e
           n=0
           until [ $n -ge 4 ]; do
           OUTPUT=$(lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
@@ -164,6 +172,9 @@ jobs:
 
       - name: Clean up stale assets
         run: |
+          # set +e: GitHub runs steps with bash -e, which aborts OUTPUT=$(lftp…) on the
+          # first failure BEFORE this retry loop can iterate (dead-retry, deploy-standard §3f).
+          set +e
           n=0
           until [ $n -ge 4 ]; do
           OUTPUT=$(lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
