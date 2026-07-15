@@ -19,8 +19,11 @@ export async function getAuthContext(req: Request): Promise<AuthContext> {
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   if (!supabaseUrl) throw new Error("SUPABASE_URL not set");
-  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!supabaseServiceKey) throw new Error("SUPABASE_SERVICE_ROLE_KEY not set");
+  // Prefer the new publishable/secret-key regime; fall back to the legacy
+  // service_role JWT so nothing breaks while legacy keys remain enabled.
+  const supabaseServiceKey =
+    Deno.env.get("SB_SECRET_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseServiceKey) throw new Error("SB_SECRET_KEY / SUPABASE_SERVICE_ROLE_KEY not set");
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -77,7 +80,9 @@ export class AuthError extends Error {
 export function getServiceClient() {
   const url = Deno.env.get("SUPABASE_URL");
   if (!url) throw new Error("SUPABASE_URL not set");
-  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!serviceKey) throw new Error("SUPABASE_SERVICE_ROLE_KEY not set");
+  // Prefer SB_SECRET_KEY (new key regime); legacy service_role remains the fallback.
+  const serviceKey =
+    Deno.env.get("SB_SECRET_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!serviceKey) throw new Error("SB_SECRET_KEY / SUPABASE_SERVICE_ROLE_KEY not set");
   return createClient(url, serviceKey);
 }

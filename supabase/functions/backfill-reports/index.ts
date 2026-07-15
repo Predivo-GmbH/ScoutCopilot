@@ -241,9 +241,13 @@ serve(async (req: Request) => {
 
     let orgFilter: string | null = null;
 
-    // Auth: compare token directly — JWT payload decode is forgeable
+    // Auth: compare token directly — JWT payload decode is forgeable.
+    // Accept EITHER the new SB_SECRET_KEY or the legacy service_role key (additive).
+    const secretKey = Deno.env.get("SB_SECRET_KEY");
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const isServiceRole = !!serviceRoleKey && token === serviceRoleKey;
+    const isServiceRole =
+      (!!secretKey && token === secretKey) ||
+      (!!serviceRoleKey && token === serviceRoleKey);
 
     if (isServiceRole) {
       console.log("[backfill] Called with service_role key — processing all orgs");

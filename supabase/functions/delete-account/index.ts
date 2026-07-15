@@ -73,11 +73,13 @@ Deno.serve(async (req) => {
     }
     const lang = normalizeEmailLang(bodyLang ?? user.user_metadata?.language)
 
-    // Use service role to delete the user (admin action)
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    // Use service role to delete the user (admin action).
+    // Prefer SB_SECRET_KEY (new key regime); legacy service_role stays as fallback.
+    const serviceRoleKey =
+      Deno.env.get('SB_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     if (!serviceRoleKey) {
       return new Response(
-        JSON.stringify({ error: 'SUPABASE_SERVICE_ROLE_KEY not configured' }),
+        JSON.stringify({ error: 'SB_SECRET_KEY / SUPABASE_SERVICE_ROLE_KEY not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }

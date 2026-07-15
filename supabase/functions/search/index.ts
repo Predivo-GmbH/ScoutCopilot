@@ -288,8 +288,10 @@ serve(async (req: Request) => {
       // Fetch photos + metadata from TheSportsDB (instant) and update results before returning
       const supabaseUrl = Deno.env.get("SUPABASE_URL");
       if (!supabaseUrl) throw new Error("SUPABASE_URL not set");
-      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-      if (!serviceKey) throw new Error("SUPABASE_SERVICE_ROLE_KEY not set");
+      // Prefer SB_SECRET_KEY (new key regime); legacy service_role stays as fallback.
+      const serviceKey =
+        Deno.env.get("SB_SECRET_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      if (!serviceKey) throw new Error("SB_SECRET_KEY / SUPABASE_SERVICE_ROLE_KEY not set");
       try {
         const photoResp = await fetch(`${supabaseUrl}/functions/v1/generate-photo`, {
           method: "POST",

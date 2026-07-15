@@ -64,11 +64,16 @@ serve(async (req: Request) => {
     });
   }
 
-  // Auth: require service_role key
+  // Auth: require the admin key. Accept EITHER the new SB_SECRET_KEY or the
+  // legacy service_role key (additive — legacy callers keep working).
+  const secretKey = Deno.env.get("SB_SECRET_KEY");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   const authHeader = req.headers.get("Authorization") ?? "";
   const token = authHeader.replace("Bearer ", "");
-  if (!serviceRoleKey || token !== serviceRoleKey) {
+  const authorized =
+    (!!secretKey && token === secretKey) ||
+    (!!serviceRoleKey && token === serviceRoleKey);
+  if (!authorized) {
     return new Response(
       JSON.stringify({ error: "This endpoint requires service_role key" }),
       { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
