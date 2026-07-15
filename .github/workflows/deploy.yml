@@ -11,7 +11,10 @@ on:
 
 concurrency:
   group: deploy-production
-  cancel-in-progress: true
+  # false: never cancel an in-flight PRODUCTION deploy — a push arriving mid-FTP-mirror
+  # could abort partway through and leave scoutcopilot.com in an inconsistent
+  # (half-deployed) state. New pushes queue and run after the current deploy finishes.
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -23,7 +26,7 @@ jobs:
 
       - uses: actions/setup-node@v5
         with:
-          node-version: 24
+          node-version: 22
           cache: npm
 
       - name: Cache node_modules
@@ -31,7 +34,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: node_modules
-          key: node-modules-${{ runner.os }}-node24-${{ hashFiles('package-lock.json') }}
+          key: node-modules-${{ runner.os }}-node22-${{ hashFiles('package-lock.json') }}
       - name: Install deps
         if: steps.node-cache.outputs.cache-hit != 'true'
         run: npm ci
@@ -60,7 +63,23 @@ jobs:
 
       - name: Verify deploy target (site-id guard)
         run: |
-          REMOTE_ID=$(lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" -e "set net:timeout 30; set net:max-retries 2; set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no; cat /httpdocs/.site-id; quit" 2>/dev/null || echo "")
+          n=0
+          REMOTE_ID=""
+          until [ $n -ge 4 ]; do
+            OUTPUT=$(lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" -e "set net:timeout 30; set net:max-retries 2; set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no; cat /httpdocs/.site-id; quit" 2>&1)
+            STATUS=$?
+            if [ $STATUS -eq 0 ]; then
+              REMOTE_ID="$OUTPUT"
+              break
+            fi
+            if echo "$OUTPUT" | grep -q "530"; then
+              echo "::error::Site-id guard FTP login failed (530 — bad credentials); not retrying."
+              exit 1
+            fi
+            n=$((n + 1))
+            echo "::warning::Site-id guard FTP attempt $n failed (transient FTPS data-channel blip — runner-side); retrying in 25s..."
+            sleep 25
+          done
           if [ -n "$REMOTE_ID" ] && [ "$REMOTE_ID" != "scoutcopilot" ]; then
             echo "::error::DEPLOY ABORTED — remote .site-id is '$REMOTE_ID', expected 'scoutcopilot'. Wrong FTP target!"
             exit 1
@@ -73,13 +92,27 @@ jobs:
 
       - name: Deploy assets (no deletion — zero-downtime overlap)
         run: |
-          lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT
+          n=0
+          until [ $n -ge 4 ]; do
+          OUTPUT=$(lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
           set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no
           set ftp:passive-mode yes; set ftp:prefer-epsv no; set net:timeout 30; set net:max-retries 4; set net:persist-retries 4; set net:reconnect-interval-base 8; set mirror:parallel-transfer-count 4
           mirror --reverse --verbose --no-perms \
             ./dist/assets/ /httpdocs/assets/
           bye
           SCRIPT
+          )
+          STATUS=$?
+          echo "$OUTPUT"
+          if [ $STATUS -eq 0 ]; then
+            echo "Deploy assets succeeded (attempt $((n+1)))"; exit 0
+          fi
+          if echo "$OUTPUT" | grep -q "530"; then
+            echo "::error::Deploy assets FTP login failed (530 — bad credentials); not retrying."; exit 1
+          fi
+          n=$((n + 1)); echo "::warning::Deploy assets attempt $n failed (transient FTPS data-channel blip — runner-side); retrying in 25s..."; sleep 25
+          done
+          echo "::error::Deploy assets failed after 4 attempts"; exit 1
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
@@ -87,7 +120,9 @@ jobs:
 
       - name: Deploy root files and static directories
         run: |
-          lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT
+          n=0
+          until [ $n -ge 4 ]; do
+          OUTPUT=$(lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
           set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no
           set ftp:passive-mode yes; set ftp:prefer-epsv no; set net:timeout 30; set net:max-retries 4; set net:persist-retries 4; set net:reconnect-interval-base 8; set mirror:parallel-transfer-count 4
           mirror --reverse --verbose --no-perms \
@@ -110,6 +145,18 @@ jobs:
           put ./dist/logo.png -o /httpdocs/logo.png
           bye
           SCRIPT
+          )
+          STATUS=$?
+          echo "$OUTPUT"
+          if [ $STATUS -eq 0 ]; then
+            echo "Deploy root files succeeded (attempt $((n+1)))"; exit 0
+          fi
+          if echo "$OUTPUT" | grep -q "530"; then
+            echo "::error::Deploy root files FTP login failed (530 — bad credentials); not retrying."; exit 1
+          fi
+          n=$((n + 1)); echo "::warning::Deploy root files attempt $n failed (transient FTPS data-channel blip — runner-side); retrying in 25s..."; sleep 25
+          done
+          echo "::error::Deploy root files failed after 4 attempts"; exit 1
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
@@ -117,14 +164,37 @@ jobs:
 
       - name: Clean up stale assets
         run: |
-          lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT
+          n=0
+          until [ $n -ge 4 ]; do
+          OUTPUT=$(lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
           set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no
           set ftp:passive-mode yes; set ftp:prefer-epsv no; set net:timeout 30; set net:max-retries 4; set net:persist-retries 4; set net:reconnect-interval-base 8; set mirror:parallel-transfer-count 4
           mirror --reverse --verbose --no-perms --delete \
             ./dist/assets/ /httpdocs/assets/
           bye
           SCRIPT
+          )
+          STATUS=$?
+          echo "$OUTPUT"
+          if [ $STATUS -eq 0 ]; then
+            echo "Clean up stale assets succeeded (attempt $((n+1)))"; exit 0
+          fi
+          if echo "$OUTPUT" | grep -q "530"; then
+            echo "::error::Clean up stale assets FTP login failed (530 — bad credentials); not retrying."; exit 1
+          fi
+          n=$((n + 1)); echo "::warning::Clean up stale assets attempt $n failed (transient FTPS data-channel blip — runner-side); retrying in 25s..."; sleep 25
+          done
+          echo "::error::Clean up stale assets failed after 4 attempts"; exit 1
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USER: ${{ secrets.FTP_USER }}
           FTP_PASS: ${{ secrets.FTP_PASS }}
+
+      - name: Verify production is alive (post-deploy smoke test)
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://scoutcopilot.com/ --retry 4 --retry-all-errors --retry-delay 8 --max-time 30)
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::Production returned HTTP $STATUS after deploy — investigate immediately."
+            exit 1
+          fi
+          echo "Production health check passed (HTTP $STATUS)"
