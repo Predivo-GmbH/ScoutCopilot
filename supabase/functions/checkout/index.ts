@@ -121,6 +121,15 @@ Deno.serve(async (req) => {
       "metadata[organization_id]": auth.organizationId,
       "metadata[user_id]": auth.userId,
       "metadata[tier]": tier,
+      // Swiss/Liechtenstein VAT — fleet Stripe standard. Collect the address so Stripe Tax
+      // charges CH/LI buyers 8.1% VAT (inclusive) and all other countries 0%; allow foreign
+      // B2B VAT-ID reverse charge. Prices must be tax_behavior=inclusive (fleet account
+      // default). NOTE: launch prerequisite — the live account (or sandbox, for testing)
+      // must have origin=CH + the "Schweiz und Liechtenstein" tax registration, else
+      // automatic_tax errors at session creation.
+      billing_address_collection: "required",
+      "automatic_tax[enabled]": "true",
+      "tax_id_collection[enabled]": "true",
     };
 
     if (email) {
@@ -130,6 +139,11 @@ Deno.serve(async (req) => {
     if (org?.stripe_customer_id) {
       sessionParams.customer = org.stripe_customer_id;
       delete sessionParams.customer_email;
+      // customer_update is only valid with an existing customer; persist the entered
+      // address/name onto it (required by automatic_tax). New customers created from
+      // customer_email get the address saved automatically.
+      sessionParams["customer_update[address]"] = "auto";
+      sessionParams["customer_update[name]"] = "auto";
     }
 
     const session = await stripeRequest("/checkout/sessions", sessionParams);
