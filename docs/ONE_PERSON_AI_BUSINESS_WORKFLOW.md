@@ -1,3 +1,14 @@
+> **>>> STALE COPY - SUPERSEDED (2026-06-18).** This is an outdated copy of the master playbook (its design step still references the OBSOLETE Pencil flow).
+> Single source of truth: `C:/Business/Templates/1-Person AI Business Playbook/docs/ONE_PERSON_AI_BUSINESS_WORKFLOW.md`. Design = Stitch-only; see `C:/Business/Templates/project-starter/docs/DESIGN_PIPELINE.md`.
+> Kept only for history - do NOT follow or edit this file.
+
+---
+
+> **>>> DESIGN-STEP NOTICE (2026-06-18).** The design pipeline in "Phase 3 - Step 0" below references Pencil/.pen, which is OBSOLETE.
+> The single canonical design workflow is `C:/Business/Templates/project-starter/docs/DESIGN_PIPELINE.md` (Stitch-based). The rest of this playbook (Phases 1-6) remains current.
+
+---
+
 # 🚀 One-Person AI Business — Claude Code Agent Teams Workflow
 > Reusable playbook using Claude Code's native **Agent Teams** feature (not subagents).
 > Each phase uses a Team Lead + Teammates who communicate directly with each other.

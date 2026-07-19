@@ -167,3 +167,11 @@ Print-ready preview of scouting report or comparison. Club branding placeholder.
 ---
 
 *Design brief prepared 2026-03-23. Awaiting approval before proceeding to logo generation.*
+
+## Footer Standard
+
+Footer must comply with `C:\Business\Internal Projects\footer-standard.md`. Key rules:
+- Use a shared Footer component -- never inline footer markup on individual pages
+- Copyright: `ScoutCopilot by Predivo GmbH. All rights reserved.`
+- Slogan: `Swiss-made · Software that Thinks Ahead` (always English)
+- Email templates must also include standard footer
