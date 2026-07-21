@@ -4,6 +4,12 @@ on:
   pull_request:
     types: [opened, synchronize, ready_for_review, reopened]
 
+# Collapse superseded runs: when several pushes land in a row only the
+# newest commit needs testing. Safe here — these jobs never write to prod.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   security-review:
     if: github.event.pull_request.draft == false
