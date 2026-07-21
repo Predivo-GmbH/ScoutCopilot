@@ -15,7 +15,11 @@ interface ClaudeResponse {
 async function callClaude(
   systemPrompt: string,
   messages: ClaudeMessage[],
-  maxTokens = 4096
+  maxTokens = 4096,
+  // Per-feature label for api_usage_log. All four features used to log as the single
+  // label 'claude-shared', which made cost un-attributable on the BackOffice API
+  // dashboard (audit 2026-07-21).
+  usageLabel = 'claude-shared',
 ): Promise<string> {
   // In edge functions, the org provides their own Claude key or we use the platform key
   const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
@@ -38,7 +42,7 @@ async function callClaude(
   }
 
   const data: ClaudeResponse & { model?: string; usage?: { input_tokens?: number; output_tokens?: number } } = await response.json();
-  await logAnthropicUsage('ScoutCopilot', 'claude-shared', data);
+  await logAnthropicUsage('ScoutCopilot', usageLabel, data);
   return data.content[0]?.text ?? "";
 }
 
@@ -103,7 +107,7 @@ export async function parseSearchQuery(
 ): Promise<ParsedSearchParams> {
   const response = await callClaude(SEARCH_SYSTEM_PROMPT, [
     { role: "user", content: query },
-  ], 1024);
+  ], 1024, 'search-parse-query');
 
   // Extract JSON from response (handle markdown code blocks)
   const jsonMatch = response.match(/```(?:json)?\s*([\s\S]*?)```/) ||
@@ -167,7 +171,7 @@ ${JSON.stringify(players, null, 2)}`;
 
   const response = await callClaude(RANKING_SYSTEM_PROMPT, [
     { role: "user", content: userMessage },
-  ], 4096);
+  ], 4096, 'search-rank-players');
 
   const jsonMatch = response.match(/```(?:json)?\s*([\s\S]*?)```/) ||
     response.match(/(\[[\s\S]*\])/);
@@ -247,7 +251,7 @@ export async function generateScoutingReport(
       role: "user",
       content: `Generate a scouting report for ${playerName}.\n\nFull stats:\n${JSON.stringify(playerStats, null, 2)}`,
     },
-  ], 4096);
+  ], 4096, 'generate-report');
 
   const jsonMatch = response.match(/```(?:json)?\s*([\s\S]*?)```/) ||
     response.match(/(\{[\s\S]*\})/);
@@ -304,7 +308,7 @@ ${players.map((p) => `Player: ${p.name} (ID: ${p.id})\nStats: ${JSON.stringify(p
 
   const response = await callClaude(COMPARISON_SYSTEM_PROMPT, [
     { role: "user", content: userMessage },
-  ], 4096);
+  ], 4096, 'compare-players');
 
   const jsonMatch = response.match(/```(?:json)?\s*([\s\S]*?)```/) ||
     response.match(/(\{[\s\S]*\})/);
