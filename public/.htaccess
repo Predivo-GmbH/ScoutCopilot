@@ -37,6 +37,16 @@
   RewriteCond %{REQUEST_URI} !^/$
   RewriteRule ^(.+)$ /en/$1 [R=301,L]
 
+  # Serve prerendered SEO pages. Public routes (landing, pricing, legal, /for/*,
+  # /guides/*) are prerendered at build time (scripts/prerender.ts) to
+  # dist/<route>/index.html so crawlers get fully rendered HTML, not the empty SPA
+  # shell. When the requested path is a real prerendered directory, serve its
+  # index.html with an INTERNAL rewrite (no 301 slash redirect) — a direct 200 with
+  # rendered content. Only matches real prerendered dirs, so SPA routes fall through.
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteCond %{REQUEST_FILENAME}/index.html -f
+  RewriteRule ^(.*?)/?$ /$1/index.html [L]
+
   # If the request is for an existing file or directory, serve it directly
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f

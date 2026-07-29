@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && npx tsx scripts/generate-sitemap.ts && node scripts/write-monitor-manifest.mjs",
+    "build": "tsc -b && vite build && npx tsx scripts/prerender.ts && npx tsx scripts/generate-sitemap.ts && node scripts/write-monitor-manifest.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
@@ -52,7 +52,9 @@
     "globals": "^17.4.0",
     "jsdom": "^29.0.1",
     "prettier": "^3.8.1",
+    "puppeteer": "^24.39.0",
     "sharp": "^0.34.5",
+    "tsx": "^4.19.2",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.57.1",
     "vite": "^8.0.1",

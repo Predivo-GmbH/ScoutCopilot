@@ -49,6 +49,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Install Puppeteer browser for prerendering
+        run: npx puppeteer browsers install chrome
+
       - name: Build for staging
         run: npm run build
         env:

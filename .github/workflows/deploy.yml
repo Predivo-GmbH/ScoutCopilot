@@ -49,6 +49,9 @@ jobs:
         run: node scripts/check-feature-coverage.mjs
         continue-on-error: true
 
+      - name: Install Puppeteer browser for prerendering
+        run: npx puppeteer browsers install chrome
+
       - name: Build
         run: npm run build
         env:
@@ -137,6 +140,8 @@ jobs:
             ./dist/fonts/ /httpdocs/fonts/
           mirror --reverse --verbose --no-perms \
             ./dist/avatars/ /httpdocs/avatars/
+          mirror --reverse --verbose --no-perms --delete \
+            ./dist/en/ /httpdocs/en/
           put ./dist/.site-id -o /httpdocs/.site-id
           put ./dist/index.html -o /httpdocs/index.html
           put ./dist/.htaccess -o /httpdocs/.htaccess
