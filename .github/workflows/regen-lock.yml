@@ -1,0 +1,34 @@
+name: Regenerate package-lock on Linux
+
+# One-off utility: package-lock resolution for cross-platform optional deps
+# (@emnapi subtree) must happen on the same platform CI runs on. Dispatch on
+# the branch whose lock is out of sync; the job commits the fixed lock back,
+# which re-triggers that branch's deploy automatically.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Regenerate lockfile
+        run: |
+          rm -f package-lock.json
+          npm install --package-lock-only
+          npm ci --dry-run
+      - name: Commit + push if changed
+        run: |
+          git config user.name "regen-lock"
+          git config user.email "noreply@predivo.ch"
+          git add package-lock.json
+          git diff --cached --quiet || git commit -m "Regenerate package-lock on Linux (cross-platform optional deps)"
+          git push origin HEAD:${{ github.ref_name }}
