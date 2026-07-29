@@ -7,6 +7,13 @@
   Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-G9SM0lBhv0poELF/0BMjMAeCexCDay+pwxZiCw9cZLg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://api.stripe.com; font-src 'self'; frame-src 'self'; object-src 'none'; manifest-src 'self'; frame-ancestors 'self';"
 </IfModule>
 
+<IfModule mod_dir.c>
+  # Prerendered routes exist as physical dirs (en/, en/for/<slug>/, ...). Without
+  # this, mod_dir 301-redirects the canonical slashless URL (/en -> /en/) BEFORE
+  # our rewrite can serve <dir>/index.html. Off = our rewrite handles it, 200 direct.
+  DirectorySlash Off
+</IfModule>
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
