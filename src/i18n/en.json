@@ -179,8 +179,7 @@
           "25 shortlists/mo",
           "Compare up to 3 players",
           "1 league scope",
-          "1 user seat",
-          "Email support (48hr)"
+          "1 user seat"
         ]
       },
       "pro": {
@@ -195,8 +194,7 @@
           "All leagues",
           "Tactical fit analysis",
           "PDF export (branded)",
-          "3 user seats",
-          "Priority support (24hr)"
+          "3 user seats"
         ]
       },
       "club": {
@@ -208,9 +206,7 @@
           "Custom AI models",
           "Scout Copilot API access",
           "Bulk operations",
-          "Custom metric definitions",
-          "Dedicated onboarding (1hr)",
-          "Dedicated support channel"
+          "Custom metric definitions"
         ]
       }
     },
@@ -1055,9 +1051,6 @@
     "tenPlayers": "10 players",
     "oneLeague": "1 league",
     "allLeagues": "All leagues",
-    "email48hr": "Email (48hr)",
-    "email24hr": "Email (24hr)",
-    "dedicatedChannel": "Dedicated channel",
     "threeMonths": "3 months",
     "sixMonths": "6 months",
     "twentyFourMonths": "24 months"

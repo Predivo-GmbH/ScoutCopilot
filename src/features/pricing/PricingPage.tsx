@@ -39,7 +39,6 @@ const COMPARISON_ROWS: Array<{
   { featureKey: 'pricingRows.bulkOperations', scout: false, pro: false, club: true },
   { featureKey: 'pricingRows.customMetrics', scout: false, pro: false, club: true },
   { featureKey: 'pricingRows.userSeats', scout: '1', pro: '3', club: '10+' },
-  { featureKey: 'pricingRows.support', scout: 'pricingValues.email48hr', pro: 'pricingValues.email24hr', club: 'pricingValues.dedicatedChannel' },
   { featureKey: 'pricingRows.dataRetention', scout: 'pricingValues.threeMonths', pro: 'pricingValues.sixMonths', club: 'pricingValues.twentyFourMonths' },
 ]
 

@@ -179,8 +179,7 @@
           "25 Shortlists/Mt.",
           "Vergleich von bis zu 3 Spielern",
           "1 Liga",
-          "1 Benutzer",
-          "E-Mail-Support (48 Std.)"
+          "1 Benutzer"
         ]
       },
       "pro": {
@@ -195,8 +194,7 @@
           "Alle Ligen",
           "Taktische Passform-Analyse",
           "PDF-Export (mit Branding)",
-          "3 Benutzer",
-          "Prioritäts-Support (24 Std.)"
+          "3 Benutzer"
         ]
       },
       "club": {
@@ -208,9 +206,7 @@
           "Individuelle KI-Modelle",
           "Scout Copilot API-Zugang",
           "Massenoperationen",
-          "Individuelle Metriken",
-          "Persönliches Onboarding (1 Std.)",
-          "Dedizierter Support-Kanal"
+          "Individuelle Metriken"
         ]
       }
     },
@@ -1055,9 +1051,6 @@
     "tenPlayers": "10 Spieler",
     "oneLeague": "1 Liga",
     "allLeagues": "Alle Ligen",
-    "email48hr": "E-Mail (48 Std.)",
-    "email24hr": "E-Mail (24 Std.)",
-    "dedicatedChannel": "Eigener Kanal",
     "threeMonths": "3 Monate",
     "sixMonths": "6 Monate",
     "twentyFourMonths": "24 Monate"
