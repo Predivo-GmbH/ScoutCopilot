@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { supabase } from '../lib/supabase'
+import { supabase, getCurrentUserId } from '../lib/supabase'
 import { getTierLimits, type TierLimits } from '../lib/stripe'
 import type { SubscriptionTier } from '../types/database'
 
@@ -18,13 +18,13 @@ interface SubscriptionState {
 
 async function fetchSubscription() {
   // Get current user's org
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
+  const userId = await getCurrentUserId()
+  if (!userId) throw new Error('Not authenticated')
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('organization_id')
-    .eq('id', user.id)
+    .eq('id', userId)
     .single()
 
   if (!profile?.organization_id) throw new Error('No organization')

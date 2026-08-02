@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../../../lib/supabase'
+import { supabase, getCurrentUserId } from '../../../lib/supabase'
 import { calculateAge } from '../../../lib/ageUtils'
 import type { MockComparisonPlayer } from '../../../lib/mock-data'
 
@@ -160,12 +160,12 @@ export function useDeleteAllComparisons() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const userId = await getCurrentUserId()
+      if (!userId) throw new Error('Not authenticated')
       const { error } = await supabase
         .from('player_comparisons')
         .delete()
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
       if (error) throw new Error(error.message)
     },
     onSuccess: () => {

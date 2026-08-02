@@ -1,6 +1,6 @@
 import { useCallback, type ReactNode } from 'react'
 import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query'
-import { supabase } from './supabase'
+import { supabase, getCurrentUserId } from './supabase'
 import { calculateAge } from './ageUtils'
 import type { MockWatchlist, MockWatchlistPlayer } from './mock-data'
 import { WatchlistContext } from './WatchlistContextDef'
@@ -10,8 +10,8 @@ const WATCHLISTS_KEY = ['watchlists'] as const
 // ── Supabase fetch helpers ──────────────────────────────────────────────
 
 async function fetchWatchlists(): Promise<MockWatchlist[]> {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return []
+  const userId = await getCurrentUserId()
+  if (!userId) return []
 
   const { data: rows, error } = await supabase
     .from('watchlists')
@@ -95,17 +95,17 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
 
   const createMutation = useMutation({
     mutationFn: async ({ name, description, category }: { name: string; description: string; category?: string }) => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const userId = await getCurrentUserId()
+      if (!userId) throw new Error('Not authenticated')
 
       const { data: profile } = await supabase
         .from('profiles')
         .select('organization_id')
-        .eq('id', user.id)
+        .eq('id', userId)
         .single()
       if (!profile?.organization_id) throw new Error('No organization')
 
-      const insertPayload: Record<string, unknown> = { name, description, user_id: user.id, organization_id: profile.organization_id }
+      const insertPayload: Record<string, unknown> = { name, description, user_id: userId, organization_id: profile.organization_id }
       if (category && category !== 'all') insertPayload.category = category
 
       const { data, error } = await supabase

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { calculateAge } from '../../../lib/ageUtils'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../../../lib/supabase'
+import { supabase, getCurrentUserId } from '../../../lib/supabase'
 import { useAuth } from '../../auth/useAuth'
 import type { MockSquad, SquadPlayer, FormationType, SquadPosition } from '../../../lib/mock-data'
 
@@ -97,8 +97,8 @@ export function useSquad() {
   const { data: squads = [], isLoading } = useQuery<MockSquad[]>({
     queryKey: [...SQUADS_KEY, profile?.id],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return []
+      const userId = await getCurrentUserId()
+      if (!userId) return []
 
       const { data: rows, error } = await supabase
         .from('squads')
@@ -162,15 +162,15 @@ export function useSquad() {
 
   const createMutation = useMutation({
     mutationFn: async ({ name, description }: { name: string; description: string }) => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const userId = await getCurrentUserId()
+      if (!userId) throw new Error('Not authenticated')
 
       const orgId = profile?.organization_id
       if (!orgId) throw new Error('No organization')
 
       const { data, error } = await supabase
         .from('squads')
-        .insert({ name, description, user_id: user.id, organization_id: orgId })
+        .insert({ name, description, user_id: userId, organization_id: orgId })
         .select('id')
         .single()
 

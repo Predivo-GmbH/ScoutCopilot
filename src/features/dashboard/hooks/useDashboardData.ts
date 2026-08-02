@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../../../lib/supabase'
+import { supabase, getCurrentUserId } from '../../../lib/supabase'
 import type {
   DashboardStats,
   RecentSearch,
@@ -82,12 +82,12 @@ export function useDeleteAllSearches() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      const userId = await getCurrentUserId()
+      if (!userId) throw new Error('Not authenticated')
       const { error } = await supabase
         .from('search_queries')
         .delete()
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
       if (error) throw new Error(error.message)
     },
     onSuccess: () => {
