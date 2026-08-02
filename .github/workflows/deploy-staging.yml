@@ -103,7 +103,9 @@ jobs:
           CMDS="$SETTINGS mirror --reverse --delete --no-perms --verbose --exclude .htpasswd --exclude cgi-bin/ ./dist/ staging.scoutcopilot.com/; bye"
           n=0
           until [ $n -ge 4 ]; do
-            if lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" -e "$CMDS"; then
+            # timeout: kill a hung FTPS control connection so the retry loop can
+            # proceed instead of eating the whole job timeout (Metanet lftp hang).
+            if timeout 420 lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" -e "$CMDS"; then
               echo "Staging FTP deploy succeeded (attempt $((n+1)))"; exit 0
             fi
             n=$((n + 1)); echo "::warning::Staging FTP attempt $n failed (transient FTPS data-channel blip — runner-side); retrying in 25s..."; sleep 25

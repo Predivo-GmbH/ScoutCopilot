@@ -22,7 +22,6 @@
 - AI scouting reports — 10 per month
 - Single-league focus (1 league active at a time)
 - 1 user seat
-- Email support (48hr response)
 
 **What's missing (pushing toward Pro):**
 - No multi-league search
@@ -52,7 +51,6 @@
 - PDF export of all reports and shortlists (club-branded)
 - Saved search templates and watchlists
 - 3 user seats (e.g., Head of Recruitment + 2 scouts)
-- Priority email support (24hr response)
 
 **Why this is the obvious choice:**
 - The Scout tier is deliberately limited to feel constraining — 10 reports/month and 1 league is not enough for any serious scouting operation
@@ -78,8 +76,6 @@
 - Transfer market value estimation (AI-generated fair value range)
 - Bulk operations (batch-generate reports for entire squads or leagues)
 - Custom metric definitions (define your own composite metrics)
-- Dedicated onboarding session (1hr video call)
-- Priority support with dedicated Slack/Teams channel
 - Data retention: 24 months of search history and report archive (vs. 6 months on Pro)
 
 ---

@@ -71,7 +71,7 @@ jobs:
           n=0
           REMOTE_ID=""
           until [ $n -ge 4 ]; do
-            OUTPUT=$(lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" -e "set net:timeout 30; set net:max-retries 2; set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no; cat /httpdocs/.site-id; quit" 2>&1)
+            OUTPUT=$(timeout 90 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" -e "set net:timeout 30; set net:max-retries 2; set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no; cat /httpdocs/.site-id; quit" 2>&1)
             STATUS=$?
             if [ $STATUS -eq 0 ]; then
               REMOTE_ID="$OUTPUT"
@@ -102,7 +102,7 @@ jobs:
           set +e
           n=0
           until [ $n -ge 4 ]; do
-          OUTPUT=$(lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
+          OUTPUT=$(timeout 420 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
           set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no
           set ftp:passive-mode yes; set ftp:prefer-epsv no; set net:timeout 30; set net:max-retries 4; set net:persist-retries 4; set net:reconnect-interval-base 8; set mirror:parallel-transfer-count 4
           mirror --reverse --verbose --no-perms \
@@ -133,7 +133,7 @@ jobs:
           set +e
           n=0
           until [ $n -ge 4 ]; do
-          OUTPUT=$(lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
+          OUTPUT=$(timeout 420 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
           set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no
           set ftp:passive-mode yes; set ftp:prefer-epsv no; set net:timeout 30; set net:max-retries 4; set net:persist-retries 4; set net:reconnect-interval-base 8; set mirror:parallel-transfer-count 4
           mirror --reverse --verbose --no-perms \
@@ -182,7 +182,7 @@ jobs:
           set +e
           n=0
           until [ $n -ge 4 ]; do
-          OUTPUT=$(lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
+          OUTPUT=$(timeout 420 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
           set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no
           set ftp:passive-mode yes; set ftp:prefer-epsv no; set net:timeout 30; set net:max-retries 4; set net:persist-retries 4; set net:reconnect-interval-base 8; set mirror:parallel-transfer-count 4
           mirror --reverse --verbose --no-perms --delete \
