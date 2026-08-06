@@ -58,6 +58,29 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
+      # Put-list completeness gate: mirrors SignalScore's gate (added 2026-08-06
+      # after it caught a real bug there — a hardcoded upload list silently
+      # dropped a new prerendered page). The "Deploy root files and static
+      # directories" step below uploads dist/ via named `put`/`mirror` entries,
+      # not a recursive mirror of the whole tree — so a new root-level dist/
+      # entry (new public/ asset, new generated file) that nobody added there
+      # would silently never reach production. Fail the deploy instead.
+      - name: Put-list completeness gate
+        run: |
+          COVERED="assets fonts avatars en .site-id index.html .htaccess favicon.svg favicon.ico favicon-16x16.png favicon-32x32.png apple-touch-icon.png site.webmanifest robots.txt sitemap.xml monitor-routes.json og-image.png logo.png"
+          MISSING=""
+          for entry in $(ls -A dist); do
+            case " $COVERED " in
+              *" $entry "*) ;;
+              *) MISSING="$MISSING $entry" ;;
+            esac
+          done
+          if [ -n "$MISSING" ]; then
+            echo "::error::dist/ contains entries the FTP put-list does not upload:$MISSING — add them to the 'Deploy root files and static directories' step or they will silently never reach production."
+            exit 1
+          fi
+          echo "Put-list covers all dist/ root entries."
+
       - name: Install lftp
         run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
 
