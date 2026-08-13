@@ -201,6 +201,40 @@ async function prerender(): Promise<void> {
     await page.waitForSelector('h1', { timeout: 5000 }).catch(() => {})
 
     let html = await page.content()
+
+    // Guard: Vite/Rolldown's runtime modulepreload helper (used to warm the cache
+    // for sibling deps of a lazy-loaded route chunk) can resolve asset URLs as an
+    // ABSOLUTE `new URL(dep, importerUrl).href` instead of a root-relative path.
+    // During prerender importerUrl is always this script's own local server (BASE
+    // = http://127.0.0.1:<port>), so if that codepath fires, the <link
+    // rel="modulepreload"> it injects gets baked into the DOM as an absolute
+    // http://127.0.0.1:<port>/... href. page.content() captures that literally
+    // into the static file we ship. Once deployed to the real domain, that becomes
+    // a foreign-origin script load that script-src 'self' CSP correctly blocks
+    // (this bit Valrano, confirmed root cause 2026-08-13). A prerendered file must
+    // be origin-portable, so strip any leaked reference to our own local server
+    // back to a root-relative path -- this closes the bug class regardless of why a
+    // given build chose the absolute codepath.
+    if (html.includes(BASE)) {
+      console.warn(
+        `  WARNING: ${route.path} had ${html.split(BASE).length - 1} baked-in prerender-origin URL(s) (${BASE}) -- rewriting to root-relative`,
+      )
+      html = html.split(BASE).join('')
+    }
+
+    // HARD-FAIL GUARD (fleet-wide, 2026-08-13): the strip above self-heals the known
+    // BASE-origin leak, but if ANY absolute local-server origin still survives (a
+    // novel variant the strip did not cover), it would ship a foreign-origin script
+    // that a strict CSP blocks in prod -- a silent, intermittent white-screen. Turn
+    // that into a LOUD build failure so a leaked build can never reach production.
+    // Matches both localhost and 127.0.0.1 -- this server binds to 127.0.0.1 (see
+    // startServer()), but the check stays broad in case that ever changes.
+    if (/https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(html)) {
+      throw new Error(
+        `prerender guard: ${route.file} (route ${route.path}) still contains an absolute localhost URL after strip -- refusing to ship an origin-locked prerendered file. Inspect the modulepreload/asset href injection.`,
+      )
+    }
+
     // The app sets the authoritative per-page document.title (native metadata or Helmet).
     const pageTitle = await page.title()
 
