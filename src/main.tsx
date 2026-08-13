@@ -3,9 +3,14 @@ import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
 import { ThemeProvider } from './components/shared/ThemeProvider'
 import { ErrorBoundary } from './components/shared/ErrorBoundary'
+import { initSentry } from './lib/sentry'
 import './i18n'
 import './index.css'
 import App from './App'
+
+// Initialize error monitoring FIRST, before any other init runs, so exceptions
+// thrown during startup are captured. No-ops unless VITE_SENTRY_DSN is set.
+initSentry()
 
 // Stale-chunk recovery: after a deploy, hashed chunk filenames rotate and old ones 404. Vite fires
 // `vite:preloadError` on window when a lazy chunk fails to load — reload once per failing chunk to

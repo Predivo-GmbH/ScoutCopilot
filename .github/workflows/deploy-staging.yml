@@ -61,6 +61,14 @@ jobs:
           # STAGING_SUPABASE_* project here if full data isolation is ever needed.
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          # Sentry (error monitoring pilot, STAGING ONLY): DSN inlined into the bundle;
+          # auth token (+ org/project) enables source-map upload. environment is tagged
+          # by hostname at runtime, so this same DSN produces "staging.scoutcopilot.com"
+          # tagged events here. NOT wired into deploy.yml (production) yet — pilot scope.
+          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
 
       - name: Prepare staging .htaccess (basic-auth + noindex)
         run: |

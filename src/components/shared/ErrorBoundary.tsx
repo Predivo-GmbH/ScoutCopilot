@@ -1,6 +1,7 @@
 import { Component, type ReactNode, type ErrorInfo } from 'react'
 import i18n from 'i18next'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
+import { captureException } from '../../lib/sentry'
 
 interface Props {
   children: ReactNode
@@ -22,6 +23,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('[ErrorBoundary]', error, errorInfo)
+    captureException(error, { componentStack: errorInfo.componentStack })
   }
 
   handleReload = () => {
