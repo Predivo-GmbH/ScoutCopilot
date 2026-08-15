@@ -1,0 +1,14 @@
+# gitleaks config for ScoutCopilot. Extends the default ruleset (all real-secret rules stay on).
+# Allowlists ONLY the client-side gate component, whose GATE_PASSWORD_HASH is a SHA-256 hash
+# (one-way, not the password itself) that gitleaks' generic-api-key heuristic false-matches.
+# Real keys/tokens are still detected everywhere else.
+title = "scoutcopilot gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Client gate password is a SHA-256 hash, not a secret"
+paths = [
+  '''src/components/shared/PasswordGate\.tsx''',
+]
