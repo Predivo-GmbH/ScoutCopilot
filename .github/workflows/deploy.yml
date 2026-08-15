@@ -1,13 +1,19 @@
 name: Deploy to Production
 
+# STAGING-FIRST PIPELINE (deploy-standard §163 + Rule 63) — production is a
+# deliberate, gated promotion, NEVER an automatic side-effect of pushing to
+# master. Pushes to `staging` deploy to staging (see deploy-staging.yml) for
+# review; shipping to production requires a manual workflow_dispatch with
+# confirm="deploy" typed in, exactly like launchready/Valrano/SignalScore.
+# Converted from push-to-master-auto-prod 2026-08-15 (G2 staging-first ruling).
+
 on:
-  push:
-    branches: [master]
-    paths-ignore:
-      - '*.md'
-      - 'docs/**'
-      - 'LICENSE'
-      - '.gitignore'
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "deploy" to confirm PRODUCTION deploy'
+        required: true
+        default: ''
 
 concurrency:
   group: deploy-production
@@ -17,7 +23,33 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # ===========================================================================
+  # SECURITY GATE (G3, deploy-standard §4d) — blocks prod promotion. gitleaks
+  # full-history secret scan + `npm audit --audit-level=critical`. AI
+  # security-review stays advisory. Fleet retrofit 2026-08-15 (clean at critical).
+  # ===========================================================================
+  gate-security:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Secret scan (gitleaks)
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Dependency audit (blocking at critical)
+        run: npm audit --audit-level=critical
+
   deploy:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'deploy'
+    needs: [gate-security]
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
