@@ -7,7 +7,7 @@
 ScoutCopilot is an AI-powered football scouting platform that connects to professional data providers (StatsBomb, Wyscout, API-Football) and uses Claude AI to turn natural language queries into ranked player shortlists, detailed scouting reports, and head-to-head comparison briefs. It targets independent scouts, small clubs, and football academies who need data-driven recruitment without enterprise-level budgets.
 
 **Production URL:** https://scoutcopilot.com
-**Repository:** https://github.com/Arivioo/ScoutCopilot
+**Repository:** https://github.com/Predivo-GmbH/ScoutCopilot
 
 ---
 
