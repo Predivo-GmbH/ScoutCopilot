@@ -92,7 +92,6 @@ jobs:
 
       - name: Feature Coverage Check
         run: node scripts/check-feature-coverage.mjs
-        continue-on-error: true
 
       - name: Install Puppeteer browser for prerendering
         run: npx puppeteer browsers install chrome
