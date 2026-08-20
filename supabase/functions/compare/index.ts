@@ -1,6 +1,7 @@
 // Compare Edge Function — Head-to-head player comparison
 // POST /compare { player_ids: string[], context?: string }
 
+import { logError } from '../_shared/error-log.ts'
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { type SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { handleCors } from "../_shared/cors.ts";
@@ -9,7 +10,6 @@ import { comparePlayers as claudeCompare } from "../_shared/claude.ts";
 import { getMockPlayer } from "../_shared/mock-data.ts";
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
 import {
-import { logError } from '../_shared/error-log.ts'
   getPlayer as apiFootballGetPlayer,
   mapToGenericPlayer,
   type ApiFootballSearchResult,

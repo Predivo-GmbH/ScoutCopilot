@@ -2,12 +2,12 @@
 // POST /import-team { action: "search-teams", query: string }
 // POST /import-team { action: "get-squad", team_id: number }
 
+import { logError } from '../_shared/error-log.ts'
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { handleCors } from "../_shared/cors.ts";
 import { AuthError, getAuthContext } from "../_shared/auth.ts";
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
 import {
-import { logError } from '../_shared/error-log.ts'
   searchTeams,
   getTeamSquad,
   type ApiFootballTeam,
