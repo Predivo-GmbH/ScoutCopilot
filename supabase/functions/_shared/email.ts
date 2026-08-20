@@ -60,17 +60,107 @@ function base64Part(mimeType: string, body: string): { mimeType: string; content
   return { mimeType, content: btoa(bin).replace(/.{1,76}/g, '$&\r\n'), transferEncoding: 'base64' }
 }
 
-export async function sendEmail(options: SendEmailOptions): Promise<void> {
-  const config = getSmtpConfig()
+// Reserved, non-routable domains (RFC 6761 reserved TLDs + RFC 2606 example.*): mail
+// to these ALWAYS hard-bounces with "Host or domain name not found", so every E2E /
+// monitor probe send returns a MAILER-DAEMON bounce that drags the sending reputation
+// of the SHARED fleet Postmark account. The probes only assert the send path is
+// deployed and doesn't 5xx - they never need a real message delivered. So skip
+// transmission entirely and treat the send as a successful no-op.
+// Ported from ChannelMover 676a113, extended with the RFC 2606 example.* domains.
+const NON_DELIVERABLE_TLDS = ['.local', '.test', '.invalid', '.example']
+const NON_DELIVERABLE_DOMAINS = ['example.com', 'example.net', 'example.org']
+function isNonDeliverableRecipient(to: string): boolean {
+  const domain = (to.trim().toLowerCase().split('@')[1] ?? '')
+  if (!domain) return false
+  return NON_DELIVERABLE_TLDS.some((tld) => domain.endsWith(tld)) ||
+    NON_DELIVERABLE_DOMAINS.includes(domain)
+}
 
+// ─── Test-traffic routing (keep the paid Postmark quota for REAL mail) ───────
+//
+// Our own monitoring/E2E mail must not burn the shared fleet plan. When a Metanet
+// mailbox is configured (METANET_SMTP_*), sends to known test recipients go through
+// Metanet instead, so only real mail counts against Postmark. Everything defaults to
+// Postmark: if METANET_SMTP_* is unset, or the recipient isn't a known test address,
+// nothing changes. Deliberately keep ONE low-volume real send on Postmark as a live
+// send-path canary (FLEET_TRANSACTIONAL_EMAIL_POSTMARK.md §2).
+// 'pmverify-' is listed because probing nonexistent pmverify-* mailboxes on 2026-07-19
+// hard-bounced the shared account to a 100% bounce rate.
+const TEST_RECIPIENT_PATTERNS = [
+  '@scoutcopilot-test.local', // integration test-user domain (also blackholed above)
+  '+e2e@',                    // any +e2e tagged test address
+  'pmverify-',                // Postmark cutover/verification probes
+]
+
+function isTestRecipient(to: string): boolean {
+  const addr = to.trim().toLowerCase()
+  // Ops can extend the list without a redeploy via a comma-separated env var.
+  const extra = (Deno.env.get('TEST_EMAIL_RECIPIENTS') ?? '')
+    .split(',').map((s) => s.trim().toLowerCase()).filter(Boolean)
+  return [...TEST_RECIPIENT_PATTERNS, ...extra].some((p) => addr.includes(p))
+}
+
+// Metanet SMTP config for the test-traffic path (null unless METANET_SMTP_* is set).
+function getMetanetConfig(from: string): SmtpConfig | null {
+  const hostname = Deno.env.get('METANET_SMTP_HOST')
+  const port = Deno.env.get('METANET_SMTP_PORT')
+  const username = Deno.env.get('METANET_SMTP_USER')
+  const password = Deno.env.get('METANET_SMTP_PASS')
+  if (!hostname || !port || !username || !password) return null
+  return { hostname, port: parseInt(port, 10), username, password, from }
+}
+
+export async function sendEmail(options: SendEmailOptions): Promise<void> {
+  // Blackhole reserved non-deliverable domains (see isNonDeliverableRecipient):
+  // sending would always hard-bounce and pollute the shared account's reputation.
+  if (isNonDeliverableRecipient(options.to)) {
+    console.log(`[email] skipped non-deliverable recipient (nothing sent): ${options.to}`)
+    return
+  }
+
+  const config = getSmtpConfig()
+  const plain = options.text ?? options.subject
+  const metanet = isTestRecipient(options.to) ? getMetanetConfig(config.from) : null
+
+  // ── Postmark HTTP API path (real mail, default) ─────────────────────────────
+  // The Supabase edge runtime fatally 503s on the dynamic imports an SMTP STARTTLS
+  // client needs, and Postmark has NO implicit-TLS (465) port — so real mail goes via
+  // the HTTP API (no socket). SMTP_USER = SMTP_PASS = Postmark Server API token.
+  if (!metanet && config.hostname === 'smtp.postmarkapp.com') {
+    const res = await fetch('https://api.postmarkapp.com/email', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-Postmark-Server-Token': config.password,
+      },
+      body: JSON.stringify({
+        From: config.from,
+        To: options.to,
+        Subject: options.subject,
+        HtmlBody: options.html,
+        TextBody: plain,
+        MessageStream: 'outbound',
+      }),
+    })
+    if (!res.ok) {
+      const detail = await res.text().catch(() => '')
+      throw new Error('Postmark API ' + res.status + ': ' + detail.slice(0, 300))
+    }
+    return
+  }
+
+  // ── Metanet SMTP path (denomailer, implicit TLS 465) ────────────────────────
+  // Used for our own test recipients, or if SMTP_HOST still points at Metanet.
+  const smtp = metanet ?? config
   const client = new SMTPClient({
     connection: {
-      hostname: config.hostname,
-      port: config.port,
-      tls: true,
+      hostname: smtp.hostname,
+      port: smtp.port,
+      tls: smtp.port === 465,
       auth: {
-        username: config.username,
-        password: config.password,
+        username: smtp.username,
+        password: smtp.password,
       },
     },
   })
@@ -81,7 +171,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<void> {
       to: options.to,
       subject: options.subject,
       mimeContent: [
-        base64Part('text/plain; charset="utf-8"', options.text ?? options.subject),
+        base64Part('text/plain; charset="utf-8"', plain),
         base64Part('text/html; charset="utf-8"', options.html),
       ],
     })
