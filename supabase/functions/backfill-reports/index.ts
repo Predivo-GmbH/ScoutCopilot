@@ -8,6 +8,7 @@ import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { handleCors } from "../_shared/cors.ts";
 import { AuthError, getAuthContext, getServiceClient } from "../_shared/auth.ts";
 import { generateScoutingReport } from "../_shared/claude.ts";
+import { logError } from '../_shared/error-log.ts'
 
 const SPORTSDB_BASE = "https://www.thesportsdb.com/api/v1/json/3";
 
@@ -571,6 +572,7 @@ serve(async (req: Request) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
+    await logError('backfill-reports', 'request', err)
     if (err instanceof AuthError) {
       return new Response(JSON.stringify({ error: err.message }), {
         status: err.status,

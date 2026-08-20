@@ -1,6 +1,7 @@
 import { handleCors } from "../_shared/cors.ts";
 import { getAuthContext, AuthError, getServiceClient } from "../_shared/auth.ts";
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
+import { logError } from '../_shared/error-log.ts'
 
 const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY");
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://scoutcopilot.com";
@@ -88,6 +89,7 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
+    await logError('billing-portal', 'request', err)
     const status = err instanceof AuthError ? err.status : 500;
     return new Response(
       JSON.stringify({ error: err instanceof Error ? err.message : "Unknown error" }),

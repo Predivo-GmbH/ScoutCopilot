@@ -11,6 +11,7 @@ import { getPlayerSeasonStats as statsbombStats } from "../_shared/providers/sta
 import { searchPlayersByName as apiFootballSearch, getTransfers as apiFootballTransfers, getPlayer as apiFootballGetPlayer, mapToGenericPlayer as apiFootballMap } from "../_shared/providers/api-football.ts";
 import type { ApiFootballSearchResult } from "../_shared/providers/api-football.ts";
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
+import { logError } from '../_shared/error-log.ts'
 
 serve(async (req: Request) => {
   const { corsHeaders, preflightResponse } = handleCors(req);
@@ -371,6 +372,7 @@ serve(async (req: Request) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
+    await logError('report', 'request', err)
     if (err instanceof AuthError) {
       return new Response(JSON.stringify({ error: err.message }), {
         status: err.status,

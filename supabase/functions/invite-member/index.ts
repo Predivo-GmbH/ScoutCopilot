@@ -10,6 +10,7 @@ import { handleCors } from '../_shared/cors.ts'
 import { getAuthContext, getServiceClient, AuthError } from '../_shared/auth.ts'
 import { checkRateLimit } from '../_shared/rate-limiter.ts'
 import { sendEmail, invitationEmail, normalizeEmailLang } from '../_shared/email.ts'
+import { logError } from '../_shared/error-log.ts'
 
 const VALID_ROLES = ['scout', 'head_of_recruitment', 'technical_director', 'analyst']
 
@@ -158,6 +159,7 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (err) {
+    await logError('invite-member', 'request', err)
     if (err instanceof AuthError) {
       return new Response(
         JSON.stringify({ error: err.message }),

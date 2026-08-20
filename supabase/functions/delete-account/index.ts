@@ -9,6 +9,7 @@ import { handleCors } from '../_shared/cors.ts'
 import { sendEmail, accountDeletedEmail, normalizeEmailLang } from '../_shared/email.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { checkRateLimit } from '../_shared/rate-limiter.ts'
+import { logError } from '../_shared/error-log.ts'
 
 Deno.serve(async (req) => {
   const { corsHeaders, preflightResponse } = handleCors(req)
@@ -215,6 +216,7 @@ Deno.serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (err) {
+    await logError('delete-account', 'request', err)
     console.error('Unexpected error:', err)
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),

@@ -13,6 +13,7 @@ import {
   searchPlayersByName as apiFootballSearch,
 } from "../_shared/providers/api-football.ts";
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
+import { logError } from '../_shared/error-log.ts'
 
 /** Escape PostgREST special characters to prevent filter injection */
 function escapePostgREST(s: string): string {
@@ -581,6 +582,7 @@ async function fetchFromProviders(
     const sbOpenResults = await searchStatsBombOpenData(supabase, params);
     results.push(...sbOpenResults);
   } catch (err) {
+    await logError('search', 'request', err)
     console.error("Error fetching StatsBomb open data:", (err as Error).message);
   }
 

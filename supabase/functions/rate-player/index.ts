@@ -7,6 +7,7 @@ import { handleCors } from "../_shared/cors.ts";
 import { AuthError, getAuthContext } from "../_shared/auth.ts";
 import { logAnthropicUsage } from "../_shared/log-usage.ts";
 import { anthropicMessages } from "../_shared/anthropic-model.ts";
+import { logError } from '../_shared/error-log.ts'
 
 interface PlayerInput {
   player_external_id: string;
@@ -90,6 +91,7 @@ serve(async (req: Request) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
+    await logError('rate-player', 'request', err)
     if (err instanceof AuthError) {
       return new Response(JSON.stringify({ error: err.message }), {
         status: err.status,

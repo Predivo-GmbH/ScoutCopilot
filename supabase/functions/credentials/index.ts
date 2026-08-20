@@ -21,6 +21,7 @@ import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { handleCors } from "../_shared/cors.ts";
 import { AuthError, getAuthContext, getServiceClient } from "../_shared/auth.ts";
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
+import { logError } from '../_shared/error-log.ts'
 
 serve(async (req: Request) => {
   const { corsHeaders, preflightResponse } = handleCors(req);
@@ -344,6 +345,7 @@ async function validateCredentials(
 
     return { success: false, message: "Unknown provider" };
   } catch (err) {
+    await logError('credentials', 'request', err)
     return { success: false, message: `Connection error: ${(err as Error).message}` };
   }
 }

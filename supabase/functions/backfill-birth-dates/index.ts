@@ -5,6 +5,7 @@
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { handleCors } from "../_shared/cors.ts";
 import { getServiceClient } from "../_shared/auth.ts";
+import { logError } from '../_shared/error-log.ts'
 
 const SPORTSDB_BASE = "https://www.thesportsdb.com/api/v1/json/3";
 
@@ -168,6 +169,7 @@ serve(async (req: Request) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
+    await logError('backfill-birth-dates', 'request', err)
     console.error("backfill-birth-dates error:", (err as Error).message);
     return new Response(
       JSON.stringify({ error: "Internal server error" }),

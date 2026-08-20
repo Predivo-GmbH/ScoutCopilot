@@ -1,4 +1,5 @@
 import { getServiceClient } from "../_shared/auth.ts";
+import { logError } from '../_shared/error-log.ts'
 
 const STRIPE_WEBHOOK_SECRET = Deno.env.get("STRIPE_WEBHOOK_SECRET");
 
@@ -182,6 +183,7 @@ Deno.serve(async (req) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
+    await logError('stripe-webhook', 'request', err)
     console.error("Webhook error:", err);
     return new Response(
       JSON.stringify({ error: err instanceof Error ? err.message : "Unknown error" }),

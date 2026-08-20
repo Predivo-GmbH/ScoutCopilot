@@ -7,6 +7,7 @@ import { handleCors } from "../_shared/cors.ts";
 import { AuthError, getAuthContext } from "../_shared/auth.ts";
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
 import {
+import { logError } from '../_shared/error-log.ts'
   searchTeams,
   getTeamSquad,
   type ApiFootballTeam,
@@ -60,6 +61,7 @@ serve(async (req: Request) => {
       );
     }
   } catch (err) {
+    await logError('import-team', 'request', err)
     if (err instanceof AuthError) {
       return new Response(JSON.stringify({ error: err.message }), {
         status: err.status,

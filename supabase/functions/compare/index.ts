@@ -9,6 +9,7 @@ import { comparePlayers as claudeCompare } from "../_shared/claude.ts";
 import { getMockPlayer } from "../_shared/mock-data.ts";
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
 import {
+import { logError } from '../_shared/error-log.ts'
   getPlayer as apiFootballGetPlayer,
   mapToGenericPlayer,
   type ApiFootballSearchResult,
@@ -271,6 +272,7 @@ async function fetchApiFootballPlayer(
     }
     return mapToGenericPlayer(result as unknown as ApiFootballSearchResult);
   } catch (err) {
+    await logError('compare', 'request', err)
     console.error("API-Football player fetch error:", (err as Error).message);
     return null;
   }
