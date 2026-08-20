@@ -15,6 +15,10 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Without a key the action fails red and reviews nothing, which reads as "the gate
+    # ran and found problems" when it never ran at all. Skip loudly instead.
+    env:
+      HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
     permissions:
       contents: read
       pull-requests: write
@@ -25,12 +29,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Skip notice (no API key configured)
+        if: env.HAS_KEY != 'true'
+        run: echo "::warning::ANTHROPIC_API_KEY is not set on this repository - the AI review did not run. Add the secret to enable it."
+
       - name: Run Security Review
+        if: env.HAS_KEY == 'true'
         uses: anthropics/claude-code-action@v1
         with:
-          model: claude-sonnet-4-6
+          # claude-code-action@v1 accepts `prompt` and `claude_args`. The old `model`,
+          # `direct_prompt` and `allowed_tools` inputs are rejected ("Unexpected input(s)")
+          # and the prompt was silently discarded, so this gate never reviewed anything.
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          direct_prompt: |
+          claude_args: --model claude-sonnet-4-6 --allowedTools "Bash(git diff:*),Bash(git log:*),Bash(git show:*),Read,Glob,Grep"
+          prompt: |
             You are a senior security engineer. Perform a security-focused code review
             to identify HIGH-CONFIDENCE vulnerabilities with real exploitation potential.
 
@@ -56,10 +68,3 @@ jobs:
 
             For each finding, trace the data flow from input to dangerous operation
             and verify no existing mitigation exists.
-          allowed_tools: |
-            Bash(git diff:*)
-            Bash(git log:*)
-            Bash(git show:*)
-            Read
-            Glob
-            Grep
