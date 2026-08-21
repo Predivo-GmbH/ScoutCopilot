@@ -1155,7 +1155,7 @@ project-starter/                        <-- Copy from here when creating new pro
     functions/                          <-- Edge Functions (Deno)
       _shared/                          <-- auth.ts, cors.ts, email.ts
       [function-name]/index.ts
-    migrations/                         <-- SQL migrations (run in Supabase SQL editor)
+    migrations/                         <-- SQL migrations (applied by CI on deploy via scripts/apply-migrations.mjs — never by hand)
   public/
     .htaccess                           <-- SPA routing for Metanet
   .claude/

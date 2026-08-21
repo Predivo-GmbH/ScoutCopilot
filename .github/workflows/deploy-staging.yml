@@ -70,6 +70,15 @@ jobs:
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
 
+      # Staging SHARES the production Supabase backend (deploy-staging.yml:58-61 — there is
+      # no staging DB project), so this targets the SAME prod ref as deploy.yml. Once the
+      # prod ledger is backfilled this is a no-op here; it exists so a pending migration
+      # lands on the shared backend when staging ships first, before prod promotion.
+      - name: Apply database migrations (shared prod backend)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: node scripts/apply-migrations.mjs --project-ref rlcsuqwqzoqjykdiqjye
+
       - name: Prepare staging .htaccess (basic-auth + noindex)
         run: |
           # Reuse the REAL production .htaccess (from the build) so staging catches
