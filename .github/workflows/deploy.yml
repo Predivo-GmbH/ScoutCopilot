@@ -31,7 +31,7 @@ jobs:
   # ===========================================================================
   gate-security:
     if: github.event_name != 'push'
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
@@ -64,7 +64,7 @@ jobs:
   deploy:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'deploy'
     needs: [gate-security]
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 20
 
     steps:

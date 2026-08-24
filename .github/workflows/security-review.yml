@@ -13,7 +13,7 @@ concurrency:
 jobs:
   security-review:
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 15
     # Without a key the action fails red and reviews nothing, which reads as "the gate
     # ran and found problems" when it never ran at all. Skip loudly instead.
