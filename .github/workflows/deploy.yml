@@ -58,7 +58,8 @@ jobs:
       # --error fails the gate on a real finding.
       - name: SAST scan (semgrep)
         run: |
-          python3 -m pip install --quiet semgrep
+          python3 -m pip install --quiet --user --break-system-packages semgrep
+          export PATH="$HOME/.local/bin:$PATH"
           semgrep scan --config=p/security-audit --config=p/secrets --severity=ERROR --error --metrics=off .
 
   deploy:
