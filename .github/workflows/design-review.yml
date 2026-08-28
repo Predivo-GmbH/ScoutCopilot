@@ -70,6 +70,11 @@ jobs:
           # `direct_prompt` and `allowed_tools` inputs are rejected ("Unexpected input(s)")
           # and the prompt was silently discarded, so this gate never reviewed anything.
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Post as the repo's own Actions bot. Without a token the action tries to mint
+          # one from the Claude Code GitHub App and dies with "not installed on this
+          # repository"; using GITHUB_TOKEN keeps the whole thing in version control and
+          # grants no third-party app access to the org.
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           claude_args: --model claude-sonnet-4-6 --allowedTools "Bash(git diff:*),Bash(git log:*),Bash(git show:*),Read,Glob,Grep"
           prompt: |
             You are an elite design reviewer. Review this PR for visual quality,
