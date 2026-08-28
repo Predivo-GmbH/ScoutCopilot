@@ -36,6 +36,10 @@ jobs:
       contents: read
       pull-requests: write
       issues: write
+      # claude-code-action@v1 exchanges an OIDC token for its GitHub App token, even when
+      # an API key is supplied. Without this the action dies with "Could not fetch an OIDC
+      # token" after ~30s and the gate goes red having reviewed nothing.
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v5
