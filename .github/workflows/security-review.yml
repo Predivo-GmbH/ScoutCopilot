@@ -12,11 +12,24 @@ concurrency:
 
 jobs:
   security-review:
-    if: github.event.pull_request.draft == false
+    # Auto-generated content changes (the SEO blog refresh, batched rewrites, dependency
+    # bumps) are not code and do not need an engineering review. 41 of the 45 changes in the
+    # 31 days to 2026-08-28 were exactly that, so reviewing them would be nearly all of the
+    # cost and none of the value.
+    if: >-
+      github.event.pull_request.draft == false
+      && !startsWith(github.head_ref, 'seo-auto-refresh/')
+      && !startsWith(github.head_ref, 'seo-refresh-batch')
+      && !startsWith(github.head_ref, 'seo/')
+      && github.event.pull_request.user.login != 'dependabot[bot]'
+      && github.event.pull_request.user.login != 'renovate[bot]'
     runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 15
-    # Without a key the action fails red and reviews nothing, which reads as "the gate
-    # ran and found problems" when it never ran at all. Skip loudly instead.
+    # A reviewer that cannot run must NOT report success. Until 2026-08-28 a missing key
+    # only printed a warning and this job went green in 11 seconds having read nothing, so
+    # changes were merged on the strength of a review that never happened. The key is now
+    # installed on every repo carrying this workflow; if it ever goes missing, this fails
+    # and says why.
     env:
       HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
     permissions:
@@ -29,9 +42,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Skip notice (no API key configured)
+      - name: Fail when the reviewer cannot run (no API key configured)
         if: env.HAS_KEY != 'true'
-        run: echo "::warning::ANTHROPIC_API_KEY is not set on this repository - the AI review did not run. Add the secret to enable it."
+        run: |
+          echo "::error::ANTHROPIC_API_KEY is not set on this repository, so this review cannot run."
+          echo "A review that cannot run must not report success - that is how unreviewed changes get merged."
+          exit 1
 
       - name: Run Security Review
         if: env.HAS_KEY == 'true'
