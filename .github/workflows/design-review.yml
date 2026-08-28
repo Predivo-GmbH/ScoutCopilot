@@ -82,6 +82,19 @@ jobs:
           use_sticky_comment: true
           claude_args: --model claude-sonnet-4-6 --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Read,Glob,Grep"
           prompt: |
+            BEFORE ANYTHING ELSE, understand how this run is judged.
+            You MUST finish by posting to the pull request. Your reply text is discarded and
+            nobody reads it. A run that posts nothing FAILS THE BUILD, even if the code is
+            perfect - the job checks afterwards whether you said anything, because gates that
+            passed silently were merging unreviewed code until 2026-08-28.
+            - `gh pr comment` for the overall verdict. ALWAYS post this, every run, including
+              runs where you have already reviewed this PR and nothing has changed, and runs
+              where you find nothing at all. "No new findings since my last review" is a
+              valid and useful verdict. Silence is not.
+            - `mcp__github_inline_comment__create_inline_comment` (with `confirmed: true`) for
+              each specific issue, anchored to file and line.
+            - Post GitHub comments only. Do not return the review as your message text.
+
             You are an elite design reviewer. Review this PR for visual quality,
             accessibility, and design system compliance.
 
@@ -107,15 +120,6 @@ jobs:
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
 
-            HOW TO REPORT. Your findings must land on the pull request, not in your reply.
-            A review nobody can read is the same as no review, and the check will still go
-            green, which is exactly the failure this gate was rebuilt to stop (2026-08-28).
-            - Use `gh pr comment` for the overall verdict.
-            - Use `mcp__github_inline_comment__create_inline_comment` (with `confirmed: true`)
-              for each specific issue, anchored to the file and line.
-            - Post GitHub comments only. Do not return the review as your message text.
-            - If you genuinely find nothing, say so in one short `gh pr comment` so the
-              silence is a decision on the record rather than an absence.
       # A reviewer that runs for three minutes and then says nothing leaves a GREEN check and
       # no review. That happened on signalscore on 2026-08-28 with the tools allowed and the
       # instruction given, so it is not left to the model's judgement. This passes only if the
