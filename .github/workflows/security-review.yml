@@ -53,16 +53,9 @@ jobs:
           echo "A review that cannot run must not report success - that is how unreviewed changes get merged."
           exit 1
 
-      - name: Count what this PR already says (before the review)
+      - name: Mark the start of this review
         id: before
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          API: ${{ github.api_url }}/repos/${{ github.repository }}
-          PR: ${{ github.event.pull_request.number }}
-        run: |
-          n=$(curl -sS -H "Authorization: Bearer $GH_TOKEN" "$API/issues/$PR/comments?per_page=100" | jq '[.[]|select(.user.login=="github-actions[bot]")]|length')
-          m=$(curl -sS -H "Authorization: Bearer $GH_TOKEN" "$API/pulls/$PR/comments?per_page=100" | jq '[.[]|select(.user.login=="github-actions[bot]")]|length')
-          echo "count=$((n+m))" >> "$GITHUB_OUTPUT"
+        run: echo "at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
 
       - name: Run Security Review
         if: env.HAS_KEY == 'true'
@@ -77,6 +70,7 @@ jobs:
           # repository"; using GITHUB_TOKEN keeps the whole thing in version control and
           # grants no third-party app access to the org.
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          use_sticky_comment: true
           claude_args: --model claude-sonnet-4-6 --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Read,Glob,Grep"
           prompt: |
             You are a senior security engineer. Perform a security-focused code review
@@ -116,23 +110,27 @@ jobs:
             - Post GitHub comments only. Do not return the review as your message text.
             - If you genuinely find nothing, say so in one short `gh pr comment` so the
               silence is a decision on the record rather than an absence.
-      # A reviewer that runs for three minutes and then says nothing leaves a GREEN check
-      # and no review. That happened on signalscore on 2026-08-28 even with the tools
-      # allowed and the instruction given, so it is no longer left to the model's judgement:
-      # if the PR gained no comment, this gate fails.
+      # A reviewer that runs for three minutes and then says nothing leaves a GREEN check and
+      # no review. That happened on signalscore on 2026-08-28 with the tools allowed and the
+      # instruction given, so it is not left to the model's judgement. This passes only if the
+      # bot said something during THIS run - a new comment or an updated one, so a reviewer
+      # that keeps one running comment is fine and repeated pushes do not spam the thread.
       - name: A silent reviewer is a failed reviewer
         if: env.HAS_KEY == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           API: ${{ github.api_url }}/repos/${{ github.repository }}
           PR: ${{ github.event.pull_request.number }}
-          BEFORE: ${{ steps.before.outputs.count }}
+          SINCE: ${{ steps.before.outputs.at }}
         run: |
-          n=$(curl -sS -H "Authorization: Bearer $GH_TOKEN" "$API/issues/$PR/comments?per_page=100" | jq '[.[]|select(.user.login=="github-actions[bot]")]|length')
-          m=$(curl -sS -H "Authorization: Bearer $GH_TOKEN" "$API/pulls/$PR/comments?per_page=100" | jq '[.[]|select(.user.login=="github-actions[bot]")]|length')
-          after=$((n+m))
-          echo "comments before=$BEFORE after=$after"
-          if [ "$after" -le "$BEFORE" ]; then
-            echo "::error::The reviewer ran but posted nothing to this pull request, so there is no review to read. A green check here would be a lie."
+          spoke=0
+          for ep in "issues/$PR/comments" "pulls/$PR/comments"; do
+            n=$(curl -sS -H "Authorization: Bearer $GH_TOKEN" "$API/$ep?per_page=100" \
+              | jq --arg s "$SINCE" '[.[]|select(.user.login=="github-actions[bot]")|select(.updated_at >= $s)]|length')
+            spoke=$((spoke+n))
+          done
+          echo "reviewer comments created or updated since $SINCE: $spoke"
+          if [ "$spoke" -eq 0 ]; then
+            echo "::error::The reviewer ran but said nothing about this commit, so there is no review to read. A green check here would be a lie."
             exit 1
           fi
