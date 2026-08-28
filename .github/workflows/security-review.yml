@@ -53,6 +53,17 @@ jobs:
           echo "A review that cannot run must not report success - that is how unreviewed changes get merged."
           exit 1
 
+      - name: Count what this PR already says (before the review)
+        id: before
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          API: ${{ github.api_url }}/repos/${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          n=$(curl -sS -H "Authorization: Bearer $GH_TOKEN" "$API/issues/$PR/comments?per_page=100" | jq '[.[]|select(.user.login=="github-actions[bot]")]|length')
+          m=$(curl -sS -H "Authorization: Bearer $GH_TOKEN" "$API/pulls/$PR/comments?per_page=100" | jq '[.[]|select(.user.login=="github-actions[bot]")]|length')
+          echo "count=$((n+m))" >> "$GITHUB_OUTPUT"
+
       - name: Run Security Review
         if: env.HAS_KEY == 'true'
         uses: anthropics/claude-code-action@v1
@@ -105,3 +116,23 @@ jobs:
             - Post GitHub comments only. Do not return the review as your message text.
             - If you genuinely find nothing, say so in one short `gh pr comment` so the
               silence is a decision on the record rather than an absence.
+      # A reviewer that runs for three minutes and then says nothing leaves a GREEN check
+      # and no review. That happened on signalscore on 2026-08-28 even with the tools
+      # allowed and the instruction given, so it is no longer left to the model's judgement:
+      # if the PR gained no comment, this gate fails.
+      - name: A silent reviewer is a failed reviewer
+        if: env.HAS_KEY == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          API: ${{ github.api_url }}/repos/${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          BEFORE: ${{ steps.before.outputs.count }}
+        run: |
+          n=$(curl -sS -H "Authorization: Bearer $GH_TOKEN" "$API/issues/$PR/comments?per_page=100" | jq '[.[]|select(.user.login=="github-actions[bot]")]|length')
+          m=$(curl -sS -H "Authorization: Bearer $GH_TOKEN" "$API/pulls/$PR/comments?per_page=100" | jq '[.[]|select(.user.login=="github-actions[bot]")]|length')
+          after=$((n+m))
+          echo "comments before=$BEFORE after=$after"
+          if [ "$after" -le "$BEFORE" ]; then
+            echo "::error::The reviewer ran but posted nothing to this pull request, so there is no review to read. A green check here would be a lie."
+            exit 1
+          fi
