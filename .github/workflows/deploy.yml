@@ -403,10 +403,6 @@ jobs:
           echo "$DEL_OUT"
           echo "Asset prune: deleted $COUNT file(s) older than $DAYS days from $ASSETS_DIR."
           exit 0
-        env:
-          FTP_HOST: ${{ secrets.FTP_HOST }}
-          FTP_USER: ${{ secrets.FTP_USER }}
-          FTP_PASS: ${{ secrets.FTP_PASS }}
 
       - name: Verify production is alive (post-deploy smoke test)
         run: |
