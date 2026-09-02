@@ -41,3 +41,12 @@ e2e/screenshots/
 outputs/
 
 coverage/
+
+# A BACKUP OF A CREDENTIALS FILE IS STILL A CREDENTIALS FILE (added 2026-09-02).
+# `docs/Credentials.txt` was already ignored above, but the 2026-08-29 key rotation left a
+# dated .bak copy of it untracked in the working tree and matched by nothing here - one
+# careless `git add -A` from being committed. Patterned rather than named, so the next
+# rotation's backup is covered without anyone having to remember.
+docs/Credentials.txt*
+**/Credentials.txt*
+**/credentials.txt*
