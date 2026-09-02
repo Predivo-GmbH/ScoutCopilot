@@ -11,6 +11,7 @@
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { describeError } from './describe-error.ts'
 
 /**
  * Log a critical-path error to the database.
@@ -37,7 +38,12 @@ export async function logError(
     await client.from('error_log').insert({
       function_name: functionName,
       operation,
-      error_message: error instanceof Error ? error.message : String(error),
+      // describeError, not String(): a supabase-js failure is a PostgrestError - a plain
+      // object, not an Error - and String() wrote "[object Object]" into this column, losing
+      // the only text that could explain the failure (proven on ChannelMover, 2026-08-28/29:
+      // a kill-switch read that silently skipped a tick of live customer email was
+      // undiagnosable for four days until this was fixed there).
+      error_message: describeError(error),
       // Pass the OBJECT, not a string. `context` is jsonb; JSON.stringify here would
       // double-encode it into the jsonb STRING "{}" and make context->>'user_id'
       // permanently null. That defect shipped in all five older copies of this helper and
