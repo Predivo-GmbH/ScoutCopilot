@@ -7,6 +7,7 @@
 
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { handleCors } from "../_shared/cors.ts";
+import type { AuthContext } from "../_shared/auth.ts";
 import { AuthError, getAuthContext, getServiceClient } from "../_shared/auth.ts";
 import { checkRateLimit } from "../_shared/rate-limiter.ts";
 import { logError } from '../_shared/error-log.ts'
@@ -151,9 +152,16 @@ serve(async (req: Request) => {
     });
   }
 
+  // Hoisted out of the try so the catch can attribute a genuine failure to its caller.
+  // `logError`'s context is exactly what the UX Scout keys on to tell a fault that hit a
+  // signed-in user from an anonymous probe; this function passed no context at all, so
+  // every row it ever wrote read as anonymous and a real fault would have been
+  // indistinguishable from a bot POST.
+  let auth: AuthContext | undefined;
+
   try {
     // Auth
-    const auth = await getAuthContext(req);
+    auth = await getAuthContext(req);
 
     // Rate limit: 10 requests/minute per organization
     const { allowed, retryAfterMs } = checkRateLimit(auth.organizationId, 10 / 60, 10);
@@ -422,13 +430,35 @@ serve(async (req: Request) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
-    await logError('generate-photo', 'request', err)
     if (err instanceof AuthError) {
+      // A request refused at the door is NOT an application error and must not become a
+      // durable error_log row.
+      //
+      // WHY (measured 2026-09-02). This endpoint is publicly reachable - config.toml sets
+      // verify_jwt = false for every function in this project on purpose, because the
+      // project issues ES256 JWTs that the edge runtime's HS256 middleware cannot verify -
+      // so anything on the internet can POST here and be rejected. It was writing one
+      // permanent row per rejection: 4,931 rows, 94% of every error ScoutCopilot had ever
+      // logged, against 56-57 for each of the other seven functions. That buried real
+      // faults (a genuine ScoutCopilot failure was a needle in this table) and let anyone
+      // who found the URL grow it at will. The rejections are our own monitoring: a
+      // Cockpit health prober calling from the edge runtime, the Playwright edge-function
+      // sweep, and curl probes - none of them a customer.
+      //
+      // Nothing is lost by not writing the row. Supabase's own `function_edge_logs`
+      // already records every one of these requests with status, IP and user agent, which
+      // is strictly more than the empty `{}` context these rows carried.
+      console.warn(`generate-photo: rejected unauthenticated request (${err.message})`);
       return new Response(JSON.stringify({ error: err.message }), {
         status: err.status,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    await logError('generate-photo', 'request', err, {
+      user_id: auth?.userId,
+      organization_id: auth?.organizationId,
+      has_auth: Boolean(auth),
+    });
     console.error("generate-photo error:", (err as Error).message);
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
