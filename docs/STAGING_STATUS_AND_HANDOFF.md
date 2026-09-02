@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-07-07
 **Branch:** `staging` (14 commits ahead of `master`/production — NOT yet merged to prod)
-**Staging URL:** https://staging.scoutcopilot.com — browser Basic-auth **`scout` / `Scout-Staging-2026`** (the old `predivo2026` app gate has been REMOVED on this branch)
+**Staging URL:** https://staging.scoutcopilot.com — browser Basic-auth **`scout` / `Scout-Staging-2026`** (the old `(value retired 2026-09-02 - each app now has its own, see that app's docs/Credentials.txt)` app gate has been REMOVED on this branch)
 
 ---
 
@@ -66,7 +66,7 @@ Three bodies of work sit on the `staging` branch, deployed to staging.scoutcopil
 
 ## 2) Gate removal + waitlist
 
-**Gate:** `<PasswordGate>` (the `predivo2026` coming-soon lock) removed from `src/App.tsx`. Public pages are now public; authenticated app pages still behind `AuthGuard` (login). Staging still protected by browser Basic-auth.
+**Gate:** `<PasswordGate>` (the `(value retired 2026-09-02 - each app now has its own, see that app's docs/Credentials.txt)` coming-soon lock) removed from `src/App.tsx`. Public pages are now public; authenticated app pages still behind `AuthGuard` (login). Staging still protected by browser Basic-auth.
 
 **Waitlist:** every sign-up CTA now opens a **"Free trials are paused"** modal (email capture) instead of going to signup. Files in `src/features/waitlist/`:
 - `WaitlistForm.tsx` — email → `supabase.from('waitlist').insert({ email, source })`; handles success / duplicate (23505 → "already on the list") / error.

@@ -91,7 +91,7 @@ AuthProvider → AuthGuard (requires auth + org) or AuthOnlyGuard (auth only, fo
 
 ## Password Gate
 
-Password: `predivo2026` (unified across all Predivo projects)
+Password: `(value retired 2026-09-02 - each app now has its own, see that app's docs/Credentials.txt)` (unified across all Predivo projects)
 Storage: sessionStorage key `scoutcopilot-unlocked`
 
 ## Design Conventions
