@@ -6,7 +6,7 @@ import { Button } from '../ui/Button'
 import { Logo } from './Logo'
 
 const GATE_PASSWORD_HASH =
-  '3bd8037a8ed38a35825983767f94e6cf3b18c3deee1601daee71faec0d83565f'
+  'afcabdf1b639f115dd538544fce010d6b7dade6e1bb8e8163ce8e1fc76e5fb95'
 const STORAGE_KEY = 'scoutcopilot-unlocked'
 
 async function sha256(message: string): Promise<string> {
