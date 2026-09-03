@@ -5,6 +5,13 @@ name: Deploy to Staging
 # Triggered by pushing to the `staging` branch (or manually). Production is a
 # SEPARATE workflow (deploy.yml, on `master`) and is never touched by this one.
 #
+# Database: staging has its OWN Supabase project (ysdaeexwhbwlbatcscqn), in the
+# same Supabase account/org as production (fehhaubujickklmsjikb). Production is
+# rlcsuqwqzoqjykdiqjye and is NEVER written by this workflow. Until 2026-09-02 both
+# workflows applied migrations to the production ref, so a "staging" run WAS a
+# production schema change; the guard step before the migration step now fails the
+# build if those two refs are ever equal again.
+#
 # Protection: the deployed .htaccess adds HTTP Basic auth (creds live in the
 # server-side .htpasswd at the docroot, placed once and excluded from deploy)
 # plus X-Robots-Tag noindex, and robots.txt disallows all — so staging is never
@@ -104,12 +111,14 @@ jobs:
       - name: Build for staging
         run: npm run build
         env:
-          # Staging reuses the production Supabase backend (anon key only — public).
-          # The footer + SEO marketing pages under review are fully static and need
-          # no backend; auth flows would hit prod Supabase. Swap to a dedicated
-          # STAGING_SUPABASE_* project here if full data isolation is ever needed.
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          # Staging has its OWN Supabase project (ysdaeexwhbwlbatcscqn, eu-central-2),
+          # in the SAME Supabase account/org as production (fehhaubujickklmsjikb), per
+          # Roger's rule. Created 2026-09-02; before that, staging built against the
+          # PRODUCTION project, so "staging" was production. The framework-facing var
+          # names are deliberately identical to deploy.yml — only the secret behind
+          # them swaps, which is the fleet convention.
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_STAGING_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_STAGING_ANON_KEY }}
           # Sentry (error monitoring pilot, STAGING ONLY): DSN inlined into the bundle;
           # auth token (+ org/project) enables source-map upload. environment is tagged
           # by hostname at runtime, so this same DSN produces "staging.scoutcopilot.com"
@@ -119,14 +128,30 @@ jobs:
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
 
-      # Staging SHARES the production Supabase backend (deploy-staging.yml:58-61 — there is
-      # no staging DB project), so this targets the SAME prod ref as deploy.yml. Once the
-      # prod ledger is backfilled this is a no-op here; it exists so a pending migration
-      # lands on the shared backend when staging ships first, before prod promotion.
-      - name: Apply database migrations (shared prod backend)
+      # Migrations land on the STAGING database only. This ref MUST differ from the one
+      # in deploy.yml (rlcsuqwqzoqjykdiqjye) — if the two ever match again, a staging run
+      # is a production write and a green staging run proves nothing about production.
+      # The guard step below fails the build if that regression is reintroduced.
+      - name: Guard — staging ref must not be the production ref
+        run: |
+          STAGING_REF=$(grep -oE 'apply-migrations\.mjs --project-ref [a-z]+' .github/workflows/deploy-staging.yml | awk '{print $3}')
+          PROD_REF=$(grep -oE 'apply-migrations\.mjs --project-ref [a-z]+' .github/workflows/deploy.yml | awk '{print $3}')
+          echo "staging ref: $STAGING_REF"
+          echo "prod ref:    $PROD_REF"
+          if [ -z "$STAGING_REF" ] || [ -z "$PROD_REF" ]; then
+            echo "::error::could not read both project refs — the guard cannot prove separation, so it fails closed."
+            exit 1
+          fi
+          if [ "$STAGING_REF" = "$PROD_REF" ]; then
+            echo "::error::deploy-staging.yml targets the PRODUCTION database ($PROD_REF). Staging must have its own project."
+            exit 1
+          fi
+          echo "Separation OK: staging and production are different Supabase projects."
+
+      - name: Apply database migrations to staging
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-        run: node scripts/apply-migrations.mjs --project-ref rlcsuqwqzoqjykdiqjye
+        run: node scripts/apply-migrations.mjs --project-ref ysdaeexwhbwlbatcscqn
 
       - name: Prepare staging .htaccess (basic-auth + noindex)
         run: |
