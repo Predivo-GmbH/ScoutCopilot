@@ -51,7 +51,12 @@ describe('AuthGuard', () => {
   it('shows loading skeleton when auth is loading', () => {
     mockUseAuth.mockReturnValue({ user: null, organization: null, isLoading: true })
     render(<div />, { wrapper: createWrapper('/en/dashboard') })
+    // Assert the a11y contract (role=status) AND pin the e2e blind-spot marker:
+    // e2e/critical-path.spec.ts probes getByTestId('auth-guard-loading') to tell a real
+    // fail-open bypass from "CANNOT VERIFY". If that testid is dropped/renamed on
+    // AuthGuard.tsx the classifier silently inverts, so name it here where a rename fails a test.
     expect(screen.getByRole('status')).toBeDefined()
+    expect(screen.getByTestId('auth-guard-loading')).toBeDefined()
   })
 
   it('redirects to login when no user', () => {
@@ -79,7 +84,9 @@ describe('AuthOnlyGuard', () => {
   it('shows loading skeleton when auth is loading', () => {
     mockUseAuth.mockReturnValue({ user: null, isLoading: true })
     render(<div />, { wrapper: createWrapper('/en/onboarding') })
+    // Same marker pinned for AuthOnlyGuard's skeleton — see the AuthGuard case above.
     expect(screen.getByRole('status')).toBeDefined()
+    expect(screen.getByTestId('auth-guard-loading')).toBeDefined()
   })
 
   it('redirects to login when no user', () => {
