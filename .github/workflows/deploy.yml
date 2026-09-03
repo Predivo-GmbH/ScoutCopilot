@@ -206,7 +206,12 @@ jobs:
               REMOTE_ID="$OUTPUT"
               break
             fi
-            if echo "$OUTPUT" | grep -q "530"; then
+            # 530 is an FTP REPLY CODE, so it only counts where a reply code can appear.
+            # A bare `grep -q "530"` matched a hashed asset FILENAME and killed a real
+            # deploy on another product on 2026-09-02
+            # (Inter_100Thin_Italic.1b97f7df9b976cfe530c18c09598e6f6.ttf). Do not
+            # "simplify" this back to a substring test.
+            if echo "$OUTPUT" | grep -qiE '(^|[^[:alnum:]])530[[:space:]]+[A-Za-z]|login (incorrect|failed)'; then
               echo "::error::Site-id guard FTP login failed (530 — bad credentials); not retrying."
               exit 1
             fi
@@ -253,7 +258,10 @@ jobs:
           if [ $STATUS -eq 0 ]; then
             echo "Deploy assets succeeded (attempt $((n+1)))"; exit 0
           fi
-          if echo "$OUTPUT" | grep -q "530"; then
+          # 530 is an FTP REPLY CODE — match it only where a reply code can appear. A bare
+          # substring test matched a hashed asset filename and killed a real deploy on another
+          # product on 2026-09-02; do not "simplify" this back.
+          if echo "$OUTPUT" | grep -qiE '(^|[^[:alnum:]])530[[:space:]]+[A-Za-z]|login (incorrect|failed)'; then
             echo "::error::Deploy assets FTP login failed (530 — bad credentials); not retrying."; exit 1
           fi
           n=$((n + 1)); echo "::warning::Deploy assets attempt $n failed (transient FTPS data-channel blip — runner-side); retrying in 25s..."; sleep 25
@@ -302,7 +310,10 @@ jobs:
           if [ $STATUS -eq 0 ]; then
             echo "Deploy root files succeeded (attempt $((n+1)))"; exit 0
           fi
-          if echo "$OUTPUT" | grep -q "530"; then
+          # 530 is an FTP REPLY CODE — match it only where a reply code can appear. A bare
+          # substring test matched a hashed asset filename and killed a real deploy on another
+          # product on 2026-09-02; do not "simplify" this back.
+          if echo "$OUTPUT" | grep -qiE '(^|[^[:alnum:]])530[[:space:]]+[A-Za-z]|login (incorrect|failed)'; then
             echo "::error::Deploy root files FTP login failed (530 — bad credentials); not retrying."; exit 1
           fi
           n=$((n + 1)); echo "::warning::Deploy root files attempt $n failed (transient FTPS data-channel blip — runner-side); retrying in 25s..."; sleep 25
