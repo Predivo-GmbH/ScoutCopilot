@@ -15,9 +15,47 @@
  * "production's auth wall is broken" and a green one as "production is verified".
  */
 
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 
 const SUPABASE_URL = 'https://rlcsuqwqzoqjykdiqjye.supabase.co'
+
+// The URL can fail to change for reasons that mean OPPOSITE things, and only one of them is a
+// security finding. This decides which, and throws the message that names it. Exported so the
+// test below can assert the direction the route loop can never reach in CI (a guard that fails
+// OPEN, rendering protected content for a logged-out visitor).
+//
+// The blind-spots:
+//   - the app never mounted (src/lib/supabase.ts throws "Missing Supabase environment
+//     variables" at module load, so React renders nothing — #root has 0 children);
+//   - AuthGuard is still showing its loading skeleton with the session check in flight.
+// AuthGuard's skeleton carries data-testid="auth-guard-loading" (AuthGuard.tsx, shared by
+// AuthGuard and AuthOnlyGuard). We probe THAT, not getByRole('status') — role="status" also
+// matches the save-action row on /en/settings (always on screen) and the transient loading
+// skeletons on /en/dashboard, /en/search and /en/squad, so a generic-role probe would report
+// a real fail-open bypass as a benign "CANNOT VERIFY" env fault: the exact inverse mistake.
+async function assertGuardNeverRedirected(page: Page, name: string, path: string): Promise<never> {
+  const neverMounted = await page
+    .evaluate(() => (document.getElementById('root')?.children.length ?? 0) === 0)
+    .catch(() => false)
+  const stillDeciding = await page
+    .getByTestId('auth-guard-loading')
+    .first()
+    .isVisible()
+    .catch(() => false)
+  if (neverMounted || stillDeciding) {
+    throw new Error(
+      `CANNOT VERIFY ${name} (${path}): the route guard was never reached — ` +
+        `${neverMounted ? 'the app never mounted (empty #root)' : "AuthGuard's loading state is still on screen"} ` +
+        `after 15s. This is NOT evidence about the guard. Usual cause: the dev server ` +
+        `has no VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY.`,
+    )
+  }
+  throw new Error(
+    `${name} (${path}) did NOT redirect an unauthenticated visitor ` +
+      `within 15s — final URL was ${page.url()}. A logged-out visitor can reach a ` +
+      `protected page.`,
+  )
+}
 
 // Bypass the password gate on every page navigation
 test.beforeEach(async ({ page }) => {
@@ -92,44 +130,72 @@ test.describe('Critical: Protected Routes Redirect', () => {
       try {
         await page.waitForURL(/\/(login|auth)/, { timeout: 15_000 })
       } catch {
-        // The URL can fail to change for reasons that mean opposite things, and only one
-        // of them is a security finding. The guard was never REACHED if the app never
-        // mounted (src/lib/supabase.ts throws "Missing Supabase environment variables" at
-        // module load, so React renders nothing at all) or if AuthGuard is still showing
-        // its role="status" skeleton with the session check in flight. Measured on a local
-        // checkout with no .env, 2026-09-02: all four routes, #root with 0 children and an
-        // empty body, and Playwright omitted the page snapshot entirely because there was
-        // no content to snapshot. CI passes VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY
-        // (test.yml) and does render.
-        //
-        // Both still FAIL — a blank app is its own emergency — they just must not be
-        // reported as "a logged-out visitor can reach a protected page". That would be
-        // this fleet's oldest mistake: a check that could not look, announcing a verdict
-        // about what it never saw.
-        const neverMounted = await page
-          .evaluate(() => (document.getElementById('root')?.children.length ?? 0) === 0)
-          .catch(() => false)
-        const stillDeciding = await page
-          .getByRole('status')
-          .first()
-          .isVisible()
-          .catch(() => false)
-        if (neverMounted || stillDeciding) {
-          throw new Error(
-            `CANNOT VERIFY ${route.name} (${route.path}): the route guard was never reached — ` +
-              `${neverMounted ? 'the app never mounted (empty #root)' : "AuthGuard's loading state is still on screen"} ` +
-              `after 15s. This is NOT evidence about the guard. Usual cause: the dev server ` +
-              `has no VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY.`,
-          )
-        }
-        throw new Error(
-          `${route.name} (${route.path}) did NOT redirect an unauthenticated visitor ` +
-            `within 15s — final URL was ${page.url()}. A logged-out visitor can reach a ` +
-            `protected page.`,
-        )
+        // Measured on a local checkout with no .env, 2026-09-02: all four routes, #root with
+        // 0 children and an empty body, and Playwright omitted the page snapshot entirely
+        // because there was no content to snapshot. CI passes VITE_SUPABASE_URL /
+        // VITE_SUPABASE_ANON_KEY (test.yml) and does render. assertGuardNeverRedirected
+        // decides whether that missing redirect is a blind-spot or a real fail-open bypass,
+        // and throws the message that says so — a blank app must never be reported as "a
+        // logged-out visitor can reach a protected page", and a real bypass must never be
+        // muffled as "CANNOT VERIFY".
+        await assertGuardNeverRedirected(page, route.name, route.path)
       }
     })
   }
+})
+
+// ── GUARD-FAILURE ATTRIBUTION ────────────────────────────────────
+//
+// The direction the route loop above can never exercise in CI: a guard that FAILS OPEN and
+// renders protected content to a logged-out visitor. On /en/settings that page always carries
+// an unrelated role="status" (the save-action row, ProfileSettings.tsx). A getByRole('status')
+// probe would see it, conclude "AuthGuard is still deciding", and muffle a real bypass as a
+// benign "CANNOT VERIFY" env fault — the inverse of what a triager must be told. This asserts
+// the dedicated marker gets it right.
+test.describe('Critical: Guard-failure attribution', () => {
+  test('protected content + an unrelated role="status" reads as a BYPASS, not "CANNOT VERIFY"', async ({
+    page,
+  }) => {
+    // A mounted app (#root has children) showing protected content AND an unrelated
+    // role="status" element, but NO auth-guard-loading marker — i.e. AuthGuard failed open.
+    await page.setContent(
+      `<div id="root">` +
+        `<main data-testid="protected-content">Settings — private</main>` +
+        `<div role="status" aria-live="polite">All changes saved</div>` +
+        `</div>`,
+    )
+
+    let message = ''
+    try {
+      await assertGuardNeverRedirected(page, 'Settings', '/en/settings')
+    } catch (err) {
+      message = (err as Error).message
+    }
+
+    expect(message).toContain('did NOT redirect')
+    expect(message).toContain('can reach a')
+    expect(message).not.toContain('CANNOT VERIFY')
+  })
+
+  test("AuthGuard's own loading marker still reads as CANNOT VERIFY", async ({ page }) => {
+    // The blind-spot direction must be preserved: the guard's own spinner on screen is not a
+    // finding about the guard.
+    await page.setContent(
+      `<div id="root">` +
+        `<div role="status" aria-live="polite" data-testid="auth-guard-loading">Loading…</div>` +
+        `</div>`,
+    )
+
+    let message = ''
+    try {
+      await assertGuardNeverRedirected(page, 'Settings', '/en/settings')
+    } catch (err) {
+      message = (err as Error).message
+    }
+
+    expect(message).toContain('CANNOT VERIFY')
+    expect(message).not.toContain('did NOT redirect')
+  })
 })
 
 // ── EDGE FUNCTION HEALTH ─────────────────────────────────────────
