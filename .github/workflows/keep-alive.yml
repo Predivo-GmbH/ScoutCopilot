@@ -28,3 +28,25 @@ jobs:
           fi
 
           echo "Supabase project pinged successfully"
+
+      - name: Ping STAGING Supabase (free tier pauses after 7 idle days)
+        # Staging is its own free-tier project (ysdaeexwhbwlbatcscqn, added 2026-09-02).
+        # Free projects pause when idle, and a paused staging DB fails every staging
+        # deploy with an error that looks like a code problem. Ping it like production.
+        run: |
+          echo "=== GraphQL ping — STAGING ==="
+          gql_response=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.SUPABASE_STAGING_URL }}/graphql/v1" \
+            -X POST \
+            -H "apikey: ${{ secrets.SUPABASE_STAGING_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_STAGING_ANON_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"query":"{ __typename }"}')
+          echo "GraphQL response: $gql_response"
+
+          if [ "$gql_response" != "200" ]; then
+            echo "::error::STAGING GraphQL ping returned $gql_response — staging database may be paused"
+            exit 1
+          fi
+
+          echo "Staging Supabase project pinged successfully"

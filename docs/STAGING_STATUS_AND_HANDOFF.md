@@ -49,8 +49,9 @@ Three bodies of work sit on the `staging` branch, deployed to staging.scoutcopil
 - **SSL:** Let's Encrypt, auto-renew, HTTP→HTTPS on.
 - **Protection:** browser Basic-auth (`.htpasswd` at docroot, `scout` / `Scout-Staging-2026`) + `X-Robots-Tag: noindex` + `robots.txt` disallow-all. The `.htpasswd` is placed on the server and EXCLUDED from the deploy mirror.
 - **CI:** `.github/workflows/deploy-staging.yml` — push to `staging` → lint → build → FTPS deploy (`ssl-protect-data no`) → health check. Production (`deploy.yml`, on `master`) is a separate workflow, never triggered by staging.
-- **Supabase:** staging REUSES the PROD project `rlcsuqwqzoqjykdiqjye` (anon key only). No separate staging DB.
-- **Secrets:** reuses prod FTP_*/VITE_SUPABASE_*; added `STAGING_HTPASSWD_USER`/`STAGING_HTPASSWD_PASS`.
+- **Supabase:** staging has its OWN project `ysdaeexwhbwlbatcscqn` (eu-central-2, free tier), in the SAME Supabase account/org as production (`fehhaubujickklmsjikb`). Production is `rlcsuqwqzoqjykdiqjye` and is never written by the staging workflow. **Corrected 2026-09-02** — until then BOTH workflows ran `apply-migrations.mjs --project-ref rlcsuqwqzoqjykdiqjye`, so the step named "staging" applied schema changes to production, and a green staging run was not evidence about production, it WAS production. `deploy-staging.yml` now carries a guard step that fails the build if the two refs are ever equal again. Proof of separation: staging run 33726732650 applied migration `011` to `ysdaeexwhbwlbatcscqn`; production was read back afterwards and has neither the table nor `011` in its ledger.
+- **Secrets:** reuses prod FTP_*; staging DB uses its own `SUPABASE_STAGING_URL` / `SUPABASE_STAGING_ANON_KEY` / `SUPABASE_STAGING_SERVICE_ROLE_KEY` (the fleet's canonical names) — the build maps them onto the same `VITE_SUPABASE_*` variable names, so only the secret swaps between tiers. Plus `STAGING_HTPASSWD_USER`/`STAGING_HTPASSWD_PASS`.
+- **Keep-alive:** `keep-alive.yml` pings BOTH projects daily. Staging is free tier and pauses after 7 idle days; a paused staging DB fails deploys with an error that looks like a code bug.
 - Full detail: memory `session_scoutcopilot_staging_env_2026_07_03`.
 
 ---
