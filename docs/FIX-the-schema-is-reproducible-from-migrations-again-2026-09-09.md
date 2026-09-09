@@ -67,11 +67,22 @@ does not touch, which is the right answer.
 
 Separately, and worth naming: `scripts/` has carried `node:test` suites for a while and **no
 workflow executed any of them**. A guard nothing runs looks exactly like a guard that finds
-nothing. `.github/workflows/test.yml` now runs `node --test scripts/*.test.mjs` before the
-Playwright job — they need no browser, no dev server and no secrets, so they fail in seconds rather
-than after a browser install. The glob is expanded and counted, and an empty glob fails the step,
-because a silently empty glob is how a test step ends up proving that zero tests passed. That also
-puts `verify-generate-photo-401-not-logged.test.mjs` into CI for the first time; it passes.
+nothing. `.github/workflows/test.yml` now runs them before the Playwright job — they need no
+browser and no dev server, so they fail in seconds rather than after a browser install.
+
+**Turning it on immediately found something, which is the whole argument for it.** The first run
+went red on `verify-generate-photo-401-not-logged.test.mjs` — a suite that passes on a developer's
+machine and cannot pass in CI, because it fires five unauthenticated POSTs at the **production**
+`generate-photo` function and then reads production `error_log` back through the Management API
+with a PAT that this job does not hold. Running that on every push is a different decision from
+"run the offline guards", and not one to take sideways, so it is **excluded by name, with the
+reason printed in the log** rather than quietly dropped. The exclusion list is checked rather than
+trusted: a name on it that no longer exists fails the step, so the list cannot rot into a way of
+silently not running things. An empty runnable set fails too — a silently empty glob is how a test
+step ends up proving that zero tests passed.
+
+That leaves a real open question for whoever owns that guard: a live production probe needs a home
+— a scheduled workflow with the PAT, not a per-push job, and not nothing.
 
 ## What is still owed
 

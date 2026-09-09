@@ -85,18 +85,46 @@ jobs:
           echo "dev server port: $PORT"
 
       # THE .test.mjs GUARDS WERE NEVER RUN BY ANYTHING (added 2026-09-09). scripts/ has carried
-      # node:test suites for a while and no workflow executed them, so a guard could go red for
-      # days and look exactly like a guard that found nothing. They need no browser, no dev server
-      # and no secrets, so they run FIRST and fail the job in seconds rather than after Playwright.
-      # The glob is expanded and counted deliberately: a silently empty glob is how a "test step"
-      # ends up proving that zero tests passed.
+      # node:test suites for a while and no workflow executed any of them, so a guard could be red
+      # for days and look exactly like a guard that found nothing. They need no browser and no dev
+      # server, so they run FIRST and fail in seconds rather than after a Playwright install.
+      #
+      # NOT EVERY SUITE BELONGS HERE, and the first run of this step is what proved it:
+      # verify-generate-photo-401-not-logged.test.mjs fires five unauthenticated POSTs at the
+      # PRODUCTION generate-photo function and then reads production error_log back through the
+      # Management API. It needs a PAT, it touches production, and running it on every push is a
+      # different decision from "run the offline guards" - so it is excluded BY NAME, with the
+      # reason, rather than quietly.
+      #
+      # The exclusion list is checked, not trusted: a name on it that no longer exists fails the
+      # step. Otherwise the list rots into a way of silently not running things, which is the
+      # defect this step exists to remove.
       - name: Run the node:test guard suites
         run: |
           set -e
           shopt -s nullglob
-          suites=(scripts/*.test.mjs)
+
+          # Suites that need live credentials or touch production. Each needs a home of its own;
+          # none may sit here forever unexamined.
+          LIVE=(scripts/verify-generate-photo-401-not-logged.test.mjs)
+
+          for f in "${LIVE[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "::error::excluded suite $f no longer exists - update the LIVE list in this workflow"
+              exit 1
+            fi
+            echo "excluded (needs live credentials / touches production): $f"
+          done
+
+          suites=()
+          for f in scripts/*.test.mjs; do
+            skip=""
+            for l in "${LIVE[@]}"; do [ "$f" = "$l" ] && skip=1; done
+            [ -n "$skip" ] || suites+=("$f")
+          done
+
           if [ ${#suites[@]} -eq 0 ]; then
-            echo "::error::no scripts/*.test.mjs found - the guard suites are not running"
+            echo "::error::no runnable scripts/*.test.mjs found - the guard suites are not running"
             exit 1
           fi
           echo "running ${#suites[@]} guard suite(s): ${suites[*]}"
