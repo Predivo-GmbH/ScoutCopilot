@@ -16,7 +16,12 @@ initSentry()
 // `vite:preloadError` on window when a lazy chunk fails to load — reload once per failing chunk to
 // pull the fresh build (guards against loops via sessionStorage).
 window.addEventListener('vite:preloadError', (event) => {
-  event.preventDefault()
+  // Deliberately NO event.preventDefault(): Vite's __vitePreload only rethrows the failed
+  // import `if (!e.defaultPrevented)`. Cancelling the event makes the failed dynamic import
+  // RESOLVE WITH undefined, so React 19's lazyInitializer throws "Cannot read properties of
+  // undefined (reading 'default')" — a message isChunkLoadError() cannot recognise, so the
+  // ErrorBoundary's stale-chunk recovery never runs and the user gets "Something went wrong"
+  // after a deploy. Let the event run its course; the reload below stays as the global net.
   const err = (event as unknown as { payload?: unknown }).payload
   const msg = err instanceof Error ? err.message : String(err ?? '')
   const key = 'chunk_reload:' + (msg.match(/https?:\/\/\S+\.js/)?.[0] ?? msg.slice(0, 120))
