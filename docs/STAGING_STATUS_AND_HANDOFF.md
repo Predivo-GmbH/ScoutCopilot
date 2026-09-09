@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-07-07
 **Branch:** `staging` (14 commits ahead of `master`/production — NOT yet merged to prod)
-**Staging URL:** https://staging.scoutcopilot.com — browser Basic-auth **`scout` / `Scout-Staging-2026`** (the old `(value retired 2026-09-02 - each app now has its own, see that app's docs/Credentials.txt)` app gate has been REMOVED on this branch)
+**Staging URL:** https://staging.scoutcopilot.com — browser Basic-auth **`scout` / `see docs/Credentials.txt`** (the old `(value retired 2026-09-02 - each app now has its own, see that app's docs/Credentials.txt)` app gate has been REMOVED on this branch)
 
 ---
 
@@ -47,7 +47,7 @@ Three bodies of work sit on the `staging` branch, deployed to staging.scoutcopil
 
 - **Plesk** (tertia.sui-inter.net:8443, login `mueller`): subdomain `staging.scoutcopilot.com` = domainId **6220**, docroot `/var/www/vhosts/scoutcopilot.com/staging.scoutcopilot.com/`, same FTP user as prod (`scoutcopilot.com_0pmnrney1xq`).
 - **SSL:** Let's Encrypt, auto-renew, HTTP→HTTPS on.
-- **Protection:** browser Basic-auth (`.htpasswd` at docroot, `scout` / `Scout-Staging-2026`) + `X-Robots-Tag: noindex` + `robots.txt` disallow-all. The `.htpasswd` is placed on the server and EXCLUDED from the deploy mirror.
+- **Protection:** browser Basic-auth (`.htpasswd` at docroot, `scout` / `see docs/Credentials.txt`) + `X-Robots-Tag: noindex` + `robots.txt` disallow-all. The `.htpasswd` is placed on the server and EXCLUDED from the deploy mirror.
 - **CI:** `.github/workflows/deploy-staging.yml` — push to `staging` → lint → build → FTPS deploy (`ssl-protect-data no`) → health check. Production (`deploy.yml`, on `master`) is a separate workflow, never triggered by staging.
 - **Supabase:** staging has its OWN project `ysdaeexwhbwlbatcscqn` (eu-central-2, free tier), in the SAME Supabase account/org as production (`fehhaubujickklmsjikb`). Production is `rlcsuqwqzoqjykdiqjye` and is never written by the staging workflow. **Corrected 2026-09-02** — until then BOTH workflows ran `apply-migrations.mjs --project-ref rlcsuqwqzoqjykdiqjye`, so the step named "staging" applied schema changes to production, and a green staging run was not evidence about production, it WAS production. `deploy-staging.yml` now carries a guard step that fails the build if the two refs are ever equal again. Proof of separation: staging run 33726732650 applied migration `011` to `ysdaeexwhbwlbatcscqn`; production was read back afterwards and has neither the table nor `011` in its ledger.
 - **Secrets:** reuses prod FTP_*; staging DB uses its own `SUPABASE_STAGING_URL` / `SUPABASE_STAGING_ANON_KEY` / `SUPABASE_STAGING_SERVICE_ROLE_KEY` (the fleet's canonical names) — the build maps them onto the same `VITE_SUPABASE_*` variable names, so only the secret swaps between tiers. Plus `STAGING_HTPASSWD_USER`/`STAGING_HTPASSWD_PASS`.
