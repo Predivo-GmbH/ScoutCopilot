@@ -84,6 +84,24 @@ jobs:
           echo "E2E_PORT=$PORT" >> "$GITHUB_ENV"
           echo "dev server port: $PORT"
 
+      # THE .test.mjs GUARDS WERE NEVER RUN BY ANYTHING (added 2026-09-09). scripts/ has carried
+      # node:test suites for a while and no workflow executed them, so a guard could go red for
+      # days and look exactly like a guard that found nothing. They need no browser, no dev server
+      # and no secrets, so they run FIRST and fail the job in seconds rather than after Playwright.
+      # The glob is expanded and counted deliberately: a silently empty glob is how a "test step"
+      # ends up proving that zero tests passed.
+      - name: Run the node:test guard suites
+        run: |
+          set -e
+          shopt -s nullglob
+          suites=(scripts/*.test.mjs)
+          if [ ${#suites[@]} -eq 0 ]; then
+            echo "::error::no scripts/*.test.mjs found - the guard suites are not running"
+            exit 1
+          fi
+          echo "running ${#suites[@]} guard suite(s): ${suites[*]}"
+          node --test "${suites[@]}"
+
       - name: Run critical path tests
         run: npx playwright test e2e/critical-path.spec.ts
         env:
