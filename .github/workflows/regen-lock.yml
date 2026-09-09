@@ -1,9 +1,18 @@
 name: Regenerate package-lock on Linux
 
-# One-off utility: package-lock resolution for cross-platform optional deps
-# (@emnapi subtree) must happen on the same platform CI runs on. Dispatch on
-# the branch whose lock is out of sync; the job commits the fixed lock back,
-# which re-triggers that branch's deploy automatically.
+# Utility: package-lock resolution for cross-platform optional deps (the @emnapi subtree under
+# @tailwindcss/oxide-wasm32-wasi) must happen on the same platform CI installs on. Any
+# lockfile-editing npm command run on Windows PRUNES that subtree, and the pruned lockfile then
+# fails `npm ci` on every Linux runner with "Missing: @emnapi/core@… from lock file". Dispatch
+# this on the branch whose lock is out of sync; the job commits the fixed lock back, which
+# re-triggers that branch's checks automatically.
+#
+# 2026-09-09: this workflow existed and could not do its job. Run 34387060702 died on
+# `npm ci --dry-run`, which crashes inside npm itself with "Cannot read properties of null
+# (reading 'edgesOut')" when there is no node_modules to diff against — an npm bug, not a
+# lockfile fault — so the verification step failed before the commit step could ever run and the
+# broken lock stayed on master. The verification is now (a) the repo's own platform-independent
+# guard suite and (b) a REAL `npm ci`, which is the thing we actually need to be true.
 on:
   workflow_dispatch: {}
 
@@ -20,6 +29,7 @@ env:
 jobs:
   regen:
     runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
         with:
@@ -27,15 +37,45 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-      - name: Regenerate lockfile
+
+      # REPAIR IN PLACE FIRST. A plain `npm install --package-lock-only` on Linux adds the
+      # entries the Windows edit pruned and leaves every other resolution exactly where it is.
+      # Deleting the lockfile and re-resolving from scratch would also work, but it re-floats
+      # every dependency to the newest version its range admits — a large, unreviewed change
+      # that can drag in a fresh advisory and fail gate-security. So that is the FALLBACK, taken
+      # only when the surgical repair genuinely did not produce an installable lockfile.
+      - name: Repair the lockfile
         run: |
-          rm -f package-lock.json
+          set -e
           npm install --package-lock-only
-          npm ci --dry-run
+          if node --test scripts/lockfile-resolves-every-declared-dependency.test.mjs; then
+            echo "repaired in place; existing resolutions untouched"
+          else
+            echo "::warning::in-place repair was not enough - re-resolving the whole lockfile"
+            rm -f package-lock.json
+            npm install --package-lock-only
+            node --test scripts/lockfile-resolves-every-declared-dependency.test.mjs
+          fi
+
+      # The guard above answers npm ci's question without npm. This answers it WITH npm, which
+      # is the only thing that settles it. --ignore-scripts because nothing here needs to build.
+      - name: Prove npm ci actually installs it
+        run: npm ci --ignore-scripts
+
+      # A lockfile that installs but carries a HIGH advisory is one gate-security will refuse,
+      # and pushing it to master would swap one unreleasable master for another.
+      - name: Prove the security gate would still pass
+        run: npm audit --audit-level=high
+
       - name: Commit + push if changed
         run: |
+          set -e
           git config user.name "regen-lock"
           git config user.email "noreply@predivo.ch"
           git add package-lock.json
-          git diff --cached --quiet || git commit -m "Regenerate package-lock on Linux (cross-platform optional deps)"
+          if git diff --cached --quiet; then
+            echo "lockfile was already correct - nothing to push"
+            exit 0
+          fi
+          git commit -m "Regenerate package-lock on Linux (cross-platform optional deps)"
           git push origin HEAD:${{ github.ref_name }}
