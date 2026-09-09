@@ -1,0 +1,136 @@
+name: Rotate the staging Basic-auth password
+
+# ONE-SHOT, MANUAL ONLY. Rewrites the server-side `.htpasswd` that Apache actually
+# enforces, setting it to whatever the STAGING_HTPASSWD_USER / STAGING_HTPASSWD_PASS
+# secrets currently hold, then proves it with a three-way probe.
+#
+# WHY THIS FILE EXISTS (2026-09-09). The staging Basic-auth password was committed to this
+# repository in `docs/STAGING_STATUS_AND_HANDOFF.md`. Commit 82ed924 removed it from the
+# doc, and the commit message says the rest out loud: *it is still live*. Removing a value
+# from HEAD does not remove it from the history, so it is only retired when it is rotated.
+#
+# WHERE THE PASSWORD IS ACTUALLY ENFORCED. Not in this repository. `deploy-staging.yml`
+# writes a staging `.htaccess` whose `AuthUserFile` points at
+#   /var/www/vhosts/scoutcopilot.com/staging.scoutcopilot.com/.htpasswd
+# — a SERVER-SIDE file at the staging docroot, deliberately excluded from the deploy
+# mirror (`--exclude .htpasswd`) so a deploy cannot clobber it. Changing the repo secret
+# alone therefore breaks staging: the secret is what CI *sends*, `.htpasswd` is what the
+# host *checks*. Both have to move, and this workflow is the half that moves the host.
+#
+# IT RUNS HERE, NOT ON A DEVELOPER MACHINE, because the FTP credentials for the host live
+# in this repository's secrets and nowhere else — run the work where the token already is,
+# rather than copying the token to where the work is.
+#
+# STAGING ONLY. The docroot is written in literally, and it is the staging vhost. There is
+# no input and no path in this file that can reach production.
+#
+# ORDER OF OPERATIONS for a rotation (both steps, or staging goes red):
+#   1. `gh secret set STAGING_HTPASSWD_PASS -R Predivo-GmbH/ScoutCopilot < file`  (stdin — never argv)
+#   2. run this workflow                                                          (host catches up)
+# Between the two, CI sends a password the host does not yet know. Do them back to back.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  rotate:
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - name: Write the staging .htpasswd on the host, then prove it
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+          HTP_USER: ${{ secrets.STAGING_HTPASSWD_USER }}
+          HTP_PASS: ${{ secrets.STAGING_HTPASSWD_PASS }}
+          REMOTE_DIR: staging.scoutcopilot.com
+          STAGING_URL: https://staging.scoutcopilot.com/en
+          EXPECT_AUTHED: '200'
+        run: |
+          set -uo pipefail
+          umask 077
+
+          for v in FTP_HOST FTP_USER FTP_PASS HTP_USER HTP_PASS; do
+            if [ -z "${!v}" ]; then
+              echo "::error::$v is empty. Refusing to continue — writing an empty credential"
+              echo "would lock every staging gate out, and they would report it as a product failure."
+              exit 1
+            fi
+          done
+
+          sudo apt-get update -qq && sudo apt-get install -y -qq apache2-utils lftp
+
+          # ---------------------------------------------------------------------------
+          # A three-way probe, so the check can tell the difference between "the new value
+          # works" and "this host lets anyone in". Status codes only: never the value.
+          # ---------------------------------------------------------------------------
+          probe() {  # probe <user> <pass>   -> echoes the HTTP status
+            local u="$1" p="$2" cfg
+            cfg=$(mktemp)
+            if [ -n "$p" ]; then printf 'user = "%s:%s"\n' "$u" "$p" > "$cfg"; else : > "$cfg"; fi
+            curl -s -o /dev/null -w '%{http_code}' --config "$cfg" \
+                 --max-time 30 --retry 3 --retry-all-errors --retry-delay 5 "$STAGING_URL" || echo 000
+            rm -f "$cfg"
+          }
+
+          write_and_upload() {  # write_and_upload <htpasswd-algorithm-flag>
+            local alg="$1"
+            rm -f /tmp/htpasswd.new
+            # -i reads the password from STDIN. Never -b: that would put the value in argv,
+            # where every process on the runner can read it out of /proc.
+            printf '%s' "$HTP_PASS" | htpasswd -i -c "$alg" /tmp/htpasswd.new "$HTP_USER" >/dev/null 2>&1 || return 1
+            # lftp gets its credentials from a 0600 script file rather than -u on the command
+            # line, for the same reason. printf is a shell builtin, so the value never becomes
+            # the argv of a spawned process.
+            local script; script=$(mktemp)
+            {
+              printf 'set ftp:ssl-force yes\nset ssl:verify-certificate no\nset ftp:ssl-protect-data no\n'
+              printf 'set ftp:passive-mode yes\nset ftp:prefer-epsv no\nset net:timeout 30\nset net:max-retries 4\n'
+              printf 'open -u %s,%s %s\n' "$FTP_USER" "$FTP_PASS" "$FTP_HOST"
+              printf 'put /tmp/htpasswd.new -o %s/.htpasswd\n' "$REMOTE_DIR"
+              printf 'bye\n'
+            } > "$script"
+            local rc=0
+            timeout 180 lftp -f "$script" >/dev/null 2>&1 || rc=$?
+            rm -f "$script" /tmp/htpasswd.new
+            return $rc
+          }
+
+          # bcrypt first (Apache 2.4). If this host's Apache cannot verify a $2y$ hash the
+          # probe says so immediately, and we fall back to APR1-MD5, which every Apache since
+          # 1.3 supports. Trying, measuring, and falling back beats assuming a server version.
+          ok=0
+          for alg in -B -m; do
+            echo "--- writing .htpasswd (algorithm flag: $alg)"
+            if ! write_and_upload "$alg"; then
+              echo "::warning::upload failed for algorithm $alg"
+              continue
+            fi
+            sleep 5
+            s_new=$(probe "$HTP_USER" "$HTP_PASS")
+            echo "    new credential      -> HTTP $s_new"
+            if [ "$s_new" = "$EXPECT_AUTHED" ]; then ok=1; break; fi
+          done
+
+          if [ "$ok" != "1" ]; then
+            echo "::error::The new .htpasswd did not authenticate. Staging is now behind a"
+            echo "credential CI does not hold. Re-run this workflow; if it fails again the"
+            echo "FTP path or the AuthUserFile path is wrong, not the password."
+            exit 1
+          fi
+
+          s_none=$(probe "" "")
+          s_wrong=$(probe "$HTP_USER" "not-the-password-$RANDOM$RANDOM")
+          echo "--- controls"
+          echo "    no credentials      -> HTTP $s_none   (must be 401)"
+          echo "    right user, wrong pw-> HTTP $s_wrong  (must be 401)"
+          echo "    new credential      -> HTTP $s_new    (must be $EXPECT_AUTHED)"
+
+          if [ "$s_none" != "401" ] || [ "$s_wrong" != "401" ]; then
+            echo "::error::A control did not return 401. The 'success' above proves nothing,"
+            echo "because this host is answering without checking the password."
+            exit 1
+          fi
+
+          echo "ROTATED: the staging .htpasswd now holds the current STAGING_HTPASSWD_PASS."
+          echo "The value was never printed. Prove the OLD value is dead from outside CI."
