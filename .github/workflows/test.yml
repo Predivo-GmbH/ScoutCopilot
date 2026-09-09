@@ -18,6 +18,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # Needed by npm ci: .npmrc points @predivo-gmbh at GitHub Packages. Without this the
+  # install 401s on @predivo-gmbh/gate-kit. A job must carry the environment its steps read:
+  # that is the workflow-env check gate-kit 0.4.3 added on 2026-09-06, which never reached
+  # this repository because it had no gate-kit dependency to reach it by.
+  NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN }}
+
 jobs:
   critical-path:
     runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
