@@ -121,43 +121,99 @@ live API:
 | # | Change | Proof |
 |---|---|---|
 | 1 | `staging` fast-forwarded to `master` (`8b2eda1..f22e8b7`) | Deploy to Staging run 34525690176 — success |
-| 2 | **NOT DONE** — `@predivo-gmbh/gate-kit@0.5.1` still not installed; blocked on package access, see §5 | dispatch 34526484870 — `403 permission_denied: read_package` |
+| 2 | `@predivo-gmbh/gate-kit@0.5.1` installed, after granting the package Actions read access to this repo | run 34530237420 — success; commit `6f4c6e5` |
 | 3 | rotation guard no longer needs the `gh` binary | `node --test` → pass 2 / fail 0; two controls go red |
 | 4 | `test.yml`: `actions: read` + `GITHUB_TOKEN` on the guard step | `js-yaml` parse check, this turn |
 | 5 | false red-proof note corrected in the test file | re-run shows keep-alive passes |
 | 6 | all three workflows fall back to `secrets.GITHUB_TOKEN` when `PACKAGES_READ_TOKEN` is empty | 401 became 403 on the next dispatch |
 | 7 | the land guard now fails with the fix instructions, not `MODULE_NOT_FOUND` | preflight step in `waiting-to-land.yml` |
+| 8 | `deploy.yml` / `deploy-staging.yml` / `regen-lock.yml` saved from the 401 the gate-kit install would have caused | production run 34532199547 on `fb7055b` — success |
+| 9 | `staging` now follows `master` automatically, deploy included | run 34530950129 → staging deploy 34531126572 — both success |
 
 ---
 
-## 5. The one step that is not mine — and what it costs to leave it
+## 5. The package grant, done — and the trap it set for production
 
-`Bump gate-kit` got further on the second dispatch and then stopped somewhere I cannot reach:
+`Bump gate-kit` failed twice: `401 authentication token not provided` (empty secret), then
+`403 permission_denied: read_package` once the `GITHUB_TOKEN` fallback landed. 401 → 403 meant the
+token was real and the **package** was refusing. Granted directly in the GitHub UI: org packages →
+`gate-kit` → *Manage Actions access* → added `Predivo-GmbH/ScoutCopilot` with **Read**. The page now
+reads *2 repositories* (gate-kit Admin, ScoutCopilot Read) and confirmed *"Permissions added for
+selected repositories."*
 
-| dispatch | result |
+Install then succeeded — run `34530237420`, commit `6f4c6e5` *"chore(deps): gate-kit 0.5.1"*. And
+the land guard ran its real check for the first time in its life (run `34530498237`):
+
+```
+gate-kit 0.5.1 is installed
+open pull requests : 0
+OK    nothing is sitting ready to land and unmerged.
+```
+
+**That install set a trap, and it was caught before it fired.** With `@predivo-gmbh/gate-kit` now in
+`package.json`, *every* `npm ci` in this repo reaches the private registry — including
+`deploy.yml` (**production**), `deploy-staging.yml` and `regen-lock.yml`, all three of which still
+pointed at the empty `PACKAGES_READ_TOKEN`. The next production deploy would have died on 401. All
+three now carry the same fallback; `regen-lock.yml`, which pins its permissions explicitly, also
+gained `packages: read`, because an explicit block zeroes every scope it does not name.
+
+Proved on the real thing rather than argued: **Deploy to Production run `34532199547` on
+`fb7055b`** — the exact commit carrying the new lockfile — **success**.
+
+## 6. The permanent fix: `staging` follows `master` by itself
+
+Every repair of this bug so far was a person remembering to push a branch. Memory is the component
+that failed, four times in five days, so it has been removed from the loop.
+
+`.github/workflows/staging-follows-master.yml` fast-forwards `staging` to `master` on every push to
+`master`. It refuses rather than force-pushes if `staging` ever holds a commit `master` does not
+(that means someone pushed straight to staging, and overwriting it is how work vanishes). It moves
+the branch for documentation-only ranges but skips the deploy, mirroring `deploy-staging.yml`'s own
+`paths-ignore` — which a `workflow_dispatch` does not honour.
+
+**It also dispatches the deploy explicitly, and that detail is the whole difference between a fix
+and a decoration.** A push made with a workflow's own `GITHUB_TOKEN` does not trigger further
+workflow runs — GitHub suppresses that to stop loops. Fast-forwarding `staging` from CI therefore
+moves the branch and starts *nothing*: the deploy page would go on showing the same stale run while
+this job reported green. That is the original bug wearing a different hat, and it would have been
+shipped as the cure. The deploy is now asked for over the API, and the job fails if that call is
+refused.
+
+First live run, `34530950129`, unattended end to end:
+
+```
+staging is 2 behind and 0 ahead of master
+staging fast-forwarded 388dffb -> fb7055b (2 commit(s))
+staging deploy requested
+```
+
+→ Deploy to Staging run `34531126572` — **success**. `master` and `staging` both at `fb7055b`.
+
+---
+
+## Final state — every workflow's newest run
+
+Grouped by workflow id (which is what the deploy page reads), 2026-09-10:
+
+| workflow | newest run |
 |---|---|
-| 34525853766 (before the fallback) | `NODE_AUTH_TOKEN:` blank → `npm error 401 … authentication token not provided` |
-| 34526484870 (after the fallback) | `NODE_AUTH_TOKEN: ***` → `npm error 403 permission_denied: read_package` |
+| Deploy to Production | ✅ |
+| Deploy to Staging | ✅ |
+| Critical Path Tests | ✅ |
+| Nothing may sit ready to land | ✅ |
+| Staging follows master | ✅ |
+| Bump gate-kit | ✅ |
+| Secret Scan (gitleaks) | ✅ |
+| Keep Supabase Alive | ✅ |
+| Rotate the production database password | ✅ |
+| Regenerate package-lock on Linux | ✅ |
 
-401 → 403 means the token is now real and authenticated; what is missing is that the
-**`@predivo-gmbh/gate-kit` package does not grant the ScoutCopilot repository read access.**
-My GitHub token carries `delete_repo, gist, read:org, repo, workflow` — no `read:packages` — so
-`GET orgs/Predivo-GmbH/packages/npm/gate-kit` answers 404 for me and I cannot grant it or read
-the setting.
+Nothing red. The three failed rotation runs from 2026-09-09 19:23–19:29 belong to the same workflow
+as the 19:34 success and are superseded by it — they are earlier attempts within one rotation, not a
+standing fault.
 
-Two ways out, and the first is better:
-
-1. **Grant the package Actions access to this repository.** Org packages → `gate-kit` → package
-   settings → *Manage Actions access* → add `Predivo-GmbH/ScoutCopilot` with Read. One toggle,
-   no credential to store or rotate, and `secrets.GITHUB_TOKEN` then works permanently.
-2. Set a non-empty `PACKAGES_READ_TOKEN` (a PAT with `read:packages`). This is what the other
-   five products do — and it is a sixth copy of a credential, which is the shape recorded in
-   `feedback_one_password_became_26_copies_2026_09_05.md`.
-
-Either way, re-run `Bump gate-kit` with version `0.5.1` afterwards.
-
-**Until then:** the *"Nothing may sit ready to land"* guard stays red three times a day, and
-ScoutCopilot remains the one product in the fleet where a finished fix can sit unlanded and
-nothing says so — which is exactly what happened on 2026-09-09 and is why Roger had to be the
-one to notice. The guard now fails with that sentence and the fix instructions instead of a
-`MODULE_NOT_FOUND` stack, so the red is actionable while it waits.
+**One thing this session could not do:** open a work-board row. `work_open` refused three times —
+8 batches in flight against a ceiling of 3, and freeing a slot means parking a whole batch belonging
+to other sessions. Priority `critical` bypasses the ceiling and was not used, because that flag
+means a customer or a release is affected right now and this was neither by then. The work is
+recorded here instead.
