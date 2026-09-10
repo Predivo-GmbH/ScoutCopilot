@@ -76,9 +76,10 @@ Cause: **ScoutCopilot's `package.json` has no `@predivo-gmbh/gate-kit` dependenc
 check landed; the dependency it runs never did. The first install has to come from CI, because
 the read-packages token lives there — that is what `bump-gate-kit.yml` is for, and its only
 previous run (`34387419170`, 2026-09-09) died on `npm error 401 Unauthorized … authentication
-token not provided`. `PACKAGES_READ_TOKEN` has since been added to the repository, and the
-install was dispatched again this turn at `0.5.1` (the version signalscore and ChannelMover
-already pin).
+token not provided`. `PACKAGES_READ_TOKEN` was added to the repository 11 minutes later — **and
+it was added empty**, which nothing noticed for a day because with no `@predivo-gmbh` dependency
+npm never reached the private registry to be refused. Re-dispatched this turn at `0.5.1` (the
+version signalscore and ChannelMover pin); it is still blocked, see §5.
 
 Verified this turn that `0.5.1` actually ships the script the workflow calls:
 `gate-kit/package.json` `files: ["eslint","crawl","conformance","templates","scripts"]`, and
@@ -120,10 +121,12 @@ live API:
 | # | Change | Proof |
 |---|---|---|
 | 1 | `staging` fast-forwarded to `master` (`8b2eda1..f22e8b7`) | Deploy to Staging run 34525690176 — success |
-| 2 | `@predivo-gmbh/gate-kit@0.5.1` installed via `bump-gate-kit.yml` | see the run linked in the session record |
+| 2 | **NOT DONE** — `@predivo-gmbh/gate-kit@0.5.1` still not installed; blocked on package access, see §5 | dispatch 34526484870 — `403 permission_denied: read_package` |
 | 3 | rotation guard no longer needs the `gh` binary | `node --test` → pass 2 / fail 0; two controls go red |
 | 4 | `test.yml`: `actions: read` + `GITHUB_TOKEN` on the guard step | `js-yaml` parse check, this turn |
 | 5 | false red-proof note corrected in the test file | re-run shows keep-alive passes |
+| 6 | all three workflows fall back to `secrets.GITHUB_TOKEN` when `PACKAGES_READ_TOKEN` is empty | 401 became 403 on the next dispatch |
+| 7 | the land guard now fails with the fix instructions, not `MODULE_NOT_FOUND` | preflight step in `waiting-to-land.yml` |
 
 ---
 
