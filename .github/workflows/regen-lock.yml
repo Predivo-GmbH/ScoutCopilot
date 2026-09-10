@@ -18,13 +18,24 @@ on:
 
 permissions:
   contents: write
+  # Required for the GITHUB_TOKEN fallback below: an explicit permissions block
+  # sets every scope it does not name to none, so without this the fallback is
+  # a token that cannot read the package it is being handed to read.
+  packages: read
 
 env:
   # Needed by npm ci: .npmrc points @predivo-gmbh at GitHub Packages. Without this the
   # install 401s on @predivo-gmbh/gate-kit. A job must carry the environment its steps read:
   # that is the workflow-env check gate-kit 0.4.3 added on 2026-09-06, which never reached
   # this repository because it had no gate-kit dependency to reach it by.
-  NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN }}
+  # PACKAGES_READ_TOKEN IS PRESENT AND EMPTY IN THIS REPOSITORY (measured 2026-09-10): a working
+  # repo logs `NODE_AUTH_TOKEN: ***`, this one logged it blank. It did not matter until 2026-09-10,
+  # when @predivo-gmbh/gate-kit entered package.json - from that commit on, EVERY `npm ci` here
+  # reaches the private registry and a blank token 401s the job. This workflow would have been the
+  # next casualty. secrets.GITHUB_TOKEN can read the package (ScoutCopilot was granted Actions read
+  # access on the gate-kit package the same day) and every job already carries one; an empty secret
+  # is falsy in an expression, so a real PACKAGES_READ_TOKEN takes over the moment one is set.
+  NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN || secrets.GITHUB_TOKEN }}
 
 jobs:
   regen:

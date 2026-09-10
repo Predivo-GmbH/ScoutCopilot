@@ -1,0 +1,126 @@
+name: Staging follows master
+
+# THE LIGHT ON THE DEPLOY PAGE IS FED BY A BRANCH, NOT BY master.
+#
+# 2026-09-10, Roger, at the Cockpit deploy page: "you keep telling me it's fixed and fixed and
+# fixed, and it still comes up." He was looking at ScoutCopilot's staging tile, red since
+# 2026-09-09. The repair it was red about — a package-lock regenerated on Linux — had been
+# correct and on `master` for a day (f22e8b7, `npm ci` exit 0 under Linux, measured). But
+# `Deploy to Staging` fires on pushes to the `staging` BRANCH, and nobody had moved it:
+#
+#     git rev-list --left-right --count origin/staging...origin/master  ->  0   9
+#
+# Nine commits behind, and its newest run on record was still the failure. One fast-forward
+# turned it green in 4m48s. The fix had existed the whole time; it had simply never been
+# DELIVERED to the ref the light reads. That is the fourth recorded appearance of this shape in
+# five days (see feedback_on_main_is_not_in_effect_2026_09_09.md), and every previous repair was
+# somebody remembering to push a branch. Memory is what failed.
+#
+# THIS JOB REMOVES THE HUMAN STEP. Every push to master fast-forwards `staging` to match. There
+# is nothing left to remember, so there is nothing left to forget.
+#
+# WHY IT ALSO DISPATCHES THE DEPLOY, WHICH LOOKS REDUNDANT AND IS NOT. A push made with the
+# workflow's own GITHUB_TOKEN does NOT trigger further workflow runs — GitHub suppresses that to
+# stop loops. So fast-forwarding `staging` from here moves the branch and starts NOTHING: the
+# deploy page would keep showing the same stale run, and this job would look green while changing
+# nothing a human can see. That failure would have been an exact re-run of the bug it exists to
+# prevent, one level up. `workflow_dispatch` over the API is not suppressed, so the deploy is
+# asked for explicitly, by id, and this job fails if that call is refused.
+#
+# WHY FAST-FORWARD ONLY, AND WHY IT MAY REFUSE. `--ff-only` semantics are deliberate. If
+# `staging` ever carries a commit master does not have, this job FAILS rather than discarding it:
+# someone pushed straight to staging, and quietly force-overwriting that is how work disappears.
+# A red run here means "staging has diverged, look at it", which is a fact worth a red.
+#
+# WHY THE DOCS TEST IS DUPLICATED FROM deploy-staging.yml. That workflow ignores markdown on
+# push, but a workflow_dispatch ignores paths filters entirely — so dispatching unconditionally
+# would FTP the whole site for a typo fix in a record file, and take a slot in the fleet deploy
+# serializer while doing it. The branch is still moved either way: `staging == master` stays true
+# at all times, which is the property that makes the deploy page trustworthy.
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  # Required to ask for the staging deploy over the API. Without it the dispatch 403s and this
+  # job fails loudly - which is correct, because a silent no-deploy is the original bug.
+  actions: write
+
+concurrency:
+  # Never two of these at once - they race on the same ref. Do NOT cancel in progress: a
+  # superseded run still has a push to make, and the point is that the branch always catches up.
+  group: staging-follows-master
+  cancel-in-progress: false
+
+jobs:
+  fast-forward:
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Move staging to master, or say why it cannot
+        id: ff
+        run: |
+          set -euo pipefail
+          git fetch origin master staging --quiet
+
+          master=$(git rev-parse origin/master)
+          staging=$(git rev-parse origin/staging)
+
+          if [ "$master" = "$staging" ]; then
+            echo "staging is already at $master - nothing to do"
+            echo "deploy=no" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          ahead=$(git rev-list --count "$master..$staging")
+          behind=$(git rev-list --count "$staging..$master")
+          echo "staging is $behind behind and $ahead ahead of master"
+
+          if [ "$ahead" -ne 0 ]; then
+            echo "::error::staging has $ahead commit(s) that master does not, so it cannot be fast-forwarded. Someone pushed straight to staging. Look at those commits and merge or drop them deliberately - this job will not overwrite them."
+            git log --oneline "$master..$staging"
+            exit 1
+          fi
+
+          # Does this range touch anything the site is actually built from? Mirrors the
+          # paths-ignore of deploy-staging.yml, which a workflow_dispatch does not honour.
+          changed=$(git diff --name-only "$staging" "$master")
+          echo "files changed:"; echo "$changed" | sed 's/^/  /'
+          build_inputs=$(echo "$changed" | grep -vE '(^|/)[^/]+\.md$|^docs/|^LICENSE$|^\.gitignore$' || true)
+
+          git push origin "$master:refs/heads/staging"
+          echo "staging fast-forwarded $staging -> $master ($behind commit(s))"
+
+          if [ -z "$build_inputs" ]; then
+            echo "documentation only - branch moved, no deploy needed"
+            echo "deploy=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=yes" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Ask for the staging deploy, because our own push cannot
+        if: steps.ff.outputs.deploy == 'yes'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # No `gh` here on purpose: the self-hosted runner has no gh binary, which is how the
+          # rotation guard sat red for days with `spawnSync gh ENOENT` (fixed 2026-09-10).
+          code=$(curl -sS -o /tmp/dispatch.out -w '%{http_code}' -X POST \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy-staging.yml/dispatches" \
+            -d '{"ref":"staging"}')
+          if [ "$code" != "204" ]; then
+            echo "::error::could not start the staging deploy (HTTP $code). The branch moved but nothing is deploying, which is exactly the silence this workflow exists to end. Response: $(cat /tmp/dispatch.out)"
+            exit 1
+          fi
+          echo "staging deploy requested"
