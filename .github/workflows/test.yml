@@ -18,12 +18,29 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  packages: read
+  # `actions: read` is what lets the rotation guard ask the API whether the password-rotation
+  # workflow has a green run. It used to shell out to `gh`, which does not exist on our
+  # self-hosted runner, so the suite died with `spawnSync gh ENOENT` on every push to master
+  # from the day this step was added. Reading runs over HTTPS needs this scope and no binary.
+  actions: read
+
 env:
   # Needed by npm ci: .npmrc points @predivo-gmbh at GitHub Packages. Without this the
   # install 401s on @predivo-gmbh/gate-kit. A job must carry the environment its steps read:
   # that is the workflow-env check gate-kit 0.4.3 added on 2026-09-06, which never reached
   # this repository because it had no gate-kit dependency to reach it by.
-  NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN }}
+  # PACKAGES_READ_TOKEN IS PRESENT AND EMPTY IN THIS REPOSITORY (measured 2026-09-10). It was
+  # created 2026-09-09T18:21:08Z with no value: a working repo prints `NODE_AUTH_TOKEN: ***` in
+  # its log, ScoutCopilot printed `NODE_AUTH_TOKEN:` followed by nothing, and every install of an
+  # @predivo-gmbh package here 401s. Nothing caught it for a day because this repo had no
+  # @predivo-gmbh dependency, so npm never reached the private registry to be refused.
+  # `secrets.GITHUB_TOKEN` can read org packages the package grants this repository, and every
+  # job already has one, so it is the fallback rather than a second credential to keep alive.
+  # An empty secret is falsy in an expression, so the real token wins the moment it is set.
+  NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN || secrets.GITHUB_TOKEN }}
 
 jobs:
   critical-path:
@@ -107,6 +124,11 @@ jobs:
       # step. Otherwise the list rots into a way of silently not running things, which is the
       # defect this step exists to remove.
       - name: Run the node:test guard suites
+        env:
+          # production-db-password-was-rotated.test.mjs reads workflow runs over the REST API.
+          # Without a token the repository is private and the call 404s, which would read as
+          # "no rotation ever happened" - a false alarm on a credential question.
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -e
           shopt -s nullglob

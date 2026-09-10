@@ -20,9 +20,26 @@
  *   3. That run started after the leak was recorded (2026-09-09T13:35Z), so an older run
  *      cannot be mistaken for this repair.
  *
- * PROVEN RED BEFORE IT WAS TRUSTED GREEN: run with ROTATION_WORKFLOW set to a workflow that
- * has never rotated anything and it fails on assertion 2. Done on 2026-09-09 with
- * `ROTATION_WORKFLOW=keep-alive.yml` — exit 1, "no successful run".
+ * PROVEN RED BEFORE IT WAS TRUSTED GREEN, and the first attempt at that proof was wrong.
+ * This file used to claim `ROTATION_WORKFLOW=keep-alive.yml` made it exit 1. Re-run on
+ * 2026-09-10: it PASSES. Keep-alive is scheduled daily and has green runs on 09-09 and 09-10,
+ * so it satisfies assertion 2 exactly the way the rotation workflow does. A negative control
+ * has to be a workflow that has succeeded but NOT since the leak:
+ *
+ *   ROTATION_WORKFLOW=security-review.yml  -> fail 1, "no successful run ... since the leak"
+ *                                             (last green 2026-08-28, before LEAKED_AT)
+ *   ROTATION_WORKFLOW=does-not-exist.yml   -> fail 1, "GitHub answered 404"
+ *
+ * Both re-run on 2026-09-10 against the live API. Any workflow with recent green runs is
+ * NOT a control here, and reading one as a control is how a guard gets believed for nothing.
+ *
+ * WHY THIS ASKS THE REST API AND NOT THE `gh` CLI (2026-09-10). It used to shell out to
+ * `gh run list`. Our self-hosted runner has no `gh` on its PATH, so from the moment this suite
+ * was first executed in CI the test failed with `spawnSync gh ENOENT` — assertion 2 could not
+ * even be attempted, and Critical Path Tests has been red on master ever since. A guard that
+ * cannot run is indistinguishable from a guard that found nothing, which is the exact defect
+ * the guard step was added to remove. The REST call needs no binary: CI passes GITHUB_TOKEN,
+ * and on a laptop it falls back to `gh auth token` so it stays runnable by hand.
  *
  * Run:  node --test scripts/production-db-password-was-rotated.test.mjs
  */
@@ -41,6 +58,45 @@ const WORKFLOW = process.env.ROTATION_WORKFLOW || 'rotate-database-password.yml'
 const LEAKED_AT = Date.parse('2026-09-09T13:35:59Z')
 const PROJECT_REF = 'rlcsuqwqzoqjykdiqjye'
 
+/**
+ * The workflow runs, asked over HTTPS. No `gh` binary: the self-hosted runner has none.
+ * Token order: what CI hands every job, then the two names a shell exports, then — only on a
+ * developer machine — `gh auth token`. Unauthenticated is not attempted: this repository is
+ * private, so a tokenless call 404s and would read as "no rotation ever happened".
+ */
+async function listRuns(workflow) {
+  const token = ghToken()
+  if (!token) throw new Error('no GitHub token: set GITHUB_TOKEN, or run `gh auth login` locally')
+  const url = `https://api.github.com/repos/${REPO}/actions/workflows/${workflow}/runs?per_page=10`
+  const res = await fetch(url, {
+    headers: {
+      authorization: `Bearer ${token}`,
+      accept: 'application/vnd.github+json',
+      'x-github-api-version': '2022-11-28',
+      'user-agent': 'scoutcopilot-rotation-guard',
+    },
+  })
+  if (!res.ok) throw new Error(`GitHub answered ${res.status} ${res.statusText} for ${url}`)
+  const body = await res.json()
+  return (body.workflow_runs || []).map((r) => ({
+    databaseId: r.id,
+    conclusion: r.conclusion,
+    status: r.status,
+    createdAt: r.created_at,
+    url: r.html_url,
+  }))
+}
+
+function ghToken() {
+  const fromEnv = process.env.GITHUB_TOKEN || process.env.GH_TOKEN
+  if (fromEnv) return fromEnv
+  try {
+    return execFileSync('gh', ['auth', 'token'], { encoding: 'utf8' }).trim() || null
+  } catch {
+    return null
+  }
+}
+
 test('the rotation is a workflow anyone can re-run, aimed at the production project', () => {
   const p = join(ROOT, '.github', 'workflows', 'rotate-database-password.yml')
   assert.ok(existsSync(p), 'the rotation workflow is gone; the repair is not repeatable')
@@ -50,13 +106,10 @@ test('the rotation is a workflow anyone can re-run, aimed at the production proj
   assert.ok('workflow_dispatch' in doc.on, 'the workflow can no longer be dispatched by hand')
 })
 
-test('a run of that workflow has concluded success since the leak was recorded', () => {
+test('a run of that workflow has concluded success since the leak was recorded', async () => {
   let runs
   try {
-    runs = JSON.parse(execFileSync('gh', [
-      'run', 'list', '-R', REPO, '--workflow', WORKFLOW, '--limit', '10',
-      '--json', 'databaseId,conclusion,status,createdAt,url',
-    ], { encoding: 'utf8' }))
+    runs = await listRuns(WORKFLOW)
   } catch (e) {
     assert.fail(`could not ask GitHub for runs of ${WORKFLOW}: ${e.message}`)
   }

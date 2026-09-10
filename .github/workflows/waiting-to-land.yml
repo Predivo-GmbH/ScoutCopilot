@@ -45,10 +45,19 @@ permissions:
   # green run that proved nothing, which is the failure this whole day is about. The check itself
   # behaved correctly: it refused loudly rather than reporting nothing found.
   checks: read
+  packages: read
 
 env:
   # Needed by npm ci: .npmrc points @predivo-gmbh at GitHub Packages.
-  NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN }}
+  # PACKAGES_READ_TOKEN IS PRESENT AND EMPTY IN THIS REPOSITORY (measured 2026-09-10). It was
+  # created 2026-09-09T18:21:08Z with no value: a working repo prints `NODE_AUTH_TOKEN: ***` in
+  # its log, ScoutCopilot printed `NODE_AUTH_TOKEN:` followed by nothing, and every install of an
+  # @predivo-gmbh package here 401s. Nothing caught it for a day because this repo had no
+  # @predivo-gmbh dependency, so npm never reached the private registry to be refused.
+  # `secrets.GITHUB_TOKEN` can read org packages the package grants this repository, and every
+  # job already has one, so it is the fallback rather than a second credential to keep alive.
+  # An empty secret is falsy in an expression, so the real token wins the moment it is set.
+  NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN || secrets.GITHUB_TOKEN }}
 
 jobs:
   waiting-to-land:

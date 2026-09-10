@@ -20,6 +20,9 @@ on:
 
 permissions:
   contents: write
+  # Lets secrets.GITHUB_TOKEN read @predivo-gmbh packages when PACKAGES_READ_TOKEN
+  # is empty, which it is in this repository - see the note on the step below.
+  packages: read
 
 jobs:
   bump:
@@ -35,7 +38,13 @@ jobs:
       - name: Install the requested version
         run: npm install --save-dev "@predivo-gmbh/gate-kit@${{ github.event.inputs.version }}" --no-audit --no-fund
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN }}
+          # PACKAGES_READ_TOKEN EXISTS HERE AND IS EMPTY (measured 2026-09-10): a working repo
+          # logs `NODE_AUTH_TOKEN: ***`, this one logged it blank, and both dispatches of this
+          # workflow - 34387419170 on 09-09 and 34525853766 on 09-10 - died on
+          # `npm error 401 ... authentication token not provided`. Falling back to the token
+          # every job already carries beats keeping a second credential alive; an empty secret
+          # is falsy, so a real PACKAGES_READ_TOKEN takes over the moment one is set.
+          NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN || secrets.GITHUB_TOKEN }}
       - name: Verify the lock actually moved
         run: |
           got=$(node -p "require('./node_modules/@predivo-gmbh/gate-kit/package.json').version")
