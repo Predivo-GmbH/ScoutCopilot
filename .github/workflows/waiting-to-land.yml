@@ -72,6 +72,23 @@ jobs:
 
       - run: npm ci
 
+      # A RED THAT SAYS "Cannot find module" IS A RED NOBODY ACTS ON (added 2026-09-10).
+      # This job failed three times a day from the day it landed, with a MODULE_NOT_FOUND stack
+      # for gate-kit's script, and it read like a broken workflow rather than a missing
+      # dependency. It is missing because @predivo-gmbh/gate-kit cannot be installed here yet:
+      # PACKAGES_READ_TOKEN is empty, and the fallback GITHUB_TOKEN gets
+      # `403 permission_denied: read_package` because the gate-kit package does not grant this
+      # repository access. Both dispatches of Bump gate-kit died on that (34525853766 401,
+      # 34526484870 403). Until one of those is fixed this job cannot do its work - so it says
+      # WHICH, in one line, instead of printing a stack.
+      - name: Is the check even installed?
+        run: |
+          if [ ! -f node_modules/@predivo-gmbh/gate-kit/scripts/verify-nothing-waits-to-land.mjs ]; then
+            echo "::error::gate-kit is not installed here, so nothing is watching for fixes that never land. Grant the @predivo-gmbh/gate-kit package Actions read access to this repository (org packages -> gate-kit -> settings -> Manage Actions access -> add Predivo-GmbH/ScoutCopilot), or set a non-empty PACKAGES_READ_TOKEN with read:packages. Then re-run the 'Bump gate-kit' workflow with version 0.5.1."
+            exit 1
+          fi
+          echo "gate-kit $(node -p "require('./node_modules/@predivo-gmbh/gate-kit/package.json').version") is installed"
+
       - name: Is anything ready to land and not landing?
         env:
           GITHUB_TOKEN: ${{ github.token }}

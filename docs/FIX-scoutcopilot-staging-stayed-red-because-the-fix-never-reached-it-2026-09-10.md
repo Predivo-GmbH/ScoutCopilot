@@ -124,3 +124,37 @@ live API:
 | 3 | rotation guard no longer needs the `gh` binary | `node --test` → pass 2 / fail 0; two controls go red |
 | 4 | `test.yml`: `actions: read` + `GITHUB_TOKEN` on the guard step | `js-yaml` parse check, this turn |
 | 5 | false red-proof note corrected in the test file | re-run shows keep-alive passes |
+
+---
+
+## 5. The one step that is not mine — and what it costs to leave it
+
+`Bump gate-kit` got further on the second dispatch and then stopped somewhere I cannot reach:
+
+| dispatch | result |
+|---|---|
+| 34525853766 (before the fallback) | `NODE_AUTH_TOKEN:` blank → `npm error 401 … authentication token not provided` |
+| 34526484870 (after the fallback) | `NODE_AUTH_TOKEN: ***` → `npm error 403 permission_denied: read_package` |
+
+401 → 403 means the token is now real and authenticated; what is missing is that the
+**`@predivo-gmbh/gate-kit` package does not grant the ScoutCopilot repository read access.**
+My GitHub token carries `delete_repo, gist, read:org, repo, workflow` — no `read:packages` — so
+`GET orgs/Predivo-GmbH/packages/npm/gate-kit` answers 404 for me and I cannot grant it or read
+the setting.
+
+Two ways out, and the first is better:
+
+1. **Grant the package Actions access to this repository.** Org packages → `gate-kit` → package
+   settings → *Manage Actions access* → add `Predivo-GmbH/ScoutCopilot` with Read. One toggle,
+   no credential to store or rotate, and `secrets.GITHUB_TOKEN` then works permanently.
+2. Set a non-empty `PACKAGES_READ_TOKEN` (a PAT with `read:packages`). This is what the other
+   five products do — and it is a sixth copy of a credential, which is the shape recorded in
+   `feedback_one_password_became_26_copies_2026_09_05.md`.
+
+Either way, re-run `Bump gate-kit` with version `0.5.1` afterwards.
+
+**Until then:** the *"Nothing may sit ready to land"* guard stays red three times a day, and
+ScoutCopilot remains the one product in the fleet where a finished fix can sit unlanded and
+nothing says so — which is exactly what happened on 2026-09-09 and is why Roger had to be the
+one to notice. The guard now fails with that sentence and the fix instructions instead of a
+`MODULE_NOT_FOUND` stack, so the red is actionable while it waits.
