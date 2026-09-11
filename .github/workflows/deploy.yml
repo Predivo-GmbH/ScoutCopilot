@@ -95,7 +95,11 @@ jobs:
         with:
           node-version: 22
       - name: Dependency audit (blocking at high)
-        run: npm audit --audit-level=high
+        # --omit=dev: PRODUCTION dependencies only. A dev-only advisory (build tooling, scaffolding
+        # CLIs) never reaches a customer, so it must not block a release (Roger 2026-09-03). Dev/
+        # build-time deps are covered by the scheduled fleet audit, which files a work item instead of
+        # blocking. Both directions proven: production-monitor/test/audit-scope-both-directions.test.mjs
+        run: npm audit --omit=dev --audit-level=high
       # SAST — code-level security (fleet-hardening Wave 2, proven route from project-starter).
       # A different layer than npm audit (deps) + gitleaks (secrets in git): semgrep reads OUR
       # code for injection / XSS / hardcoded secrets. `.semgrepignore` excludes test/dev files
