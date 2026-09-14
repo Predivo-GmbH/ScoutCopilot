@@ -20,20 +20,22 @@ interface AuthState {
 }
 
 export interface AuthContextValue extends AuthState {
-  /** Traditional email+password sign in */
-  signInWithPassword: (email: string, password: string) => Promise<void>
-  /** Send OTP code for signup (creates user if not exists) */
-  sendOtp: (email: string) => Promise<void>
-  /** Send OTP code for login only (does NOT create user) */
-  sendLoginOtp: (email: string) => Promise<void>
+  /** Traditional email+password sign in. captchaToken is a Cloudflare Turnstile token,
+   *  required once CAPTCHA is enabled in Auth settings (no-op before that). */
+  signInWithPassword: (email: string, password: string, captchaToken?: string) => Promise<void>
+  /** Send OTP code for signup (creates user if not exists). captchaToken as above. */
+  sendOtp: (email: string, captchaToken?: string) => Promise<void>
+  /** Send OTP code for login only (does NOT create user). captchaToken as above. */
+  sendLoginOtp: (email: string, captchaToken?: string) => Promise<void>
   /** Verify an OTP code — returns whether user is new (needs profile setup) */
   verifyOtp: (email: string, token: string) => Promise<{ isNewUser: boolean }>
   /** Check if current user has a completed profile (full_name set) */
   hasCompletedProfile: () => boolean
   /** Set password + name on authenticated user (post-OTP signup) */
   completeProfile: (password: string, fullName: string) => Promise<void>
-  /** Send password reset email (magic link) */
-  resetPassword: (email: string) => Promise<void>
+  /** Send password reset email (magic link). captchaToken required once CAPTCHA is
+   *  enabled (no-op before). */
+  resetPassword: (email: string, captchaToken?: string) => Promise<void>
   /** Update password (used on /reset-password with active session) */
   updatePassword: (password: string) => Promise<void>
   /** Delete the current user's account */
@@ -128,27 +130,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ── Auth methods ──────────────────────────────────────────────────────
 
-  const signInWithPassword = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+  const signInWithPassword = useCallback(async (email: string, password: string, captchaToken?: string) => {
+    // captchaToken is threaded through to GoTrue's /token endpoint. It is IGNORED by the
+    // server until CAPTCHA is enabled in the project's Auth settings, so passing it (or not)
+    // is a no-op today — which is exactly what makes shipping this client change outage-safe.
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+      options: captchaToken ? { captchaToken } : undefined,
+    })
     if (error) throw error
   }, [])
 
-  const sendOtp = useCallback(async (email: string) => {
+  const sendOtp = useCallback(async (email: string, captchaToken?: string) => {
     const lang = i18n.language || window.location.pathname.split('/')[1] || 'en'
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: true, emailRedirectTo: `${window.location.origin}/${lang}/dashboard` },
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: `${window.location.origin}/${lang}/dashboard`,
+        ...(captchaToken ? { captchaToken } : {}),
+      },
     })
     if (error) throw error
   }, [i18n.language])
 
-  const sendLoginOtp = useCallback(async (email: string) => {
+  const sendLoginOtp = useCallback(async (email: string, captchaToken?: string) => {
     // shouldCreateUser: false — only sends OTP if account exists
     // Supabase returns 200 regardless (prevents email enumeration)
+    //
+    // captchaToken guards the /otp endpoint against the abuse this method enabled: anyone
+    // could POST here and make ScoutCopilot email a login code to any account holder. It is
+    // checked by the server ONLY once CAPTCHA is enabled in Auth settings, so it is a no-op
+    // until that switch is flipped (Roger's / a management-authorised session's call).
     const lang = i18n.language || window.location.pathname.split('/')[1] || 'en'
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/${lang}/dashboard` },
+      options: {
+        shouldCreateUser: false,
+        emailRedirectTo: `${window.location.origin}/${lang}/dashboard`,
+        ...(captchaToken ? { captchaToken } : {}),
+      },
     })
     if (error) throw error
   }, [i18n.language])
@@ -183,10 +205,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return !!state.user.user_metadata?.full_name
   }, [state.user])
 
-  const resetPassword = useCallback(async (email: string) => {
+  const resetPassword = useCallback(async (email: string, captchaToken?: string) => {
+    // captchaToken guards the /recover endpoint (also captcha-protected project-wide);
+    // no-op until CAPTCHA is enabled server-side.
     const lang = i18n.language || window.location.pathname.split('/')[1] || 'en'
     const redirectTo = `${window.location.origin}/${lang}/reset-password`
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo,
+      ...(captchaToken ? { captchaToken } : {}),
+    })
     if (error) throw error
   }, [i18n.language])
 
