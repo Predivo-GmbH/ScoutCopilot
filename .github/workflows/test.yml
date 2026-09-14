@@ -129,6 +129,12 @@ jobs:
           # Without a token the repository is private and the call 404s, which would read as
           # "no rotation ever happened" - a false alarm on a credential question.
           GITHUB_TOKEN: ${{ github.token }}
+          # the-leaked-mail-password-is-dead.test.mjs asks the production project for the SHA-256
+          # DIGEST of METANET_SMTP_PASS (Supabase stores function secrets write-only, so a digest
+          # is all that comes back) and asserts it is no longer the value that was printed into a
+          # chat on 2026-09-09. Without a token it cannot tell, and it exits 1 saying so rather
+          # than passing quietly - so the token has to be here or this step goes red.
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
           set -e
           shopt -s nullglob
