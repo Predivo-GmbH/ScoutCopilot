@@ -4,7 +4,14 @@
   Header set Referrer-Policy "strict-origin-when-cross-origin"
   Header set Permissions-Policy "camera=(), microphone=(), geolocation=()"
   Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
-  Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-G9SM0lBhv0poELF/0BMjMAeCexCDay+pwxZiCw9cZLg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://api.stripe.com https://*.ingest.de.sentry.io https://*.sentry.io; font-src 'self'; frame-src 'self'; object-src 'none'; manifest-src 'self'; frame-ancestors 'self';"
+  # https://challenges.cloudflare.com in BOTH script-src and frame-src is what lets the
+  # Cloudflare Turnstile widget load at all: Turnstile pulls turnstile/v0/api.js (script-src)
+  # and then renders the challenge inside an IFRAME (frame-src). Miss either one and the widget
+  # is silently blocked while the deploy's bundle assertion still PASSES — the site key is in
+  # the JS, every monitor is green, and every customer is locked out the moment captcha is
+  # enforced server-side. A hash in script-src only disables 'unsafe-inline'; host sources like
+  # this one still apply.
+  Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-G9SM0lBhv0poELF/0BMjMAeCexCDay+pwxZiCw9cZLg=' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://api.stripe.com https://*.ingest.de.sentry.io https://*.sentry.io https://challenges.cloudflare.com; font-src 'self'; frame-src 'self' https://challenges.cloudflare.com; object-src 'none'; manifest-src 'self'; frame-ancestors 'self';"
 </IfModule>
 
 <IfModule mod_dir.c>
