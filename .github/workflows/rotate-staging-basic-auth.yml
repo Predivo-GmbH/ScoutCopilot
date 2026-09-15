@@ -91,7 +91,7 @@ jobs:
               printf 'bye\n'
             } > "$script"
             local rc=0
-            timeout 180 lftp -f "$script" >/dev/null 2>&1 || rc=$?
+            flock -w 1800 /tmp/predivo-fleet-ftp.lock timeout 180 lftp -f "$script" >/dev/null 2>&1 || rc=$?
             rm -f "$script" /tmp/htpasswd.new
             return $rc
           }

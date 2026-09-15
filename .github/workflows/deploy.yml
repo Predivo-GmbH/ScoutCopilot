@@ -285,7 +285,7 @@ jobs:
           n=0
           REMOTE_ID=""
           until [ $n -ge 4 ]; do
-            OUTPUT=$(timeout 90 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" -e "set net:timeout 30; set net:max-retries 2; set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no; cat /httpdocs/.site-id; quit" 2>&1)
+            OUTPUT=$(flock -w 1800 /tmp/predivo-fleet-ftp.lock timeout 90 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" -e "set net:timeout 30; set net:max-retries 2; set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no; cat /httpdocs/.site-id; quit" 2>&1)
             STATUS=$?
             if [ $STATUS -eq 0 ]; then
               REMOTE_ID="$OUTPUT"
@@ -330,7 +330,7 @@ jobs:
           set +e
           n=0
           until [ $n -ge 4 ]; do
-          OUTPUT=$(timeout 420 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
+          OUTPUT=$(flock -w 1800 /tmp/predivo-fleet-ftp.lock timeout 420 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
           set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no
           set ftp:passive-mode yes; set ftp:prefer-epsv no; set net:timeout 30; set net:max-retries 4; set net:persist-retries 4; set net:reconnect-interval-base 8; set mirror:parallel-transfer-count 4
           mirror --reverse --verbose --no-perms \
@@ -364,7 +364,7 @@ jobs:
           set +e
           n=0
           until [ $n -ge 4 ]; do
-          OUTPUT=$(timeout 420 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
+          OUTPUT=$(flock -w 1800 /tmp/predivo-fleet-ftp.lock timeout 420 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
           set ftp:ssl-force yes; set ssl:verify-certificate no; set ftp:ssl-protect-data no
           set ftp:passive-mode yes; set ftp:prefer-epsv no; set net:timeout 30; set net:max-retries 4; set net:persist-retries 4; set net:reconnect-interval-base 8; set mirror:parallel-transfer-count 4
           mirror --reverse --verbose --no-perms \
@@ -436,7 +436,7 @@ jobs:
           set ssl:verify-certificate no; set ftp:ssl-protect-data no
           set ftp:passive-mode yes; set net:timeout 60"
 
-          LIST=$(timeout 180 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
+          LIST=$(flock -w 1800 /tmp/predivo-fleet-ftp.lock timeout 180 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
           $SETTINGS
           find $ASSETS_DIR
           quit
@@ -468,7 +468,7 @@ jobs:
             echo "quit"
           } > "$PROBE_SCRIPT"
 
-          OUT=$(timeout 420 lftp -f "$PROBE_SCRIPT" 2>&1)
+          OUT=$(flock -w 1800 /tmp/predivo-fleet-ftp.lock timeout 420 lftp -f "$PROBE_SCRIPT" 2>&1)
           rm -f "$PROBE_SCRIPT"
 
           PAIRED=$(awk '
@@ -494,7 +494,7 @@ jobs:
             echo "$OLD" | while IFS= read -r f; do echo "rm $f"; done
             echo "quit"
           } > "$DEL_SCRIPT"
-          DEL_OUT=$(timeout 300 lftp -f "$DEL_SCRIPT" 2>&1)
+          DEL_OUT=$(flock -w 1800 /tmp/predivo-fleet-ftp.lock timeout 300 lftp -f "$DEL_SCRIPT" 2>&1)
           rm -f "$DEL_SCRIPT"
           echo "$DEL_OUT"
           echo "Asset prune: deleted $COUNT file(s) older than $DAYS days from $ASSETS_DIR."

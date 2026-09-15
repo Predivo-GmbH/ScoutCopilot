@@ -255,7 +255,7 @@ jobs:
           until [ $n -ge 4 ]; do
             # timeout: kill a hung FTPS control connection so the retry loop can
             # proceed instead of eating the whole job timeout (Metanet lftp hang).
-            if timeout 420 lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" -e "$CMDS"; then
+            if flock -w 1800 /tmp/predivo-fleet-ftp.lock timeout 420 lftp -u "$FTP_USER","$FTP_PASS" "$FTP_HOST" -e "$CMDS"; then
               echo "Staging FTP deploy succeeded (attempt $((n+1)))"; exit 0
             fi
             n=$((n + 1)); echo "::warning::Staging FTP attempt $n failed (transient FTPS data-channel blip — runner-side); retrying in 25s..."; sleep 25
@@ -293,7 +293,7 @@ jobs:
           set ssl:verify-certificate no; set ftp:ssl-protect-data no
           set ftp:passive-mode yes; set net:timeout 60"
 
-          LIST=$(timeout 180 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
+          LIST=$(flock -w 1800 /tmp/predivo-fleet-ftp.lock timeout 180 lftp -u "$FTP_USER,$FTP_PASS" "ftp://$FTP_HOST" <<SCRIPT 2>&1
           $SETTINGS
           find $ASSETS_DIR
           quit
@@ -331,7 +331,7 @@ jobs:
             echo "quit"
           } > "$PROBE_SCRIPT"
 
-          OUT=$(timeout 420 lftp -f "$PROBE_SCRIPT" 2>&1)
+          OUT=$(flock -w 1800 /tmp/predivo-fleet-ftp.lock timeout 420 lftp -f "$PROBE_SCRIPT" 2>&1)
           rm -f "$PROBE_SCRIPT"
 
           # Pair each PROBE: line with the following 213/550 reply; 14-digit UTC
@@ -360,7 +360,7 @@ jobs:
             echo "$OLD" | while IFS= read -r f; do echo "rm $f"; done
             echo "quit"
           } > "$DEL_SCRIPT"
-          DEL_OUT=$(timeout 300 lftp -f "$DEL_SCRIPT" 2>&1)
+          DEL_OUT=$(flock -w 1800 /tmp/predivo-fleet-ftp.lock timeout 300 lftp -f "$DEL_SCRIPT" 2>&1)
           rm -f "$DEL_SCRIPT"
           echo "$DEL_OUT"
           echo "Asset prune: deleted $COUNT file(s) older than $DAYS days from $ASSETS_DIR."
