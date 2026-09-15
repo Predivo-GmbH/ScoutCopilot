@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, useRef, type FormEvent } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -7,6 +7,7 @@ import { useAuth } from './useAuth'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import AuthLayout from '../../components/auth/AuthLayout'
+import TurnstileWidget, { type TurnstileHandle } from '../../components/auth/TurnstileWidget'
 import { friendlyAuthError } from '../../lib/utils'
 
 type Step = 'form' | 'sent'
@@ -17,6 +18,10 @@ export function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  // Turnstile token — no-op until CAPTCHA is enabled server-side; /recover is captcha-protected
+  // project-wide once that switch is flipped, so this form carries a token like the sign-in forms.
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const turnstileRef = useRef<TurnstileHandle>(null)
   const { resetPassword } = useAuth()
 
   async function handleSubmit(e: FormEvent) {
@@ -24,11 +29,12 @@ export function ForgotPasswordPage() {
     setError(null)
     setLoading(true)
     try {
-      await resetPassword(email)
+      await resetPassword(email, captchaToken ?? undefined)
       setStep('sent')
     } catch (err) {
       setError(t(friendlyAuthError(err, 'Failed to send reset email')))
     } finally {
+      turnstileRef.current?.reset()
       setLoading(false)
     }
   }
@@ -65,6 +71,7 @@ export function ForgotPasswordPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="scout@club.com"
             />
+            <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} />
             <Button
               type="submit"
               disabled={loading}

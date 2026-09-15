@@ -1,4 +1,4 @@
-import { useState, useEffect, type FormEvent } from 'react'
+import { useState, useEffect, useRef, type FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
@@ -11,6 +11,7 @@ import { WaitlistForm } from '../waitlist/WaitlistForm'
 import { REGISTRATIONS_OPEN } from '../waitlist/config'
 import OtpInput from '../../components/auth/OtpInput'
 import ResendTimer from '../../components/auth/ResendTimer'
+import TurnstileWidget, { type TurnstileHandle } from '../../components/auth/TurnstileWidget'
 import PasswordStrength from '../../components/auth/PasswordStrength'
 import { getPasswordScore } from '../../components/auth/password-utils'
 import { friendlyAuthError } from '../../lib/utils'
@@ -26,6 +27,10 @@ export function SignupPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  // Cloudflare Turnstile token for the signup email step (Managed mode, invisible for real
+  // users). No-op until CAPTCHA is enabled server-side — see the sign-in bot-protection PR.
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const turnstileRef = useRef<TurnstileHandle>(null)
   const { sendOtp, verifyOtp, completeProfile, hasCompletedProfile } = useAuth()
   const navigate = useLocalizedNavigate()
 
@@ -44,11 +49,12 @@ export function SignupPage() {
     setError(null)
     setLoading(true)
     try {
-      await sendOtp(email)
+      await sendOtp(email, captchaToken ?? undefined)
       setStep('verify')
     } catch (err) {
       setError(t(friendlyAuthError(err, 'Failed to send verification code')))
     } finally {
+      turnstileRef.current?.reset()
       setLoading(false)
     }
   }
@@ -89,7 +95,13 @@ export function SignupPage() {
   }
 
   async function handleResend() {
-    await sendOtp(email)
+    try {
+      await sendOtp(email, captchaToken ?? undefined)
+    } catch (err) {
+      setError(t(friendlyAuthError(err, 'Failed to resend code')))
+    } finally {
+      turnstileRef.current?.reset()
+    }
   }
 
   // Public registration is paused — show the waitlist instead of the signup form.
@@ -146,6 +158,7 @@ export function SignupPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t('auth.signup.emailPlaceholder')}
             />
+            <TurnstileWidget ref={turnstileRef} onToken={setCaptchaToken} />
             <Button
               type="submit"
               disabled={loading}

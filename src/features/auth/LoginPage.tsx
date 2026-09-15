@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, useRef, type FormEvent } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocalizedNavigate } from '../../components/shared/LocalizedLink'
@@ -9,6 +9,7 @@ import { Input } from '../../components/ui/Input'
 import AuthLayout from '../../components/auth/AuthLayout'
 import OtpInput from '../../components/auth/OtpInput'
 import ResendTimer from '../../components/auth/ResendTimer'
+import TurnstileWidget, { type TurnstileHandle } from '../../components/auth/TurnstileWidget'
 import { friendlyAuthError } from '../../lib/utils'
 
 type Tab = 'password' | 'code'
@@ -22,6 +23,14 @@ export function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  // Cloudflare Turnstile tokens for the two sign-in forms. Managed mode solves invisibly for
+  // real users; the token is single-use, so reset() after each submit to fetch a fresh one.
+  // The token is passed to Supabase but only enforced once CAPTCHA is on in Auth settings, so
+  // this is a no-op until that server switch is flipped (outage-safe deploy).
+  const [passwordToken, setPasswordToken] = useState<string | null>(null)
+  const [codeToken, setCodeToken] = useState<string | null>(null)
+  const passwordTurnstileRef = useRef<TurnstileHandle>(null)
+  const codeTurnstileRef = useRef<TurnstileHandle>(null)
   const { signInWithPassword, sendLoginOtp, verifyOtp } = useAuth()
   const navigate = useLocalizedNavigate()
 
@@ -30,11 +39,12 @@ export function LoginPage() {
     setError(null)
     setLoading(true)
     try {
-      await signInWithPassword(email, password)
+      await signInWithPassword(email, password, passwordToken ?? undefined)
       navigate('/dashboard')
     } catch (err) {
       setError(t(friendlyAuthError(err, 'Login failed')))
     } finally {
+      passwordTurnstileRef.current?.reset()
       setLoading(false)
     }
   }
@@ -44,11 +54,12 @@ export function LoginPage() {
     setError(null)
     setLoading(true)
     try {
-      await sendLoginOtp(email)
+      await sendLoginOtp(email, codeToken ?? undefined)
       setCodeStep('verify')
     } catch (err) {
       setError(t(friendlyAuthError(err, 'Failed to send login code')))
     } finally {
+      codeTurnstileRef.current?.reset()
       setLoading(false)
     }
   }
@@ -67,7 +78,13 @@ export function LoginPage() {
   }
 
   async function handleResend() {
-    await sendLoginOtp(email)
+    try {
+      await sendLoginOtp(email, codeToken ?? undefined)
+    } catch (err) {
+      setError(t(friendlyAuthError(err, 'Failed to resend login code')))
+    } finally {
+      codeTurnstileRef.current?.reset()
+    }
   }
 
   function switchTab(t: Tab) {
@@ -137,6 +154,7 @@ export function LoginPage() {
               placeholder={t('auth.passwordLabel')}
             />
           </div>
+          <TurnstileWidget ref={passwordTurnstileRef} onToken={setPasswordToken} />
           <Button
             type="submit"
             disabled={loading}
@@ -169,6 +187,7 @@ export function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="scout@club.com"
           />
+          <TurnstileWidget ref={codeTurnstileRef} onToken={setCodeToken} />
           <Button
             type="submit"
             disabled={loading}
