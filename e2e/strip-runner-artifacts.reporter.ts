@@ -86,9 +86,19 @@ class StripRunnerArtifacts implements Reporter {
         fs.rmSync(attachment.path, { force: true })
       } catch {
         // A file we cannot delete must still not be advertised in the log, so fall through to the
-        // splice: onEnd's directory sweep is the second attempt, and the guard is the third.
+        // scrub: onEnd's directory sweep is the second attempt, and the guard is the third.
       }
-      result.attachments.splice(i, 1)
+      // SCRUB THE ENTRY, NEVER SPLICE IT (2026-09-16). This used to `result.attachments.splice(i, 1)`.
+      // Playwright's html reporter maps each step's attachments back to this array by `indexOf`
+      // and throws "Unexpected, attachment not found" for one that is gone - so every run in which
+      // a test failed once and passed on retry (a screenshot and a trace attached) exited 1 with
+      // every test green and no html report written. predivo Critical Path Tests 35158073946
+      // (2026-09-16 22:31Z): 54 passed, 2 flaky, exit code 1, and the same chain sits in five more
+      // repos. Keeping the SAME object satisfies the index; dropping its path and body keeps the
+      // file out of every reporter; the "_" prefix is what the console reporter skips outright.
+      attachment.path = undefined
+      attachment.body = undefined
+      attachment.name = `_stripped:${attachment.name}`
       this.removed++
     }
   }
