@@ -189,3 +189,30 @@ jobs:
         with:
           name: critical-path-results
           path: playwright-report/
+
+  # THE REFUSAL, ASKED WHERE THE DIFF IS REAL. scripts/check-new-functionality-registered.mjs
+  # compares origin/master...HEAD and refuses a new user-facing thing that arrives with no register
+  # row and no test. It was wired ONLY into deploy.yml (signal ScoutCopilot:e3d0685, 2026-09-17),
+  # which runs on workflow_dispatch from master, so HEAD === origin/master === an EMPTY range: the
+  # gate exited 0 on every production deploy WITHOUT EVER LOOKING. It never blocked and never could.
+  # A pull_request is the only context where "what the product WAS vs what it BECAME" is a non-empty
+  # diff, so the gate has to run HERE. It stays inert on the prod deploy by construction, so moving
+  # the question to the PR loses nothing there and finally makes it able to refuse something.
+  functionality-gate:
+    if: github.event_name == 'pull_request'
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # fetch-depth: 0 so the PR base commit is in local history for the checker to diff
+          # against. The default shallow checkout carries only the merge commit, and the diff
+          # would read as empty — the exact blindness this job exists to end.
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      # No `npm ci`: the checker and its recogniser import only node builtins (fs/path/child_process),
+      # so this job needs neither the private registry nor a browser and stays a fast, cheap gate.
+      - name: Refuse a new functionality that arrives with no row and no test
+        run: node scripts/check-new-functionality-registered.mjs --diff "${{ github.event.pull_request.base.sha }}...HEAD"
