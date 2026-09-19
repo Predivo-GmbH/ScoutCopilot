@@ -170,6 +170,11 @@ jobs:
           echo "FTP auth OK - $(printf '%s\n' "$OUT" | grep -c '') entries at the account root."
 
       - uses: actions/checkout@v5
+        with:
+          # fetch-depth: 0 so the last-production-deploy commit is in local history for the
+          # functionality gate to diff back to. A shallow checkout only holds the tip, which is
+          # exactly the state that let 24 of 30 direct-pushed changes ship unchecked.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v5
         with:
@@ -196,10 +201,59 @@ jobs:
       - name: Coverage
         run: npm run test:coverage
 
+      # Resolve the base the functionality gate diffs against: the commit that was live in
+      # PRODUCTION at the last successful deploy. Without this the checker defaults to
+      # origin/master...HEAD, which on a workflow_dispatch deploy from master is HEAD===origin/master
+      # === an EMPTY range: the gate passed on every deploy and NEVER looked at what it was shipping.
+      # The PR-context gate (test.yml) only ever sees changes that arrive through a pull request;
+      # anything DIRECT-PUSHED to master (24 of the last 30 changes, measured 2026-09-19) reached
+      # production with no gate at all. Diffing from the last production deploy closes that hole: it
+      # checks every commit since we last shipped, however it landed. Fail-closed - an unresolvable
+      # base blocks the deploy rather than silently reverting to the empty-range no-op.
+      - name: Resolve the last production deploy as the functionality-gate base (fail-closed)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          api() {
+            curl -sS --fail-with-body \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}$1"
+          }
+          # Most recent successful workflow_dispatch runs of THIS workflow, newest first.
+          run_ids=$(api "/actions/workflows/deploy.yml/runs?event=workflow_dispatch&status=success&per_page=30" \
+            | jq -r ".workflow_runs[] | select(.id != ${GITHUB_RUN_ID}) | .id")
+          base=""
+          for rid in $run_ids; do
+            # A run counts as a real production deploy only if its 'deploy' job actually concluded
+            # success (a dispatch with confirm != 'deploy' skips that job but the run still reads
+            # 'success'; using its sha would move the base too far forward and skip real commits).
+            concl=$(api "/actions/runs/${rid}/jobs" \
+              | jq -r '.jobs[] | select(.name == "deploy") | .conclusion' | head -1)
+            if [ "$concl" = "success" ]; then
+              base=$(api "/actions/runs/${rid}" | jq -r '.head_sha')
+              break
+            fi
+          done
+          if [ -z "$base" ] || [ "$base" = "null" ]; then
+            echo "::error::Could not resolve a previous successful production deploy to gate against. Blocking (fail-closed) rather than shipping unchecked." >&2
+            exit 1
+          fi
+          if ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+            echo "::error::Last-deploy commit ${base} is not in local history - checkout must use fetch-depth: 0. Blocking (fail-closed)." >&2
+            exit 1
+          fi
+          echo "Functionality gate will diff the last production deploy ${base}...HEAD"
+          echo "FUNCTIONALITY_GATE_BASE=${base}" >> "$GITHUB_ENV"
+
       # Nothing new ships untested (installed 2026-09-17). BLOCKING - never continue-on-error.
       # What counts as a functionality: docs/WHAT-COUNTS-AS-A-FUNCTIONALITY.md
+      # --diff <last-production-deploy>...HEAD so EVERY commit since we last shipped is checked,
+      # whether it arrived through a PR or was pushed straight to master.
       - name: Nothing new shipped without its test (BLOCKING)
-        run: node scripts/check-new-functionality-registered.mjs
+        run: node scripts/check-new-functionality-registered.mjs --diff "${FUNCTIONALITY_GATE_BASE}...HEAD"
 
       - name: Feature Coverage Check
         run: node scripts/check-feature-coverage.mjs
