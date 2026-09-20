@@ -188,7 +188,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: critical-path-results
-          path: playwright-report/
+          path: |
+            playwright-report/
+            !playwright-report/data/**
 
   # THE REFUSAL, ASKED WHERE THE DIFF IS REAL. scripts/check-new-functionality-registered.mjs
   # compares origin/master...HEAD and refuses a new user-facing thing that arrives with no register
