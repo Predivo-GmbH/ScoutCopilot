@@ -11,6 +11,13 @@ on:
   pull_request:
     branches: [master]
   workflow_dispatch:
+  # Called by security-autofix.yml with the exact commit it wants tested before it merges anything
+  # (Roger 2026-10-26). Empty on every other event, where checkout keeps its normal ref.
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        default: ''
 
 # Collapse superseded runs: when several pushes land in a row only the
 # newest commit needs testing. Safe here — these jobs never write to prod.
@@ -71,6 +78,8 @@ jobs:
       PLAYWRIGHT_HOST_PLATFORM_OVERRIDE: ubuntu24.04-x64
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.ref }} # the commit security-autofix.yml asks for; '' = the normal ref
 
       - uses: actions/setup-node@v5
         with:
