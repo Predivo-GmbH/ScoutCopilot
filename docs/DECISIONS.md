@@ -28,7 +28,7 @@
 
 | ID | Date | Decision | Why | Rejected alternative | Decided by | Status |
 |---|---|---|---|---|---|---|
-| D-001 |  |  |  |  |  | active |
+| D-001 | 2026-10-26 | Refresh vulnerable dependencies within their declared ranges and align Vitest and coverage at 4.1.12 | The dependency alarm includes six high findings; compatible package updates repair those dependencies without application changes. Keep Vitest and its coverage provider on the same version | Forced major upgrades and advisory suppression would add compatibility risk or conceal the findings | Codex, under Roger's instruction to finish the workboard repairs | active |
 
 <!--
 Example row, delete when the first real one is added:
