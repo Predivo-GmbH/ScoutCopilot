@@ -51,7 +51,7 @@ env:
 
 jobs:
   critical-path:
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-24.04' }}
     # 25, not 10. MEASURED 2026-09-15 on the shared self-hosted host, one run each:
     # ChannelMover 13m12s, BackOffice 11m30s, BoatBuddy 8m25s, ScoutCopilot 6m35s - and
     # ReplyFlow was KILLED at 10m27s by a 10-minute budget on a suite that had passed in
@@ -211,7 +211,7 @@ jobs:
   # the question to the PR loses nothing there and finally makes it able to refuse something.
   functionality-gate:
     if: github.event_name == 'pull_request'
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-24.04' }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5

@@ -57,7 +57,7 @@ jobs:
     #
     # To put it back on our own machine, change this one line to
     # `${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}`.
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}   # OUR OWN RUNNER SINCE 2026-09-17: the Docker container action below was the only reason this
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-24.04' }}   # OUR OWN RUNNER SINCE 2026-09-17: the Docker container action below was the only reason this
     # job needed a rented one, and it is gone. Roger: CI must not cost anything.
     steps:
       - uses: actions/checkout@v5
