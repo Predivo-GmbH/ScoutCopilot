@@ -23,7 +23,7 @@ jobs:
       && !startsWith(github.head_ref, 'seo/')
       && github.event.pull_request.user.login != 'dependabot[bot]'
       && github.event.pull_request.user.login != 'renovate[bot]'
-    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-24.04' }}
     timeout-minutes: 15
     # A reviewer that cannot run must NOT report success. Until 2026-08-28 a missing key
     # only printed a warning and this job went green in 11 seconds having read nothing, so
