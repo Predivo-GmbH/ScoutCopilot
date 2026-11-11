@@ -336,7 +336,17 @@ jobs:
         run: node scripts/apply-migrations.mjs --project-ref rlcsuqwqzoqjykdiqjye
 
       - name: Install lftp
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+        run: |
+          # lftp: the laptop runner has it; a GitHub machine installs it. 11.11.2026 from ~13:55Z GitHub's machines
+          # could not resolve azure.archive.ubuntu.com and every apt step failed - so a failed install points apt at
+          # archive.ubuntu.com once and tries again. A second failure still fails the step.
+          if ! command -v lftp >/dev/null 2>&1; then
+            if ! { sudo apt-get update -qq && sudo apt-get install -y -qq lftp; }; then
+              echo "apt mirror unreachable - retrying the install via archive.ubuntu.com"
+              sudo sed -i 's#http://azure.archive.ubuntu.com/ubuntu#http://archive.ubuntu.com/ubuntu#g' /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list 2>/dev/null || true
+              sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+            fi
+          fi
 
       - name: Write site-id marker
         run: echo "scoutcopilot" > dist/.site-id
